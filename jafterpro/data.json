@@ -1,43 +1,68 @@
 {
-"secciones": [
-{
-"id": "paisajes",
-"titulo": "Paisajes",
-"fotos": [
-{"url": "https://example.com/paisaje1.jpg", "texto": "Luz del atardecer sobre las montañas", "alt": "Paisaje 1"},
-{"url": "https://example.com/paisaje2.jpg", "texto": "Valle envuelto en neblina", "alt": "Paisaje 2"}
-]
-},
-{
-"id": "viajes",
-"titulo": "Viajes",
-"fotos": [
-{"url": "https://example.com/viaje1.jpg", "texto": "Callejones coloridos", "alt": "Viaje 1"},
-{"url": "https://example.com/viaje2.jpg", "texto": "Mercado bullicioso", "alt": "Viaje 2"}
-]
-},
-{
-"id": "aviones",
-"titulo": "Aviones",
-"fotos": [
-{"url": "https://photos.google.com/search/ChZBw7FhZGlkbyByZWNpZW50ZW1lbnRlIggSBgoEcgIKACjwhMjtoDM%3D/photo/AF1QipOx-J_zm27x1KwjupCZLFSOkToInJVhDppTnSld", "texto": "De la pista al cielo", "alt": "Avion 1"},
-{"url": "https://photos.google.com/search/ChZBw7FhZGlkbyByZWNpZW50ZW1lbnRlIggSBgoEcgIKACjwhMjtoDM%3D/photo/AF1QipPfJJK4N1QlPhwZU-T7BU-3am08Wg7meINawzQ3", "texto": "Siluetas en el bonito atardecer", "alt": "Avion 2"}
-{"url": "https://example.com/avion1.jpg", "texto": "De la pista al cielo", "alt": "Avion 3"},
-{"url": "https://example.com/avion1.jpg", "texto": "De la pista al cielo", "alt": "Avion 4"},
-{"url": "https://example.com/avion1.jpg", "texto": "De la pista al cielo", "alt": "Avion 5"},
-{"url": "https://example.com/avion1.jpg", "texto": "De la pista al cielo", "alt": "Avion 6"},
-{"url": "https://example.com/avion1.jpg", "texto": "De la pista al cielo", "alt": "Avion 7"},  
-]
-},
-{
-"id": "personas",
-"titulo": "Personas",
-"fotos": [
-{"url": "https://example.com/persona1.jpg", "texto": "Mirada que cuenta historias", "alt": "Persona 1"},
-{"url": "https://example.com/persona2.jpg", "texto": "Risa en blanco y negro", "alt": "Persona 2"}
-]
+  "secciones": [
+    {
+      "id": "paisajes",
+      "titulo": "Paisajes",
+      "fotos": [
+        {
+          "url": "https://example.com/paisaje1.jpg",
+          "texto": "Luz del atardecer sobre las montañas",
+          "alt": "Paisaje 1"
+        },
+        {
+          "url": "https://example.com/paisaje2.jpg",
+          "texto": "Valle envuelto en neblina",
+          "alt": "Paisaje 2"
+        }
+      ]
+    },
+    {
+      "id": "viajes",
+      "titulo": "Viajes",
+      "fotos": [
+        {
+          "url": "https://example.com/viaje1.jpg",
+          "texto": "Callejones coloridos",
+          "alt": "Viaje 1"
+        },
+        {
+          "url": "https://example.com/viaje2.jpg",
+          "texto": "Mercado bullicioso",
+          "alt": "Viaje 2"
+        }
+      ]
+    },
+    {
+      "id": "aviones",
+      "titulo": "Aviones",
+      "fotos": [
+        {
+          "url": "https://images.unsplash.com/photo-1519677100203-a0e668c92439",
+          "texto": "Despegue al amanecer",
+          "alt": "Avion 1"
+        },
+        {
+          "url": "https://images.unsplash.com/photo-1504198453319-5ce911bafcde",
+          "texto": "Avión en vuelo sobre las nubes",
+          "alt": "Avion 2"
+        }
+      ]
+    },
+    {
+      "id": "personas",
+      "titulo": "Personas",
+      "fotos": [
+        {
+          "url": "https://example.com/persona1.jpg",
+          "texto": "Mirada que cuenta historias",
+          "alt": "Persona 1"
+        },
+        {
+          "url": "https://example.com/persona2.jpg",
+          "texto": "Risa en blanco y negro",
+          "alt": "Persona 2"
+        }
+      ]
+    }
+  ]
 }
-]
-
-}
-
