@@ -1,8 +1,1 @@
-[build]
-  command = "npm run build"       # O el comando que uses para construir tu sitio
-  publish = "dist"                # Cambia "dist" por tu carpeta de salida (ej. "build", "public")
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
