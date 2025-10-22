@@ -1,0 +1,36 @@
+{
+"secciones": [
+{
+"id": "paisajes",
+"titulo": "Paisajes",
+"fotos": [
+{"url": "https://example.com/paisaje1.jpg", "texto": "Luz del atardecer sobre las montañas", "alt": "Paisaje 1"},
+{"url": "https://example.com/paisaje2.jpg", "texto": "Valle envuelto en neblina", "alt": "Paisaje 2"}
+]
+},
+{
+"id": "viajes",
+"titulo": "Viajes",
+"fotos": [
+{"url": "https://example.com/viaje1.jpg", "texto": "Callejones coloridos", "alt": "Viaje 1"},
+{"url": "https://example.com/viaje2.jpg", "texto": "Mercado bullicioso", "alt": "Viaje 2"}
+]
+},
+{
+"id": "aviones",
+"titulo": "Aviones",
+"fotos": [
+{"url": "https://example.com/avion1.jpg", "texto": "De la pista al cielo", "alt": "Avion 1"},
+{"url": "https://example.com/avion2.jpg", "texto": "Siluetas en el atardecer", "alt": "Avion 2"}
+]
+},
+{
+"id": "personas",
+"titulo": "Personas",
+"fotos": [
+{"url": "https://example.com/persona1.jpg", "texto": "Mirada que cuenta historias", "alt": "Persona 1"},
+{"url": "https://example.com/persona2.jpg", "texto": "Risa en blanco y negro", "alt": "Persona 2"}
+]
+}
+]
+}

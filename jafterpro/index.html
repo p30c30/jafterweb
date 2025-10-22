@@ -1,0 +1,16 @@
+<!DOCTYPE html> 
+<html lang="es"> <head> <meta charset="UTF-8" /> <title>Galería con Alma - Fotografía Inspiradora</title> 
+<meta name="viewport" content="width=device-width, initial-scale=1" /> <link rel="stylesheet" href="css/styles.css" /> </head> <body> <header class="site-header"> 
+<div class="logo" id="home" role="button" aria-label="Ir a inicio" onclick="showHome()">Galería Jafter</div> 
+<nav class="main-nav" aria-label="Secciones"> 
+<button onclick="showSection('paisajes')">Paisajes</button> 
+<button onclick="showSection('viajes')">Viajes</button> 
+<button onclick="showSection('aviones')">Aviones</button> 
+<button onclick="showSection('personas')">Personas</button> 
+<button onclick="showSection('artistica')">Artística</button> 
+</nav> </header> <main id="content" class="container"> <!-- Secciones dinámicas se generan desde data.json --> </main> 
+<div id="modalFoto" class="modal" onclick="hideModal()"> 
+<button class="close" aria-label="Cerrar" onclick="hideModal();event.stopPropagation()">×</button> 
+<img id="modalImg" src="" alt="Foto grande" /> </div> <footer class="site-footer"> 
+<div class="contact-info" id="contact-info" aria-label="Contacto" style="display:none;"> Contacto: <a href="mailto:tuemail@ejemplo.com">tuemail@ejemplo.com</a><br> © 2025 Galería con Alma </div> 
+</footer> <script src="js/main.js"></script> </body> </html>

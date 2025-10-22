@@ -1,0 +1,87 @@
+:root {
+--bg: #0b0b0f;
+--card: #1a1a1f;
+--text: #ffffff;
+--muted: #cbd5e1;
+--accent: #ffc300;
+}
+
+{ box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+margin: 0;
+font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+background: linear-gradient(to bottom, #0b0b0f 0%, #14141a 100%);
+color: var(--text);
+}
+.site-header {
+text-align: center;
+padding: 28px;
+background: #1a1a1f;
+}
+.site-header .logo {
+font-size: 2.5rem;
+font-family: Georgia, serif;
+cursor: pointer;
+user-select: none;
+}
+.main-nav {
+display: flex;
+justify-content: center;
+gap: 14px;
+flex-wrap: wrap;
+margin-top: 12px;
+}
+.main-nav button {
+background: transparent;
+color: #fff;
+border: 1px solid #555;
+padding: 8px 12px;
+border-radius: 6px;
+cursor: pointer;
+}
+.main-nav button:hover { background: rgba(255,255,255,0.08); color: var(--accent); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+.seccion { display: none; margin-top: 20px; }
+.seccion.active { display: block; animation: fadeIn .3s; }
+@keyframes fadeIn { from {opacity:0} to {opacity:1} }
+
+.galeria { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.thumb { background:#222; border-radius: 8px; overflow: hidden; cursor: pointer; }
+.thumb img { width: 100%; height: 120px; object-fit: cover; display: block; }
+.thumb .desc { text-align: center; padding: 6px; font-size: 0.9rem; color: #ddd; }
+
+.modal {
+display: none;
+position: fixed; inset: 0;
+background: rgba(0,0,0,.9);
+align-items: center; justify-content: center;
+z-index: 100;
+}
+.modal.active { display: flex; }
+.modal img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
+
+.close { position: absolute; top: 20px; right: 20px; font-size: 30px; background: transparent; color: #fff; border: 0; cursor: pointer; }
+
+/* Ajustes para móvil */
+@media (max-width: 700px) {
+.site-header { padding: 20px; }
+.site-header .logo { font-size: 2rem; }
+.galeria { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 701px) {
+.galeria { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+}
+.contact-info {
+position: fixed;
+right: 0;
+bottom: 0;
+padding: 12px 20px;
+background: rgba(18,18,36,0.92);
+color: #bbb;
+min-width: 260px;
+text-align: right;
+border-top-left-radius: 12px;
+box-shadow: -2px -2px 12px rgba(0,0,0,.15);
+}
