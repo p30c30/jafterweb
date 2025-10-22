@@ -21,7 +21,7 @@
 "titulo": "Aviones",
 "fotos": [
 {"url": "https://example.com/avion1.jpg", "texto": "De la pista al cielo", "alt": "Avion 1"},
-{"url": "https://example.com/avion2.jpg", "texto": "Siluetas en el atardecer", "alt": "Avion 2"}
+{"url": "https://example.com/avion2.jpg", "texto": "Siluetas en el bonito atardecer", "alt": "Avion 2"}
 ]
 },
 {
@@ -33,4 +33,5 @@
 ]
 }
 ]
+
 }
