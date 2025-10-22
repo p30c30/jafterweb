@@ -1,10 +1,12 @@
 [build]
-  
-  publish = "."                # Cambia "dist" por tu carpeta de salida (ej. "build", "public")
+  publish = "."  # Publica desde jafterpro directamente
+  command = ""   # No hay comando de build
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+
 
 
