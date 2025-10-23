@@ -1,10 +1,10 @@
 // Variable global para almacenar los datos
 let galleryData;
 
-// Cargar datos desde data.json
+// Cargar datos desde ../data.json
 async function loadData() {
   try {
-    const resp = await fetch('data.json');
+    const resp = await fetch('../data.json');
     galleryData = await resp.json();
 
     // Crear la vista principal con las tarjetas de secciones
@@ -168,3 +168,4 @@ if (document.readyState === 'loading') {
 } else {
   loadData();
 }
+
