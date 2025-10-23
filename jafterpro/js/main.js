@@ -27,6 +27,10 @@ function createHomePage() {
     card.className = 'section-card';
     card.innerHTML = `
       <img src="${sec.preview}" alt="${sec.titulo}" />
+              const img = card.querySelector('img');
+        img.onerror = () => {
+            img.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(sec.titulo);
+        };
       <h3>${sec.titulo}</h3>
     `;
     card.onclick = () => showSection(sec.id);
@@ -58,6 +62,10 @@ function createGallerySections() {
       card.innerHTML = `
         <img src="${f.url}" alt="${f.alt || ''}" loading="lazy" />
         <div class="desc">${f.texto}</div>
+                    const imgElem = card.querySelector('img');
+            imgElem.onerror = () => {
+                imgElem.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(f.texto || 'Imagen');
+            };
       `;
       card.onclick = () => showModal(f.url);
       gal.appendChild(card);
@@ -120,3 +128,4 @@ document.addEventListener('keydown', (e) => {
 
 // Cargar datos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', loadData);
+
