@@ -1,72 +1,122 @@
+// Variable global para almacenar los datos
+let galleryData = null;
+
+// Cargar datos desde data.json
 async function loadData() {
-const resp = await fetch('data.json');
-const data = await resp.json();
-
-const content = document.getElementById('content');
-data.secciones.forEach(sec => {
-// Sección completa
-const section = document.createElement('section');
-section.id = sec.id;
-section.className = 'seccion';
-section.innerHTML = <h2>${sec.titulo}</h2><div class="galeria"></div>;
-content.appendChild(section);
-
-// Galería de la sección
-const gal = section.querySelector('.galeria');
-sec.fotos.forEach(f => {
-  const card = document.createElement('div');
-  card.className = 'thumb';
-  card.innerHTML = `<img src="${f.url}" alt="${f.alt || ''}"/><div class="desc">${f.texto}</div>`;
-  card.onclick = () => showModal(f.url);
-  gal.appendChild(card);
-});
-
-});
-
-// Muestra la primera sección por defecto (opcional)
-if (data.secciones.length > 0) {
-showSection(data.secciones.id);
-}
+  try {
+    const resp = await fetch('data.json');
+    galleryData = await resp.json();
+    
+    // Crear la vista principal con las tarjetas de secciones
+    createHomePage();
+    
+    // Crear las secciones de galería (ocultas por defecto)
+    createGallerySections();
+  } catch (error) {
+    console.error('Error cargando datos:', error);
+  }
 }
 
+// Crear la página principal con tarjetas de sección
+function createHomePage() {
+  const cardsContainer = document.getElementById('section-cards');
+  cardsContainer.innerHTML = '';
+  
+  galleryData.secciones.forEach(sec => {
+    const card = document.createElement('div');
+    card.className = 'section-card';
+    card.innerHTML = `
+      <img src="${sec.preview}" alt="${sec.titulo}" />
+      <h3>${sec.titulo}</h3>
+    `;
+    card.onclick = () => showSection(sec.id);
+    cardsContainer.appendChild(card);
+  });
+}
+
+// Crear las secciones de galería
+function createGallerySections() {
+  const content = document.getElementById('content');
+  
+  galleryData.secciones.forEach(sec => {
+    const section = document.createElement('section');
+    section.id = sec.id;
+    section.className = 'seccion';
+    section.innerHTML = `
+      <div class="section-header">
+        <button class="back-btn" onclick="showHome()">← Volver</button>
+        <h2>${sec.titulo}</h2>
+      </div>
+      <div class="galeria"></div>
+    `;
+    
+    // Añadir fotos a la galería
+    const gal = section.querySelector('.galeria');
+    sec.fotos.forEach(f => {
+      const card = document.createElement('div');
+      card.className = 'thumb';
+      card.innerHTML = `
+        <img src="${f.url}" alt="${f.alt || ''}" loading="lazy" />
+        <div class="desc">${f.texto}</div>
+      `;
+      card.onclick = () => showModal(f.url);
+      gal.appendChild(card);
+    });
+    
+    content.appendChild(section);
+  });
+}
+
+// Mostrar la vista principal
 function showHome() {
-document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
-// Regresar al inicio: mostrar el contenido principal
-document.getElementById('content').innerHTML = '';
-// Opcional: recomenzar a cargar desde data.json si quieres reconstruir desde cero
-// Para simplicidad, recargamos la página
-location.reload();
+  // Ocultar todas las secciones
+  document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
+  
+  // Mostrar la vista principal
+  const homeView = document.getElementById('home-view');
+  homeView.style.display = 'block';
+  
+  // Scroll al inicio
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// Mostrar una sección específica
 function showSection(id) {
-document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
-const el = document.getElementById(id);
-if (el) {
-el.classList.add('active');
-window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-// Ocultar la vista de inicio si está visible
-const homeVisible = document.getElementById('home');
-if (homeVisible) homeVisible.style.display = 'none';
+  // Ocultar la vista principal
+  const homeView = document.getElementById('home-view');
+  homeView.style.display = 'none';
+  
+  // Ocultar todas las secciones
+  document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
+  
+  // Mostrar la sección seleccionada
+  const section = document.getElementById(id);
+  if (section) {
+    section.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
+// Mostrar modal con imagen a pantalla completa
 function showModal(src) {
-const modal = document.getElementById('modalFoto');
-const img = document.getElementById('modalImg');
-img.src = src;
-modal.classList.add('active');
+  const modal = document.getElementById('modalFoto');
+  const img = document.getElementById('modalImg');
+  img.src = src;
+  modal.classList.add('active');
 }
 
+// Ocultar modal
 function hideModal() {
-const modal = document.getElementById('modalFoto');
-modal.classList.remove('active');
-const img = document.getElementById('modalImg');
-// Limpiar para liberar memoria
-setTimeout(() => { img.src = ''; }, 200);
+  const modal = document.getElementById('modalFoto');
+  modal.classList.remove('active');
+  const img = document.getElementById('modalImg');
+  setTimeout(() => { img.src = ''; }, 200);
 }
 
+// Event listeners
 document.addEventListener('keydown', (e) => {
-if (e.key === 'Escape') hideModal();
+  if (e.key === 'Escape') hideModal();
 });
 
+// Cargar datos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', loadData);
