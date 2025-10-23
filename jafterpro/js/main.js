@@ -1,20 +1,6 @@
 // Variable global para almacenar los datos
 let galleryData;
 
-// Función para convertir URL de imgbox a thumbnail
-function getImgboxImageUrl(url) {
-  if (!url) return url;
-  // Extraer el código de la URL de imgbox (ej: https://imgbox.com/41ooNtLb)
-  const match = url.match(/imgbox\.com\/([a-zA-Z0-9]+)/);
-  if (match && match[1]) {
-    const code = match[1];
-    // Usar la API de thumbnail de imgbox
-    return `https://thumbs2.imgbox.com/${code}_t.jpg`;
-  }
-  // Si no coincide con el patrón, devolver URL original
-  return url;
-}
-
 // Cargar datos desde data.json
 async function loadData() {
   try {
@@ -34,23 +20,38 @@ async function loadData() {
 // Crear la página principal con tarjetas de sección
 function createHomePage() {
   const cardsContainer = document.getElementById('section-cards');
+  if (!cardsContainer) {
+    console.error('No se encontró el contenedor section-cards');
+    return;
+  }
+  
   cardsContainer.innerHTML = '';
+
+  if (!galleryData || !galleryData.secciones) {
+    console.error('No hay datos de galería');
+    return;
+  }
 
   galleryData.secciones.forEach(sec => {
     const card = document.createElement('div');
     card.className = 'section-card';
+    
     card.innerHTML = `
-      <img src="${getImgboxImageUrl(sec.preview)}" alt="${sec.titulo}" />
+      <img src="${sec.preview}" alt="${sec.titulo}" loading="lazy" />
       <h3>${sec.titulo}</h3>
     `;
     
-    // Manejar error de carga de imagen fuera del template
-    const img = card.querySelector('img');
-    img.onerror = () => {
-      img.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(sec.titulo);
-    };
-
+    // Manejar click en la tarjeta
     card.onclick = () => showSection(sec.id);
+    
+    // Manejar error de carga de imagen
+    const img = card.querySelector('img');
+    if (img) {
+      img.onerror = () => {
+        img.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(sec.titulo);
+      };
+    }
+
     cardsContainer.appendChild(card);
   });
 }
@@ -58,11 +59,19 @@ function createHomePage() {
 // Crear las secciones de galería
 function createGallerySections() {
   const content = document.getElementById('content');
+  if (!content) {
+    console.error('No se encontró el contenedor content');
+    return;
+  }
+
+  if (!galleryData || !galleryData.secciones) {
+    return;
+  }
 
   galleryData.secciones.forEach(sec => {
     const section = document.createElement('section');
     section.id = sec.id;
-    section.className = 'seccion';
+    section.className = 'seccion hidden';
     section.innerHTML = `
       <div class="section-header">
         <button class="back-btn" onclick="showHome()">← Volver</button>
@@ -73,23 +82,29 @@ function createGallerySections() {
 
     // Añadir fotos a la galería
     const gal = section.querySelector('.galeria');
-    sec.fotos.forEach(f => {
-      const card = document.createElement('div');
-      card.className = 'thumb';
-      card.innerHTML = `
-        <img src="${getImgboxImageUrl(f.url)}" alt="${f.alt || ''}" loading="lazy" />
-        <div class="desc">${f.texto}</div>
-      `;
-      
-      // Manejar error de carga de imagen fuera del template
-      const imgElem = card.querySelector('img');
-      imgElem.onerror = () => {
-        imgElem.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(f.texto || 'Imagen');
-      };
+    if (sec.fotos && gal) {
+      sec.fotos.forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'thumb';
+        
+        card.innerHTML = `
+          <img src="${f.url}" alt="${f.alt || f.texto}" loading="lazy" />
+          <div class="desc">${f.texto}</div>
+        `;
+        
+        // Manejar error de carga de imagen
+        const imgElem = card.querySelector('img');
+        if (imgElem) {
+          imgElem.onerror = () => {
+            imgElem.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(f.texto || 'Imagen');
+          };
+        }
 
-      card.onclick = () => showModal(f.url);
-      gal.appendChild(card);
-    });
+        // Manejar click para modal
+        card.onclick = () => showModal(f.url);
+        gal.appendChild(card);
+      });
+    }
 
     content.appendChild(section);
   });
@@ -97,15 +112,29 @@ function createGallerySections() {
 
 // Mostrar la vista principal
 function showHome() {
-  document.getElementById('home-view').classList.remove('hidden');
-  document.querySelectorAll('.seccion').forEach(s => s.classList.add('hidden'));
+  const homeView = document.getElementById('home-view');
+  if (homeView) {
+    homeView.classList.remove('hidden');
+  }
+  
+  document.querySelectorAll('.seccion').forEach(s => {
+    s.classList.add('hidden');
+  });
 }
 
 // Mostrar una sección específica
 function showSection(id) {
-  document.getElementById('home-view').classList.add('hidden');
+  const homeView = document.getElementById('home-view');
+  if (homeView) {
+    homeView.classList.add('hidden');
+  }
+  
   document.querySelectorAll('.seccion').forEach(s => {
-    s.classList.toggle('hidden', s.id !== id);
+    if (s.id === id) {
+      s.classList.remove('hidden');
+    } else {
+      s.classList.add('hidden');
+    }
   });
 }
 
@@ -113,13 +142,29 @@ function showSection(id) {
 function showModal(imgUrl) {
   const modal = document.getElementById('modal');
   const modalImg = document.getElementById('modal-img');
-  modalImg.src = imgUrl;
-  modal.classList.add('active');
+  
+  if (modal && modalImg) {
+    modalImg.src = imgUrl;
+    
+    // Manejar error en modal
+    modalImg.onerror = () => {
+      modalImg.src = 'https://via.placeholder.com/800x600/1a1a1a/FDB813?text=Imagen+no+disponible';
+    };
+    
+    modal.classList.add('active');
+  }
 }
 
 function hideModal() {
-  document.getElementById('modal').classList.remove('active');
+  const modal = document.getElementById('modal');
+  if (modal) {
+    modal.classList.remove('active');
+  }
 }
 
-// Iniciar
-window.addEventListener('DOMContentLoaded', loadData);
+// Iniciar cuando el DOM esté listo
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadData);
+} else {
+  loadData();
+}
