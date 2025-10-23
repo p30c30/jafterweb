@@ -25,8 +25,8 @@
       ]
     },
     {
-      "id": "spoting",
-      "titulo": "Spoting",
+      "id": "spotting",
+      "titulo": "Spotting",
       "preview": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400",
       "fotos": [
         {"url": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800", "texto": "Despegue al atardecer", "alt": "Avion 1"},
@@ -74,3 +74,4 @@
     }
   ]
 }
+
