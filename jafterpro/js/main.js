@@ -1,6 +1,25 @@
 // Variable global para almacenar los datos
 let galleryData = null;
 
+
+// Función para convertir URL de imgbox a URL de imagen directa
+function getImgboxImageUrl(url) {
+  // Si ya es una URL de imagen directa, devolverla
+  if (url.includes('images2.imgbox.com') || url.includes('thumbs2.imgbox.com')) {
+    return url;
+  }
+  
+  // Extraer el código de la URL de imgbox (ej: https://imgbox.com/41ooNtLb)
+  const match = url.match(/imgbox\.com\/([a-zA-Z0-9]+)/);
+  if (match && match[1]) {
+    const code = match[1];
+    // Usar la API de thumbnail de imgbox
+    return `https://thumbs2.imgbox.com/${code}_t.jpg`;
+  }
+  
+  // Si no coincide con el patrón, devolver URL original
+  return url;
+}
 // Cargar datos desde data.json
 async function loadData() {
   try {
@@ -26,8 +45,7 @@ function createHomePage() {
     const card = document.createElement('div');
     card.className = 'section-card';
     card.innerHTML = `
-      <img src="${sec.preview}" alt="${sec.titulo}" />
-              const img = card.querySelector('img');
+            <img src="${getImgboxImageUrl(sec.preview)}" alt="${sec.titulo}" />              const img = card.querySelector('img');
         img.onerror = () => {
             img.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(sec.titulo);
         };
@@ -60,8 +78,7 @@ function createGallerySections() {
       const card = document.createElement('div');
       card.className = 'thumb';
       card.innerHTML = `
-        <img src="${f.url}" alt="${f.alt || ''}" loading="lazy" />
-        <div class="desc">${f.texto}</div>
+                <img src="${getImgboxImageUrl(f.url)}" alt="${f.alt || ''}" loading="lazy" />        <div class="desc">${f.texto}</div>
                     const imgElem = card.querySelector('img');
             imgElem.onerror = () => {
                 imgElem.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(f.texto || 'Imagen');
@@ -109,8 +126,7 @@ function showSection(id) {
 function showModal(src) {
   const modal = document.getElementById('modalFoto');
   const img = document.getElementById('modalImg');
-  img.src = src;
-  modal.classList.add('active');
+    img.src = getImgboxImageUrl(src);  modal.classList.add('active');
 }
 
 // Ocultar modal
@@ -128,4 +144,5 @@ document.addEventListener('keydown', (e) => {
 
 // Cargar datos cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', loadData);
+
 
