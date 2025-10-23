@@ -3,75 +3,104 @@
     {
       "id": "paisajes",
       "titulo": "Paisajes",
-      "preview": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400",
+      "preview": "https://imgbox.com/41ooNtLb",
       "fotos": [
-        {"url": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800", "texto": "Montaña nevada al amanecer", "alt": "Paisaje 1"},
-        {"url": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800", "texto": "Carretera sin fin", "alt": "Paisaje 2"},
-        {"url": "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800", "texto": "Valle verde", "alt": "Paisaje 3"},
-        {"url": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800", "texto": "Atardecer dorado", "alt": "Paisaje 4"},
-        {"url": "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?w=800", "texto": "Bosque encantado", "alt": "Paisaje 5"}
+        {"url": "https://imgbox.com/41ooNtLb", "texto": "Atardecer con faro", "alt": "Paisaje 1"},
+        {"url": "https://imgbox.com/HzC9PLnV", "texto": "Vista panorámica", "alt": "Paisaje 2"},
+        {"url": "https://imgbox.com/vp43NNIT", "texto": "Paisaje natural", "alt": "Paisaje 3"},
+        {"url": "https://imgbox.com/vrQ66AH7", "texto": "Horizonte", "alt": "Paisaje 4"},
+        {"url": "https://imgbox.com/imTZe4Gk", "texto": "Naturaleza", "alt": "Paisaje 5"}
       ]
     },
     {
       "id": "viajes",
       "titulo": "Viajes",
-      "preview": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=400",
+      "preview": "https://imgbox.com/CzJH7eiO",
       "fotos": [
-        {"url": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800", "texto": "Calles de Europa", "alt": "Viaje 1"},
-        {"url": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800", "texto": "Costa tropical", "alt": "Viaje 2"},
-        {"url": "https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800", "texto": "Templo asiático", "alt": "Viaje 3"},
-        {"url": "https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800", "texto": "Mercado local", "alt": "Viaje 4"},
-        {"url": "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=800", "texto": "Aventura urbana", "alt": "Viaje 5"}
+        {"url": "https://imgbox.com/CzJH7eiO", "texto": "Destino", "alt": "Viaje 1"},
+        {"url": "https://imgbox.com/yrlfKPXF", "texto": "Aventura", "alt": "Viaje 2"},
+        {"url": "https://imgbox.com/wfwBxR1m", "texto": "Exploración", "alt": "Viaje 3"},
+        {"url": "https://imgbox.com/M4bIBMek", "texto": "Ruta", "alt": "Viaje 4"},
+        {"url": "https://imgbox.com/W8twnGgR", "texto": "Descubrimiento", "alt": "Viaje 5"}
       ]
     },
     {
       "id": "spotting",
       "titulo": "Spotting",
-      "preview": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400",
+      "preview": "https://imgbox.com/RExFgj7Z",
       "fotos": [
-        {"url": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800", "texto": "Despegue al atardecer", "alt": "Avion 1"},
-        {"url": "https://images.unsplash.com/photo-1520016580927-7f6d80f0e1f4?w=800", "texto": "Cruising altitude", "alt": "Avion 2"},
-        {"url": "https://images.unsplash.com/photo-1556388158-158ea5ccacbd?w=800", "texto": "Avión comercial", "alt": "Avion 3"},
-        {"url": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800", "texto": "Vista desde cabina", "alt": "Avion 4"},
-        {"url": "https://images.unsplash.com/photo-1569629743817-70d8db6c323b?w=800", "texto": "Flota aérea", "alt": "Avion 5"}
+        {"url": "https://imgbox.com/RExFgj7Z", "texto": "Avión en vuelo", "alt": "Spotting 1"},
+        {"url": "https://imgbox.com/VIBtWtiM", "texto": "Despegue", "alt": "Spotting 2"},
+        {"url": "https://imgbox.com/efB0Vg2a", "texto": "Aterrizaje", "alt": "Spotting 3"},
+        {"url": "https://imgbox.com/lzgSEgMs", "texto": "Aeronave", "alt": "Spotting 4"},
+        {"url": "https://imgbox.com/HlmeNfRI", "texto": "Formación", "alt": "Spotting 5"},
+        {"url": "https://imgbox.com/vgIAi8yF", "texto": "Caza militar", "alt": "Spotting 6"},
+        {"url": "https://imgbox.com/NgzHLmVd", "texto": "Helicóptero", "alt": "Spotting 7"},
+        {"url": "https://imgbox.com/ZbJ5GcUn", "texto": "Barco marítimo", "alt": "Spotting 8"},
+        {"url": "https://imgbox.com/VEOMPnWd", "texto": "Embarcación", "alt": "Spotting 9"},
+        {"url": "https://imgbox.com/HnVISJKw", "texto": "Velero", "alt": "Spotting 10"},
+        {"url": "https://imgbox.com/47ECDcRs", "texto": "Transporte aéreo", "alt": "Spotting 11"},
+        {"url": "https://imgbox.com/8FEwLSrY", "texto": "Aeroplano", "alt": "Spotting 12"},
+        {"url": "https://imgbox.com/RNWgMr76", "texto": "Jet", "alt": "Spotting 13"},
+        {"url": "https://imgbox.com/oVKkrBBy", "texto": "Flota aérea", "alt": "Spotting 14"},
+        {"url": "https://imgbox.com/7QN7ikeK", "texto": "Cruising", "alt": "Spotting 15"},
+        {"url": "https://imgbox.com/LVWYnOoE", "texto": "En el cielo", "alt": "Spotting 16"},
+        {"url": "https://imgbox.com/0VUCXiu8", "texto": "Vuelo comercial", "alt": "Spotting 17"},
+        {"url": "https://imgbox.com/tWpWhikh", "texto": "Helicóptero en acción", "alt": "Spotting 18"},
+        {"url": "https://imgbox.com/TSFCDYeQ", "texto": "Nave aérea", "alt": "Spotting 19"},
+        {"url": "https://imgbox.com/oIqAx4pY", "texto": "Vista de cabina", "alt": "Spotting 20"}
       ]
     },
     {
       "id": "calles",
       "titulo": "Calles",
-      "preview": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400",
+      "preview": "https://imgbox.com/JQXSFFkN",
       "fotos": [
-        {"url": "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800", "texto": "Calle de ciudad", "alt": "Calle 1"},
-        {"url": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800", "texto": "Calle nocturna", "alt": "Calle 2"},
-        {"url": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800", "texto": "Calles de Londres", "alt": "Calle 3"},
-        {"url": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800", "texto": "Urbano moderno", "alt": "Calle 4"},
-        {"url": "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800", "texto": "Perspectiva urbana", "alt": "Calle 5"}
+        {"url": "https://imgbox.com/JQXSFFkN", "texto": "Calle urbana", "alt": "Calle 1"},
+        {"url": "https://imgbox.com/v3axNnTa", "texto": "Esquina", "alt": "Calle 2"},
+        {"url": "https://imgbox.com/ADGcLZZo", "texto": "Arquitectura", "alt": "Calle 3"},
+        {"url": "https://imgbox.com/cukZGE74", "texto": "Vida urbana", "alt": "Calle 4"},
+        {"url": "https://imgbox.com/TjSsmERh", "texto": "Ciudad", "alt": "Calle 5"}
       ]
     },
     {
       "id": "personas",
       "titulo": "Personas",
-      "preview": "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=400",
+      "preview": "https://imgbox.com/yzYvVRZ9",
       "fotos": [
-        {"url": "https://images.unsplash.com/photo-1502823403499-6ccfcf4fb453?w=800", "texto": "Retrato espontáneo", "alt": "Persona 1"},
-        {"url": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800", "texto": "Retrato masculino", "alt": "Persona 2"},
-        {"url": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800", "texto": "Sonrisa natural", "alt": "Persona 3"},
-        {"url": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800", "texto": "Mirada profunda", "alt": "Persona 4"},
-        {"url": "https://images.unsplash.com/photo-1504257432389-52343af06ae3?w=800", "texto": "Estilo urbano", "alt": "Persona 5"}
+        {"url": "https://imgbox.com/yzYvVRZ9", "texto": "Retrato", "alt": "Persona 1"},
+        {"url": "https://imgbox.com/dHbTxy88", "texto": "Perfil", "alt": "Persona 2"},
+        {"url": "https://imgbox.com/yQxmNFp2", "texto": "Expresión", "alt": "Persona 3"},
+        {"url": "https://imgbox.com/NS4alC4P", "texto": "Mirada", "alt": "Persona 4"},
+        {"url": "https://imgbox.com/0OlhRaxi", "texto": "Gesto", "alt": "Persona 5"}
       ]
     },
     {
       "id": "artistica",
       "titulo": "Artística",
-      "preview": "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=400",
+      "preview": "https://imgbox.com/Wh6IFMEV",
       "fotos": [
-        {"url": "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=800", "texto": "Colores abstractos", "alt": "Artistica 1"},
-        {"url": "https://images.unsplash.com/photo-1451847251646-8a6c0dd1510c?w=800", "texto": "Texturas urbanas", "alt": "Artistica 2"},
-        {"url": "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=800", "texto": "Geometría natural", "alt": "Artistica 3"},
-        {"url": "https://images.unsplash.com/photo-1481253127861-534498168948?w=800", "texto": "Sombras y luces", "alt": "Artistica 4"},
-        {"url": "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=800", "texto": "Formas minimalistas", "alt": "Artistica 5"}
+        {"url": "https://imgbox.com/Wh6IFMEV", "texto": "Arquitectura", "alt": "Artística 1"},
+        {"url": "https://imgbox.com/fxl6MqEb", "texto": "Composición", "alt": "Artística 2"},
+        {"url": "https://imgbox.com/L0EY3j4f", "texto": "Perspectiva", "alt": "Artística 3"},
+        {"url": "https://imgbox.com/xHY6ITqQ", "texto": "Formas", "alt": "Artística 4"},
+        {"url": "https://imgbox.com/UuFS5PAr", "texto": "Líneas", "alt": "Artística 5"},
+        {"url": "https://imgbox.com/8xIOoo6d", "texto": "Texturas", "alt": "Artística 6"},
+        {"url": "https://imgbox.com/PqfcUMnE", "texto": "Contrastes", "alt": "Artística 7"},
+        {"url": "https://imgbox.com/8s1ZefTz", "texto": "Luces", "alt": "Artística 8"},
+        {"url": "https://imgbox.com/78yqoYJu", "texto": "Sombras", "alt": "Artística 9"},
+        {"url": "https://imgbox.com/zIFp2PAn", "texto": "Detalles", "alt": "Artística 10"},
+        {"url": "https://imgbox.com/JFqCQv74", "texto": "Momento", "alt": "Artística 11"},
+        {"url": "https://imgbox.com/6OWF4vhG", "texto": "Escena", "alt": "Artística 12"},
+        {"url": "https://imgbox.com/Zdsxr737", "texto": "Encuadre", "alt": "Artística 13"},
+        {"url": "https://imgbox.com/KwmL75fF", "texto": "Captura", "alt": "Artística 14"},
+        {"url": "https://imgbox.com/eV2S0qvY", "texto": "Imagen", "alt": "Artística 15"},
+        {"url": "https://imgbox.com/LFB73R1d", "texto": "Visión", "alt": "Artística 16"},
+        {"url": "https://imgbox.com/uVhm4Vnz", "texto": "Enfoque", "alt": "Artística 17"},
+        {"url": "https://imgbox.com/ZbbpZqhM", "texto": "Profundidad", "alt": "Artística 18"},
+        {"url": "https://imgbox.com/MbViIR0Y", "texto": "Belleza", "alt": "Artística 19"},
+        {"url": "https://imgbox.com/HnbXdqoE", "texto": "Arte visual", "alt": "Artística 20"}
       ]
     }
   ]
 }
-
