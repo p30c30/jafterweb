@@ -1,17 +1,11 @@
 // Cargar datos desde data.json
 async function loadData() {
-  try {
-    const resp = await fetch('./data.json');
-    if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
-    const data = await resp.json();
-    createHomePage(data.secciones);
-    createGallerySections(data.secciones);
-  } catch (error) {
-    console.error('Error cargando datos:', error);
-  }
+  const resp = await fetch('./data.json');
+  const data = await resp.json();
+  createHomePage(data.secciones);
+  createGallerySections(data.secciones);
 }
 
-// Crear tarjetas de sección en la vista principal
 function createHomePage(secciones) {
   const container = document.getElementById('section-cards');
   container.innerHTML = '';
@@ -20,32 +14,34 @@ function createHomePage(secciones) {
     const card = document.createElement('div');
     card.className = 'section-card';
     card.innerHTML = `
-      <img src="${sec.preview}" alt="${sec.titulo}" loading="lazy" />
+      <img src="${sec.preview}" alt="${sec.titulo}" />
       <h3>${sec.titulo}</h3>
     `;
-
     card.addEventListener('click', () => {
       showSection(sec.id);
     });
-
     container.appendChild(card);
   });
 }
 
-// Crear las secciones de galería con miniaturas
 function createGallerySections(secciones) {
+  const container = document.getElementById('gallery-sections');
+  container.innerHTML = '';
+
   secciones.forEach(sec => {
     const sectionDiv = document.createElement('div');
-    sectionDiv.className = 'gallery-section';
+    sectionDiv.className = 'seccion hidden';
     sectionDiv.id = sec.id;
-    sectionDiv.style.display = 'none';
 
-    const title = document.createElement('h2');
-    title.textContent = sec.titulo;
-    sectionDiv.appendChild(title);
+    const header = document.createElement('div');
+    header.className = 'section-header';
+    header.innerHTML = `
+      <button class="back-btn" onclick="goHome()">← Volver</button>
+      <h2>${sec.titulo}</h2>
+    `;
 
     const gallery = document.createElement('div');
-    gallery.className = 'gallery';
+    gallery.className = 'galeria';
 
     sec.fotos.forEach(f => {
       const card = document.createElement('div');
@@ -54,8 +50,6 @@ function createGallerySections(secciones) {
       const img = document.createElement('img');
       img.src = f.url;
       img.alt = f.texto;
-      img.loading = 'lazy';
-
       img.addEventListener('click', () => {
         showModal(f.url);
       });
@@ -69,43 +63,36 @@ function createGallerySections(secciones) {
       gallery.appendChild(card);
     });
 
+    sectionDiv.appendChild(header);
     sectionDiv.appendChild(gallery);
-    document.body.appendChild(sectionDiv);
+    container.appendChild(sectionDiv);
   });
 }
 
-// Mostrar una sección específica
-function showSection(sectionId) {
-  document.querySelectorAll('.gallery-section').forEach(sec => {
-    sec.style.display = 'none';
-  });
-
-  const target = document.getElementById(sectionId);
-  if (target) {
-    target.style.display = 'block';
-    window.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
-  }
+function showSection(id) {
+  document.getElementById('home-view').classList.add('hidden');
+  document.querySelectorAll('.seccion').forEach(sec => sec.classList.add('hidden'));
+  const target = document.getElementById(id);
+  if (target) target.classList.remove('hidden');
 }
 
-// Mostrar el modal con imagen ampliada
-function showModal(imgUrl) {
+function goHome() {
+  document.getElementById('home-view').classList.remove('hidden');
+  document.querySelectorAll('.seccion').forEach(sec => sec.classList.add('hidden'));
+}
+
+function showModal(url) {
   const modal = document.getElementById('modal');
   const modalImg = document.getElementById('modal-img');
-  if (modal && modalImg) {
-    modalImg.src = imgUrl;
-    modal.classList.add('active');
-  }
+  modalImg.src = url;
+  modal.classList.add('active');
 }
 
-// Ocultar el modal
 function hideModal() {
   const modal = document.getElementById('modal');
   const modalImg = document.getElementById('modal-img');
-  if (modal && modalImg) {
-    modal.classList.remove('active');
-    modalImg.src = '';
-  }
+  modal.classList.remove('active');
+  modalImg.src = '';
 }
 
-// Iniciar la carga
 loadData();
