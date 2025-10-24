@@ -3,13 +3,12 @@
     {
       "id": "paisajes",
       "titulo": "Paisajes",
-      "preview": "https://i.imgur.com/rqaFbIP.jpeg",
+      "preview": "https://i.imgur.com/rqaPblP.jpeg",
       "fotos": [
-        {"url": "https://i.imgur.com/rqaFbIP.jpeg", "texto": "Faro al atardecer"},
-        {"url": "https://i.imgur.com/ron9n4A.jpeg", "texto": "Costa al atardecer"},
-        {"url": "https://i.imgur.com/4XhtjvY.jpeg", "texto": "Paisaje marino"},
-        {"url": "https://i.imgur.com/vJANLYA.jpeg", "texto": "Vista panorámica"},
-        {"url": "https://i.imgur.com/FT2QeSP.jpeg", "texto": "Naturaleza"}
+        {"url": "https://i.imgur.com/rqaPblP.jpeg", "texto": "Faro al atardecer"},
+        {"url": "https://i.imgur.com/ron9hda.jpeg", "texto": "Costa al atardecer"},
+        {"url": "https://i.imgur.com/4XhrtjvP.jpeg", "texto": "Paisaje marino"},
+        {"url": "https://i.imgur.com/vJdHLYA.jpeg", "texto": "Vista panoramica"}
       ]
     },
     {
@@ -18,46 +17,45 @@
       "preview": "https://i.imgur.com/P6qQVxm.jpeg",
       "fotos": [
         {"url": "https://i.imgur.com/P6qQVxm.jpeg", "texto": "Arquitectura"},
-        {"url": "https://i.imgur.com/f1L4BOS.jpeg", "texto": "Ciudad"},
-        {"url": "https://i.imgur.com/v9RyXII.jpeg", "texto": "Viaje urbano"},
-        {"url": "https://i.imgur.com/MfYWoQO.jpeg", "texto": "Lugar histórico"},
-        {"url": "https://i.imgur.com/hHoH18s.jpeg", "texto": "Destino turístico"}
+        {"url": "https://i.imgur.com/f1L4BDS.jpeg", "texto": "Ciudad"},
+        {"url": "https://i.imgur.com/vQ8yXIT.jpeg", "texto": "Viaje urbano"},
+        {"url": "https://i.imgur.com/NfYwoOO.jpeg", "texto": "Lugar histórico"},
+        {"url": "https://i.imgur.com/hNqH8js.jpeg", "texto": "Destino turístico"}
       ]
     },
     {
       "id": "spotting",
       "titulo": "Spotting",
-      "preview": "https://i.imgur.com/4XnjqvY.jpeg",
+      "preview": "https://i.imgur.com/4Xnjq5V.jpeg",
       "fotos": [
-        {"url": "https://i.imgur.com/4XnjqvY.jpeg", "texto": "Avión en vuelo"},
-        {"url": "https://i.imgur.com/uJANlYA.jpeg", "texto": "Aeronave"},
-        {"url": "https://i.imgur.com/FT9QeSP.jpeg", "texto": "Barco"}
+        {"url": "https://i.imgur.com/4XnjqsV.jpeg", "texto": "Avión en vuelo"},
+        {"url": "https://i.imgur.com/uJA0IYA.jpeg", "texto": "Aeronaves"},
+        {"url": "https://i.imgur.com/FTQsqkP.jpeg", "texto": "Barco"}
       ]
     },
     {
       "id": "calles",
       "titulo": "Calles",
-      "preview": "https://i.imgur.com/fFa88Cb.jpeg",
+      "preview": "https://i.imgur.com/8yTkxwC.jpeg",
       "fotos": [
-        {"url": "https://i.imgur.com/fFa88Cb.jpeg", "texto": "Calle urbana"},
-        {"url": "https://i.imgur.com/lT4U3OS.jpeg", "texto": "Escena callejera"}
+        {"url": "https://i.imgur.com/8yTkxwC.jpeg", "texto": "Calle principal"},
+        {"url": "https://i.imgur.com/kW9dL5S.jpeg", "texto": "Zona urbana"}
       ]
     },
     {
       "id": "personas",
       "titulo": "Personas",
-      "preview": "https://i.imgur.com/dP8yVlj.jpeg",
+      "preview": "https://i.imgur.com/AbDc4QT.jpeg",
       "fotos": [
-        {"url": "https://i.imgur.com/dP8yVlj.jpeg", "texto": "Retrato"}
+        {"url": "https://i.imgur.com/AbDc4QT.jpeg", "texto": "Retrato"}
       ]
     },
     {
       "id": "artistica",
-      "titulo": "Artística",
-      "preview": "https://i.imgur.com/M7vWdQ0.jpeg",
+      "titulo": "Artistica",
+      "preview": "https://i.imgur.com/WbJ7Eft.jpeg",
       "fotos": [
-        {"url": "https://i.imgur.com/M7vWdQ0.jpeg", "texto": "Arte"},
-        {"url": "https://i.imgur.com/hH6H18z.jpeg", "texto": "Composición artística"}
+        {"url": "https://i.imgur.com/WbJ7Eft.jpeg", "texto": "Composición artística"}
       ]
     }
   ]
