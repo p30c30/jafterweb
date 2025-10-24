@@ -47,6 +47,10 @@ body {
   display: block;
 }
 
+.home-view.hidden {
+    display: none;
+  }
+
 .section-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -258,4 +262,5 @@ body {
     font-size: 1.5rem;
   }
 }
+
 
