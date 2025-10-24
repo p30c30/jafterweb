@@ -7,99 +7,57 @@
       "fotos": [
         {"url": "https://i.imgur.com/rqaFbIP.jpeg", "texto": "Faro al atardecer"},
         {"url": "https://i.imgur.com/ron9n4A.jpeg", "texto": "Costa al atardecer"},
-        {"url": "https://i.imgur.com/4XhtjvY.jpeg", "texto": "Puerto industrial"},
-        {"url": "https://i.imgur.com/vJANLYA.jpeg", "texto": "Paisaje 4"},
-        {"url": "https://i.imgur.com/FT2QeSP.jpeg", "texto": "Paisaje 5"},
-        {"url": "https://i.imgur.com/P6qQVxm.jpeg", "texto": "Paisaje 6"},
-        {"url": "https://i.imgur.com/f1L4BOS.jpeg", "texto": "Paisaje 7"},
-        {"url": "https://i.imgur.com/v9RyXII.jpeg", "texto": "Paisaje 8"},
-        {"url": "https://i.imgur.com/MfYWoQO.jpeg", "texto": "Paisaje 9"},
-        {"url": "https://i.imgur.com/hHoH18s.jpeg", "texto": "Paisaje 10"}
+        {"url": "https://i.imgur.com/4XhtjvY.jpeg", "texto": "Paisaje marino"},
+        {"url": "https://i.imgur.com/vJANLYA.jpeg", "texto": "Vista panorámica"},
+        {"url": "https://i.imgur.com/FT2QeSP.jpeg", "texto": "Naturaleza"}
       ]
     },
     {
       "id": "viajes",
       "titulo": "Viajes",
-      "preview": "https://i.imgur.com/HqW7ho.jpeg",
+      "preview": "https://i.imgur.com/P6qQVxm.jpeg",
       "fotos": [
-        {"url": "https://i.imgur.com/HqW7ho.jpeg", "texto": "Viaje 1"},
-        {"url": "https://i.imgur.com/t1TwC1J7.jpeg", "texto": "Viaje 2"},
-        {"url": "https://i.imgur.com/hsVf0lJ.jpeg", "texto": "Viaje 3"},
-        {"url": "https://i.imgur.com/EBxNPTO.jpeg", "texto": "Viaje 4"},
-        {"url": "https://i.imgur.com/QFsAGZk.jpeg", "texto": "Viaje 5"},
-        {"url": "https://i.imgur.com/Zu4v7G7.jpeg", "texto": "Viaje 6"},
-        {"url": "https://i.imgur.com/7OuTMkw.jpeg", "texto": "Viaje 7"},
-        {"url": "https://i.imgur.com/3GFT4kl.jpeg", "texto": "Viaje 8"},
-        {"url": "https://i.imgur.com/JUEDrIy.jpeg", "texto": "Viaje 9"},
-        {"url": "https://i.imgur.com/5EcQEQB.jpeg", "texto": "Viaje 10"}
+        {"url": "https://i.imgur.com/P6qQVxm.jpeg", "texto": "Arquitectura"},
+        {"url": "https://i.imgur.com/f1L4BOS.jpeg", "texto": "Ciudad"},
+        {"url": "https://i.imgur.com/v9RyXII.jpeg", "texto": "Viaje urbano"},
+        {"url": "https://i.imgur.com/MfYWoQO.jpeg", "texto": "Lugar histórico"},
+        {"url": "https://i.imgur.com/hHoH18s.jpeg", "texto": "Destino turístico"}
       ]
     },
     {
       "id": "spotting",
       "titulo": "Spotting",
-      "preview": "https://i.imgur.com/OiX00xp.jpeg",
+      "preview": "https://i.imgur.com/4XnjqvY.jpeg",
       "fotos": [
-        {"url": "https://i.imgur.com/OiX00xp.jpeg", "texto": "Aviación 1"},
-        {"url": "https://i.imgur.com/9v6h6hm.jpeg", "texto": "Aviación 2"},
-        {"url": "https://i.imgur.com/fW3qj62.jpeg", "texto": "Aviación 3"},
-        {"url": "https://i.imgur.com/8hJNUfj.jpeg", "texto": "Aviación 4"},
-        {"url": "https://i.imgur.com/f1di8OS.jpeg", "texto": "Aviación 5"},
-        {"url": "https://i.imgur.com/xjRjyWIT.jpeg", "texto": "Aviación 6"},
-        {"url": "https://i.imgur.com/MFYWkDE.jpeg", "texto": "Aviación 7"},
-        {"url": "https://i.imgur.com/uHQKzBr.jpeg", "texto": "Aviación 8"},
-        {"url": "https://i.imgur.com/RlJVA8M.jpeg", "texto": "Aviación 9"},
-        {"url": "https://i.imgur.com/rlUPkxL.jpeg", "texto": "Aviación 10"}
+        {"url": "https://i.imgur.com/4XnjqvY.jpeg", "texto": "Avión en vuelo"},
+        {"url": "https://i.imgur.com/uJANlYA.jpeg", "texto": "Aeronave"},
+        {"url": "https://i.imgur.com/FT9QeSP.jpeg", "texto": "Barco"}
       ]
     },
     {
       "id": "calles",
       "titulo": "Calles",
-      "preview": "https://i.imgur.com/x9RwRAl.jpeg",
+      "preview": "https://i.imgur.com/fFa88Cb.jpeg",
       "fotos": [
-        {"url": "https://i.imgur.com/x9RwRAl.jpeg", "texto": "Calle 1"},
-        {"url": "https://i.imgur.com/0Tb6I0U.jpeg", "texto": "Calle 2"},
-        {"url": "https://i.imgur.com/DyF7Hn2.jpeg", "texto": "Calle 3"},
-        {"url": "https://i.imgur.com/ZiPD2zC.jpeg", "texto": "Calle 4"},
-        {"url": "https://i.imgur.com/FWVzSi7.jpeg", "texto": "Calle 5"},
-        {"url": "https://i.imgur.com/Jqgd17p.jpeg", "texto": "Calle 6"},
-        {"url": "https://i.imgur.com/qFRO3zk.jpeg", "texto": "Calle 7"},
-        {"url": "https://i.imgur.com/uE7KRpn.jpeg", "texto": "Calle 8"},
-        {"url": "https://i.imgur.com/4KoIkEi.jpeg", "texto": "Calle 9"},
-        {"url": "https://i.imgur.com/pCbzXKV.jpeg", "texto": "Calle 10"}
+        {"url": "https://i.imgur.com/fFa88Cb.jpeg", "texto": "Calle urbana"},
+        {"url": "https://i.imgur.com/lT4U3OS.jpeg", "texto": "Escena callejera"}
       ]
     },
     {
       "id": "personas",
       "titulo": "Personas",
-      "preview": "https://i.imgur.com/dqOwG6w.jpeg",
+      "preview": "https://i.imgur.com/dP8yVlj.jpeg",
       "fotos": [
-        {"url": "https://i.imgur.com/dqOwG6w.jpeg", "texto": "Retrato 1"},
-        {"url": "https://i.imgur.com/LgWYrJO.jpeg", "texto": "Retrato 2"},
-        {"url": "https://i.imgur.com/OmIQ6qr.jpeg", "texto": "Retrato 3"},
-        {"url": "https://i.imgur.com/KEh90BT.jpeg", "texto": "Retrato 4"},
-        {"url": "https://i.imgur.com/cIv0zQ6.jpeg", "texto": "Retrato 5"},
-        {"url": "https://i.imgur.com/RHv4rZr.jpeg", "texto": "Retrato 6"},
-        {"url": "https://i.imgur.com/A1TwxU7.jpeg", "texto": "Retrato 7"},
-        {"url": "https://i.imgur.com/bN0x1tj.jpeg", "texto": "Retrato 8"},
-        {"url": "https://i.imgur.com/3J38jnO.jpeg", "texto": "Retrato 9"},
-        {"url": "https://i.imgur.com/Rm6OFNy.jpeg", "texto": "Retrato 10"}
+        {"url": "https://i.imgur.com/dP8yVlj.jpeg", "texto": "Retrato"}
       ]
     },
     {
       "id": "artistica",
       "titulo": "Artística",
-      "preview": "https://i.imgur.com/HU2sjOe.jpeg",
+      "preview": "https://i.imgur.com/M7vWdQ0.jpeg",
       "fotos": [
-        {"url": "https://i.imgur.com/HU2sjOe.jpeg", "texto": "Arte 1"},
-        {"url": "https://i.imgur.com/WOyD7Ws.jpeg", "texto": "Arte 2"},
-        {"url": "https://i.imgur.com/uY3CxnB.jpeg", "texto": "Arte 3"},
-        {"url": "https://i.imgur.com/DXAXWOv.jpeg", "texto": "Arte 4"},
-        {"url": "https://i.imgur.com/3jPwPkR.jpeg", "texto": "Arte 5"},
-        {"url": "https://i.imgur.com/pFvZ5cH.jpeg", "texto": "Arte 6"},
-        {"url": "https://i.imgur.com/KWQoM0m.jpeg", "texto": "Arte 7"},
-        {"url": "https://i.imgur.com/bpXH6RN.jpeg", "texto": "Arte 8"},
-        {"url": "https://i.imgur.com/ykb0dPS.jpeg", "texto": "Arte 9"},
-        {"url": "https://i.imgur.com/vJadhRD.jpeg", "texto": "Arte 10"}
+        {"url": "https://i.imgur.com/M7vWdQ0.jpeg", "texto": "Arte"},
+        {"url": "https://i.imgur.com/hH6H18z.jpeg", "texto": "Composición artística"}
       ]
     }
   ]
