@@ -8,10 +8,10 @@ async function loadData() {
     if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
     galleryData = await resp.json();
     console.log('Datos cargados correctamente:', galleryData);
-    
+
     // Crear la vista principal con las tarjetas de secciones
     createHomePage();
-    
+
     // Crear las secciones de galería (ocultas por defecto)
     createGallerySections();
   } catch (error) {
@@ -26,31 +26,27 @@ function createHomePage() {
     console.error('No se encontró el contenedor section-cards');
     return;
   }
-  
   cardsContainer.innerHTML = '';
-  
+
   if (!galleryData || !galleryData.secciones) {
     console.error('No hay datos de galería');
     return;
   }
-  
+
   galleryData.secciones.forEach(sec => {
     const card = document.createElement('div');
     card.className = 'section-card';
     card.setAttribute('data-section-id', sec.id);
-    
     card.innerHTML = `
       <img src="${sec.preview}" alt="${sec.titulo}" loading="lazy" />
       <h3>${sec.titulo}</h3>
     `;
-    
-    // Manejar click en la tarjeta
+
     card.addEventListener('click', () => {
       console.log('Click detectado en:', sec.id);
       window.showSection(sec.id);
     });
-    
-    // Manejar error de carga de imagen
+
     const img = card.querySelector('img');
     if (img) {
       img.onerror = () => {
@@ -58,142 +54,74 @@ function createHomePage() {
         img.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(sec.titulo);
       };
     }
-    
+
     cardsContainer.appendChild(card);
   });
 }
 
 // Crear las secciones de galería
 function createGallerySections() {
-  const content = document.getElementById('content');
-  if (!content) {
-    console.error('No se encontró el contenedor content');
-    return;
-  }
-  
-  if (!galleryData || !galleryData.secciones) {
-    console.error('No hay datos de galería para crear secciones');
-    return;
-  }
-  
+  if (!galleryData || !galleryData.secciones) return;
+
   galleryData.secciones.forEach(sec => {
-    const section = document.createElement('section');
-    section.id = sec.id;
-    section.className = 'seccion hidden';
-    
-    section.innerHTML = `
-      <div class="section-header">
-        <button class="back-btn" onclick="window.showHome()">← Volver</button>
-        <h2>${sec.titulo}</h2>
-      </div>
-      <div class="galeria"></div>
-    `;
-    
-    // Añadir fotos a la galería
-    const gal = section.querySelector('.galeria');
-    if (sec.fotos && gal) {
-      sec.fotos.forEach(f => {
-        const card = document.createElement('div');
-        card.className = 'thumb';
-        
-        card.innerHTML = `
-          <img src="${f.url}" alt="${f.alt || f.texto}" loading="lazy" />
-          <div class="desc">${f.texto}</div>
-        `;
-        
-        // Manejar error de carga de imagen
-        const imgElem = card.querySelector('img');
-        if (imgElem) {
-          imgElem.onerror = () => {
-            console.log('Imagen thumb no cargó:', f.url);
-            imgElem.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(f.texto || 'Imagen');
-          };
-        }
-        
-        // Manejar click para modal
-        card.addEventListener('click', () => {
-          console.log('Click en imagen:', f.url);
-          window.showModal(f.url);
-        });
-        
-        gal.appendChild(card);
+    const sectionDiv = document.createElement('div');
+    sectionDiv.className = 'gallery-section';
+    sectionDiv.id = sec.id;
+    sectionDiv.style.display = 'none';
+
+    const title = document.createElement('h2');
+    title.textContent = sec.titulo;
+    sectionDiv.appendChild(title);
+
+    const gallery = document.createElement('div');
+    gallery.className = 'gallery';
+
+    sec.fotos.forEach(f => {
+      const card = document.createElement('div');
+      card.className = 'thumb';
+
+      const img = document.createElement('img');
+      img.src = f.url;
+      img.alt = f.texto;
+      img.loading = 'lazy';
+
+      img.addEventListener('click', () => {
+        showModal(f.url);
       });
-    }
-    
-    content.appendChild(section);
+
+      const desc = document.createElement('div');
+      desc.className = 'desc';
+      desc.textContent = f.texto;
+
+      card.appendChild(img);
+      card.appendChild(desc);
+      gallery.appendChild(card);
+    });
+
+    sectionDiv.appendChild(gallery);
+    document.body.appendChild(sectionDiv);
   });
 }
 
-// Mostrar la vista principal
-window.showHome = function() {
-  console.log('Mostrando home');
-  const homeView = document.getElementById('home-view');
-  if (homeView) {
-    homeView.classList.remove('hidden');
-  }
-  
-  document.querySelectorAll('.seccion').forEach(s => {
-    s.classList.add('hidden');
-  });
-};
-
-// Mostrar una sección específica
-window.showSection = function(id) {
-  console.log('Mostrando sección:', id);
-  const homeView = document.getElementById('home-view');
-  if (homeView) {
-    homeView.classList.add('hidden');
-  }
-  
-  document.querySelectorAll('.seccion').forEach(s => {
-    if (s.id === id) {
-      console.log('Mostrando:', s.id);
-      s.classList.remove('hidden');
-    } else {
-      s.classList.add('hidden');
-    }
-  });
-};
-
-// Modal
-window.showModal = function(imgUrl) {
-  console.log('Abriendo modal con:', imgUrl);
+// Mostrar el modal con imagen ampliada
+function showModal(imgUrl) {
   const modal = document.getElementById('modal');
-  const modalImg = document.getElementById('modalImg');
-  
+  const modalImg = document.getElementById('modal-img');
   if (modal && modalImg) {
     modalImg.src = imgUrl;
-    
-    // Manejar error en modal
-    modalImg.onerror = () => {
-      console.log('Imagen modal no cargó:', imgUrl);
-      modalImg.src = 'https://via.placeholder.com/800x600/1a1a1a/FDB813?text=Imagen+no+disponible';
-    };
-    
     modal.classList.add('active');
   }
-};
-
-window.hideModal = function() {
-  console.log('Cerrando modal');
-  const modal = document.getElementById('modal');
-  if (modal) {
-    modal.classList.remove('active');
-  }
-};
-
-// Iniciar cuando el DOM esté listo
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', loadData);
-} else {
-  loadData();
 }
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("modal");
-  const modalImg = document.getElementById("modal-img");
 
-  
-});
+// Ocultar el modal
+function hideModal() {
+  const modal = document.getElementById('modal');
+  const modalImg = document.getElementById('modal-img');
+  if (modal && modalImg) {
+    modal.classList.remove('active');
+    modalImg.src = '';
+  }
+}
 
-
-
+// Ejecutar carga inicial
+loadData();
