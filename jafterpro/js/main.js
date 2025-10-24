@@ -169,3 +169,10 @@ if (document.readyState === 'loading') {
   loadData();
 }
 
+// Exponer funciones globalmente para onclick handlers
+window.showSection = showSection;
+window.showHome = showHome;
+window.showModal = showModal;
+window.hideModal = hideModal;
+
+
