@@ -5,7 +5,7 @@
       "titulo": "Paisajes",
       "preview": "https://i.ibb.co/B2dNzFNm/P1079676.jpg",
       "fotos": [
-        {"url": "https://i.ibb.co/XxN82M89/P1079676-Mejorado-NR-Editar-5.jpg", "texto": "El mayor velero"},
+        {"url": "https://i.ibb.co/B2dNzFNm/P1079676.jpg", "texto": "El mayor velero"},
         {"url": "https://i.ibb.co/RTFDY6R0/Landscape.jpg", "texto": "Bosque"},
         {"url": "https://i.ibb.co/F4D1ZcfT/Noria.jpg", "texto": "Noria"}
       ]
@@ -28,7 +28,7 @@
       "titulo": "Spotting",
       "preview": "https://i.ibb.co/6cphz9MX/P1109293.jpg",
       "fotos": [
-        {"url": "https://i.ibb.co/4wDyzvq1/P1109293-Mejorado-NR-Editar.jpg", "texto": "Avión Mejorado"},
+        {"url": "https://i.ibb.co/6cphz9MX/P1109293.jpg", "texto": "Avión Mejorado"},
         {"url": "https://i.ibb.co/bMFJzfyV/P1108274.jpg", "texto": "Helicóptero Militar"},
         {"url": "https://i.ibb.co/5hvcF9Ly/P1107336.jpg", "texto": "Carga Aérea"},
         {"url": "https://i.ibb.co/1tVScR2n/P1099143.jpg", "texto": "Boeing Cargo"},
@@ -98,5 +98,6 @@
     }
   ]
 }
+
 
 
