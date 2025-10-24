@@ -5,7 +5,7 @@
       "titulo": "Paisajes",
       "preview": "https://imgur.com/rqaPblP.jpeg",
       "fotos": [
-        {"url": "https://imgur.com/rqaFbIP", "texto": "Faro al atardecer"}, https://imgur.com/rqaFbIP
+        {"url": "https://imgur.com/rqaFbIP", "texto": "Faro al atardecer"},
         {"url": "https://imgur.com/ron9hda", "texto": "Sunset marino"},
         {"url": "https://imgur.com/4XhrtjvP", "texto": "Puerto y horizonte"},
         {"url": "https://imgur.com/rqaPblP", "texto": "Reflejo atardecer"}
@@ -58,4 +58,5 @@
     }
   ]
 }
+
 
