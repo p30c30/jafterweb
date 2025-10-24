@@ -43,7 +43,7 @@ function createHomePage() {
     `;
     
     // Manejar click en la tarjeta
-    card.onclick = () => showSection(sec.id);
+    card.onclick = () => window.showSection(sec.id);
     
     // Manejar error de carga de imagen
     const img = card.querySelector('img');
@@ -102,7 +102,7 @@ function createGallerySections() {
         }
 
         // Manejar click para modal
-        card.onclick = () => showModal(f.url);
+        card.onclick = () => window.showModal(f.url);
         gal.appendChild(card);
       });
     }
@@ -165,6 +165,7 @@ if (document.readyState === 'loading') {
 } else {
   loadData();
 }
+
 
 
 
