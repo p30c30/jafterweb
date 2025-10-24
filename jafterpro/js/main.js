@@ -192,18 +192,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("modal");
   const modalImg = document.getElementById("modal-img");
 
-  document.body.addEventListener("click", (e) => {
-    const target = e.target;
-    if (target.tagName === "IMG" && target.dataset.full) {
-      modal.style.display = "flex";
-      modalImg.src = target.dataset.full;
-    }
-  });
-
-  modal.addEventListener("click", () => {
-    modal.style.display = "none";
-    modalImg.src = "";
-  });
+  
 });
+
 
 
