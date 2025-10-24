@@ -83,8 +83,13 @@ body {
 }
 
 /* Sections */
-.seccion {
+.seccion.hidden {
   display: none;
+}
+
+.seccion {
+  display: block;
+  animation: fadeIn 0.3s;
 }
 
 .seccion.active {
@@ -253,3 +258,4 @@ body {
     font-size: 1.5rem;
   }
 }
+
