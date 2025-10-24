@@ -1,4 +1,5 @@
-// Variable global para almacenar los datos
+
+// Force rebuild// Variable global para almacenar los datos
 let galleryData;
 
 // Cargar datos desde ../data.json
@@ -164,6 +165,7 @@ if (document.readyState === 'loading') {
 } else {
   loadData();
 }
+
 
 
 
