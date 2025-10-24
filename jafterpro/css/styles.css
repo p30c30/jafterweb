@@ -185,8 +185,10 @@ body {
 }
 
 .modal img {
- max-width: 90vw;  max-height: 90vh;
-  object-fit: contain;
+ max-width: 95vw;  object-fit: contain;
+   width: auto;
+   height: auto;
+   max-height: 95vh;
   border-radius: 0;
   box-shadow: 0 0 50px rgba(255, 195, 0, 0.5);
 }
@@ -262,6 +264,7 @@ body {
     font-size: 1.5rem;
   }
 }
+
 
 
 
