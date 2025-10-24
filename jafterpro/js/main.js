@@ -158,7 +158,7 @@ window.showSection = function(id) {
 // Modal
 window.showModal = function(imgUrl) {
   console.log('Abriendo modal con:', imgUrl);
-  const modal = document.getElementById('modalFoto');
+  const modal = document.getElementById('modal');
   const modalImg = document.getElementById('modalImg');
   
   if (modal && modalImg) {
@@ -176,7 +176,7 @@ window.showModal = function(imgUrl) {
 
 window.hideModal = function() {
   console.log('Cerrando modal');
-  const modal = document.getElementById('modalFoto');
+  const modal = document.getElementById('modal');
   if (modal) {
     modal.classList.remove('active');
   }
@@ -188,3 +188,4 @@ if (document.readyState === 'loading') {
 } else {
   loadData();
 }
+
