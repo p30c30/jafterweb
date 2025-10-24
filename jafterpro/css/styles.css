@@ -6,14 +6,22 @@
   --accent: #ffc300;
 }
 
-* { box-sizing: border-box; }
-html, body { height: 100%; }
+* {
+  box-sizing: border-box;
+}
 
-body {
+html, body {
+  height: 100%;
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
   background: linear-gradient(to bottom, #0b0b0f 0%, #14141a 100%);
   color: var(--text);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
 }
 
 /* Header */
@@ -48,8 +56,8 @@ body {
 }
 
 .home-view.hidden {
-    display: none;
-  }
+  display: none;
+}
 
 .section-cards {
   display: grid;
@@ -73,9 +81,8 @@ body {
 
 .section-card img {
   width: 100%;
-  height: 200px;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
-  display: block;
 }
 
 .section-card h3 {
@@ -92,11 +99,6 @@ body {
 }
 
 .seccion {
-  display: block;
-  animation: fadeIn 0.3s;
-}
-
-.seccion.active {
   display: block;
   animation: fadeIn 0.3s;
 }
@@ -124,6 +126,7 @@ body {
   font-size: 1rem;
   font-weight: bold;
   transition: background 0.3s;
+  width: fit-content;
 }
 
 .back-btn:hover {
@@ -156,9 +159,8 @@ body {
 
 .thumb img {
   width: 100%;
-  height: 150px;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
-  display: block;
 }
 
 .thumb .desc {
@@ -185,44 +187,14 @@ body {
 }
 
 .modal img {
-  width: 100vw;
-  height: 100vh;
-  object-fit: contain; /* mantiene proporción sin recortar */
-  border-radius: 0;
-  box-shadow: 0 0 50px rgba(255, 195, 0, 0.5);
-  touch-action: none; /* evita gestos raros en móviles */
-}
-
-/* Modal de imagen ampliada */
-#modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.9);
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-#modal img {
-  max-width: 90vw;
-  max-height: 90vh;
+  max-width: 100vw;
+  max-height: 100vh;
   object-fit: contain;
-  image-rendering: auto;
+  box-shadow: 0 0 50px rgba(255, 195, 0, 0.5);
+  touch-action: none;
 }
 
-/* Estilos responsivos para móviles */
-@media (max-width: 768px) {
-  #modal img {
-    width: 100%;
-    height: auto;
-  }
-}
-
-
+/* Close Button */
 .close {
   position: absolute;
   top: 20px;
@@ -266,47 +238,42 @@ body {
   .site-header {
     padding: 20px;
   }
-  
+
   .site-header .logo {
     font-size: 2rem;
   }
-  
+
   .section-cards {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
   }
-  
+
   .galeria {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
-  
+
   .thumb img {
-    height: 120px;
+    aspect-ratio: 4 / 3;
   }
-  
+
   .section-header {
     flex-direction: column;
     align-items: flex-start;
   }
-  
+
   .section-header h2 {
     font-size: 1.5rem;
   }
+
+  .back-btn {
+    width: 100%;
+    text-align: center;
+  }
 }
-#modal.active {
-  display: flex;
+
+@media (max-width: 480px) {
+  .galeria {
+    grid-template-columns: 1fr;
+  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
