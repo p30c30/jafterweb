@@ -55,7 +55,7 @@
     </main>
     <div id="modal" class="modal" onclick="hideModal()">
         <button class="close" aria-label="Cerrar" onclick="hideModal();event.stopPropagation()">×</button>
-        <img id="modalImg" src="" alt="Foto grande" />
+        <img id="modal-img" src="" alt="Foto grande" />
     </div>
     <footer class="site-footer">
         <div class="contact-info">
@@ -64,6 +64,11 @@
         </div>
     </footer>
     <script src="js/main.js"></script>
+    <!-- Modal para imagen ampliada -->
+<div id="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.9); justify-content: center; align-items: center; z-index: 9999;">
+  <img id="modal-img" src="" alt="Imagen ampliada" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+</div>
 </body>
 </html>
+
 
