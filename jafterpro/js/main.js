@@ -1,16 +1,17 @@
-
-// Force rebuild// Variable global para almacenar los datos
+// Variable global para almacenar los datos
 let galleryData;
 
-// Cargar datos desde ../data.json
+// Cargar datos desde ./data.json
 async function loadData() {
   try {
-    const resp = await fetch('../data.json');
+    const resp = await fetch('./data.json');
+    if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
     galleryData = await resp.json();
-
+    console.log('Datos cargados correctamente:', galleryData);
+    
     // Crear la vista principal con las tarjetas de secciones
     createHomePage();
-
+    
     // Crear las secciones de galería (ocultas por defecto)
     createGallerySections();
   } catch (error) {
@@ -27,15 +28,16 @@ function createHomePage() {
   }
   
   cardsContainer.innerHTML = '';
-
+  
   if (!galleryData || !galleryData.secciones) {
     console.error('No hay datos de galería');
     return;
   }
-
+  
   galleryData.secciones.forEach(sec => {
     const card = document.createElement('div');
     card.className = 'section-card';
+    card.setAttribute('data-section-id', sec.id);
     
     card.innerHTML = `
       <img src="${sec.preview}" alt="${sec.titulo}" loading="lazy" />
@@ -43,16 +45,20 @@ function createHomePage() {
     `;
     
     // Manejar click en la tarjeta
-    card.onclick = () => window.showSection(sec.id);
+    card.addEventListener('click', () => {
+      console.log('Click detectado en:', sec.id);
+      window.showSection(sec.id);
+    });
     
     // Manejar error de carga de imagen
     const img = card.querySelector('img');
     if (img) {
       img.onerror = () => {
+        console.log('Imagen no cargó:', sec.preview);
         img.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(sec.titulo);
       };
     }
-
+    
     cardsContainer.appendChild(card);
   });
 }
@@ -64,23 +70,25 @@ function createGallerySections() {
     console.error('No se encontró el contenedor content');
     return;
   }
-
+  
   if (!galleryData || !galleryData.secciones) {
+    console.error('No hay datos de galería para crear secciones');
     return;
   }
-
+  
   galleryData.secciones.forEach(sec => {
     const section = document.createElement('section');
     section.id = sec.id;
     section.className = 'seccion hidden';
+    
     section.innerHTML = `
       <div class="section-header">
-        <button class="back-btn" onclick="showHome()">← Volver</button>
+        <button class="back-btn" onclick="window.showHome()">← Volver</button>
         <h2>${sec.titulo}</h2>
       </div>
       <div class="galeria"></div>
     `;
-
+    
     // Añadir fotos a la galería
     const gal = section.querySelector('.galeria');
     if (sec.fotos && gal) {
@@ -97,22 +105,29 @@ function createGallerySections() {
         const imgElem = card.querySelector('img');
         if (imgElem) {
           imgElem.onerror = () => {
+            console.log('Imagen thumb no cargó:', f.url);
             imgElem.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(f.texto || 'Imagen');
           };
         }
-
+        
         // Manejar click para modal
-        card.onclick = () => window.showModal(f.url);
+        card.addEventListener('click', () => {
+          console.log('Click en imagen:', f.url);
+          window.showModal(f.url);
+        });
+        
         gal.appendChild(card);
       });
     }
-
+    
     content.appendChild(section);
   });
 }
 
 // Mostrar la vista principal
-window.showHome = function() {  const homeView = document.getElementById('home-view');
+window.showHome = function() {
+  console.log('Mostrando home');
+  const homeView = document.getElementById('home-view');
   if (homeView) {
     homeView.classList.remove('hidden');
   }
@@ -120,44 +135,52 @@ window.showHome = function() {  const homeView = document.getElementById('home-v
   document.querySelectorAll('.seccion').forEach(s => {
     s.classList.add('hidden');
   });
-}
+};
 
 // Mostrar una sección específica
-window.showSection = function(id) {  const homeView = document.getElementById('home-view');
+window.showSection = function(id) {
+  console.log('Mostrando sección:', id);
+  const homeView = document.getElementById('home-view');
   if (homeView) {
     homeView.classList.add('hidden');
   }
   
   document.querySelectorAll('.seccion').forEach(s => {
     if (s.id === id) {
+      console.log('Mostrando:', s.id);
       s.classList.remove('hidden');
     } else {
       s.classList.add('hidden');
     }
   });
-}
+};
 
 // Modal
-window.showModal = function(imgUrl) {  const modal = document.getElementById('modal');
-  const modalImg = document.getElementById('modal-img');
+window.showModal = function(imgUrl) {
+  console.log('Abriendo modal con:', imgUrl);
+  const modal = document.getElementById('modalFoto');
+  const modalImg = document.getElementById('modalImg');
   
   if (modal && modalImg) {
     modalImg.src = imgUrl;
     
     // Manejar error en modal
     modalImg.onerror = () => {
+      console.log('Imagen modal no cargó:', imgUrl);
       modalImg.src = 'https://via.placeholder.com/800x600/1a1a1a/FDB813?text=Imagen+no+disponible';
     };
     
     modal.classList.add('active');
   }
-}
+};
 
-window.hideModal = function() {  const modal = document.getElementById('modal');
+window.hideModal = function() {
+  console.log('Cerrando modal');
+  const modal = document.getElementById('modalFoto');
   if (modal) {
     modal.classList.remove('active');
   }
-}
+};
 
 // Iniciar cuando el DOM esté listo
 if (document.readyState === 'loading') {
@@ -165,10 +188,3 @@ if (document.readyState === 'loading') {
 } else {
   loadData();
 }
-
-
-
-
-
-
-
