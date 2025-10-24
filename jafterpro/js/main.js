@@ -1,69 +1,40 @@
-// Variable global para almacenar los datos
-let galleryData;
-
-// Cargar datos desde ./data.json
+// Cargar datos desde data.json
 async function loadData() {
   try {
     const resp = await fetch('./data.json');
     if (!resp.ok) throw new Error(`HTTP error! status: ${resp.status}`);
-    galleryData = await resp.json();
-    console.log('Datos cargados correctamente:', galleryData);
-
-    // Crear la vista principal con las tarjetas de secciones
-    createHomePage();
-
-    // Crear las secciones de galería (ocultas por defecto)
-    createGallerySections();
+    const data = await resp.json();
+    createHomePage(data.secciones);
+    createGallerySections(data.secciones);
   } catch (error) {
     console.error('Error cargando datos:', error);
   }
 }
 
-// Crear la página principal con tarjetas de sección
-function createHomePage() {
-  const cardsContainer = document.getElementById('section-cards');
-  if (!cardsContainer) {
-    console.error('No se encontró el contenedor section-cards');
-    return;
-  }
-  cardsContainer.innerHTML = '';
+// Crear tarjetas de sección en la vista principal
+function createHomePage(secciones) {
+  const container = document.getElementById('section-cards');
+  container.innerHTML = '';
 
-  if (!galleryData || !galleryData.secciones) {
-    console.error('No hay datos de galería');
-    return;
-  }
-
-  galleryData.secciones.forEach(sec => {
+  secciones.forEach(sec => {
     const card = document.createElement('div');
     card.className = 'section-card';
-    card.setAttribute('data-section-id', sec.id);
     card.innerHTML = `
       <img src="${sec.preview}" alt="${sec.titulo}" loading="lazy" />
       <h3>${sec.titulo}</h3>
     `;
 
     card.addEventListener('click', () => {
-      console.log('Click detectado en:', sec.id);
-      window.showSection(sec.id);
+      showSection(sec.id);
     });
 
-    const img = card.querySelector('img');
-    if (img) {
-      img.onerror = () => {
-        console.log('Imagen no cargó:', sec.preview);
-        img.src = 'https://via.placeholder.com/400x300/1a1a1a/FDB813?text=' + encodeURIComponent(sec.titulo);
-      };
-    }
-
-    cardsContainer.appendChild(card);
+    container.appendChild(card);
   });
 }
 
-// Crear las secciones de galería
-function createGallerySections() {
-  if (!galleryData || !galleryData.secciones) return;
-
-  galleryData.secciones.forEach(sec => {
+// Crear las secciones de galería con miniaturas
+function createGallerySections(secciones) {
+  secciones.forEach(sec => {
     const sectionDiv = document.createElement('div');
     sectionDiv.className = 'gallery-section';
     sectionDiv.id = sec.id;
@@ -103,6 +74,19 @@ function createGallerySections() {
   });
 }
 
+// Mostrar una sección específica
+function showSection(sectionId) {
+  document.querySelectorAll('.gallery-section').forEach(sec => {
+    sec.style.display = 'none';
+  });
+
+  const target = document.getElementById(sectionId);
+  if (target) {
+    target.style.display = 'block';
+    window.scrollTo({ top: target.offsetTop, behavior: 'smooth' });
+  }
+}
+
 // Mostrar el modal con imagen ampliada
 function showModal(imgUrl) {
   const modal = document.getElementById('modal');
@@ -123,5 +107,5 @@ function hideModal() {
   }
 }
 
-// Ejecutar carga inicial
+// Iniciar la carga
 loadData();
