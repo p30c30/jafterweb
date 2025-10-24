@@ -6,26 +6,29 @@
       "preview": "https://imgur.com/rqaPblP.jpeg",
       "fotos": [
         {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Faro al atardecer"},
-        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Costa al atardecer"},
-        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Paisaje marino"}
+        {"url": "https://imgur.com/ron9hda.jpeg", "texto": "Sunset marino"},
+        {"url": "https://imgur.com/4XhrtjvP.jpeg", "texto": "Puerto y horizonte"},
+        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Reflejo atardecer"}
       ]
     },
     {
       "id": "viajes",
       "titulo": "Viajes",
-      "preview": "https://imgur.com/rqaPblP.jpeg",
+      "preview": "https://imgur.com/ron9hda.jpeg",
       "fotos": [
-        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Arquitectura"},
-        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Ciudad"}
+        {"url": "https://imgur.com/ron9hda.jpeg", "texto": "Destino costa"},
+        {"url": "https://imgur.com/4XhrtjvP.jpeg", "texto": "Puerto internacional"},
+        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Viaje arquitectura"}
       ]
     },
     {
       "id": "spotting",
       "titulo": "Spotting",
-      "preview": "https://imgur.com/rqaPblP.jpeg",
+      "preview": "https://imgur.com/4XhrtjvP.jpeg",
       "fotos": [
-        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Avión en vuelo"},
-        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Barco"}
+        {"url": "https://imgur.com/4XhrtjvP.jpeg", "texto": "Barcos mercantes"},
+        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Estructuras portuarias"},
+        {"url": "https://imgur.com/ron9hda.jpeg", "texto": "Embarcaciones"}
       ]
     },
     {
@@ -33,23 +36,24 @@
       "titulo": "Calles",
       "preview": "https://imgur.com/rqaPblP.jpeg",
       "fotos": [
-        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Calle principal"}
+        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Calle principal"},
+        {"url": "https://imgur.com/ron9hda.jpeg", "texto": "Paseo costero"}
       ]
     },
     {
       "id": "personas",
       "titulo": "Personas",
-      "preview": "https://imgur.com/rqaPblP.jpeg",
+      "preview": "https://imgur.com/ron9hda.jpeg",
       "fotos": [
-        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Retrato"}
+        {"url": "https://imgur.com/ron9hda.jpeg", "texto": "Retrato natural"}
       ]
     },
     {
       "id": "artistica",
       "titulo": "Artística",
-      "preview": "https://imgur.com/rqaPblP.jpeg",
+      "preview": "https://imgur.com/4XhrtjvP.jpeg",
       "fotos": [
-        {"url": "https://imgur.com/rqaPblP.jpeg", "texto": "Composición artística"}
+        {"url": "https://imgur.com/4XhrtjvP.jpeg", "texto": "Composición artística"}
       ]
     }
   ]
