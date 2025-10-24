@@ -185,13 +185,12 @@ body {
 }
 
 .modal img {
-   width: auto;
-   height: auto;
- max-width: 90vw;
- max-height: 90vh;
- object-fit: contain;
+  width: 100vw;
+  height: 100vh;
+  object-fit: contain; /* mantiene proporción sin recortar */
   border-radius: 0;
   box-shadow: 0 0 50px rgba(255, 195, 0, 0.5);
+  touch-action: none; /* evita gestos raros en móviles */
 }
 
 .close {
@@ -265,6 +264,7 @@ body {
     font-size: 1.5rem;
   }
 }
+
 
 
 
