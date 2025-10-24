@@ -3,61 +3,95 @@
     {
       "id": "paisajes",
       "titulo": "Paisajes",
-      "preview": "https://i.ibb.co/XX/sample.jpg",
+      "preview": "https://i.ibb.co/B2dNzFNm/P1079676.jpg",
       "fotos": [
-        {"url": "https://i.ibb.co/1/photo1.jpg", "texto": "Paisaje 1"},
-        {"url": "https://i.ibb.co/2/photo2.jpg", "texto": "Paisaje 2"},
-        {"url": "https://i.ibb.co/3/photo3.jpg", "texto": "Paisaje 3"}
+        {"url": "https://i.ibb.co/B2dNzFNm/P1079676.jpg", "texto": "Paisaje"},
+        {"url": "https://i.ibb.co/HDsWNL4j/Brussels-Airlines.jpg", "texto": "Bruselas"},
+        {"url": "https://i.ibb.co/F4D1ZcfT/Noria.jpg", "texto": "Noria"},
+        {"url": "https://i.ibb.co/mVWbP3gs/Metro.jpg", "texto": "Metro"},
+        {"url": "https://i.ibb.co/RTFDY6R0/Landscape.jpg", "texto": "Bosque"},
+        {"url": "https://i.ibb.co/60JWBtLF/Fighter-Jet.jpg", "texto": "Cielo"}
       ]
     },
     {
       "id": "viajes",
       "titulo": "Viajes",
-      "preview": "https://i.ibb.co/YY/sample.jpg",
+      "preview": "https://i.ibb.co/Mxk6vc78/P1102706.jpg",
       "fotos": [
-        {"url": "https://i.ibb.co/4/photo4.jpg", "texto": "Viaje 1"},
-        {"url": "https://i.ibb.co/5/photo5.jpg", "texto": "Viaje 2"},
-        {"url": "https://i.ibb.co/6/photo6.jpg", "texto": "Viaje 3"}
+        {"url": "https://i.ibb.co/Mxk6vc78/P1102706.jpg", "texto": "Viaje 1"},
+        {"url": "https://i.ibb.co/WN6H0jCF/P1082804.jpg", "texto": "Viaje 2"},
+        {"url": "https://i.ibb.co/q302j70s/P1081980.jpg", "texto": "Viaje 3"},
+        {"url": "https://i.ibb.co/7xPShgCr/P1077953.jpg", "texto": "Viaje 4"},
+        {"url": "https://i.ibb.co/XkbCPJGY/P1077897.jpg", "texto": "Viaje 5"},
+        {"url": "https://i.ibb.co/4w4zvGjq/P1071422.jpg", "texto": "Viaje 6"}
       ]
     },
     {
       "id": "spotting",
       "titulo": "Spotting",
-      "preview": "https://i.ibb.co/ZZ/sample.jpg",
+      "preview": "https://i.ibb.co/6cphz9MX/P1109293.jpg",
       "fotos": [
-        {"url": "https://i.ibb.co/7/photo7.jpg", "texto": "Avión 1"},
-        {"url": "https://i.ibb.co/8/photo8.jpg", "texto": "Helicóptero 1"},
-        {"url": "https://i.ibb.co/9/photo9.jpg", "texto": "Barco 1"}
+        {"url": "https://i.ibb.co/6cphz9MX/P1109293.jpg", "texto": "Avión Mejorado"},
+        {"url": "https://i.ibb.co/bMFJzfyV/P1108274.jpg", "texto": "Helicóptero Militar"},
+        {"url": "https://i.ibb.co/5hvcF9Ly/P1107336.jpg", "texto": "Carga Aérea"},
+        {"url": "https://i.ibb.co/1tVScR2n/P1099143.jpg", "texto": "Boeing Cargo"},
+        {"url": "https://i.ibb.co/gZz00tfB/P1098736.jpg", "texto": "Helicóptero Azul"},
+        {"url": "https://i.ibb.co/hF1RszyK/P1098497.jpg", "texto": "Helicóptero Militar"},
+        {"url": "https://i.ibb.co/XkL7hbpM/P1097259.jpg", "texto": "Despegue"},
+        {"url": "https://i.ibb.co/hxH9VWNf/P1097324.jpg", "texto": "Avión Rojo"},
+        {"url": "https://i.ibb.co/cKL00gnx/P1085127.jpg", "texto": "Transporte Militar"},
+        {"url": "https://i.ibb.co/B2shxd8z/P1084920.jpg", "texto": "Helicóptero Amarillo"},
+        {"url": "https://i.ibb.co/G3GbDwGx/P1084034.jpg", "texto": "Carga Aérea 2"},
+        {"url": "https://i.ibb.co/kg5vCN8M/P1079631.jpg", "texto": "Carga Aérea 3"},
+        {"url": "https://i.ibb.co/xKt4Z8hJ/P1079616.jpg", "texto": "Contenedor Aéreo"},
+        {"url": "https://i.ibb.co/hRKLVH6w/P1079614.jpg", "texto": "Avión Azul"},
+        {"url": "https://i.ibb.co/7NBdpjbT/P1079160.jpg", "texto": "Vuelo Matutino"},
+        {"url": "https://i.ibb.co/LDFyx8HX/P1071417.jpg", "texto": "Despegue Matutino"},
+        {"url": "https://i.ibb.co/Z6GFx1DT/P1070216.jpg", "texto": "Avión en Tierra"},
+        {"url": "https://i.ibb.co/Df1GvK4v/P1059253.jpg", "texto": "Helicóptero Acrobático"},
+        {"url": "https://i.ibb.co/QFqNPt0H/P1023136.jpg", "texto": "Helicóptero de Carga"},
+        {"url": "https://i.ibb.co/MxcWTZ63/P1023113.jpg", "texto": "Transporte Pesado"}
       ]
     },
     {
       "id": "calles",
       "titulo": "Calles",
-      "preview": "https://i.ibb.co/AA/sample.jpg",
+      "preview": "https://i.ibb.co/mVWbP3gs/Metro-bnw.jpg",
       "fotos": [
-        {"url": "https://i.ibb.co/10/photo10.jpg", "texto": "Calle 1"},
-        {"url": "https://i.ibb.co/11/photo11.jpg", "texto": "Calle 2"},
-        {"url": "https://i.ibb.co/12/photo12.jpg", "texto": "Calle 3"}
+        {"url": "https://i.ibb.co/mVWbP3gs/Metro-bnw.jpg", "texto": "Metro Urbano"},
+        {"url": "https://i.ibb.co/LX283Drw/JAF08086.jpg", "texto": "Calle 1"},
+        {"url": "https://i.ibb.co/5x46gZJ5/JAF02327.jpg", "texto": "Calle 2"},
+        {"url": "https://i.ibb.co/dCBdR0R/JAF02307.jpg", "texto": "Calle 3"},
+        {"url": "https://i.ibb.co/GQHznBgd/IMGL9025.jpg", "texto": "Arquitectura"}
       ]
     },
     {
       "id": "personas",
       "titulo": "Personas",
-      "preview": "https://i.ibb.co/BB/sample.jpg",
+      "preview": "https://i.ibb.co/C5vFgV0s/IMG-Portrait.jpg",
       "fotos": [
-        {"url": "https://i.ibb.co/13/photo13.jpg", "texto": "Persona 1"},
-        {"url": "https://i.ibb.co/14/photo14.jpg", "texto": "Persona 2"},
-        {"url": "https://i.ibb.co/15/photo15.jpg", "texto": "Persona 3"}
+        {"url": "https://i.ibb.co/C5vFgV0s/IMG-7214.jpg", "texto": "Retrato 1"},
+        {"url": "https://i.ibb.co/fY37TZN7/IMG-3385.jpg", "texto": "Retrato 2"},
+        {"url": "https://i.ibb.co/fYkdV46J/IMG-0371.jpg", "texto": "Retrato 3"},
+        {"url": "https://i.ibb.co/kgFXnMnC/IMGL9011.jpg", "texto": "Personas 1"},
+        {"url": "https://i.ibb.co/b5FJK3y1/IMGL8632.jpg", "texto": "Personas 2"}
       ]
     },
     {
       "id": "artistica",
       "titulo": "Artística",
-      "preview": "https://i.ibb.co/CC/sample.jpg",
+      "preview": "https://i.ibb.co/RTFDY6R0/Artistic-Shot.jpg",
       "fotos": [
-        {"url": "https://i.ibb.co/16/photo16.jpg", "texto": "Arte 1"},
-        {"url": "https://i.ibb.co/17/photo17.jpg", "texto": "Arte 2"},
-        {"url": "https://i.ibb.co/18/photo18.jpg", "texto": "Arte 3"}
+        {"url": "https://i.ibb.co/wNg1VDn4/IMGL8009.jpg", "texto": "Arte Digital"},
+        {"url": "https://i.ibb.co/ds8ZTvRC/IMGL8002.jpg", "texto": "Panorámica"},
+        {"url": "https://i.ibb.co/xSrCqy50/IMGL7437.jpg", "texto": "Composición"},
+        {"url": "https://i.ibb.co/8g67d3X4/IMGL7400.jpg", "texto": "Luz y Sombra"},
+        {"url": "https://i.ibb.co/RTTBM0J8/IMGL6949.jpg", "texto": "Abstracción"},
+        {"url": "https://i.ibb.co/PZ5C3sP5/IMGL6886.jpg", "texto": "Movimiento"},
+        {"url": "https://i.ibb.co/B2xbzdVF/IMGL6866.jpg", "texto": "Espejo"},
+        {"url": "https://i.ibb.co/605Spmcy/IMGL6784.jpg", "texto": "Reflejo"},
+        {"url": "https://i.ibb.co/679JdZpL/IMGL6726.jpg", "texto": "Perspectiva"},
+        {"url": "https://i.ibb.co/0jytJwVB/P1001435.jpg", "texto": "Puesta de Sol"}
       ]
     }
   ]
