@@ -1,43 +1,97 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <title>Galería Jafter - Fotografía Inspiradora</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="css/styles.css" />
-</head>
-<body>
-  <header class="site-header">
-    <div class="logo" id="logoHome" role="button" aria-label="Ir a inicio" onclick="location.reload()">Galería Jafter</div>
-  </header>
+async function loadData() {
+  const resp = await fetch('./data.json');
+  const data = await resp.json();
+  createHomePage(data.secciones);
+  createGallerySections(data.secciones);
+}
 
-  <main id="content" class="container">
-    <!-- Vista principal -->
-    <div id="home-view" class="home-view">
-      <h1 style="text-align: center; margin-bottom: 30px;">Explora mis colecciones fotográficas</h1>
-      <div id="section-cards" class="section-cards"></div>
+function createHomePage(secciones) {
+  const container = document.getElementById('section-cards');
+  container.innerHTML = '';
 
-      <!-- Sección inspiradora -->
-      <div id="inspiration-section">... <!-- tu bloque original aquí --> ...</div>
-    </div>
+  secciones.forEach(sec => {
+    const card = document.createElement('div');
+    card.className = 'section-card';
+    card.innerHTML = `
+      <img src="${sec.preview}" alt="${sec.titulo}" />
+      <h3>${sec.titulo}</h3>
+    `;
+    card.addEventListener('click', () => {
+      showSection(sec.id);
+    });
+    container.appendChild(card);
+  });
+}
 
-    <!-- Secciones dinámicas -->
-    <div id="gallery-sections"></div>
-  </main>
+function createGallerySections(secciones) {
+  const container = document.getElementById('gallery-sections');
+  container.innerHTML = '';
 
-  <!-- Modal -->
-  <div id="modal" class="modal" onclick="hideModal()">
-    <button class="close" aria-label="Cerrar" onclick="hideModal(); event.stopPropagation()">×</button>
-    <img id="modal-img" src="" alt="Foto grande" />
-  </div>
+  secciones.forEach(sec => {
+    const sectionDiv = document.createElement('div');
+    sectionDiv.className = 'seccion hidden';
+    sectionDiv.id = sec.id;
 
-  <footer class="site-footer">
-    <div class="contact-info">
-      Contacto: <a href="mailto:tuemail@ejemplo.com">tuemail@ejemplo.com</a><br />
-      © 2025 Galería Jafter
-    </div>
-  </footer>
+    const header = document.createElement('div');
+    header.className = 'section-header';
+    header.innerHTML = `
+      <button class="back-btn" onclick="goHome()">← Volver</button>
+      <h2>${sec.titulo}</h2>
+    `;
 
-  <script src="js/main.js"></script>
-</body>
-</html>
+    const gallery = document.createElement('div');
+    gallery.className = 'galeria';
+
+    sec.fotos.forEach(f => {
+      const card = document.createElement('div');
+      card.className = 'thumb';
+
+      const img = document.createElement('img');
+      img.src = f.url;
+      img.alt = f.texto;
+      img.addEventListener('click', () => {
+        showModal(f.url);
+      });
+
+      const desc = document.createElement('div');
+      desc.className = 'desc';
+      desc.textContent = f.texto;
+
+      card.appendChild(img);
+      card.appendChild(desc);
+      gallery.appendChild(card);
+    });
+
+    sectionDiv.appendChild(header);
+    sectionDiv.appendChild(gallery);
+    container.appendChild(sectionDiv);
+  });
+}
+
+function showSection(id) {
+  document.getElementById('home-view').classList.add('hidden');
+  document.querySelectorAll('.seccion').forEach(sec => sec.classList.add('hidden'));
+  const target = document.getElementById(id);
+  if (target) target.classList.remove('hidden');
+}
+
+function goHome() {
+  document.getElementById('home-view').classList.remove('hidden');
+  document.querySelectorAll('.seccion').forEach(sec => sec.classList.add('hidden'));
+}
+
+function showModal(url) {
+  const modal = document.getElementById('modal');
+  const modalImg = document.getElementById('modal-img');
+  modalImg.src = url;
+  modal.classList.add('active');
+}
+
+function hideModal() {
+  const modal = document.getElementById('modal');
+  const modalImg = document.getElementById('modal-img');
+  modal.classList.remove('active');
+  modalImg.src = '';
+}
+
+loadData();
