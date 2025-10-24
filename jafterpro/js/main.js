@@ -111,8 +111,7 @@ function createGallerySections() {
 }
 
 // Mostrar la vista principal
-function showHome() {
-  const homeView = document.getElementById('home-view');
+window.showHome = function() {  const homeView = document.getElementById('home-view');
   if (homeView) {
     homeView.classList.remove('hidden');
   }
@@ -123,8 +122,7 @@ function showHome() {
 }
 
 // Mostrar una sección específica
-function showSection(id) {
-  const homeView = document.getElementById('home-view');
+window.showSection = function(id) {  const homeView = document.getElementById('home-view');
   if (homeView) {
     homeView.classList.add('hidden');
   }
@@ -139,8 +137,7 @@ function showSection(id) {
 }
 
 // Modal
-function showModal(imgUrl) {
-  const modal = document.getElementById('modal');
+window.showModal = function(imgUrl) {  const modal = document.getElementById('modal');
   const modalImg = document.getElementById('modal-img');
   
   if (modal && modalImg) {
@@ -155,8 +152,7 @@ function showModal(imgUrl) {
   }
 }
 
-function hideModal() {
-  const modal = document.getElementById('modal');
+window.hideModal = function() {  const modal = document.getElementById('modal');
   if (modal) {
     modal.classList.remove('active');
   }
@@ -169,10 +165,6 @@ if (document.readyState === 'loading') {
   loadData();
 }
 
-// Exponer funciones globalmente para onclick handlers
-window.showSection = showSection;
-window.showHome = showHome;
-window.showModal = showModal;
-window.hideModal = hideModal;
+
 
 
