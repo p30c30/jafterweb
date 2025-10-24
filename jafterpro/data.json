@@ -6,11 +6,8 @@
       "preview": "https://i.ibb.co/B2dNzFNm/P1079676.jpg",
       "fotos": [
         {"url": "https://i.ibb.co/B2dNzFNm/P1079676.jpg", "texto": "Paisaje"},
-        {"url": "https://i.ibb.co/HDsWNL4j/Brussels-Airlines.jpg", "texto": "Bruselas"},
-        {"url": "https://i.ibb.co/F4D1ZcfT/Noria.jpg", "texto": "Noria"},
-        {"url": "https://i.ibb.co/mVWbP3gs/Metro.jpg", "texto": "Metro"},
         {"url": "https://i.ibb.co/RTFDY6R0/Landscape.jpg", "texto": "Bosque"},
-        {"url": "https://i.ibb.co/60JWBtLF/Fighter-Jet.jpg", "texto": "Cielo"}
+        {"url": "https://i.ibb.co/F4D1ZcfT/Noria.jpg", "texto": "Noria"}
       ]
     },
     {
@@ -50,15 +47,17 @@
         {"url": "https://i.ibb.co/Z6GFx1DT/P1070216.jpg", "texto": "Avión en Tierra"},
         {"url": "https://i.ibb.co/Df1GvK4v/P1059253.jpg", "texto": "Helicóptero Acrobático"},
         {"url": "https://i.ibb.co/QFqNPt0H/P1023136.jpg", "texto": "Helicóptero de Carga"},
-        {"url": "https://i.ibb.co/MxcWTZ63/P1023113.jpg", "texto": "Transporte Pesado"}
+        {"url": "https://i.ibb.co/MxcWTZ63/P1023113.jpg", "texto": "Transporte Pesado"},
+        {"url": "https://i.ibb.co/HDsWNL4j/Brussels-Airlines.jpg", "texto": "Brussels Airlines"},
+        {"url": "https://i.ibb.co/60JWBtLF/Fighter-Jet.jpg", "texto": "Fighter Jet"}
       ]
     },
     {
       "id": "calles",
       "titulo": "Calles",
-      "preview": "https://i.ibb.co/mVWbP3gs/Metro-bnw.jpg",
+      "preview": "https://i.ibb.co/mVWbP3gs/Metro.jpg",
       "fotos": [
-        {"url": "https://i.ibb.co/mVWbP3gs/Metro-bnw.jpg", "texto": "Metro Urbano"},
+        {"url": "https://i.ibb.co/mVWbP3gs/Metro.jpg", "texto": "Metro Urbano"},
         {"url": "https://i.ibb.co/LX283Drw/JAF08086.jpg", "texto": "Calle 1"},
         {"url": "https://i.ibb.co/5x46gZJ5/JAF02327.jpg", "texto": "Calle 2"},
         {"url": "https://i.ibb.co/dCBdR0R/JAF02307.jpg", "texto": "Calle 3"},
@@ -70,6 +69,9 @@
       "titulo": "Personas",
       "preview": "https://i.ibb.co/C5vFgV0s/IMG-Portrait.jpg",
       "fotos": [
+        {"url": "https://i.ibb.co/WWYVzr8f/hombre-pasea-perro.jpg", "texto": "Hombre pasea perro"},
+        {"url": "https://i.ibb.co/ksND6wd2/mujer-pasea-calle.jpg", "texto": "Mujer pasea calle"},
+        {"url": "https://i.ibb.co/ycSnR260/mujer-pasea-mural.jpg", "texto": "Mujer pasea mural"},
         {"url": "https://i.ibb.co/C5vFgV0s/IMG-7214.jpg", "texto": "Retrato 1"},
         {"url": "https://i.ibb.co/fY37TZN7/IMG-3385.jpg", "texto": "Retrato 2"},
         {"url": "https://i.ibb.co/fYkdV46J/IMG-0371.jpg", "texto": "Retrato 3"},
@@ -80,7 +82,7 @@
     {
       "id": "artistica",
       "titulo": "Artística",
-      "preview": "https://i.ibb.co/RTFDY6R0/Artistic-Shot.jpg",
+      "preview": "https://i.ibb.co/wNg1VDn4/IMGL8009.jpg",
       "fotos": [
         {"url": "https://i.ibb.co/wNg1VDn4/IMGL8009.jpg", "texto": "Arte Digital"},
         {"url": "https://i.ibb.co/ds8ZTvRC/IMGL8002.jpg", "texto": "Panorámica"},
