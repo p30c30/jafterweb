@@ -1,114 +1,85 @@
-// Carga dinámica del data.json y renderizado de contenido
+// ===== main.js: Refactor minimalista funcional y alineado =====
 
+// Carga datos del JSON y monta interfaz
 async function loadData() {
   try {
-    const resp = await fetch('../data.json');
+    const resp = await fetch('data.json');
     const data = await resp.json();
-    
-    // Elementos del DOM
+
+    // Elementos del modal
     const modal = document.getElementById('modal');
-    const modalImg = document.getElementById('modal-image');
+    const modalImg = document.getElementById('modal-img');
     const modalClose = document.getElementById('modal-close');
-    
-    // Navegar entre secciones desde el home
+
+    // Página principal con tarjetas de sección
     function createHomePage() {
-      const container = document.getElementById('container');
+      const container = document.getElementById('content');
       container.innerHTML = '';
-      
       data.secciones.forEach(sec => {
         const card = document.createElement('div');
-        card.className = 'section-card';
-        
+        card.className = 'card';
         const img = document.createElement('img');
-        img.src = sec.preview || (sec.fotos && sec.fotos[0] ? sec.fotos[0].thumb : '');
+        img.src = sec.preview;
         img.alt = sec.titulo;
-        
         const h3 = document.createElement('h3');
         h3.textContent = sec.titulo;
-        
-        card.appendChild(img);
-        card.appendChild(h3);
-        
-        card.addEventListener('click', () => {
-          createGallerySections([sec]);
-        });
-        
+        card.append(img, h3);
+        card.addEventListener('click', () => createGallerySections(sec));
         container.appendChild(card);
       });
-      
-      // Botón Home no tiene sentido en home
-      document.getElementById('home-btn').style.display = 'none';
     }
-    
-    // Crear las galerías de cada sección
-    function createGallerySections(secciones) {
-      const container = document.getElementById('container');
+
+    // Galerías de las secciones
+    function createGallerySections(sec) {
+      const container = document.getElementById('content');
       container.innerHTML = '';
-      
-      secciones.forEach(sec => {
-        const section = document.createElement('section');
-        section.className = 'gallery-section';
-        
-        const heading = document.createElement('h2');
-        heading.textContent = sec.titulo;
-        section.appendChild(heading);
-        
-        const gallery = document.createElement('div');
-        gallery.className = 'photo-grid';
-        
-        sec.fotos.forEach(foto => {
-          const photoDiv = document.createElement('div');
-          photoDiv.className = 'photo-item';
-          
-          const thumb = document.createElement('img');
-          thumb.src = foto.thumb;
-          thumb.alt = foto.texto || sec.titulo;
-          thumb.loading = 'lazy';
-          
-          photoDiv.appendChild(thumb);
-          
-          // Click en la miniatura abre el modal con la foto en alta
-          photoDiv.addEventListener('click', () => {
-            modalImg.src = foto.alta;
-            modalImg.alt = foto.texto || sec.titulo;
-            modal.style.display = 'flex';
-          });
-          
-          gallery.appendChild(photoDiv);
+      const backBtn = document.createElement('button');
+      backBtn.textContent = '← Volver';
+      backBtn.className = 'back-btn';
+      backBtn.addEventListener('click', createHomePage);
+      container.appendChild(backBtn);
+
+      const h2 = document.createElement('h2');
+      h2.textContent = sec.titulo;
+      container.appendChild(h2);
+
+      const grid = document.createElement('div');
+      grid.className = 'gallery-grid';
+      sec.galerias.forEach(gal => {
+        const item = document.createElement('div');
+        item.className = 'gallery-item';
+        const thumb = document.createElement('img');
+        thumb.src = gal.thumbnail;
+        thumb.alt = gal.texto;
+        const p = document.createElement('p');
+        p.textContent = gal.texto;
+        item.append(thumb, p);
+        item.addEventListener('click', () => {
+          modalImg.src = gal.url;
+          modal.style.display = 'flex';
         });
-        
-        section.appendChild(gallery);
-        container.appendChild(section);
+        grid.appendChild(item);
       });
-      
-      // Mostrar botón Home cuando estás en una galería
-      document.getElementById('home-btn').style.display = 'block';
+      container.appendChild(grid);
     }
-    
+
     // Cerrar modal
     modalClose.addEventListener('click', () => {
       modal.style.display = 'none';
     });
-    
     modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.style.display = 'none';
-      }
+      if (e.target === modal) modal.style.display = 'none';
     });
-    
-    // Botón Home
-    document.getElementById('home-btn').addEventListener('click', createHomePage);
-    
-    // Iniciar en la página de inicio
+
+    // Iniciar
     createHomePage();
-    
-  } catch (error) {
-    console.error('Error cargando data.json:', error);
-    document.getElementById('container').innerHTML = '<p>Error al cargar las imágenes.</p>';
+  } catch (err) {
+    console.error('Error cargando datos:', err);
+    document.getElementById('content').innerHTML = '<p>Error al cargar datos.</p>';
   }
 }
 
-// Iniciar cuando el DOM esté listo
+// Arrancar cuando DOM esté listo
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', loadData);
 } else {
