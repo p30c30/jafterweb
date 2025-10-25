@@ -1,131 +1,116 @@
+// Carga dinámica del data.json y renderizado de contenido
+
 async function loadData() {
   try {
     const resp = await fetch('../data.json');
-    if (!resp.ok) {
-      console.error('Error al cargar data.json:', resp.status);
-      return null;
-    }
     const data = await resp.json();
-    console.log('Datos cargados:', data);
-    return data;
-  } catch (error) {
-    console.error('Error al cargar los datos:', error);
-    return null;
-  }
-}
-
-function createHomePage(secciones) {
-  const container = document.getElementById('gallery-sections');
-  container.innerHTML = '';
-  
-  secciones.forEach(sec => {
-    const card = document.createElement('div');
-    card.className = 'section-card';
     
-    const img = document.createElement('img');
-    img.src = sec.preview || 'images/placeholder.jpg';
-    img.alt = sec.titulo;
+    // Elementos del DOM
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-image');
+    const modalClose = document.getElementById('modal-close');
     
-    const h3 = document.createElement('h3');
-    h3.textContent = sec.titulo;
-    
-    card.appendChild(img);
-    card.appendChild(h3);
-    
-    card.addEventListener('click', () => {
-      window.showSection(sec.id);
-    });
-    
-    container.appendChild(card);
-  });
-}
-
-function createGallerySections(secciones) {
-  const container = document.getElementById('gallery-sections');
-  container.innerHTML = '';
-  
-  secciones.forEach(sec => {
-    const sectionDiv = document.createElement('div');
-    sectionDiv.id = `section-${sec.id}`;
-    sectionDiv.className = 'gallery-section';
-    sectionDiv.style.display = 'none';
-    
-    const backBtn = document.createElement('button');
-    backBtn.className = 'back-btn';
-    backBtn.textContent = '← Volver a la galería';
-    backBtn.addEventListener('click', () => window.showHome());
-    
-    const h2 = document.createElement('h2');
-    h2.textContent = sec.titulo;
-    
-    const grid = document.createElement('div');
-    grid.className = 'photo-grid';
-    
-    if (sec.fotos && Array.isArray(sec.fotos)) {
-      sec.fotos.forEach(foto => {
-        const photoDiv = document.createElement('div');
-        photoDiv.className = 'photo-item';
+    // Navegar entre secciones desde el home
+    function createHomePage() {
+      const container = document.getElementById('container');
+      container.innerHTML = '';
+      
+      data.secciones.forEach(sec => {
+        const card = document.createElement('div');
+        card.className = 'section-card';
         
         const img = document.createElement('img');
-        img.src = foto.miniatura || foto.url;
-        img.alt = foto.texto || sec.titulo;
+        img.src = sec.preview || (sec.fotos && sec.fotos[0] ? sec.fotos[0].thumb : '');
+        img.alt = sec.titulo;
         
-        const texto = document.createElement('p');
-        texto.textContent = foto.texto || '';
+        const h3 = document.createElement('h3');
+        h3.textContent = sec.titulo;
         
-        photoDiv.appendChild(img);
-        photoDiv.appendChild(texto);
+        card.appendChild(img);
+        card.appendChild(h3);
         
-        photoDiv.addEventListener('click', () => {
-          window.showModal(foto.url);
+        card.addEventListener('click', () => {
+          createGallerySections([sec]);
         });
         
-        grid.appendChild(photoDiv);
+        container.appendChild(card);
       });
+      
+      // Botón Home no tiene sentido en home
+      document.getElementById('home-btn').style.display = 'none';
     }
     
-    sectionDiv.appendChild(backBtn);
-    sectionDiv.appendChild(h2);
-    sectionDiv.appendChild(grid);
+    // Crear las galerías de cada sección
+    function createGallerySections(secciones) {
+      const container = document.getElementById('container');
+      container.innerHTML = '';
+      
+      secciones.forEach(sec => {
+        const section = document.createElement('section');
+        section.className = 'gallery-section';
+        
+        const heading = document.createElement('h2');
+        heading.textContent = sec.titulo;
+        section.appendChild(heading);
+        
+        const gallery = document.createElement('div');
+        gallery.className = 'photo-grid';
+        
+        sec.fotos.forEach(foto => {
+          const photoDiv = document.createElement('div');
+          photoDiv.className = 'photo-item';
+          
+          const thumb = document.createElement('img');
+          thumb.src = foto.thumb;
+          thumb.alt = foto.texto || sec.titulo;
+          thumb.loading = 'lazy';
+          
+          photoDiv.appendChild(thumb);
+          
+          // Click en la miniatura abre el modal con la foto en alta
+          photoDiv.addEventListener('click', () => {
+            modalImg.src = foto.alta;
+            modalImg.alt = foto.texto || sec.titulo;
+            modal.style.display = 'flex';
+          });
+          
+          gallery.appendChild(photoDiv);
+        });
+        
+        section.appendChild(gallery);
+        container.appendChild(section);
+      });
+      
+      // Mostrar botón Home cuando estás en una galería
+      document.getElementById('home-btn').style.display = 'block';
+    }
     
-    container.appendChild(sectionDiv);
-  });
+    // Cerrar modal
+    modalClose.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+    
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+      }
+    });
+    
+    // Botón Home
+    document.getElementById('home-btn').addEventListener('click', createHomePage);
+    
+    // Iniciar en la página de inicio
+    createHomePage();
+    
+  } catch (error) {
+    console.error('Error cargando data.json:', error);
+    document.getElementById('container').innerHTML = '<p>Error al cargar las imágenes.</p>';
+  }
 }
 
-window.showSection = function(nombre) {
-  document.getElementById('home-page').style.display = 'none';
-  document.querySelectorAll('.gallery-section').forEach(s => {
-    s.style.display = 'none';
-  });
-  const section = document.getElementById(`section-${nombre}`);
-  if (section) {
-    section.style.display = 'block';
-  }
-};
-
-window.showHome = function() {
-  document.getElementById('home-page').style.display = 'block';
-  document.querySelectorAll('.gallery-section').forEach(s => {
-    s.style.display = 'none';
-  });
-};
-
-window.showModal = function(url) {
-  const modal = document.getElementById('modal');
-  const modalImg = document.getElementById('modal-img');
-  modalImg.src = url;
-  modal.style.display = 'flex';
-};
-
-window.hideModal = function() {
-  const modal = document.getElementById('modal');
-  modal.style.display = 'none';
-};
-
-document.addEventListener('DOMContentLoaded', async () => {
-  const data = await loadData();
-  if (data && data.secciones) {
-    createHomePage(data.secciones);
-    createGallerySections(data.secciones);
-  }
-});
+// Iniciar cuando el DOM esté listo
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadData);
+} else {
+  loadData();
+}
