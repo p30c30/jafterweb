@@ -23,17 +23,17 @@ function createHomePage(secciones) {
     card.className = 'section-card';
     
     const img = document.createElement('img');
-    img.src = sec.imagen || 'images/placeholder.jpg';
-    img.alt = sec.nombre;
+    img.src = sec.preview || 'images/placeholder.jpg';
+    img.alt = sec.titulo;
     
     const h3 = document.createElement('h3');
-    h3.textContent = sec.nombre;
+    h3.textContent = sec.titulo;
     
     card.appendChild(img);
     card.appendChild(h3);
     
     card.addEventListener('click', () => {
-      window.showSection(sec.nombre);
+      window.showSection(sec.id);
     });
     
     container.appendChild(card);
@@ -46,7 +46,7 @@ function createGallerySections(secciones) {
   
   secciones.forEach(sec => {
     const sectionDiv = document.createElement('div');
-    sectionDiv.id = `section-${sec.nombre}`;
+    sectionDiv.id = `section-${sec.id}`;
     sectionDiv.className = 'gallery-section';
     sectionDiv.style.display = 'none';
     
@@ -56,7 +56,7 @@ function createGallerySections(secciones) {
     backBtn.addEventListener('click', () => window.showHome());
     
     const h2 = document.createElement('h2');
-    h2.textContent = sec.nombre;
+    h2.textContent = sec.titulo;
     
     const grid = document.createElement('div');
     grid.className = 'photo-grid';
@@ -67,8 +67,8 @@ function createGallerySections(secciones) {
         photoDiv.className = 'photo-item';
         
         const img = document.createElement('img');
-        img.src = foto.thumbnail || foto.url;
-        img.alt = foto.texto || sec.nombre;
+        img.src = foto.miniatura || foto.url;
+        img.alt = foto.texto || sec.titulo;
         
         const texto = document.createElement('p');
         texto.textContent = foto.texto || '';
