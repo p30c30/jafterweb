@@ -1,16 +1,12 @@
 // ===== main.js: Refactor minimalista funcional y alineado =====
-
-// Carga datos del JSON y monta interfaz
-async function loadData() {
+// Carga datos del objeto global galeriaData y monta interfaz
+function loadData() {
   try {
-    const resp = await fetch('data.json');
-    const data = await resp.json();
-
+    const data = window.galeriaData;
     // Elementos del modal
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modal-img');
     const modalClose = document.getElementById('modal-close');
-
     // Página principal con tarjetas de sección
     function createHomePage() {
       const container = document.getElementById('content');
@@ -28,7 +24,6 @@ async function loadData() {
         container.appendChild(card);
       });
     }
-
     // Galerías de las secciones
     function createGallerySections(sec) {
       const container = document.getElementById('content');
@@ -38,11 +33,9 @@ async function loadData() {
       backBtn.className = 'back-btn';
       backBtn.addEventListener('click', createHomePage);
       container.appendChild(backBtn);
-
       const h2 = document.createElement('h2');
       h2.textContent = sec.titulo;
       container.appendChild(h2);
-
       const grid = document.createElement('div');
       grid.className = 'gallery-grid';
       sec.galerias.forEach(gal => {
@@ -62,7 +55,6 @@ async function loadData() {
       });
       container.appendChild(grid);
     }
-
     // Cerrar modal
     modalClose.addEventListener('click', () => {
       modal.style.display = 'none';
@@ -70,15 +62,13 @@ async function loadData() {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) modal.style.display = 'none';
     });
-
     // Iniciar
     createHomePage();
   } catch (err) {
     console.error('Error cargando datos:', err);
-    document.getElementById('content').innerHTML = '<p>Error al cargar datos.</p>';
+    document.getElementById('content').innerHTML = 'Error al cargar datos.';
   }
 }
-
 // Arrancar cuando DOM esté listo
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', loadData);
