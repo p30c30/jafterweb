@@ -12,10 +12,13 @@ function createHomePage(secciones) {
   secciones.forEach(sec => {
     const card = document.createElement('div');
     card.className = 'section-card';
-    card.innerHTML = `
-      <img src="${sec.preview}" alt="${sec.titulo}" />
-      <h3>${sec.titulo}</h3>
-    `;
+    const img = document.createElement('img');
+    img.src = sec.preview;
+    img.alt = sec.titulo;
+    const h3 = document.createElement('h3');
+    h3.textContent = sec.titulo;
+    card.appendChild(img);
+    card.appendChild(h3);
     card.addEventListener('click', () => {
       showSection(sec.id);
     });
