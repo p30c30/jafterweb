@@ -9,12 +9,11 @@ async function loadData() {
 function createHomePage(secciones) {
   const container = document.getElementById('section-cards');
   container.innerHTML = '';
-
   secciones.forEach(sec => {
     const card = document.createElement('div');
     card.className = 'section-card';
     card.innerHTML = `
-      <img src="${sec.preview}" alt="${sec.titulo}" />
+      <img src="${sec.preview}" alt="${sec.titulo}"/>
       <h3>${sec.titulo}</h3>
     `;
     card.addEventListener('click', () => {
@@ -27,7 +26,6 @@ function createHomePage(secciones) {
 function createGallerySections(secciones) {
   const container = document.getElementById('gallery-sections');
   container.innerHTML = '';
-
   secciones.forEach(sec => {
     const sectionDiv = document.createElement('div');
     sectionDiv.className = 'seccion hidden';
@@ -48,15 +46,16 @@ function createGallerySections(secciones) {
       card.className = 'thumb';
 
       const img = document.createElement('img');
-      img.src = f.url;
-      img.alt = f.texto;
+      img.src = f.miniatura || f.url;
+      img.alt = f.texto || '';
+      img.loading = 'lazy';
       img.addEventListener('click', () => {
         showModal(f.url);
       });
 
       const desc = document.createElement('div');
       desc.className = 'desc';
-      desc.textContent = f.texto;
+      desc.textContent = f.texto || '';
 
       card.appendChild(img);
       card.appendChild(desc);
