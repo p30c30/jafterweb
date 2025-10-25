@@ -1,27 +1,41 @@
-// Cargar datos desde data.json
 async function loadData() {
-  const resp = await fetch('./data.json');
-  const data = await resp.json();
-  createHomePage(data.secciones);
-  createGallerySections(data.secciones);
+  try {
+    const resp = await fetch('../data.json');
+    if (!resp.ok) {
+      console.error('Error al cargar data.json:', resp.status);
+      return null;
+    }
+    const data = await resp.json();
+    console.log('Datos cargados:', data);
+    return data;
+  } catch (error) {
+    console.error('Error al cargar los datos:', error);
+    return null;
+  }
 }
 
 function createHomePage(secciones) {
-  const container = document.getElementById('section-cards');
+  const container = document.getElementById('gallery-sections');
   container.innerHTML = '';
+  
   secciones.forEach(sec => {
     const card = document.createElement('div');
     card.className = 'section-card';
+    
     const img = document.createElement('img');
-    img.src = sec.preview;
-    img.alt = sec.titulo;
+    img.src = sec.imagen || 'images/placeholder.jpg';
+    img.alt = sec.nombre;
+    
     const h3 = document.createElement('h3');
-    h3.textContent = sec.titulo;
+    h3.textContent = sec.nombre;
+    
     card.appendChild(img);
     card.appendChild(h3);
+    
     card.addEventListener('click', () => {
-      showSection(sec.id);
+      window.showSection(sec.nombre);
     });
+    
     container.appendChild(card);
   });
 }
@@ -29,65 +43,89 @@ function createHomePage(secciones) {
 function createGallerySections(secciones) {
   const container = document.getElementById('gallery-sections');
   container.innerHTML = '';
+  
   secciones.forEach(sec => {
     const sectionDiv = document.createElement('div');
-    sectionDiv.className = 'seccion hidden';
-    sectionDiv.id = sec.id;
-    const header = document.createElement('div');
-    header.className = 'section-header';
-    header.innerHTML = `
-      <button class="back-btn" onclick="goHome()">← Volver</button>
-      <h2>${sec.titulo}</h2>
-    `;
-    const gallery = document.createElement('div');
-    gallery.className = 'galeria';
-    sec.fotos.forEach(f => {
-      const card = document.createElement('div');
-      card.className = 'thumb';
-      const img = document.createElement('img');
-      img.src = f.miniatura || f.url;
-      img.alt = f.texto || '';
-      img.loading = 'lazy';
-      img.addEventListener('click', () => {
-        showModal(f.url);
+    sectionDiv.id = `section-${sec.nombre}`;
+    sectionDiv.className = 'gallery-section';
+    sectionDiv.style.display = 'none';
+    
+    const backBtn = document.createElement('button');
+    backBtn.className = 'back-btn';
+    backBtn.textContent = '← Volver a la galería';
+    backBtn.addEventListener('click', () => window.showHome());
+    
+    const h2 = document.createElement('h2');
+    h2.textContent = sec.nombre;
+    
+    const grid = document.createElement('div');
+    grid.className = 'photo-grid';
+    
+    if (sec.fotos && Array.isArray(sec.fotos)) {
+      sec.fotos.forEach(foto => {
+        const photoDiv = document.createElement('div');
+        photoDiv.className = 'photo-item';
+        
+        const img = document.createElement('img');
+        img.src = foto.thumbnail || foto.url;
+        img.alt = foto.texto || sec.nombre;
+        
+        const texto = document.createElement('p');
+        texto.textContent = foto.texto || '';
+        
+        photoDiv.appendChild(img);
+        photoDiv.appendChild(texto);
+        
+        photoDiv.addEventListener('click', () => {
+          window.showModal(foto.url);
+        });
+        
+        grid.appendChild(photoDiv);
       });
-      const desc = document.createElement('div');
-      desc.className = 'desc';
-      desc.textContent = f.texto || '';
-      card.appendChild(img);
-      card.appendChild(desc);
-      gallery.appendChild(card);
-    });
-    sectionDiv.appendChild(header);
-    sectionDiv.appendChild(gallery);
+    }
+    
+    sectionDiv.appendChild(backBtn);
+    sectionDiv.appendChild(h2);
+    sectionDiv.appendChild(grid);
+    
     container.appendChild(sectionDiv);
   });
 }
 
-function showSection(id) {
-  document.getElementById('home-view').classList.add('hidden');
-  document.querySelectorAll('.seccion').forEach(sec => sec.classList.add('hidden'));
-  const target = document.getElementById(id);
-  if (target) target.classList.remove('hidden');
-}
+window.showSection = function(nombre) {
+  document.getElementById('home-page').style.display = 'none';
+  document.querySelectorAll('.gallery-section').forEach(s => {
+    s.style.display = 'none';
+  });
+  const section = document.getElementById(`section-${nombre}`);
+  if (section) {
+    section.style.display = 'block';
+  }
+};
 
-function goHome() {
-  document.getElementById('home-view').classList.remove('hidden');
-  document.querySelectorAll('.seccion').forEach(sec => sec.classList.add('hidden'));
-}
+window.showHome = function() {
+  document.getElementById('home-page').style.display = 'block';
+  document.querySelectorAll('.gallery-section').forEach(s => {
+    s.style.display = 'none';
+  });
+};
 
-function showModal(url) {
+window.showModal = function(url) {
   const modal = document.getElementById('modal');
   const modalImg = document.getElementById('modal-img');
   modalImg.src = url;
-  modal.classList.add('active');
-}
+  modal.style.display = 'flex';
+};
 
-function hideModal() {
+window.hideModal = function() {
   const modal = document.getElementById('modal');
-  const modalImg = document.getElementById('modal-img');
-  modal.classList.remove('active');
-  modalImg.src = '';
-}
+  modal.style.display = 'none';
+};
 
-loadData();
+document.addEventListener('DOMContentLoaded', async () => {
+  const data = await loadData();
+  if (data && data.secciones) {
+    createHomePage(data.secciones);
+    createGallerySections(data.secciones);
+  }
+});
