@@ -13,7 +13,7 @@ function createHomePage(secciones) {
     const card = document.createElement('div');
     card.className = 'section-card';
     card.innerHTML = `
-      <img src="${sec.preview}" alt="${sec.titulo}"/>
+      <img src="${sec.preview}" alt="${sec.titulo}" />
       <h3>${sec.titulo}</h3>
     `;
     card.addEventListener('click', () => {
@@ -30,21 +30,17 @@ function createGallerySections(secciones) {
     const sectionDiv = document.createElement('div');
     sectionDiv.className = 'seccion hidden';
     sectionDiv.id = sec.id;
-
     const header = document.createElement('div');
     header.className = 'section-header';
     header.innerHTML = `
       <button class="back-btn" onclick="goHome()">← Volver</button>
       <h2>${sec.titulo}</h2>
     `;
-
     const gallery = document.createElement('div');
     gallery.className = 'galeria';
-
     sec.fotos.forEach(f => {
       const card = document.createElement('div');
       card.className = 'thumb';
-
       const img = document.createElement('img');
       img.src = f.miniatura || f.url;
       img.alt = f.texto || '';
@@ -52,16 +48,13 @@ function createGallerySections(secciones) {
       img.addEventListener('click', () => {
         showModal(f.url);
       });
-
       const desc = document.createElement('div');
       desc.className = 'desc';
       desc.textContent = f.texto || '';
-
       card.appendChild(img);
       card.appendChild(desc);
       gallery.appendChild(card);
     });
-
     sectionDiv.appendChild(header);
     sectionDiv.appendChild(gallery);
     container.appendChild(sectionDiv);
@@ -95,4 +88,3 @@ function hideModal() {
 }
 
 loadData();
-
