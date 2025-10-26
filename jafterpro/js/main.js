@@ -1,37 +1,35 @@
-// Configuración global
+// ===== CONFIGURACIÓN =====
 const CONFIG = {
-    animationDuration: 500,
-    fadeInDelay: 100,
-    scrollOffset: 80,
+    animationDuration: 300,
+    fadeInDelay: 50,
+    scrollOffset: 100,
     mobileBreakpoint: 768,
     transitionDuration: 300
 };
 
-// Referencias principales
-const gallery = document.getElementById('gallery');
-const mainContent = document.getElementById('main-content');
-const volverBtn = document.getElementById('volver');
-
-// Estado de la aplicación
+// ===== VARIABLES GLOBALES =====
+let gallery = document.querySelector('.gallery');
+let mainContent = document.querySelector('.main-content');
+let volverBtn = document.querySelector('.volver');
 let currentSection = null;
 
-// Función para crear tarjetas en la portada
+// ===== FUNCIÓN: Crear tarjetas visuales en la portada =====
 function crearTarjetasPortada() {
-    const contenedor = document.getElementById('portada-grid');
-    if (!contenedor) return;
+    const contenedor = document.createElement('div');
+    contenedor.className = 'portada-secciones';
+    mainContent.innerHTML = '';
     
-    contenedor.innerHTML = '';
-    
-    // Obtener las secciones de window.galeriaData
-    const secciones = window.galeriaData?.secciones || [];
+    const secciones = window.galeriaData.secciones;
     
     secciones.forEach(seccion => {
         const tarjeta = document.createElement('div');
         tarjeta.className = 'tarjeta-seccion';
         tarjeta.innerHTML = `
-            <img src="${seccion.preview}" alt="${seccion.titulo}">
+            <div class="tarjeta-imagen">
+                <img src="${seccion.preview}" alt="${seccion.titulo}">
+            </div>
             <div class="tarjeta-info">
-                <h3>${seccion.titulo}</h3>
+                <h2>${seccion.titulo}</h2>
                 <p>${seccion.descripcion}</p>
             </div>
         `;
@@ -42,54 +40,55 @@ function crearTarjetasPortada() {
         
         contenedor.appendChild(tarjeta);
     });
+    
+    mainContent.appendChild(contenedor);
+    
+    // Añadir frase y sección inspiradora al final
+    if (window.galeriaData.fraseInspiradora) {
+        const seccionInspiradora = document.createElement('div');
+        seccionInspiradora.className = 'seccion-inspiradora';
+        seccionInspiradora.innerHTML = `
+            <div class="frase-inspiradora">
+                <p>${window.galeriaData.fraseInspiradora.texto}</p>
+                <span class="frase-autor">— ${window.galeriaData.fraseInspiradora.autor}</span>
+            </div>
+        `;
+        mainContent.appendChild(seccionInspiradora);
+    }
 }
 
-// Función para abrir una sección y mostrar su galería
+// ===== FUNCIÓN: Abrir una sección específica =====
 function abrirSeccion(seccion) {
     currentSection = seccion;
+    const portada = document.querySelector('.portada-secciones');
+    const inspiradora = document.querySelector('.seccion-inspiradora');
     
-    // Ocultar portada
-    const portada = document.getElementById('portada');
     if (portada) portada.style.display = 'none';
-    
-    // Ocultar sección inspiradora
-    const inspiradora = document.getElementById('seccion-inspiradora');
     if (inspiradora) inspiradora.style.display = 'none';
     
-    // Mostrar galería y botón volver
-    if (gallery) gallery.style.display = 'block';
-    if (volverBtn) volverBtn.style.display = 'block';
+    gallery.innerHTML = '';
+    gallery.style.display = 'grid';
+    volverBtn.style.display = 'block';
     
-    // Crear galería de fotos
+    // Crear título de sección
+    const tituloSeccion = document.createElement('div');
+    tituloSeccion.className = 'titulo-seccion';
+    tituloSeccion.innerHTML = `<h1>${seccion.titulo}</h1>`;
+    gallery.appendChild(tituloSeccion);
+    
     crearGaleria(seccion);
-    
-    // Scroll al inicio
-    window.scrollTo(0, 0);
 }
 
-// Función para crear la galería de fotos de una sección
+// ===== FUNCIÓN: Crear galería de fotos =====
 function crearGaleria(seccion) {
-    if (!gallery) return;
+    const galeriaFotos = document.createElement('div');
+    galeriaFotos.className = 'galeria-fotos';
     
-    gallery.innerHTML = `
-        <div class="galeria-header">
-            <h2>${seccion.titulo}</h2>
-            <p>${seccion.descripcion}</p>
-        </div>
-        <div class="galeria-grid" id="galeria-fotos"></div>
-    `;
-    
-    const galeriaFotos = document.getElementById('galeria-fotos');
-    if (!galeriaFotos) return;
-    
-    seccion.fotos.forEach(foto => {
+    seccion.fotos.forEach((foto, index) => {
         const item = document.createElement('div');
-        item.className = 'galeria-item';
+        item.className = 'foto-item';
         item.innerHTML = `
             <img src="${foto.miniatura}" alt="${foto.texto}">
-            <div class="galeria-overlay">
-                <p>${foto.texto}</p>
-            </div>
         `;
         
         item.addEventListener('click', () => {
@@ -98,101 +97,47 @@ function crearGaleria(seccion) {
         
         galeriaFotos.appendChild(item);
     });
+    
+    gallery.appendChild(galeriaFotos);
 }
 
-// Función para abrir modal con la imagen grande
+// ===== FUNCIÓN: Abrir modal con imagen grande =====
 function abrirModal(foto, todasLasFotos) {
-    // Crear modal si no existe
-    let modal = document.getElementById('modal-foto');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'modal-foto';
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-contenido">
-                <span class="modal-cerrar">&times;</span>
-                <img src="" alt="" id="modal-imagen">
-                <div class="modal-nav">
-                    <button class="modal-prev">&lt;</button>
-                    <button class="modal-next">&gt;</button>
-                </div>
-                <p class="modal-texto"></p>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        
-        // Eventos del modal
-        modal.querySelector('.modal-cerrar').addEventListener('click', cerrarModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) cerrarModal();
-        });
-    }
+    const modal = document.createElement('div');
+    modal.className = 'modal-foto';
+    modal.innerHTML = `
+        <div class="modal-contenido">
+            <button class="modal-cerrar">&times;</button>
+            <img src="${foto.url}" alt="${foto.texto}">
+            <p class="modal-texto">${foto.texto}</p>
+        </div>
+    `;
     
-    // Mostrar imagen en el modal
-    const modalImagen = document.getElementById('modal-imagen');
-    const modalTexto = modal.querySelector('.modal-texto');
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal || e.target.classList.contains('modal-cerrar')) {
+            modal.remove();
+        }
+    });
     
-    modalImagen.src = foto.url;
-    modalImagen.alt = foto.texto;
-    modalTexto.textContent = foto.texto;
-    
-    modal.style.display = 'flex';
+    document.body.appendChild(modal);
 }
 
-// Función para cerrar el modal
-function cerrarModal() {
-    const modal = document.getElementById('modal-foto');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Función para volver a la portada
+// ===== FUNCIÓN: Volver a la portada =====
 function volverPortada() {
-    // Mostrar portada
-    const portada = document.getElementById('portada');
-    if (portada) portada.style.display = 'block';
-    
-    // Mostrar sección inspiradora
-    const inspiradora = document.getElementById('seccion-inspiradora');
-    if (inspiradora) inspiradora.style.display = 'block';
-    
-    // Ocultar galería y botón volver
-    if (gallery) gallery.style.display = 'none';
-    if (volverBtn) volverBtn.style.display = 'none';
-    
-    // Limpiar galería
-    if (gallery) gallery.innerHTML = '';
-    
     currentSection = null;
+    gallery.innerHTML = '';
+    gallery.style.display = 'none';
+    volverBtn.style.display = 'none';
     
-    // Scroll al inicio
-    window.scrollTo(0, 0);
+    const portada = document.querySelector('.portada-secciones');
+    const inspiradora = document.querySelector('.seccion-inspiradora');
+    
+    if (portada) portada.style.display = 'grid';
+    if (inspiradora) inspiradora.style.display = 'block';
 }
 
-// Inicialización cuando el DOM está listo
+// ===== INICIALIZACIÓN =====
 document.addEventListener('DOMContentLoaded', () => {
-    // Crear tarjetas de la portada
     crearTarjetasPortada();
-    
-    // Configurar botón volver
-    if (volverBtn) {
-        volverBtn.addEventListener('click', volverPortada);
-        volverBtn.style.display = 'none';
-    }
-    
-    // Ocultar galería inicialmente
-    if (gallery) {
-        gallery.style.display = 'none';
-    }
-    
-    // Asegurar que la portada y sección inspiradora estén visibles
-    const portada = document.getElementById('portada');
-    if (portada) portada.style.display = 'block';
-    
-    const inspiradora = document.getElementById('seccion-inspiradora');
-    if (inspiradora) inspiradora.style.display = 'block';
-    
-    console.log('Aplicación inicializada correctamente');
-    console.log('Secciones cargadas:', window.galeriaData?.secciones?.length || 0);
+    volverBtn.addEventListener('click', volverPortada);
 });
