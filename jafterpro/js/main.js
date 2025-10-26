@@ -13,14 +13,14 @@ async function loadData() {
   if (typeof window.galeriaData === 'undefined' || window.galeriaData === null || typeof window.galeriaData !== 'object') {
     const errorMsg = 'ERROR CRÍTICO: window.galeriaData inválido o no definido';
     console.error(errorMsg);
-    contentElement.innerHTML = `<div style=\"background:#ff6b6b;color:white;padding:40px;margin:20px;border-radius:10px;font-family:monospace;\">\n      ❌ ${errorMsg}\n      Verifica que index.html incluya data.js antes de main.js\n    </div>`;
+    contentElement.innerHTML = `<div style="background:#ff6b6b;color:white;padding:40px;margin:20px;border-radius:10px;font-family:monospace;">\n      ❌ ${errorMsg}\n      Verifica que index.html incluya data.js antes de main.js\n    </div>`;
     return;
   }
   const data = window.galeriaData;
   if (!data.secciones || !Array.isArray(data.secciones) || data.secciones.length === 0) {
     const errorMsg = 'ERROR: data.secciones inexistente o vacío';
     console.error(errorMsg);
-    contentElement.innerHTML = `<div style=\"background:#ffa500;color:white;padding:40px;margin:20px;border-radius:10px;font-family:monospace;\">\n      ⚠️ ${errorMsg}\n    </div>`;
+    contentElement.innerHTML = `<div style="background:#ffa500;color:white;padding:40px;margin:20px;border-radius:10px;font-family:monospace;">\n      ⚠️ ${errorMsg}\n    </div>`;
     return;
   }
   // 3. CONFIGURAR ENLACE HOME EN LOGO/TÍTULO
@@ -62,193 +62,69 @@ async function loadData() {
   }
 }
 
-// Configuración y helpers del modal
-function setupModalAccessibility() {
-  const modal = document.getElementById('modal') || document.getElementById('imageModal');
-  const modalImg = document.getElementById('modal-img') || document.getElementById('modalImage');
-  const modalClose = document.querySelector('.close') || document.getElementById('modalClose');
-  if (!modal || !modalImg) {
-    console.warn('⚠️ Elementos del modal faltantes', { modal: !!modal, modalImg: !!modalImg });
-    return;
-  }
-  modal.setAttribute('role', 'dialog');
-  modal.setAttribute('aria-modal', 'true');
-  modal.setAttribute('aria-label', 'Visor de imagen');
-  modal.style.display = 'none';
-  const closeModal = () => {
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-    modalImg.removeAttribute('src');
-    // devolver el foco si hay último trigger
-    const last = modal._lastTrigger;
-    if (last && last.focus) {
-      last.focus();
-    }
-  };
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal || e.target === modalImg) closeModal();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (modal.style.display !== 'none' && (e.key === 'Escape' || e.key === 'Esc')) {
-      closeModal();
-    }
-  });
-  if (modalClose) {
-    modalClose.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
-  }
-  // guardar utilidades en el nodo para reuso
-  modal._openWith = (src, trigger) => {
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    modalImg.src = src;
-    modal._lastTrigger = trigger || null;
-    // centrado y alto
-    modal.style.alignItems = 'center';
-    modal.style.justifyContent = 'center';
-    modalImg.style.maxWidth = '90vw';
-    modalImg.style.maxHeight = '90vh';
-  };
-}
-
-// Crea la página de inicio
+// Renderizar home principal
 function createHomePage(data) {
-  console.log('=== createHomePage INICIO ===');
   const container = document.getElementById('content');
   if (!container) return;
-  // limpiar URL de sección
-  const clean = window.location.origin + window.location.pathname;
-  if (window.location.href !== clean) window.history.replaceState({}, '', clean);
-  // Reset contenido
   container.innerHTML = '';
-  container.setAttribute('tabindex', '-1');
-
-  const grid = document.createElement('div');
-  grid.id = 'section-cards';
-  grid.className = 'section-cards';
-
-  data.secciones.forEach((seccion, index) => {
-    // Card accesible como botón/enlace
-    const card = document.createElement('article');
-    card.className = 'card';
-    card.setAttribute('role', 'link');
-    card.setAttribute('tabindex', '0');
-    card.style.cursor = 'pointer';
-    card.setAttribute('aria-label', `Abrir sección ${seccion.titulo || seccion.id || index + 1}`);
-
-    const img = document.createElement('img');
-    img.src = seccion.preview || 'img/default.jpg';
-    img.alt = seccion.titulo ? `Miniatura de ${seccion.titulo}` : 'Miniatura de sección';
-    img.loading = 'lazy';
-
-    const h3 = document.createElement('h3');
-    h3.textContent = seccion.titulo || 'Sin nombre';
-
-    const p = document.createElement('p');
-    p.className = 'card-desc';
-    p.textContent = seccion.descripcion || seccion.resumen || 'Explorar galería';
-
-    card.appendChild(img);
-    card.appendChild(h3);
-    card.appendChild(p);
-
-    const openSection = () => {
-      window.location.href = `?section=${encodeURIComponent(seccion.id)}`;
-    };
-    card.addEventListener('click', openSection);
-    card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        openSection();
-      }
-    });
-
-    grid.appendChild(card);
+  const title = document.createElement('h1');
+  title.textContent = data.titulo || 'Galería';
+  container.appendChild(title);
+  data.secciones.forEach((seccion) => {
+    const secDiv = document.createElement('div');
+    secDiv.className = 'seccion';
+    const link = document.createElement('a');
+    link.href = `?section=${seccion.id}`;
+    link.textContent = seccion.titulo || seccion.id;
+    link.className = 'seccion-link';
+    secDiv.appendChild(link);
+    container.appendChild(secDiv);
   });
-
-  container.appendChild(grid);
-
-  // Sección inspiradora al final de la portada
-  const inspiration = document.getElementById('inspiration-section');
-  if (inspiration) {
-    // si ya existe en el DOM (index.html), simplemente moverlo al final del contenedor
-    container.appendChild(inspiration);
-  } else {
-    // fallback: crear rápidamente si no existe
-    const wrap = document.createElement('div');
-    wrap.id = 'inspiration-section';
-    wrap.innerHTML = `
-      <div style=\"display:grid;grid-template-columns:1.1fr 0.9fr;gap:28px;align-items:center;\n                  background:linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));\n                  border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px;\n                  box-shadow:0 10px 30px rgba(0,0,0,0.35);backdrop-filter:blur(2px);\">\n        <div style=\"text-align:left;max-width:640px;margin:0 auto;\">\n          <h2 style=\"font-size:clamp(1.8rem,3.2vw,2.3rem);margin:0 0 14px;color:#FDB813;\">El Arte de Capturar el Momento</h2>\n          <p style=\"font-size:1.05rem;line-height:1.75;margin:0 0 12px;color:#e6e6e6;\">\n            En la fotografía, cada instante es único e irrepetible. Un mismo momento, contemplado a través de diferentes miradas, revela infinitas perspectivas y emociones...\n          </p>\n          <p style=\"font-size:1.05rem;line-height:1.75;margin:0 0 12px;color:#e6e6e6;\">\n            Cada fotografía es un diálogo silencioso entre el observador y el instante congelado en el tiempo...\n          </p>\n          <p style=\"font-size:1.05rem;line-height:1.75;margin:0;color:#e6e6e6;\">\n            Porque al final, fotografiar es mucho más que presionar un botón. Es el arte de ver lo invisible...\n          </p>\n        </div>\n        <div style=\"position:relative;width:100%;max-width:520px;margin:0 auto;border-radius:14px;overflow:hidden;\n                    background:radial-gradient(600px 300px at 50% 60%, rgba(255,255,255,0.08), rgba(0,0,0,0.6));\n                    box-shadow:0 10px 26px rgba(0,0,0,0.45);aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;\">\n          <img alt=\"Retrato artístico\" style=\"width:100%;height:100%;object-fit:cover;object-position:center 45%;display:block;filter:contrast(1.02) saturate(1.02);\"/>\n        </div>\n      </div>`;
-    container.appendChild(wrap);
-  }
-  console.log('✓ Home page renderizada');
 }
 
-// Crea las galerías de una sección
+// Renderizar sección seleccionada
 function createGallerySections(data) {
-  const container = document.getElementById('content');
-  if (!container) return;
-
   const urlParams = new URLSearchParams(window.location.search);
-  const sectionName = urlParams.get('section');
-  const seccion = data.secciones.find(s => s.id === sectionName);
-
+  const sectionId = urlParams.get('section');
+  if (!sectionId) return;
+  const seccion = data.secciones.find(s => s.id === sectionId);
   if (!seccion) {
-    container.innerHTML = `<div style=\"background:#ff6b6b;color:white;padding:40px;margin:20px;border-radius:10px;font-family:monospace;\">\n      ❌ Sección \"${sectionName}\" no encontrada\n      <a href=\"index.html\" style=\"color:white;\">Volver al inicio</a>\n    </div>`;
+    console.error(`Sección no encontrada: ${sectionId}`);
     return;
   }
-
-  // Limpiar contenido y crear cabecera con botón Volver
+  const container = document.getElementById('content');
+  if (!container) return;
   container.innerHTML = '';
-
   const header = document.createElement('header');
-  header.className = 'section-header';
   header.style.display = 'flex';
   header.style.alignItems = 'center';
-  header.style.gap = '12px';
-  header.style.margin = '12px 0 16px';
-
-  const backBtn = document.createElement('button');
-  backBtn.className = 'back-button';
-  backBtn.type = 'button';
-  backBtn.innerHTML = '← Volver';
-  backBtn.setAttribute('aria-label', 'Volver al inicio');
-  backBtn.setAttribute('title', 'Volver al inicio');
-  backBtn.setAttribute('tabindex', '0');
-  backBtn.style.cursor = 'pointer';
-  backBtn.style.padding = '8px 12px';
-  backBtn.style.borderRadius = '8px';
-  backBtn.style.border = '1px solid rgba(255,255,255,0.2)';
-  backBtn.style.background = 'rgba(255,255,255,0.06)';
-  backBtn.style.color = 'inherit';
-  backBtn.style.fontWeight = '600';
-  backBtn.style.backdropFilter = 'blur(2px)';
-
-  const goHomeFn = typeof window.goHome === 'function' ? window.goHome : () => {
-    const clean = window.location.origin + window.location.pathname;
-    window.history.replaceState({}, '', clean);
-    createHomePage(data);
-    const content = document.getElementById('content');
-    if (content) content.focus({ preventScroll: true });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  header.style.gap = '10px';
+  header.style.marginBottom = '1rem';
+  const goHomeFn = () => {
+    if (typeof window.goHome === 'function') {
+      window.goHome();
+    } else {
+      window.location.href = window.location.pathname;
+    }
   };
-  backBtn.addEventListener('click', goHomeFn);
+  const backBtn = document.createElement('button');
+  backBtn.textContent = '← Volver';
+  backBtn.className = 'btn-volver';
+  backBtn.setAttribute('aria-label', 'Volver a la página principal');
+  backBtn.onclick = goHomeFn;
   backBtn.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goHomeFn(); }
   });
-
   const title = document.createElement('h2');
   title.textContent = seccion.titulo || seccion.id;
   title.style.margin = '0';
-
   header.appendChild(backBtn);
   header.appendChild(title);
   container.appendChild(header);
-
   // contenedor de galerías
   seccion.galerias?.forEach((galeria) => {
     const galeriaDiv = document.createElement('section');
     galeriaDiv.className = 'galeria';
-
     // Subcabecera por galería con botón Volver
     const subHeader = document.createElement('div');
     subHeader.className = 'galeria-header';
@@ -257,39 +133,47 @@ function createGallerySections(data) {
     subHeader.style.justifyContent = 'space-between';
     subHeader.style.gap = '12px';
     subHeader.style.margin = '10px 0 8px';
-
     const subBack = backBtn.cloneNode(true);
     // Clonado pierde listeners; añadirlos de nuevo
     subBack.addEventListener('click', goHomeFn);
     subBack.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goHomeFn(); }
     });
-
     const titulo = document.createElement('h3');
     titulo.textContent = galeria.titulo || 'Sin título';
     titulo.style.margin = '0';
-
     const leftWrap = document.createElement('div');
     leftWrap.style.display = 'flex';
     leftWrap.style.alignItems = 'center';
     leftWrap.style.gap = '10px';
     leftWrap.appendChild(subBack);
     leftWrap.appendChild(titulo);
-
     subHeader.appendChild(leftWrap);
     galeriaDiv.appendChild(subHeader);
-
     if (!Array.isArray(galeria.fotos)) return;
-
     const grid = document.createElement('div');
     grid.className = 'galeria-grid';
-
     galeria.fotos.forEach((foto, idx) => {
       const src = typeof foto === 'string' ? foto : (foto.src || foto.thumb || foto.url);
       const alt = (typeof foto === 'object' && (foto.alt || foto.titulo)) || `Foto ${idx + 1}`;
       const full = (typeof foto === 'object' && (foto.full || foto.hd || foto.src)) || src;
-
       const item = document.createElement('figure');
       item.className = 'foto';
+      grid.appendChild(item);
+    });
+    galeriaDiv.appendChild(grid);
+    container.appendChild(galeriaDiv);
+  });
+}
 
-      const thumbWrap
+// Configuración del modal accesible
+function setupModalAccessibility() {
+  console.log('[setupModalAccessibility] Configurando modal...');
+}
+
+// Inicializar aplicación cuando DOM esté listo
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadData);
+} else {
+  loadData();
+}
