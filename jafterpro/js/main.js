@@ -1,159 +1,198 @@
-// Configuración inicial
+// Configuración global
 const CONFIG = {
-    animationDuration: 300,
+    animationDuration: 500,
     fadeInDelay: 100,
     scrollOffset: 80,
     mobileBreakpoint: 768,
     transitionDuration: 300
 };
 
-// Función para crear las secciones de la galería
-function createGallerySections() {
-    const gallery = document.getElementById('gallery');
-    if (!gallery || !window.portfolioData) return;
+// Referencias principales
+const gallery = document.getElementById('gallery');
+const mainContent = document.getElementById('main-content');
+const volverBtn = document.getElementById('volver');
 
-    const categories = {
-        furniture: { title: 'Mobiliario', icon: '🪑' },
-        kitchen: { title: 'Cocina', icon: '🍳' },
-        bathroom: { title: 'Baño', icon: '🚿' },
-        decoration: { title: 'Decoración', icon: '✨' },
-        lighting: { title: 'Iluminación', icon: '💡' }
-    };
+// Estado de la aplicación
+let currentSection = null;
 
-    let html = '';
-    for (const [key, category] of Object.entries(categories)) {
-        const items = window.portfolioData[key] || [];
-        if (items.length === 0) continue;
-
-        html += `
-            <section class="gallery-category" id="${key}">
-                <div class="category-header">
-                    <span class="category-icon">${category.icon}</span>
-                    <h2 class="category-title">${category.title}</h2>
-                </div>
-                <div class="gallery-grid">
-        `;
-
-        items.forEach(item => {
-            html += `
-                <div class="gallery-item" data-category="${key}">
-                    <div class="item-image">
-                        <img src="${item.image}" alt="${item.title}" loading="lazy">
-                        <div class="item-overlay">
-                            <h3 class="item-title">${item.title}</h3>
-                            <p class="item-description">${item.description}</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-
-        html += `
-                </div>
-            </section>
-        `;
-    }
-
-    gallery.innerHTML = html;
-}
-
-// Función para crear el contenido de inspiración
-function createInspirationContent() {
-    const inspiration = document.getElementById('inspiration');
-    if (!inspiration) return;
-
-    const inspirationData = [
-        {
-            title: 'Minimalismo Nórdico',
-            description: 'Espacios luminosos con líneas limpias y funcionalidad',
-            image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800',
-            tags: ['Escandinavo', 'Minimalista', 'Luminoso']
-        },
-        {
-            title: 'Estilo Industrial',
-            description: 'Combinación de materiales crudos y acabados modernos',
-            image: 'https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=800',
-            tags: ['Industrial', 'Urbano', 'Moderno']
-        },
-        {
-            title: 'Diseño Contemporáneo',
-            description: 'Elegancia y sofisticación en cada detalle',
-            image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800',
-            tags: ['Contemporáneo', 'Elegante', 'Sofisticado']
-        }
-    ];
-
-    let html = '<div class="inspiration-grid">';
-    inspirationData.forEach(item => {
-        html += `
-            <div class="inspiration-card">
-                <div class="inspiration-image">
-                    <img src="${item.image}" alt="${item.title}" loading="lazy">
-                </div>
-                <div class="inspiration-content">
-                    <h3>${item.title}</h3>
-                    <p>${item.description}</p>
-                    <div class="inspiration-tags">
-        `;
-        item.tags.forEach(tag => {
-            html += `<span class="tag">${tag}</span>`;
-        });
-        html += `
-                    </div>
-                </div>
+// Función para crear tarjetas en la portada
+function crearTarjetasPortada() {
+    const contenedor = document.getElementById('portada-grid');
+    if (!contenedor) return;
+    
+    contenedor.innerHTML = '';
+    
+    // Obtener las secciones de window.galeriaData
+    const secciones = window.galeriaData?.secciones || [];
+    
+    secciones.forEach(seccion => {
+        const tarjeta = document.createElement('div');
+        tarjeta.className = 'tarjeta-seccion';
+        tarjeta.innerHTML = `
+            <img src="${seccion.preview}" alt="${seccion.titulo}">
+            <div class="tarjeta-info">
+                <h3>${seccion.titulo}</h3>
+                <p>${seccion.descripcion}</p>
             </div>
         `;
+        
+        tarjeta.addEventListener('click', () => {
+            abrirSeccion(seccion);
+        });
+        
+        contenedor.appendChild(tarjeta);
     });
-    html += '</div>';
-
-    inspiration.innerHTML = html;
 }
 
-// Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', () => {
-    createGallerySections();
-    createInspirationContent();
+// Función para abrir una sección y mostrar su galería
+function abrirSeccion(seccion) {
+    currentSection = seccion;
+    
+    // Ocultar portada
+    const portada = document.getElementById('portada');
+    if (portada) portada.style.display = 'none';
+    
+    // Ocultar sección inspiradora
+    const inspiradora = document.getElementById('seccion-inspiradora');
+    if (inspiradora) inspiradora.style.display = 'none';
+    
+    // Mostrar galería y botón volver
+    if (gallery) gallery.style.display = 'block';
+    if (volverBtn) volverBtn.style.display = 'block';
+    
+    // Crear galería de fotos
+    crearGaleria(seccion);
+    
+    // Scroll al inicio
+    window.scrollTo(0, 0);
+}
 
-    // Navegación suave
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = document.querySelector(anchor.getAttribute('href'));
-            if (target) {
-                const offsetTop = target.offsetTop - CONFIG.scrollOffset;
-                window.scrollTo({
-                    top: offsetTop,
-                    behavior: 'smooth'
-                });
-            }
+// Función para crear la galería de fotos de una sección
+function crearGaleria(seccion) {
+    if (!gallery) return;
+    
+    gallery.innerHTML = `
+        <div class="galeria-header">
+            <h2>${seccion.titulo}</h2>
+            <p>${seccion.descripcion}</p>
+        </div>
+        <div class="galeria-grid" id="galeria-fotos"></div>
+    `;
+    
+    const galeriaFotos = document.getElementById('galeria-fotos');
+    if (!galeriaFotos) return;
+    
+    seccion.fotos.forEach(foto => {
+        const item = document.createElement('div');
+        item.className = 'galeria-item';
+        item.innerHTML = `
+            <img src="${foto.miniatura}" alt="${foto.texto}">
+            <div class="galeria-overlay">
+                <p>${foto.texto}</p>
+            </div>
+        `;
+        
+        item.addEventListener('click', () => {
+            abrirModal(foto, seccion.fotos);
         });
+        
+        galeriaFotos.appendChild(item);
     });
+}
 
-    // Animación de aparición de elementos
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('fade-in');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.gallery-item, .inspiration-card').forEach(item => {
-        observer.observe(item);
-    });
-
-    // Menú móvil
-    const menuToggle = document.querySelector('.menu-toggle');
-    const navMenu = document.querySelector('nav ul');
-    if (menuToggle && navMenu) {
-        menuToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
+// Función para abrir modal con la imagen grande
+function abrirModal(foto, todasLasFotos) {
+    // Crear modal si no existe
+    let modal = document.getElementById('modal-foto');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modal-foto';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-contenido">
+                <span class="modal-cerrar">&times;</span>
+                <img src="" alt="" id="modal-imagen">
+                <div class="modal-nav">
+                    <button class="modal-prev">&lt;</button>
+                    <button class="modal-next">&gt;</button>
+                </div>
+                <p class="modal-texto"></p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Eventos del modal
+        modal.querySelector('.modal-cerrar').addEventListener('click', cerrarModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) cerrarModal();
         });
     }
+    
+    // Mostrar imagen en el modal
+    const modalImagen = document.getElementById('modal-imagen');
+    const modalTexto = modal.querySelector('.modal-texto');
+    
+    modalImagen.src = foto.url;
+    modalImagen.alt = foto.texto;
+    modalTexto.textContent = foto.texto;
+    
+    modal.style.display = 'flex';
+}
+
+// Función para cerrar el modal
+function cerrarModal() {
+    const modal = document.getElementById('modal-foto');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Función para volver a la portada
+function volverPortada() {
+    // Mostrar portada
+    const portada = document.getElementById('portada');
+    if (portada) portada.style.display = 'block';
+    
+    // Mostrar sección inspiradora
+    const inspiradora = document.getElementById('seccion-inspiradora');
+    if (inspiradora) inspiradora.style.display = 'block';
+    
+    // Ocultar galería y botón volver
+    if (gallery) gallery.style.display = 'none';
+    if (volverBtn) volverBtn.style.display = 'none';
+    
+    // Limpiar galería
+    if (gallery) gallery.innerHTML = '';
+    
+    currentSection = null;
+    
+    // Scroll al inicio
+    window.scrollTo(0, 0);
+}
+
+// Inicialización cuando el DOM está listo
+document.addEventListener('DOMContentLoaded', () => {
+    // Crear tarjetas de la portada
+    crearTarjetasPortada();
+    
+    // Configurar botón volver
+    if (volverBtn) {
+        volverBtn.addEventListener('click', volverPortada);
+        volverBtn.style.display = 'none';
+    }
+    
+    // Ocultar galería inicialmente
+    if (gallery) {
+        gallery.style.display = 'none';
+    }
+    
+    // Asegurar que la portada y sección inspiradora estén visibles
+    const portada = document.getElementById('portada');
+    if (portada) portada.style.display = 'block';
+    
+    const inspiradora = document.getElementById('seccion-inspiradora');
+    if (inspiradora) inspiradora.style.display = 'block';
+    
+    console.log('Aplicación inicializada correctamente');
+    console.log('Secciones cargadas:', window.galeriaData?.secciones?.length || 0);
 });
