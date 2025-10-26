@@ -137,19 +137,19 @@ function createHomePage(data) {
     card.className = 'card';
     
     const img = document.createElement('img');
-    img.src = seccion.imagen_seccion || 'img/default.jpg';
-    img.alt = seccion.nombre || 'Imagen';
+    img.src = seccion.preview || 'img/default.jpg';
+    img.alt = seccion.titulo || 'Imagen';
     img.loading = 'lazy';
     
     const h3 = document.createElement('h3');
-    h3.textContent = seccion.nombre || 'Sin nombre';
+    h3.textContent = seccion.titulo || 'Sin nombre';
     
     card.appendChild(img);
     card.appendChild(h3);
     
     card.addEventListener('click', () => {
-      console.log(`Click en sección: ${seccion.nombre}`);
-      window.location.href = `?section=${encodeURIComponent(seccion.nombre)}`;
+      console.log(`Click en sección: ${seccion.titulo}`);
+      window.location.href = `?section=${encodeURIComponent(seccion.id)}`;
     });
     
     container.appendChild(card);
@@ -173,7 +173,7 @@ function createGallerySections(data) {
   const sectionName = urlParams.get('section');
   console.log('Buscando sección:', sectionName);
   
-  const seccion = data.secciones.find(s => s.nombre === sectionName);
+  const seccion = data.secciones.find(s => s.id === sectionName);
   
   if (!seccion) {
     console.error(`ERROR: Sección "${sectionName}" no encontrada`);
@@ -185,7 +185,7 @@ function createGallerySections(data) {
   }
   
   console.log('✓ Sección encontrada:', seccion);
-  container.innerHTML = `<h2>${seccion.nombre}</h2>`;
+  container.innerHTML = `<h2>${seccion.titulo}</h2>`;
   
   if (!seccion.galerias || !Array.isArray(seccion.galerias)) {
     console.warn('⚠️ No hay galerías en esta sección');
