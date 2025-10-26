@@ -1,256 +1,311 @@
 // Función principal que carga y gestiona los datos
 async function loadData() {
   console.log('=== INICIO loadData ===');
-  
-  // 1. VERIFICAR CONTENEDOR
-  console.log('1. Verificando contenedor #content...');
+
+  // 1. CONTENEDOR PRINCIPAL
   const contentElement = document.getElementById('content');
-  
   if (!contentElement) {
     const errorMsg = 'ERROR CRÍTICO: No se encontró elemento con id="content"';
     console.error(errorMsg);
     document.body.innerHTML += `<div style="position:fixed;top:0;left:0;width:100%;background:red;color:white;padding:20px;z-index:9999;font-family:monospace;">${errorMsg}</div>`;
     return;
   }
-  console.log('✓ Contenedor #content encontrado:', contentElement);
-  
-  // 2. VERIFICAR window.galeriaData
-  console.log('2. Verificando window.galeriaData...');
-  console.log('window.galeriaData:', window.galeriaData);
-  console.log('typeof window.galeriaData:', typeof window.galeriaData);
-  
-  if (typeof window.galeriaData === 'undefined') {
-    const errorMsg = 'ERROR CRÍTICO: window.galeriaData no está definido';
+
+  // 2. DATOS GLOBALES
+  if (typeof window.galeriaData === 'undefined' || window.galeriaData === null || typeof window.galeriaData !== 'object') {
+    const errorMsg = 'ERROR CRÍTICO: window.galeriaData inválido o no definido';
     console.error(errorMsg);
     contentElement.innerHTML = `<div style="background:#ff6b6b;color:white;padding:40px;margin:20px;border-radius:10px;font-family:monospace;">
-      <h2>❌ ${errorMsg}</h2>
-      <p>Verifica que index.html incluya data.js antes de main.js</p>
+      ❌ ${errorMsg}
+      Verifica que index.html incluya data.js antes de main.js
     </div>`;
     return;
   }
-  console.log('✓ window.galeriaData existe');
-  
-  // 3. VERIFICAR QUE SEA UN OBJETO
-  if (window.galeriaData === null || typeof window.galeriaData !== 'object') {
-    const errorMsg = `ERROR: window.galeriaData no es un objeto válido. Tipo: ${typeof window.galeriaData}, Valor: ${window.galeriaData}`;
-    console.error(errorMsg);
-    contentElement.innerHTML = `<div style="background:#ff6b6b;color:white;padding:40px;margin:20px;border-radius:10px;font-family:monospace;">
-      <h2>❌ ${errorMsg}</h2>
-    </div>`;
-    return;
-  }
-  console.log('✓ window.galeriaData es un objeto válido');
-  
+
   const data = window.galeriaData;
-  console.log('3. Datos cargados:', JSON.stringify(data, null, 2));
-  
-  // 4. VERIFICAR data.secciones
-  console.log('4. Verificando data.secciones...');
-  console.log('data.secciones:', data.secciones);
-  console.log('typeof data.secciones:', typeof data.secciones);
-  console.log('Array.isArray(data.secciones):', Array.isArray(data.secciones));
-  
-  if (!data.secciones) {
-    const errorMsg = 'ERROR: data.secciones no existe';
+  if (!data.secciones || !Array.isArray(data.secciones) || data.secciones.length === 0) {
+    const errorMsg = 'ERROR: data.secciones inexistente o vacío';
     console.error(errorMsg);
-    contentElement.innerHTML = `<div style="background:#ff6b6b;color:white;padding:40px;margin:20px;border-radius:10px;font-family:monospace;">
-      <h2>❌ ${errorMsg}</h2>
-      <p>Estructura de datos recibida:</p>
-      <pre>${JSON.stringify(data, null, 2)}</pre>
-    </div>`;
-    return;
-  }
-  
-  if (!Array.isArray(data.secciones)) {
-    const errorMsg = `ERROR: data.secciones no es un array. Tipo: ${typeof data.secciones}`;
-    console.error(errorMsg);
-    contentElement.innerHTML = `<div style="background:#ff6b6b;color:white;padding:40px;margin:20px;border-radius:10px;font-family:monospace;">
-      <h2>❌ ${errorMsg}</h2>
-      <p>Valor de data.secciones:</p>
-      <pre>${JSON.stringify(data.secciones, null, 2)}</pre>
-    </div>`;
-    return;
-  }
-  
-  if (data.secciones.length === 0) {
-    const errorMsg = 'ADVERTENCIA: data.secciones es un array vacío';
-    console.warn(errorMsg);
     contentElement.innerHTML = `<div style="background:#ffa500;color:white;padding:40px;margin:20px;border-radius:10px;font-family:monospace;">
-      <h2>⚠️ ${errorMsg}</h2>
-      <p>No hay secciones para mostrar</p>
+      ⚠️ ${errorMsg}
     </div>`;
     return;
   }
-  
-  console.log(`✓ data.secciones es un array válido con ${data.secciones.length} elementos`);
-  console.log('5. Contenido de secciones:', JSON.stringify(data.secciones, null, 2));
-  
-  // 5. CONFIGURAR MODAL
-  console.log('6. Configurando modal...');
-  const modal = document.getElementById('imageModal');
-  const modalImg = document.getElementById('modalImage');
-  const modalClose = document.getElementById('modalClose');
-  
-  if (!modal || !modalImg || !modalClose) {
-    console.warn('⚠️ Elementos del modal no encontrados:', { modal: !!modal, modalImg: !!modalImg, modalClose: !!modalClose });
-  } else {
-    console.log('✓ Modal configurado correctamente');
-    modalClose.onclick = () => {
-      modal.style.display = 'none';
+
+  // 3. CONFIGURAR ENLACE HOME EN LOGO/TÍTULO
+  const logo = document.getElementById('logoHome');
+  if (logo) {
+    logo.style.cursor = 'pointer';
+    logo.setAttribute('role', 'link');
+    logo.setAttribute('tabindex', '0');
+    logo.title = 'Volver al inicio';
+    const goHome = () => {
+      const clean = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, '', clean);
+      // volver a renderizar home
+      createHomePage(data);
+      // Enfocar el contenedor
+      const content = document.getElementById('content');
+      if (content) content.focus({ preventScroll: true });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+    logo.onclick = goHome;
+    logo.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        goHome();
+      }
+    });
   }
-  
-  // 6. RENDERIZAR PÁGINA
-  console.log('7. Renderizando página...');
+
+  // 4. CONFIGURAR MODAL ACCESIBLE
+  setupModalAccessibility();
+
+  // 5. RENDER SEGÚN PARÁMETRO
   const urlParams = new URLSearchParams(window.location.search);
   const section = urlParams.get('section');
-  console.log('Parámetro section:', section);
-  
   if (!section) {
-    console.log('→ Renderizando home page');
     createHomePage(data);
   } else {
-    console.log(`→ Renderizando sección: ${section}`);
     createGallerySections(data);
   }
-  
-  console.log('=== FIN loadData ===');
+}
+
+// Configuración y helpers del modal
+function setupModalAccessibility() {
+  const modal = document.getElementById('modal') || document.getElementById('imageModal');
+  const modalImg = document.getElementById('modal-img') || document.getElementById('modalImage');
+  const modalClose = document.querySelector('.close') || document.getElementById('modalClose');
+  if (!modal || !modalImg) {
+    console.warn('⚠️ Elementos del modal faltantes', { modal: !!modal, modalImg: !!modalImg });
+    return;
+  }
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-label', 'Visor de imagen');
+  modal.style.display = 'none';
+
+  const closeModal = () => {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    modalImg.removeAttribute('src');
+    // devolver el foco si hay último trigger
+    const last = modal._lastTrigger;
+    if (last && last.focus) {
+      last.focus();
+    }
+  };
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal || e.target === modalImg) closeModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (modal.style.display !== 'none' && (e.key === 'Escape' || e.key === 'Esc')) {
+      closeModal();
+    }
+  });
+  if (modalClose) {
+    modalClose.addEventListener('click', (e) => { e.stopPropagation(); closeModal(); });
+  }
+  // guardar utilidades en el nodo para reuso
+  modal._openWith = (src, trigger) => {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    modalImg.src = src;
+    modal._lastTrigger = trigger || null;
+    // centrado y alto
+    modal.style.alignItems = 'center';
+    modal.style.justifyContent = 'center';
+    modalImg.style.maxWidth = '90vw';
+    modalImg.style.maxHeight = '90vh';
+  };
 }
 
 // Crea la página de inicio
 function createHomePage(data) {
   console.log('=== createHomePage INICIO ===');
   const container = document.getElementById('content');
-  
-  if (!container) {
-    console.error('ERROR en createHomePage: contenedor #content no encontrado');
-    return;
-  }
-  
-  console.log(`Creando ${data.secciones.length} tarjetas...`);
+  if (!container) return;
+
+  // limpiar URL de sección
+  const clean = window.location.origin + window.location.pathname;
+  if (window.location.href !== clean) window.history.replaceState({}, '', clean);
+
+  // Reset contenido
   container.innerHTML = '';
-  
+  container.setAttribute('tabindex', '-1');
+
+  const grid = document.createElement('div');
+  grid.id = 'section-cards';
+  grid.className = 'section-cards';
+
   data.secciones.forEach((seccion, index) => {
-    console.log(`Procesando sección ${index + 1}:`, seccion);
-    
-    const card = document.createElement('div');
+    // Card accesible como botón/enlace
+    const card = document.createElement('article');
     card.className = 'card';
-    
+    card.setAttribute('role', 'link');
+    card.setAttribute('tabindex', '0');
+    card.style.cursor = 'pointer';
+    card.setAttribute('aria-label', `Abrir sección ${seccion.titulo || seccion.id || index + 1}`);
+
     const img = document.createElement('img');
     img.src = seccion.preview || 'img/default.jpg';
-    img.alt = seccion.titulo || 'Imagen';
+    img.alt = seccion.titulo ? `Miniatura de ${seccion.titulo}` : 'Miniatura de sección';
     img.loading = 'lazy';
-    
+
     const h3 = document.createElement('h3');
     h3.textContent = seccion.titulo || 'Sin nombre';
-    
+
+    const p = document.createElement('p');
+    p.className = 'card-desc';
+    p.textContent = seccion.descripcion || seccion.resumen || 'Explorar galería';
+
     card.appendChild(img);
     card.appendChild(h3);
-    
-    card.addEventListener('click', () => {
-      console.log(`Click en sección: ${seccion.titulo}`);
+    card.appendChild(p);
+
+    const openSection = () => {
       window.location.href = `?section=${encodeURIComponent(seccion.id)}`;
+    };
+    card.addEventListener('click', openSection);
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openSection();
+      }
     });
-    
-    container.appendChild(card);
+
+    grid.appendChild(card);
   });
-  
+
+  container.appendChild(grid);
+
+  // Sección inspiradora al final de la portada
+  const inspiration = document.getElementById('inspiration-section');
+  if (inspiration) {
+    // si ya existe en el DOM (index.html), simplemente moverlo al final del contenedor
+    container.appendChild(inspiration);
+  } else {
+    // fallback: crear rápidamente si no existe
+    const wrap = document.createElement('div');
+    wrap.id = 'inspiration-section';
+    wrap.innerHTML = `
+      <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:28px;align-items:center;
+                  background:linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));
+                  border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px;
+                  box-shadow:0 10px 30px rgba(0,0,0,0.35);backdrop-filter:blur(2px);">
+        <div style="text-align:left;max-width:640px;margin:0 auto;">
+          <h2 style="font-size:clamp(1.8rem,3.2vw,2.3rem);margin:0 0 14px;color:#FDB813;">El Arte de Capturar el Momento</h2>
+          <p style="font-size:1.05rem;line-height:1.75;margin:0 0 12px;color:#e6e6e6;">
+            En la fotografía, cada instante es único e irrepetible. Un mismo momento, contemplado a través de diferentes miradas, revela infinitas perspectivas y emociones...
+          </p>
+          <p style="font-size:1.05rem;line-height:1.75;margin:0 0 12px;color:#e6e6e6;">
+            Cada fotografía es un diálogo silencioso entre el observador y el instante congelado en el tiempo...
+          </p>
+          <p style="font-size:1.05rem;line-height:1.75;margin:0;color:#e6e6e6;">
+            Porque al final, fotografiar es mucho más que presionar un botón. Es el arte de ver lo invisible...
+          </p>
+        </div>
+        <div style="position:relative;width:100%;max-width:520px;margin:0 auto;border-radius:14px;overflow:hidden;
+                    background:radial-gradient(600px 300px at 50% 60%, rgba(255,255,255,0.08), rgba(0,0,0,0.6));
+                    box-shadow:0 10px 26px rgba(0,0,0,0.45);aspect-ratio:4/5;display:flex;align-items:center;justify-content:center;">
+          <img src="https://images2.imgbox.com/a7/ae/imIfzK4c_o.jpg" alt="Retrato artístico" style="width:100%;height:100%;object-fit:cover;object-position:center 45%;display:block;filter:contrast(1.02) saturate(1.02);" />
+        </div>
+      </div>`;
+    container.appendChild(wrap);
+  }
+
   console.log('✓ Home page renderizada');
-  console.log('=== createHomePage FIN ===');
 }
 
 // Crea las galerías de una sección
 function createGallerySections(data) {
-  console.log('=== createGallerySections INICIO ===');
   const container = document.getElementById('content');
-  
-  if (!container) {
-    console.error('ERROR en createGallerySections: contenedor #content no encontrado');
-    return;
-  }
-  
+  if (!container) return;
+
   const urlParams = new URLSearchParams(window.location.search);
   const sectionName = urlParams.get('section');
-  console.log('Buscando sección:', sectionName);
-  
   const seccion = data.secciones.find(s => s.id === sectionName);
-  
   if (!seccion) {
-    console.error(`ERROR: Sección "${sectionName}" no encontrada`);
     container.innerHTML = `<div style="background:#ff6b6b;color:white;padding:40px;margin:20px;border-radius:10px;font-family:monospace;">
-      <h2>❌ Sección "${sectionName}" no encontrada</h2>
-      <p><a href="index.html" style="color:white;">Volver al inicio</a></p>
+      ❌ Sección "${sectionName}" no encontrada
+      <a href="index.html" style="color:white;">Volver al inicio</a>
     </div>`;
     return;
   }
-  
-  console.log('✓ Sección encontrada:', seccion);
-  container.innerHTML = `<h2>${seccion.titulo}</h2>`;
-  
-  if (!seccion.galerias || !Array.isArray(seccion.galerias)) {
-    console.warn('⚠️ No hay galerías en esta sección');
-    container.innerHTML += '<p>No hay galerías disponibles</p>';
-    return;
-  }
-  
-  console.log(`Procesando ${seccion.galerias.length} galerías...`);
-  
-  seccion.galerias.forEach((galeria, gIndex) => {
-    console.log(`Galería ${gIndex + 1}:`, galeria);
-    
-    const galeriaDiv = document.createElement('div');
+
+  container.innerHTML = '';
+  const title = document.createElement('h2');
+  title.textContent = seccion.titulo || seccion.id;
+  container.appendChild(title);
+
+  // contenedor de galerías
+  seccion.galerias?.forEach((galeria) => {
+    const galeriaDiv = document.createElement('section');
     galeriaDiv.className = 'galeria';
-    
+
     const titulo = document.createElement('h3');
     titulo.textContent = galeria.titulo || 'Sin título';
     galeriaDiv.appendChild(titulo);
-    
-    if (!galeria.fotos || !Array.isArray(galeria.fotos)) {
-      console.warn(`⚠️ Galería "${galeria.titulo}" sin fotos válidas`);
-      return;
-    }
-    
-    console.log(`  → ${galeria.fotos.length} fotos en galería "${galeria.titulo}"`);
-    
-    galeria.fotos.forEach((foto, fIndex) => {
-      console.log(`    Foto ${fIndex + 1}:`, foto);
-      
-      const fotoDiv = document.createElement('div');
-      fotoDiv.className = 'foto';
-      
+
+    if (!Array.isArray(galeria.fotos)) return;
+
+    const grid = document.createElement('div');
+    grid.className = 'galeria-grid';
+
+    galeria.fotos.forEach((foto, idx) => {
+      const src = typeof foto === 'string' ? foto : (foto.src || foto.thumb || foto.url);
+      const alt = (typeof foto === 'object' && (foto.alt || foto.titulo)) || `Foto ${idx + 1}`;
+      const full = (typeof foto === 'object' && (foto.full || foto.hd || foto.src)) || src;
+
+      const item = document.createElement('figure');
+      item.className = 'foto';
+
       const img = document.createElement('img');
-      img.src = foto.src || foto;
-      img.alt = foto.alt || `Foto ${fIndex + 1}`;
+      img.src = src;
+      img.alt = alt;
       img.loading = 'lazy';
-      
-      img.addEventListener('click', () => {
-        console.log('Click en foto:', foto);
-        const modal = document.getElementById('imageModal');
-        const modalImg = document.getElementById('modalImage');
-        if (modal && modalImg) {
+
+      const figcap = document.createElement('figcaption');
+      figcap.textContent = (typeof foto === 'object' && (foto.caption || foto.descripcion)) || '';
+
+      item.appendChild(img);
+      if (figcap.textContent) item.appendChild(figcap);
+
+      const open = (triggerEl) => {
+        const modal = document.getElementById('modal') || document.getElementById('imageModal');
+        const modalImg = document.getElementById('modal-img') || document.getElementById('modalImage');
+        if (!modal || !modalImg) return;
+        if (typeof modal._openWith === 'function') {
+          modal._openWith(full, triggerEl || img);
+        } else {
           modal.style.display = 'flex';
-          modalImg.src = img.src;
+          document.body.style.overflow = 'hidden';
+          modalImg.src = full;
         }
+      };
+
+      // Interacciones accesibles
+      item.style.cursor = 'zoom-in';
+      item.setAttribute('tabindex', '0');
+      item.setAttribute('role', 'button');
+      item.setAttribute('aria-label', `Ampliar ${alt}`);
+      item.addEventListener('click', () => open(item));
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(item); }
       });
-      
-      fotoDiv.appendChild(img);
-      galeriaDiv.appendChild(fotoDiv);
+
+      grid.appendChild(item);
     });
-    
+
+    galeriaDiv.appendChild(grid);
     container.appendChild(galeriaDiv);
   });
-  
-  console.log('✓ Galerías renderizadas');
-  console.log('=== createGallerySections FIN ===');
 }
 
 // Ejecutar cuando el DOM esté listo
 if (document.readyState === 'loading') {
-  console.log('DOM aún cargando, esperando DOMContentLoaded...');
   document.addEventListener('DOMContentLoaded', loadData);
 } else {
-  console.log('DOM ya listo, ejecutando loadData inmediatamente...');
   loadData();
 }
-
 console.log('✓ main.js cargado y configurado');
