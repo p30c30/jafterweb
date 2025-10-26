@@ -65,22 +65,63 @@ async function loadData() {
 // Renderizar home principal
 function createHomePage(data) {
   const container = document.getElementById('content');
-  if (!container) return;
   container.innerHTML = '';
+
+  // Título principal
   const title = document.createElement('h1');
-  title.textContent = data.titulo || 'Galería';
+  title.textContent = "Galería Jafter";
   container.appendChild(title);
-  data.secciones.forEach((seccion) => {
-    const secDiv = document.createElement('div');
-    secDiv.className = 'seccion';
-    const link = document.createElement('a');
-    link.href = `?section=${seccion.id}`;
-    link.textContent = seccion.titulo || seccion.id;
-    link.className = 'seccion-link';
-    secDiv.appendChild(link);
-    container.appendChild(secDiv);
+
+  // Frase inspiradora bajo el título
+  const frase = document.createElement('div');
+  frase.className = 'subtitle';
+  frase.textContent = "Explora mis colecciones fotográficas";
+  container.appendChild(frase);
+
+  // Grid de tarjetas de secciones
+  const grid = document.createElement('div');
+  grid.className = 'section-cards';
+  data.secciones.forEach(seccion => {
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.tabIndex = 0;
+    card.style.cursor = 'pointer';
+
+    const img = document.createElement('img');
+    img.src = seccion.preview;
+    img.alt = seccion.titulo;
+    img.loading = 'lazy';
+
+    const h3 = document.createElement('h3');
+    h3.textContent = seccion.titulo;
+
+    const desc = document.createElement('p');
+    desc.className = 'card-desc';
+    desc.textContent = seccion.descripcion || 'Explorar galería';
+
+    card.append(img, h3, desc);
+
+    card.addEventListener('click', () => {
+      window.location.href = `?section=${encodeURIComponent(seccion.id)}`;
+    });
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        window.location.href = `?section=${encodeURIComponent(seccion.id)}`;
+      }
+    });
+
+    grid.appendChild(card);
   });
+
+  container.appendChild(grid);
+
+  // Sección inspiradora al final
+  const inspiration = document.getElementById('inspiration-section');
+  if (inspiration) {
+    container.appendChild(inspiration);
+  }
 }
+
 
 // Renderizar sección seleccionada
 function createGallerySections(data) {
