@@ -1,128 +1,159 @@
-// Función principal que carga y gestiona los datos para la galería
-async function loadData() {
-  const contentElement = document.getElementById('content');
-  if (!contentElement) return;
+// Configuración inicial
+const CONFIG = {
+    animationDuration: 300,
+    fadeInDelay: 100,
+    scrollOffset: 80,
+    mobileBreakpoint: 768,
+    transitionDuration: 300
+};
 
-  // Validación básica
-  if (typeof window.galeriaData === 'undefined' || window.galeriaData === null || typeof window.galeriaData !== 'object') {
-    contentElement.innerHTML = '<p style="color:red;">❌ Error crítico: window.galeriaData no está definido correctamente.</p>';
-    return;
-  }
-  const data = window.galeriaData;
-  if (!data.secciones || !Array.isArray(data.secciones) || data.secciones.length === 0) {
-    contentElement.innerHTML = '<p style="color:red;">⚠️ No hay secciones disponibles para mostrar.</p>';
-    return;
-  }
+// Función para crear las secciones de la galería
+function createGallerySections() {
+    const gallery = document.getElementById('gallery');
+    if (!gallery || !window.portfolioData) return;
 
-  // Verifica parámetro de sección en la URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const section = urlParams.get('section');
-  if (!section) {
-    createHomePage(data);
-  } else {
-    createGallerySections(data);
-  }
+    const categories = {
+        furniture: { title: 'Mobiliario', icon: '🪑' },
+        kitchen: { title: 'Cocina', icon: '🍳' },
+        bathroom: { title: 'Baño', icon: '🚿' },
+        decoration: { title: 'Decoración', icon: '✨' },
+        lighting: { title: 'Iluminación', icon: '💡' }
+    };
+
+    let html = '';
+    for (const [key, category] of Object.entries(categories)) {
+        const items = window.portfolioData[key] || [];
+        if (items.length === 0) continue;
+
+        html += `
+            <section class="gallery-category" id="${key}">
+                <div class="category-header">
+                    <span class="category-icon">${category.icon}</span>
+                    <h2 class="category-title">${category.title}</h2>
+                </div>
+                <div class="gallery-grid">
+        `;
+
+        items.forEach(item => {
+            html += `
+                <div class="gallery-item" data-category="${key}">
+                    <div class="item-image">
+                        <img src="${item.image}" alt="${item.title}" loading="lazy">
+                        <div class="item-overlay">
+                            <h3 class="item-title">${item.title}</h3>
+                            <p class="item-description">${item.description}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </section>
+        `;
+    }
+
+    gallery.innerHTML = html;
 }
 
-// FUNCIONA PARA LA PORTADA PRINCIPAL Y MUEVE LA SECCIÓN INSPIRADORA AL FINAL
-function createHomePage(data) {
-  const container = document.getElementById('content');
-  container.innerHTML = '';
+// Función para crear el contenido de inspiración
+function createInspirationContent() {
+    const inspiration = document.getElementById('inspiration');
+    if (!inspiration) return;
 
-  // Título principal
-  const title = document.createElement('h1');
-  title.textContent = "Galería Jafter";
-  container.appendChild(title);
+    const inspirationData = [
+        {
+            title: 'Minimalismo Nórdico',
+            description: 'Espacios luminosos con líneas limpias y funcionalidad',
+            image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800',
+            tags: ['Escandinavo', 'Minimalista', 'Luminoso']
+        },
+        {
+            title: 'Estilo Industrial',
+            description: 'Combinación de materiales crudos y acabados modernos',
+            image: 'https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=800',
+            tags: ['Industrial', 'Urbano', 'Moderno']
+        },
+        {
+            title: 'Diseño Contemporáneo',
+            description: 'Elegancia y sofisticación en cada detalle',
+            image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800',
+            tags: ['Contemporáneo', 'Elegante', 'Sofisticado']
+        }
+    ];
 
-  // Frase inspiradora bajo el título
-  const frase = document.createElement('div');
-  frase.className = 'subtitle';
-  frase.textContent = "Explora mis colecciones fotográficas";
-  container.appendChild(frase);
-
-  // Grid de tarjetas de secciones
-  const grid = document.createElement('div');
-  grid.className = 'section-cards';
-
-  data.secciones.forEach(seccion => {
-    const card = document.createElement('article');
-    card.className = 'card';
-    card.tabIndex = 0;
-    card.style.cursor = 'pointer';
-
-    const img = document.createElement('img');
-    img.src = seccion.preview;
-    img.alt = seccion.titulo;
-    img.loading = 'lazy';
-
-    const h3 = document.createElement('h3');
-    h3.textContent = seccion.titulo;
-
-    const desc = document.createElement('p');
-    desc.className = 'card-desc';
-    desc.textContent = seccion.descripcion || 'Explorar galería';
-
-    card.append(img, h3, desc);
-
-    card.addEventListener('click', () => {
-      window.location.href = `?section=${encodeURIComponent(seccion.id)}`;
+    let html = '<div class="inspiration-grid">';
+    inspirationData.forEach(item => {
+        html += `
+            <div class="inspiration-card">
+                <div class="inspiration-image">
+                    <img src="${item.image}" alt="${item.title}" loading="lazy">
+                </div>
+                <div class="inspiration-content">
+                    <h3>${item.title}</h3>
+                    <p>${item.description}</p>
+                    <div class="inspiration-tags">
+        `;
+        item.tags.forEach(tag => {
+            html += `<span class="tag">${tag}</span>`;
+        });
+        html += `
+                    </div>
+                </div>
+            </div>
+        `;
     });
-    card.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        window.location.href = `?section=${encodeURIComponent(seccion.id)}`;
-      }
-    });
+    html += '</div>';
 
-    grid.appendChild(card);
-  });
-
-  container.appendChild(grid);
-
-  // Sección inspiradora al final
-  let inspiration = document.getElementById('inspiration-section');
-  if (inspiration) {
-    container.appendChild(inspiration);
-  } else {
-    inspiration = document.createElement('div');
-    inspiration.id = 'inspiration-section';
-    inspiration.innerHTML = `
-      <h2>El Arte de Capturar el Momento</h2>
-      <p>En la fotografía, cada instante es único e irrepetible. Un mismo momento, contemplado a través de diferentes miradas, revela infinitas perspectivas y emociones...</p>
-      <p>Cada fotografía es un diálogo silencioso entre el observador y el instante congelado en el tiempo...</p>
-      <p>Porque al final, fotografiar es mucho más que presionar un botón. Es el arte de ver lo invisible...</p>
-    `;
-    container.appendChild(inspiration);
-  }
+    inspiration.innerHTML = html;
 }
 
-// Esta función renderiza la galería de una sección específica
-function createGallerySections(data) {
-  const urlParams = new URLSearchParams(window.location.search);
-  const sectionId = urlParams.get('section');
-  if (!sectionId) return;
-  const seccion = data.secciones.find(s => s.id === sectionId);
-  if (!seccion) {
-    return;
-  }
-  const container = document.getElementById('content');
-  if (!container) return;
-  container.innerHTML = '';
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    createGallerySections();
+    createInspirationContent();
 
-  // Cabecera y botón volver
-  const header = document.createElement('header');
-  header.className = 'section-header';
-  const backBtn = document.createElement('button');
-  backBtn.textContent = '← Volver';
-  backBtn.className = 'back-btn';
-  backBtn.onclick = () => { window.location.href = window.location.pathname; };
-  backBtn.setAttribute('aria-label', 'Volver al inicio');
-  header.appendChild(backBtn);
+    // Navegación suave
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(anchor.getAttribute('href'));
+            if (target) {
+                const offsetTop = target.offsetTop - CONFIG.scrollOffset;
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
 
-  const title = document.createElement('h2');
-  title.textContent = seccion.titulo || seccion.id;
-  header.appendChild(title);
-  container.appendChild(header);
+    // Animación de aparición de elementos
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
 
-  // Galería de fotos (miniaturas)
-  const galeriaDiv = document.createElement('div');
-  galeriaDiv.className = 'galeria
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('fade-in');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.gallery-item, .inspiration-card').forEach(item => {
+        observer.observe(item);
+    });
+
+    // Menú móvil
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navMenu = document.querySelector('nav ul');
+    if (menuToggle && navMenu) {
+        menuToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+        });
+    }
+});
