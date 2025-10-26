@@ -10,13 +10,11 @@
   <header class="site-header">
     <div class="logo" id="logoHome" role="button" aria-label="Ir a inicio" onclick="location.reload()">Galería Jafter</div>
   </header>
-
   <main id="content" class="container">
     <!-- Vista principal -->
     <div id="home-view" class="home-view">
       <h1 style="text-align: center; margin-bottom: 30px;">Explora mis colecciones fotográficas</h1>
       <div id="section-cards" class="section-cards"></div>
-
       <!-- Sección inspiradora -->
       <div id="inspiration-section" style="max-width: 1100px; margin: 64px auto; padding: 0 20px;">
         <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 28px; align-items: center; background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); backdrop-filter: blur(2px);">
@@ -47,24 +45,21 @@
         </style>
       </div>
     </div>
-
     <!-- Secciones dinámicas -->
     <div id="gallery-sections"></div>
   </main>
-
   <!-- Modal -->
   <div id="modal" class="modal" onclick="hideModal()">
     <button class="close" aria-label="Cerrar" onclick="hideModal(); event.stopPropagation()">×</button>
     <img id="modal-img" src="" alt="Foto grande" />
   </div>
-
   <footer class="site-footer">
     <div class="contact-info">
-      Contacto: <a href="mailto:tuemail@ejemplo.com">tuemail@ejemplo.com</a><br />
+      Contacto: <a href="mailto:tuemail@ejemplo.com">tuemail@ejemplo.com</a> /<br />
       © 2025 Galería Jafter
     </div>
   </footer>
-
+  <script src="data.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
