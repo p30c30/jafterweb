@@ -11,9 +11,15 @@ async function cargarSecciones() {
         const data = await response.json();
         console.log('✅ Datos cargados:', data);
         
-        const container = document.getElementById('secciones-container');
+        // Buscar el contenedor correcto - probar diferentes IDs
+        let container = document.getElementById('secciones-container');
         if (!container) {
-            console.error('❌ No se encontró el contenedor de secciones');
+            container = document.getElementById('section-cards');
+            console.log('🔄 Usando contenedor alternativo:', container);
+        }
+        
+        if (!container) {
+            console.error('❌ No se encontró ningún contenedor de secciones');
             return;
         }
         
@@ -47,7 +53,9 @@ async function cargarSecciones() {
         console.log('🎉 Secciones cargadas correctamente');
     } catch (error) {
         console.error('❌ Error cargando secciones:', error);
-        const container = document.getElementById('secciones-container');
+        // Buscar contenedor alternativo para mostrar error
+        let container = document.getElementById('secciones-container') || 
+                       document.getElementById('section-cards');
         if (container) {
             container.innerHTML = '<p style="text-align: center; color: #ff6b6b; padding: 2rem;">Error cargando las secciones. Por favor, recarga la página.</p>';
         }
@@ -91,7 +99,6 @@ function mostrarVistaSeccion(seccion) {
     
     // Ocultar vista principal
     const homeView = document.getElementById('home-view');
-    const gallerySections = document.getElementById('gallery-sections');
     
     if (homeView) homeView.style.display = 'none';
     
@@ -160,6 +167,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // También cargar secciones para la vista principal
     if (!window.location.hash || !window.location.hash.startsWith('#seccion/')) {
-        cargarSecciones();
+        // Pequeño delay para asegurar que el DOM esté listo
+        setTimeout(() => {
+            cargarSecciones();
+        }, 100);
     }
+});
+
+// También manejar cambios en el hash
+window.addEventListener('hashchange', function() {
+    cargarSeccionDesdeHash();
 });
