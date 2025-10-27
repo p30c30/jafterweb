@@ -1,40 +1,15 @@
 // Cargar y mostrar las secciones
 async function cargarSecciones() {
     try {
-        console.log('🔍 Buscando contenedor de secciones...');
+        console.log('🔍 Buscando contenedor con ID: secciones-container');
         
-        // Buscar el contenedor de múltiples formas
-        let container = document.getElementById('section-cards');
-        
-        if (!container) {
-            console.log('🔄 Contenedor no encontrado, buscando alternativas...');
-            // Buscar por clase
-            container = document.querySelector('.section-cards');
-        }
+        // Buscar el contenedor con el ID CORRECTO
+        const container = document.getElementById('secciones-container');
+        console.log('📦 Contenedor encontrado:', container);
         
         if (!container) {
-            console.log('🔄 Buscando en home-view...');
-            const homeView = document.getElementById('home-view');
-            if (homeView) {
-                container = homeView.querySelector('#section-cards') || homeView.querySelector('.section-cards');
-            }
-        }
-        
-        console.log('📦 Contenedor:', container);
-        
-        if (!container) {
-            console.error('❌ No se pudo encontrar ningún contenedor para las secciones');
-            // Crear un contenedor si no existe
-            const homeView = document.getElementById('home-view');
-            if (homeView) {
-                container = document.createElement('div');
-                container.id = 'section-cards';
-                container.className = 'section-cards';
-                homeView.appendChild(container);
-                console.log('✅ Contenedor creado:', container);
-            } else {
-                return;
-            }
+            console.error('❌ No se pudo encontrar el contenedor secciones-container');
+            return;
         }
         
         const response = await fetch('data.json');
@@ -77,7 +52,7 @@ async function cargarSecciones() {
         
     } catch (error) {
         console.error('❌ Error cargando secciones:', error);
-        const container = document.getElementById('section-cards') || document.querySelector('.section-cards');
+        const container = document.getElementById('secciones-container');
         if (container) {
             container.innerHTML = '<p style="text-align: center; color: #ff6b6b; padding: 2rem;">Error cargando las secciones. Por favor, recarga la página.</p>';
         }
