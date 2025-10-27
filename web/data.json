@@ -1,92 +1,142 @@
 {
-    "secciones": [
+  "secciones": [
+    {
+      "id": "paisajes",
+      "titulo": "Paisajes",
+      "descripcion": "Capturas de la belleza natural y urbana",
+      "preview": "https://i.ibb.co/4wDyzvq1/P1109293-Mejorado-NR-Editar.jpg",
+      "fotos": [
         {
-            "id": "paisajes",
-            "titulo": "Paisajes",
-            "descripcion": "Capturas de la belleza natural y urbana",
-            "preview": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400&h=300&fit=crop",
-            "fotos": [
-                {
-                    "miniatura": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=300&h=200&fit=crop",
-                    "url": "https://images.unsplash.com/photo-1506744038136-46273834b3fb",
-                    "texto": "Lago montañoso al atardecer - Reemplaza con tu foto"
-                },
-                {
-                    "miniatura": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=300&h=200&fit=crop",
-                    "url": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05",
-                    "texto": "Neblina en el bosque - Reemplaza con tu foto"
-                },
-                {
-                    "miniatura": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=300&h=200&fit=crop",
-                    "url": "https://images.unsplash.com/photo-1469474968028-56623f02e42e",
-                    "texto": "Paisaje natural con colores vibrantes - Reemplaza con tu foto"
-                }
-            ]
+          "miniatura": "https://i.ibb.co/6cphz9MX/P1109293-Mejorado-NR-Editar.jpg",
+          "url": "https://i.ibb.co/4wDyzvq1/P1109293-Mejorado-NR-Editar.jpg",
+          "texto": "Atardecer con montañas al fondo; la luz y las nubes generan una atmósfera pictórica."
         },
         {
-            "id": "spotting",
-            "titulo": "Spotting",
-            "descripcion": "Fotografía de aviación y transporte",
-            "preview": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&h=300&fit=crop",
-            "fotos": [
-                {
-                    "miniatura": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=300&h=200&fit=crop",
-                    "url": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05",
-                    "texto": "Avión en vuelo - Reemplaza con tu foto"
-                }
-            ]
+          "miniatura": "https://i.ibb.co/bMFJzfyV/P1108274-Mejorado-NR-Editar-Editar-2-3.jpg",
+          "url": "https://i.ibb.co/q3C5kZ48/P1108274-Mejorado-NR-Editar-Editar-2-3.jpg",
+          "texto": "Cielos crepusculares reflejados en paisajes urbanos, geometría y luces cálidas."
         },
         {
-            "id": "viajes",
-            "titulo": "Viajes",
-            "descripcion": "Momentos capturados en diferentes destinos",
-            "preview": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=400&h=300&fit=crop",
-            "fotos": [
-                {
-                    "miniatura": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=300&h=200&fit=crop",
-                    "url": "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800",
-                    "texto": "Paisaje de viaje - Reemplaza con tu foto"
-                }
-            ]
+          "miniatura": "https://i.ibb.co/5hvcF9Ly/P1107336-Mejorado-NR-Editar-Editar-2.jpg",
+          "url": "https://i.ibb.co/Jj2kQdH4/P1107336-Mejorado-NR-Editar-Editar-2.jpg",
+          "texto": "Vista marina tranquila, el agua espejea el cielo en tonos pastel."
         },
         {
-            "id": "calles",
-            "titulo": "Calles",
-            "descripcion": "Vida urbana y escenas callejeras",
-            "preview": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop",
-            "fotos": [
-                {
-                    "miniatura": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=300&h=200&fit=crop",
-                    "url": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000",
-                    "texto": "Escena urbana - Reemplaza con tu foto"
-                }
-            ]
+          "miniatura": "https://i.ibb.co/Mxk6vc78/P1102706-Mejorado-NR-Editar-Editar.jpg",
+          "url": "https://i.ibb.co/213N9vd8/P1102706-Mejorado-NR-Editar-Editar.jpg",
+          "texto": "Valle verde profundo y cielo dramático, ambiente de aventura y calma natural."
         },
         {
-            "id": "personas",
-            "titulo": "Personas",
-            "descripcion": "Retratos y fotografía de personas",
-            "preview": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=300&fit=crop",
-            "fotos": [
-                {
-                    "miniatura": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&h=200&fit=crop",
-                    "url": "https://images.unsplash.com/photo-1494790108755-2616b612b786",
-                    "texto": "Retrato - Reemplaza con tu foto"
-                }
-            ]
+          "miniatura": "https://i.ibb.co/1YJpw4Kh/P1102626-Mejorado-NR-Editar-Editar.jpg",
+          "url": "https://i.ibb.co/TDqnFNRp/P1102626-Mejorado-NR-Editar-Editar.jpg",
+          "texto": "Bosque húmedo y neblinoso, donde misterio y silencio reinan."
         },
         {
-            "id": "artistica",
-            "titulo": "Artística",
-            "descripcion": "Fotografía creativa y experimental",
-            "preview": "https://images.unsplash.com/photo-1543857778-c4a1a569e388?w=400&h=300&fit=crop",
-            "fotos": [
-                {
-                    "miniatura": "https://images.unsplash.com/photo-1543857778-c4a1a569e388?w=300&h=200&fit=crop",
-                    "url": "https://images.unsplash.com/photo-1543857778-c4a1a569e388",
-                    "texto": "Arte abstracto - Reemplaza con tu foto"
-                }
-            ]
+          "miniatura": "https://i.ibb.co/1tVScR2n/P1099143-Mejorado-NR-Editar.jpg",
+          "url": "https://i.ibb.co/8L3hkP8B/P1099143-Mejorado-NR-Editar.jpg",
+          "texto": "Amanecer sobre las colinas, el sol como pincel iluminando el inicio del día."
         }
-    ]
+      ]
+    },
+    {
+      "id": "spotting",
+      "titulo": "Spotting",
+      "descripcion": "Fotografía de aviación y transporte",
+      "preview": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
+      "fotos": [
+        {
+          "miniatura": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
+          "url": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
+          "texto": "McDonnell Douglas EF-18 Hornet: potencia en vuelo, precisión y fuerza aérea."
+        },
+        {
+          "miniatura": "https://i.ibb.co/B5gymn1b/HT-17-27-A-ET-427-10288-Boeing-CH-47-F-Ckinook-Block-II-Firma.jpg",
+          "url": "https://i.ibb.co/B5gymn1b/HT-17-27-A-ET-427-10288-Boeing-CH-47-F-Ckinook-Block-II-Firma.jpg",
+          "texto": "Boeing CH-47F Chinook: doble rotor en acción, poder y técnica en transporte militar."
+        },
+        {
+          "miniatura": "https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
+          "url": "https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
+          "texto": "Eurocopter AS365 Dauphin - Helicóptero Guardia Civil, patrulla aérea sobre paisaje urbano."
+        },
+        {
+          "miniatura": "https://i.ibb.co/DXn7hd1/Eurofighter-50-aniversario-14-66.jpg",
+          "url": "https://i.ibb.co/DXn7hd1/Eurofighter-50-aniversario-14-66.jpg",
+          "texto": "Eurofighter Typhoon en vuelo: tecnología y diseño celebrando 50 años de excelencia."
+        },
+        {
+          "miniatura": "https://i.ibb.co/N2twztDr/Diamond-Aircraft-DA-62-MPP-OO-MSA.jpg",
+          "url": "https://i.ibb.co/WvGS1G80/Diamond-Aircraft-DA-62-MPP-OO-MSA.jpg",
+          "texto": "Diamond DA62 MPP, modernidad en vuelo de reconocimiento, líneas limpias y aerodinámica avanzada."
+        }
+      ]
+    },
+    {
+      "id": "viajes",
+      "titulo": "Viajes",
+      "descripcion": "Momentos capturados en diferentes destinos",
+      "preview": "https://i.ibb.co/Rp1CzRZY/Riogordo-desde-carretera-Colmenar.jpg",
+      "fotos": [
+        {
+          "miniatura": "https://i.ibb.co/Rp1CzRZY/Riogordo-desde-carretera-Colmenar.jpg",
+          "url": "https://i.ibb.co/Rp1CzRZY/Riogordo-desde-carretera-Colmenar.jpg",
+          "texto": "Pueblo blanco de Andalucía desde la carretera, paisaje de España profundo y tradicional."
+        },
+        {
+          "miniatura": "https://i.ibb.co/0p4ySNQ9/puerto-belero-3-Editar-Editar.jpg",
+          "url": "https://i.ibb.co/0p4ySNQ9/puerto-belero-3-Editar-Editar.jpg",
+          "texto": "Puerto antiguo y embarcadero: calma, agua quieta y barcos en reposo."
+        }
+      ]
+    },
+    {
+      "id": "calles",
+      "titulo": "Calles",
+      "descripcion": "Vida urbana y escenas callejeras",
+      "preview": "https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
+      "fotos": [
+        {
+          "miniatura": "https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
+          "url": "https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
+          "texto": "Noria iluminada en el puerto, las luces juegan con el movimiento nocturno."
+        },
+        {
+          "miniatura": "https://i.ibb.co/S4C5ZzGT/Metro-bnw-2.jpg",
+          "url": "https://i.ibb.co/S4C5ZzGT/Metro-bnw-2.jpg",
+          "texto": "Escena urbana de metro en blanco y negro, contraste de modernidad y rutina diaria."
+        }
+      ]
+    },
+    {
+      "id": "personas",
+      "titulo": "Personas",
+      "descripcion": "Retratos y fotografía de personas",
+      "preview": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
+      "fotos": [
+        {
+          "miniatura": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
+          "url": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
+          "texto": "Retrato deportivo al atardecer, energía en movimiento y expresión personal."
+        }
+      ]
+    },
+    {
+      "id": "artistica",
+      "titulo": "Artística",
+      "descripcion": "Fotografía creativa y experimental",
+      "preview": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
+      "fotos": [
+        {
+          "miniatura": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
+          "url": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
+          "texto": "Esfera captando el horizonte costero y la luz dorada del amanecer."
+        },
+        {
+          "miniatura": "https://i.ibb.co/Q7873XPn/Bodegon-libros-y-velas.jpg",
+          "url": "https://i.ibb.co/Q7873XPn/Bodegon-libros-y-velas.jpg",
+          "texto": "Atmósfera íntima y cálida con libros y velas, evocando noche y reflexión."
+        }
+      ]
+    }
+  ]
 }
