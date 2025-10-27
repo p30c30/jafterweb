@@ -1,9 +1,12 @@
-// MAIN.JS - VERSIÓN CORREGIDA SIN LUPAS
+// MAIN.JS - VERSIÓN CON ARRASTRE FUNCIONAL
 console.log('✅ main.js CARGADO');
 
-// Variables globales para el zoom
+// Variables globales para el zoom y arrastre
 let currentScale = 1;
 let currentImage = null;
+let isDragging = false;
+let startX, startY;
+let translateX = 0, translateY = 0;
 
 // Función principal
 function iniciar() {
@@ -157,7 +160,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - VERSIÓN SIN LUPAS
+// Función para mostrar modal - CON ARRASTRE FUNCIONAL
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
@@ -180,7 +183,7 @@ function mostrarModal(imageUrl, title) {
         modalImg.alt = title;
         currentImage = modalImg;
         
-        // Resetear zoom
+        // Resetear zoom y posición
         resetZoom();
         
         modal.classList.add('active');
@@ -206,24 +209,23 @@ function mostrarModal(imageUrl, title) {
             closeBtn.onclick = closeModal;
         }
         
-        // Cerrar al hacer clic en cualquier parte del modal (fondo)
+        // Cerrar al hacer clic en el fondo del modal
         modal.addEventListener('click', function(event) {
-            // Solo cerrar si se hace clic en el fondo del modal (no en la imagen o contenido)
             if (event.target === modal) {
                 closeModal();
             }
         });
         
-        // Zoom con rueda del ratón - funciona sobre toda el área del modal
+        // Zoom con rueda del ratón
         modal.addEventListener('wheel', function(e) {
             e.preventDefault();
             
             if (e.deltaY < 0) {
                 // Zoom in (rueda hacia arriba)
-                currentScale = Math.min(currentScale + 0.2, 3);
+                currentScale = Math.min(currentScale + 0.2, 5); // Máximo 500%
             } else {
                 // Zoom out (rueda hacia abajo)
-                currentScale = Math.max(currentScale - 0.2, 0.5);
+                currentScale = Math.max(currentScale - 0.2, 0.5); // Mínimo 50%
             }
             
             aplicarZoom();
@@ -231,13 +233,17 @@ function mostrarModal(imageUrl, title) {
         
         // Doble clic en la imagen para resetear zoom
         modalImg.addEventListener('dblclick', function(e) {
-            e.stopPropagation(); // Evitar que el clic se propague al modal
+            e.stopPropagation();
             resetZoom();
         });
         
+        // ARRASTRE - Solo cuando hay zoom
+        modalImg.addEventListener('mousedown', startDrag);
+        modalImg.addEventListener('touchstart', startDragTouch);
+        
         // Prevenir que los clics en la imagen cierren el modal
         modalImg.addEventListener('click', function(e) {
-            e.stopPropagation(); // Importante: evitar que el clic cierre el modal
+            e.stopPropagation();
         });
         
         // Cerrar con ESC
@@ -257,23 +263,80 @@ function mostrarModal(imageUrl, title) {
     }
 }
 
+// Funciones de arrastre
+function startDrag(e) {
+    if (currentScale <= 1) return; // Solo arrastrar cuando hay zoom
+    
+    isDragging = true;
+    startX = e.clientX - translateX;
+    startY = e.clientY - translateY;
+    
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDrag);
+}
+
+function startDragTouch(e) {
+    if (currentScale <= 1) return; // Solo arrastrar cuando hay zoom
+    
+    isDragging = true;
+    const touch = e.touches[0];
+    startX = touch.clientX - translateX;
+    startY = touch.clientY - translateY;
+    
+    document.addEventListener('touchmove', dragTouch);
+    document.addEventListener('touchend', stopDrag);
+}
+
+function drag(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    translateX = e.clientX - startX;
+    translateY = e.clientY - startY;
+    
+    aplicarZoom();
+}
+
+function dragTouch(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    translateX = touch.clientX - startX;
+    translateY = touch.clientY - startY;
+    
+    aplicarZoom();
+}
+
+function stopDrag() {
+    isDragging = false;
+    document.removeEventListener('mousemove', drag);
+    document.removeEventListener('touchmove', dragTouch);
+}
+
 // Funciones de zoom
 function aplicarZoom() {
     if (currentImage) {
-        currentImage.style.transform = `scale(${currentScale})`;
+        // Aplicar transformación combinada (zoom + traslación)
+        currentImage.style.transform = `scale(${currentScale}) translate(${translateX}px, ${translateY}px)`;
         currentImage.style.transformOrigin = 'center center';
         
-        // SIN cambiar cursores - siempre cursor normal
+        // Cambiar cursor solo cuando hay zoom para permitir arrastre
         if (currentScale > 1) {
             currentImage.classList.add('zoomed');
         } else {
             currentImage.classList.remove('zoomed');
+            // Resetear posición cuando no hay zoom
+            translateX = 0;
+            translateY = 0;
         }
     }
 }
 
 function resetZoom() {
     currentScale = 1;
+    translateX = 0;
+    translateY = 0;
     if (currentImage) {
         currentImage.style.transform = 'none';
         currentImage.classList.remove('zoomed');
