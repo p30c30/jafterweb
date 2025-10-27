@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN MEJORADA
+// MAIN.JS - VERSIÓN MEJORADA CON MODAL COMPLETO
 console.log('✅ main.js CARGADO');
 
 // Función principal
@@ -142,7 +142,10 @@ function mostrarModal(imageUrl, title) {
         closeBtn.onclick = closeModal;
     }
     
-    // Cerrar al hacer clic fuera de la imagen
+    // Cerrar al hacer clic en la imagen
+    modalImg.onclick = closeModal;
+    
+    // Cerrar al hacer clic fuera de la imagen (en el fondo)
     modal.onclick = function(event) {
         if (event.target === modal) {
             closeModal();
