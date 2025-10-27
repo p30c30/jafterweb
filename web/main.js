@@ -1,10 +1,8 @@
-// MAIN.JS - VERSIÓN MEJORADA CON ZOOM Y ARRASTRE
+// MAIN.JS - VERSIÓN SIMPLIFICADA CON IMAGEN AL 100%
 console.log('✅ main.js CARGADO');
 
-// Variables globales para el zoom y arrastre
+// Variables globales para el zoom
 let currentScale = 1;
-let isDragging = false;
-let startX, startY, scrollLeft, scrollTop;
 let currentImage = null;
 
 // Función principal
@@ -159,11 +157,11 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal con zoom y arrastre
+// Función para mostrar modal - VERSIÓN SIMPLIFICADA
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
-    // Crear estructura del modal con controles de zoom
+    // Crear estructura del modal
     modal.innerHTML = `
         <div class="close-modal">×</div>
         <div class="zoom-controls">
@@ -171,7 +169,6 @@ function mostrarModal(imageUrl, title) {
             <button class="zoom-btn zoom-reset">100%</button>
             <button class="zoom-btn zoom-in">+</button>
         </div>
-        <div class="zoom-hint">Haz clic para zoom • Arrastra para mover</div>
         <div class="modal-content">
             <div class="modal-img-container">
                 <img src="" alt="${title}" class="modal-img" id="modal-img">
@@ -180,7 +177,6 @@ function mostrarModal(imageUrl, title) {
     `;
     
     const modalImg = document.getElementById('modal-img');
-    const modalContainer = modal.querySelector('.modal-img-container');
     
     // Precargar imagen
     const img = new Image();
@@ -189,21 +185,21 @@ function mostrarModal(imageUrl, title) {
         modalImg.alt = title;
         currentImage = modalImg;
         
-        // Resetear zoom y posición
+        // Resetear zoom
         resetZoom();
         
         modal.classList.add('active');
         document.body.classList.add('modal-open');
         
-        // Configurar eventos de zoom y arrastre
-        configurarZoomYArrastre(modalImg, modalContainer);
+        // Configurar eventos de zoom
+        configurarZoom();
     };
     img.onerror = function() {
         modalImg.src = imageUrl;
         modalImg.alt = title;
         modal.classList.add('active');
         document.body.classList.add('modal-open');
-        configurarZoomYArrastre(modalImg, modalContainer);
+        configurarZoom();
     };
     img.src = imageUrl;
     
@@ -236,9 +232,8 @@ function mostrarModal(imageUrl, title) {
     });
 }
 
-// Configurar zoom y arrastre
-function configurarZoomYArrastre(modalImg, modalContainer) {
-    // Controles de zoom
+// Configurar zoom
+function configurarZoom() {
     const zoomInBtn = document.querySelector('.zoom-in');
     const zoomOutBtn = document.querySelector('.zoom-out');
     const zoomResetBtn = document.querySelector('.zoom-reset');
@@ -261,8 +256,10 @@ function configurarZoomYArrastre(modalImg, modalContainer) {
     zoomResetBtn.addEventListener('click', resetZoom);
     
     // Zoom con rueda del mouse
-    modalContainer.addEventListener('wheel', (e) => {
+    document.addEventListener('wheel', (e) => {
+        if (!document.querySelector('.modal.active')) return;
         e.preventDefault();
+        
         if (e.deltaY < 0) {
             // Zoom in
             currentScale += 0.2;
@@ -273,41 +270,33 @@ function configurarZoomYArrastre(modalImg, modalContainer) {
             }
         }
         aplicarZoom();
-    });
+    }, { passive: false });
     
     // Zoom al hacer doble clic
-    modalImg.addEventListener('dblclick', () => {
-        if (currentScale === 1) {
-            currentScale = 2;
-        } else {
-            currentScale = 1;
-        }
-        aplicarZoom();
-    });
-    
-    // Arrastre
-    modalContainer.addEventListener('mousedown', startDrag);
-    modalContainer.addEventListener('touchstart', startDragTouch);
-    
-    // Prevenir arrastre de la imagen
-    modalImg.addEventListener('dragstart', (e) => {
-        e.preventDefault();
-    });
+    if (currentImage) {
+        currentImage.addEventListener('dblclick', () => {
+            if (currentScale === 1) {
+                currentScale = 2;
+            } else {
+                currentScale = 1;
+            }
+            aplicarZoom();
+        });
+    }
 }
 
 // Funciones de zoom
 function aplicarZoom() {
     if (currentImage) {
-        currentImage.style.transform = `scale(${currentScale})`;
-        currentImage.style.transformOrigin = 'center center';
+        currentImage.style.setProperty('--zoom-scale', currentScale);
         
-        // Actualizar cursor
         if (currentScale > 1) {
             currentImage.classList.add('zoomed');
-            currentImage.classList.remove('zoomable');
+            currentImage.style.cursor = 'grab';
         } else {
-            currentImage.classList.add('zoomable');
             currentImage.classList.remove('zoomed');
+            currentImage.style.cursor = 'zoom-in';
+            currentImage.style.transform = 'none';
         }
         
         // Actualizar texto del botón reset
@@ -321,72 +310,6 @@ function aplicarZoom() {
 function resetZoom() {
     currentScale = 1;
     aplicarZoom();
-    
-    // Resetear posición de arrastre
-    if (currentImage) {
-        currentImage.style.transform = `scale(1) translate(0px, 0px)`;
-    }
-}
-
-// Funciones de arrastre
-function startDrag(e) {
-    if (currentScale <= 1) return;
-    
-    isDragging = true;
-    startX = e.pageX - currentImage.offsetLeft;
-    startY = e.pageY - currentImage.offsetTop;
-    
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', stopDrag);
-    
-    currentImage.style.cursor = 'grabbing';
-}
-
-function startDragTouch(e) {
-    if (currentScale <= 1) return;
-    
-    isDragging = true;
-    const touch = e.touches[0];
-    startX = touch.pageX - currentImage.offsetLeft;
-    startY = touch.pageY - currentImage.offsetTop;
-    
-    document.addEventListener('touchmove', dragTouch);
-    document.addEventListener('touchend', stopDrag);
-}
-
-function drag(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-    
-    const x = e.pageX - startX;
-    const y = e.pageY - startY;
-    
-    currentImage.style.left = x + 'px';
-    currentImage.style.top = y + 'px';
-    currentImage.style.position = 'relative';
-}
-
-function dragTouch(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-    
-    const touch = e.touches[0];
-    const x = touch.pageX - startX;
-    const y = touch.pageY - startY;
-    
-    currentImage.style.left = x + 'px';
-    currentImage.style.top = y + 'px';
-    currentImage.style.position = 'relative';
-}
-
-function stopDrag() {
-    isDragging = false;
-    document.removeEventListener('mousemove', drag);
-    document.removeEventListener('touchmove', dragTouch);
-    
-    if (currentImage) {
-        currentImage.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
-    }
 }
 
 // Función para volver a la galería
