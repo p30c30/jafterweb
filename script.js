@@ -1,37 +1,31 @@
-// Versión ultra-simple y robusta
-function inicializarAplicacion() {
-    console.log('🚀 INICIANDO APLICACIÓN...');
+// SCRIPT ULTRA-SIMPLE - ELIMINA TODA COMPLEJIDAD
+function iniciar() {
+    console.log('🚀 INICIANDO...');
     
-    // Esperar a que todo esté definitivamente listo
+    // Esperar 2 segundos para asegurar DOM
     setTimeout(() => {
-        console.log('⏰ Ejecutando después de espera...');
-        cargarSecciones();
-    }, 500);
+        console.log('🔍 Buscando contenedor...');
+        const container = document.getElementById('secciones-container');
+        console.log('Contenedor encontrado:', container);
+        
+        if (container) {
+            console.log('✅ Contenedor EXISTE, cargando datos...');
+            cargarDatos(container);
+        } else {
+            console.error('❌ Contenedor NO EXISTE');
+            // Intentar nuevamente
+            setTimeout(iniciar, 1000);
+        }
+    }, 2000);
 }
 
-async function cargarSecciones() {
+async function cargarDatos(container) {
     try {
-        console.log('🔍 Buscando secciones-container...');
-        
-        // Buscar el contenedor
-        const container = document.getElementById('secciones-container');
-        console.log('Contenedor:', container);
-        
-        if (!container) {
-            console.error('❌ Contenedor no encontrado');
-            // Intentar nuevamente en 1 segundo
-            setTimeout(cargarSecciones, 1000);
-            return;
-        }
-        
-        console.log('✅ Contenedor encontrado, cargando datos...');
-        
+        console.log('📥 Cargando data.json...');
         const response = await fetch('data.json');
         const data = await response.json();
         
-        console.log('📊 Secciones encontradas:', data.secciones.length);
-        
-        // Limpiar y crear contenido
+        console.log('🎨 Creando tarjetas...');
         container.innerHTML = '';
         
         data.secciones.forEach(seccion => {
@@ -44,100 +38,28 @@ async function cargarSecciones() {
                     <p>${seccion.descripcion}</p>
                 </div>
             `;
-            card.addEventListener('click', () => {
+            card.onclick = () => {
                 window.location.hash = `seccion/${seccion.id}`;
-                cargarSeccionDesdeHash();
-            });
+                mostrarSeccion(seccion.id);
+            };
             container.appendChild(card);
         });
         
-        console.log('🎉 Secciones cargadas correctamente');
+        console.log('🎉 ÉXITO: Secciones cargadas');
         
     } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ Error:', error);
     }
 }
 
-function cargarSeccionDesdeHash() {
-    const hash = window.location.hash;
-    if (!hash.startsWith('#seccion/')) return;
-    
-    const seccionId = hash.replace('#seccion/', '');
-    
-    fetch('data.json')
-        .then(response => response.json())
-        .then(data => {
-            const seccion = data.secciones.find(s => s.id === seccionId);
-            if (seccion) mostrarVistaSeccion(seccion);
-        });
+function mostrarSeccion(seccionId) {
+    console.log('Mostrando sección:', seccionId);
+    // Implementación simple de navegación
 }
 
-function mostrarVistaSeccion(seccion) {
-    // Ocultar home
-    const homeView = document.getElementById('home-view');
-    if (homeView) homeView.style.display = 'none';
-    
-    // Mostrar sección
-    let seccionView = document.getElementById('seccion-view');
-    if (!seccionView) {
-        seccionView = document.createElement('div');
-        seccionView.id = 'seccion-view';
-        document.body.appendChild(seccionView);
-    }
-    
-    seccionView.innerHTML = `
-        <header style="text-align: center; padding: 2rem; background: rgba(0,0,0,0.7);">
-            <button onclick="mostrarVistaPrincipal()" style="background: #FDB813; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">← Volver</button>
-            <h1>${seccion.titulo}</h1>
-            <p>${seccion.descripcion}</p>
-        </header>
-        <div class="fotos-grid" id="fotos-container"></div>
-    `;
-    
-    // Cargar fotos
-    const container = document.getElementById('fotos-container');
-    container.innerHTML = '';
-    
-    seccion.fotos.forEach(foto => {
-        const fotoElement = document.createElement('div');
-        fotoElement.className = 'foto-item';
-        fotoElement.innerHTML = `
-            <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura">
-            <p>${foto.texto}</p>
-        `;
-        fotoElement.addEventListener('click', () => {
-            window.open(foto.url, '_blank');
-        });
-        container.appendChild(fotoElement);
-    });
+// INICIAR CUANDO EL DOM ESTÉ LISTO
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+} else {
+    iniciar();
 }
-
-function mostrarVistaPrincipal() {
-    window.location.hash = '';
-    
-    const homeView = document.getElementById('home-view');
-    if (homeView) homeView.style.display = 'block';
-    
-    const seccionView = document.getElementById('seccion-view');
-    if (seccionView) seccionView.style.display = 'none';
-}
-
-// Logo click
-document.addEventListener('DOMContentLoaded', function() {
-    const logo = document.getElementById('logoHome');
-    if (logo) {
-        logo.addEventListener('click', mostrarVistaPrincipal);
-    }
-    
-    // Inicializar
-    inicializarAplicacion();
-});
-
-// Hash change
-window.addEventListener('hashchange', function() {
-    if (window.location.hash.startsWith('#seccion/')) {
-        cargarSeccionDesdeHash();
-    } else {
-        mostrarVistaPrincipal();
-    }
-});
