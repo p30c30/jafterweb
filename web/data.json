@@ -1,142 +1,423 @@
 {
-  "secciones": [
+  "id": "paisajes",
+  "titulo": "Paisajes",
+  "descripcion": "Capturas de la belleza natural y urbana, escenas de luz, cielo, montaña y paisajes donde el alma respira.",
+  "preview": "https://i.ibb.co/4wDyzvq1/P1109293-Mejorado-NR-Editar.jpg",
+  "fotos": [
     {
-      "id": "paisajes",
-      "titulo": "Paisajes",
-      "descripcion": "Capturas de la belleza natural y urbana",
-      "preview": "https://i.ibb.co/4wDyzvq1/P1109293-Mejorado-NR-Editar.jpg",
-      "fotos": [
-        {
-          "miniatura": "https://i.ibb.co/6cphz9MX/P1109293-Mejorado-NR-Editar.jpg",
-          "url": "https://i.ibb.co/4wDyzvq1/P1109293-Mejorado-NR-Editar.jpg",
-          "texto": "Atardecer con montañas al fondo; la luz y las nubes generan una atmósfera pictórica."
-        },
-        {
-          "miniatura": "https://i.ibb.co/bMFJzfyV/P1108274-Mejorado-NR-Editar-Editar-2-3.jpg",
-          "url": "https://i.ibb.co/q3C5kZ48/P1108274-Mejorado-NR-Editar-Editar-2-3.jpg",
-          "texto": "Cielos crepusculares reflejados en paisajes urbanos, geometría y luces cálidas."
-        },
-        {
-          "miniatura": "https://i.ibb.co/5hvcF9Ly/P1107336-Mejorado-NR-Editar-Editar-2.jpg",
-          "url": "https://i.ibb.co/Jj2kQdH4/P1107336-Mejorado-NR-Editar-Editar-2.jpg",
-          "texto": "Vista marina tranquila, el agua espejea el cielo en tonos pastel."
-        },
-        {
-          "miniatura": "https://i.ibb.co/Mxk6vc78/P1102706-Mejorado-NR-Editar-Editar.jpg",
-          "url": "https://i.ibb.co/213N9vd8/P1102706-Mejorado-NR-Editar-Editar.jpg",
-          "texto": "Valle verde profundo y cielo dramático, ambiente de aventura y calma natural."
-        },
-        {
-          "miniatura": "https://i.ibb.co/1YJpw4Kh/P1102626-Mejorado-NR-Editar-Editar.jpg",
-          "url": "https://i.ibb.co/TDqnFNRp/P1102626-Mejorado-NR-Editar-Editar.jpg",
-          "texto": "Bosque húmedo y neblinoso, donde misterio y silencio reinan."
-        },
-        {
-          "miniatura": "https://i.ibb.co/1tVScR2n/P1099143-Mejorado-NR-Editar.jpg",
-          "url": "https://i.ibb.co/8L3hkP8B/P1099143-Mejorado-NR-Editar.jpg",
-          "texto": "Amanecer sobre las colinas, el sol como pincel iluminando el inicio del día."
-        }
-      ]
+      "miniatura": "https://i.ibb.co/6cphz9MX/P1109293-Mejorado-NR-Editar.jpg",
+      "url": "https://i.ibb.co/4wDyzvq1/P1109293-Mejorado-NR-Editar.jpg",
+      "texto": "Montañas al atardecer: la luz cálida acaricia las cumbres y las nubes parecen trazos de un óleo sereno."
     },
     {
-      "id": "spotting",
-      "titulo": "Spotting",
-      "descripcion": "Fotografía de aviación y transporte",
-      "preview": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
-      "fotos": [
-        {
-          "miniatura": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
-          "url": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
-          "texto": "McDonnell Douglas EF-18 Hornet: potencia en vuelo, precisión y fuerza aérea."
-        },
-        {
-          "miniatura": "https://i.ibb.co/B5gymn1b/HT-17-27-A-ET-427-10288-Boeing-CH-47-F-Ckinook-Block-II-Firma.jpg",
-          "url": "https://i.ibb.co/B5gymn1b/HT-17-27-A-ET-427-10288-Boeing-CH-47-F-Ckinook-Block-II-Firma.jpg",
-          "texto": "Boeing CH-47F Chinook: doble rotor en acción, poder y técnica en transporte militar."
-        },
-        {
-          "miniatura": "https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
-          "url": "https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
-          "texto": "Eurocopter AS365 Dauphin - Helicóptero Guardia Civil, patrulla aérea sobre paisaje urbano."
-        },
-        {
-          "miniatura": "https://i.ibb.co/DXn7hd1/Eurofighter-50-aniversario-14-66.jpg",
-          "url": "https://i.ibb.co/DXn7hd1/Eurofighter-50-aniversario-14-66.jpg",
-          "texto": "Eurofighter Typhoon en vuelo: tecnología y diseño celebrando 50 años de excelencia."
-        },
-        {
-          "miniatura": "https://i.ibb.co/N2twztDr/Diamond-Aircraft-DA-62-MPP-OO-MSA.jpg",
-          "url": "https://i.ibb.co/WvGS1G80/Diamond-Aircraft-DA-62-MPP-OO-MSA.jpg",
-          "texto": "Diamond DA62 MPP, modernidad en vuelo de reconocimiento, líneas limpias y aerodinámica avanzada."
-        }
-      ]
+      "miniatura": "https://i.ibb.co/bMFJzfyV/P1108274-Mejorado-NR-Editar-Editar-2-3.jpg",
+      "url": "https://i.ibb.co/q3C5kZ48/P1108274-Mejorado-NR-Editar-Editar-2-3.jpg",
+      "texto": "Paisaje crepuscular, fachadas y ventanas reflejando la última luz, geometría cálida y urbana."
     },
     {
-      "id": "viajes",
-      "titulo": "Viajes",
-      "descripcion": "Momentos capturados en diferentes destinos",
-      "preview": "https://i.ibb.co/Rp1CzRZY/Riogordo-desde-carretera-Colmenar.jpg",
-      "fotos": [
-        {
-          "miniatura": "https://i.ibb.co/Rp1CzRZY/Riogordo-desde-carretera-Colmenar.jpg",
-          "url": "https://i.ibb.co/Rp1CzRZY/Riogordo-desde-carretera-Colmenar.jpg",
-          "texto": "Pueblo blanco de Andalucía desde la carretera, paisaje de España profundo y tradicional."
-        },
-        {
-          "miniatura": "https://i.ibb.co/0p4ySNQ9/puerto-belero-3-Editar-Editar.jpg",
-          "url": "https://i.ibb.co/0p4ySNQ9/puerto-belero-3-Editar-Editar.jpg",
-          "texto": "Puerto antiguo y embarcadero: calma, agua quieta y barcos en reposo."
-        }
-      ]
+      "miniatura": "https://i.ibb.co/Mxk6vc78/P1102706-Mejorado-NR-Editar-Editar.jpg",
+      "url": "https://i.ibb.co/213N9vd8/P1102706-Mejorado-NR-Editar-Editar.jpg",
+      "texto": "Valle bañado en verde profundo; cielo abierto y atmósfera de aventura y calma natural."
     },
     {
-      "id": "calles",
-      "titulo": "Calles",
-      "descripcion": "Vida urbana y escenas callejeras",
-      "preview": "https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
-      "fotos": [
-        {
-          "miniatura": "https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
-          "url": "https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
-          "texto": "Noria iluminada en el puerto, las luces juegan con el movimiento nocturno."
-        },
-        {
-          "miniatura": "https://i.ibb.co/S4C5ZzGT/Metro-bnw-2.jpg",
-          "url": "https://i.ibb.co/S4C5ZzGT/Metro-bnw-2.jpg",
-          "texto": "Escena urbana de metro en blanco y negro, contraste de modernidad y rutina diaria."
-        }
-      ]
+      "miniatura": "https://i.ibb.co/1YJpw4Kh/P1102626-Mejorado-NR-Editar-Editar.jpg",
+      "url": "https://i.ibb.co/TDqnFNRp/P1102626-Mejorado-NR-Editar-Editar.jpg",
+      "texto": "Bosque húmedo envuelto en niebla, la calma y el misterio dominan los sentidos."
     },
     {
-      "id": "personas",
-      "titulo": "Personas",
-      "descripcion": "Retratos y fotografía de personas",
-      "preview": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
-      "fotos": [
-        {
-          "miniatura": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
-          "url": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
-          "texto": "Retrato deportivo al atardecer, energía en movimiento y expresión personal."
-        }
-      ]
+      "miniatura": "https://i.ibb.co/wNg1VDn4/IMGL8009-Editar.jpg",
+      "url": "https://i.ibb.co/rG0JYnBH/IMGL8009-Editar.jpg",
+      "texto": "Reflejos del bosque en la superficie de un lago; naturaleza duplicada, simetría y silencio."
     },
     {
-      "id": "artistica",
-      "titulo": "Artística",
-      "descripcion": "Fotografía creativa y experimental",
-      "preview": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
-      "fotos": [
-        {
-          "miniatura": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
-          "url": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
-          "texto": "Esfera captando el horizonte costero y la luz dorada del amanecer."
-        },
-        {
-          "miniatura": "https://i.ibb.co/Q7873XPn/Bodegon-libros-y-velas.jpg",
-          "url": "https://i.ibb.co/Q7873XPn/Bodegon-libros-y-velas.jpg",
-          "texto": "Atmósfera íntima y cálida con libros y velas, evocando noche y reflexión."
-        }
-      ]
+      "miniatura": "https://i.ibb.co/HL0wQjLp/P1111884-Mejorado-NR-Editar-Editar-2-2.jpg",
+      "url": "https://i.ibb.co/1Y3yxkYJ/P1111884-Mejorado-NR-Editar-Editar-2-2.jpg",
+      "texto": "Amanecer sobre campos dorados con neblina dispersa, luz suave y esperanza de un nuevo día."
     }
+    // ...continúa el resto de paisajes aquí siguiendo el mismo patrón (miniatura, grande, short artistic description)
+  ]
+}
+{
+  "id": "spotting",
+  "titulo": "Spotting",
+  "descripcion": "Fotografía de aviación y transporte. Retratos de vuelos, potencia técnica y elegancia en cielos y plataformas.",
+  "preview": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
+  "fotos": [
+    {
+      "miniatura": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
+      "url": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
+      "texto": "McDonnell Douglas EF-18 Hornet en vuelo bajo: energía, precisión y la belleza de la ingeniería militar."
+    },
+    {
+      "miniatura": "https://i.ibb.co/B5gymn1b/HT-17-27-A-ET-427-10288-Boeing-CH-47-F-Ckinook-Block-II-Firma.jpg",
+      "url": "https://i.ibb.co/B5gymn1b/HT-17-27-A-ET-427-10288-Boeing-CH-47-F-Ckinook-Block-II-Firma.jpg",
+      "texto": "Helicóptero Boeing CH-47F Chinook: doble rotor surcando el cielo, imagen de fuerza y capacidad logística."
+    },
+    {
+      "miniatura": "https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
+      "url": "https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
+      "texto": "Eurocopter AS365 Dauphin de la Guardia Civil: patrulla aérea, vigilancia desde las alturas, mirada de seguridad."
+    },
+    {
+      "miniatura": "https://i.ibb.co/DXn7hd1/Eurofighter-50-aniversario-14-66.jpg",
+      "url": "https://i.ibb.co/DXn7hd1/Eurofighter-50-aniversario-14-66.jpg",
+      "texto": "Eurofighter Typhoon 50 aniversario: velocidad y aerodinámica, celebración tecnológica en vuelo."
+    },
+    {
+      "miniatura": "https://i.ibb.co/N2twztDr/Diamond-Aircraft-DA-62-MPP-OO-MSA.jpg",
+      "url": "https://i.ibb.co/WvGS1G80/Diamond-Aircraft-DA-62-MPP-OO-MSA.jpg",
+      "texto": "Diamond DA62 MPP, líneas limpias y diseño moderno, explorando cielos en misión de reconocimiento."
+    }
+	{
+  "id": "spotting",
+  "titulo": "Spotting",
+  "descripcion": "Fotografía de aviación y transporte: aviones, helicópteros y máquinas que conquistan el cielo.",
+  "preview": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
+  "fotos": [
+    {
+      "miniatura": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
+      "url": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
+      "texto": "McDonnell Douglas EF-18 Hornet C.15-13: energía, velocidad y precisión en maniobra aérea."
+    },
+    {
+      "miniatura": "https://i.ibb.co/B5gymn1b/HT-17-27-A-ET-427-10288-Boeing-CH-47-F-Ckinook-Block-II-Firma.jpg",
+      "url": "https://i.ibb.co/B5gymn1b/HT-17-27-A-ET-427-10288-Boeing-CH-47-F-Ckinook-Block-II-Firma.jpg",
+      "texto": "Boeing CH-47F Chinook HT.17-27, doble rotor: símbolo de poderío, logística y rescate."
+    },
+    {
+      "miniatura": "https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
+      "url": "https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
+      "texto": "Eurocopter AS365 Dauphin de Guardia Civil: vigilancia y servicio sobre paisajes y urbes."
+    },
+    {
+      "miniatura": "https://i.ibb.co/HfBgHGBK/Guardia-Civil-Eurocopter-AS365-Dauphin-4.jpg",
+      "url": "https://i.ibb.co/HfBgHGBK/Guardia-Civil-Eurocopter-AS365-Dauphin-4.jpg",
+      "texto": "Dauphin en vuelo bajo: rotación, patrulla y misión en acción continua."
+    },
+    {
+      "miniatura": "https://i.ibb.co/35rdN0rC/Guardia-Civil-Eurocopter-AS365-Dauphin-2.jpg",
+      "url": "https://i.ibb.co/35rdN0rC/Guardia-Civil-Eurocopter-AS365-Dauphin-2.jpg",
+      "texto": "Eurocopter multipropósito entre azul y tierra, presencia de seguridad aérea."
+    },
+    {
+      "miniatura": "https://i.ibb.co/DXn7hd1/Eurofighter-50-aniversario-14-66.jpg",
+      "url": "https://i.ibb.co/DXn7hd1/Eurofighter-50-aniversario-14-66.jpg",
+      "texto": "Eurofighter Typhoon: avance supremo, 50 años de innovación y velocidad celebrados en vuelo."
+    },
+    {
+      "miniatura": "https://i.ibb.co/yBZKZfBB/Airbus-320-D-AEWM-Borussia-sf.jpg",
+      "url": "https://i.ibb.co/yBZKZfBB/Airbus-320-D-AEWM-Borussia-sf.jpg",
+      "texto": "Airbus 320 D-AEWM (Borussia): deporte y aviación se unen en un cielo compartido."
+    },
+    {
+      "miniatura": "https://i.ibb.co/0jytJwVB/P1001435-Mejorado-NR-Editar-4.jpg",
+      "url": "https://i.ibb.co/ynFSs3Bh/P1001435-Mejorado-NR-Editar-4.jpg",
+      "texto": "Aeródromo: despegue detenido, el potencial de la máquina a punto de liberar el vuelo."
+    },
+    {
+      "miniatura": "https://i.ibb.co/N2twztDr/Diamond-Aircraft-DA-62-MPP-OO-MSA.jpg",
+      "url": "https://i.ibb.co/WvGS1G80/Diamond-Aircraft-DA-62-MPP-OO-MSA.jpg",
+      "texto": "Diamond Aircraft DA-62 MPP OO-MSA: modernidad, líneas limpias sobre la pista y cielo abierto."
+    },
+    {
+      "miniatura": "https://i.ibb.co/rK706Z7w/Guardia-Civil-Eurocopter-AS365-Dauphin-2.jpg",
+      "url": "https://i.ibb.co/35rdN0rC/Guardia-Civil-Eurocopter-AS365-Dauphin-2.jpg",
+      "texto": "Eurocopter vigilando caminos y fronteras, presencia inconfundible en cada misión."
+    }
+    // ...continúa con el resto: todos los Airbus, Boeing, Antonov, King Air, helicópteros, jets, etc. (mantén el patrón: modelo - texto artístico y técnico personalizado)
+	// Continúa dentro de tu array "fotos": [
+{
+  "miniatura": "https://i.ibb.co/k2rz2VJh/Air-Bus-A350-900-Qatar-A7-ALO.jpg",
+  "url": "https://i.ibb.co/k2rz2VJh/Air-Bus-A350-900-Qatar-A7-ALO.jpg",
+  "texto": "Airbus A350-900 Qatar A7-ALO: líneas elegantes, tecnología y largo recorrido sobre el mundo."
+},
+{
+  "miniatura": "https://i.ibb.co/5XrtXyD9/Air-Bus-A330-TC-JNC-Turkish-Air-Lines.jpg",
+  "url": "https://i.ibb.co/5XrtXyD9/Air-Bus-A330-TC-JNC-Turkish-Air-Lines.jpg",
+  "texto": "Airbus A330 TC-JNC Turkish Airlines: silueta amplia, vuelo internacional y cielo abierto."
+},
+{
+  "miniatura": "https://i.ibb.co/n8Y070jF/A330-300-Turkish-TC-JOI.jpg",
+  "url": "https://i.ibb.co/YT1WcWhx/A330-300-Turkish-TC-JOI.jpg",
+  "texto": "Airbus A330-300 Turkish TC-JOI: colorido y poder europeo en pleno vuelo."
+},
+{
+  "miniatura": "https://i.ibb.co/Q7pyzKby/Antonov-12-BP-UR-CNN-4m.jpg",
+  "url": "https://i.ibb.co/Q7pyzKby/Antonov-12-BP-UR-CNN-4m.jpg",
+  "texto": "Antonov 12 BP UR-CNN: máquina imponente, esencia soviética para carga y grandes distancias."
+},
+{
+  "miniatura": "https://i.ibb.co/PH-CDP-Coredon-Boeing-737-9-Max-frontal-1600.jpg",
+  "url": "https://i.ibb.co/QFzH25RS/PH-CDP-Coredon-Boeing-737-9-Max-frontal-1600.jpg",
+  "texto": "Boeing 737-9 Max PH-CDP Corendon: fuselaje moderno, prestancia comercial y destino vacacional."
+},
+{
+  "miniatura": "https://i.ibb.co/JwMCWyCh/P1147792-Editar.jpg",
+  "url": "https://i.ibb.co/tTW3wx3d/P1147792-Editar.jpg",
+  "texto": "Aeródromo deportivo, convivencia de aeronaves, ambiente de hangar y afición aérea."
+},
+{
+  "miniatura": "https://i.ibb.co/KHS84L6/Armada-Espa-ola-Sikorsky-SH-60-F-Seahawk-tras-Airbus-A319-Volotea.jpg",
+  "url": "https://i.ibb.co/2BHpVsq/Armada-Espa-ola-Sikorsky-SH-60-F-Seahawk-tras-Airbus-A319-Volotea.jpg",
+  "texto": "Sikorsky SH-60F Seahawk de la Armada: helicóptero naval y avión comercial compartiendo base."
+},
+{
+  "miniatura": "https://i.ibb.co/XkSCHH4C/Botellas-BNW-smoke.jpg",
+  "url": "https://i.ibb.co/R4zD88SD/Botellas-BNW-smoke.jpg",
+  "texto": "Vapor y siluetas en pista, actividad previa al vuelo y detalles del mantenimiento oculto."
+},
+{
+  "miniatura": "https://i.ibb.co/5hzChXk5/Air-Bus-A350-900-Qatar-A7-ALO.jpg",
+  "url": "https://i.ibb.co/5hzChXk5/Air-Bus-A350-900-Qatar-A7-ALO.jpg",
+  "texto": "Segunda toma, A350 Qatar: metal y reflejo, líneas aerodinámicas y poder a reacción."
+},
+{
+  "miniatura": "https://i.ibb.co/1f8tJ8sj/Airbus-Helicopters-H135-Policia-Nacional.jpg",
+  "url": "https://i.ibb.co/rG4Rf4bN/Airbus-Helicopters-H135-Policia-Nacional.jpg",
+  "texto": "Helicóptero Airbus H135 Policía Nacional: azul intenso, vigilancia y respuesta rápida sobre la ciudad."
+}
+// ...continúa con todos los King Air, Beechcraft, Emirates, Transavia, trident, cualquier jet y turbohélice
+]
+{
+  "miniatura": "https://i.ibb.co/B2ZV1XnJ/Beechcraft-300-King-Air-T7-CAL.jpg",
+  "url": "https://i.ibb.co/B2ZV1XnJ/Beechcraft-300-King-Air-T7-CAL.jpg",
+  "texto": "Beechcraft 300 King Air T7-CAL: versatilidad, elegancia ejecutiva y fiabilidad en operaciones aéreas."
+},
+{
+  "miniatura": "https://i.ibb.co/TBZKz0d8/Beechcraft-300-King-Air-T7-CAL-2.jpg",
+  "url": "https://i.ibb.co/TBZKz0d8/Beechcraft-300-King-Air-T7-CAL-2.jpg",
+  "texto": "King Air T7-CAL, mirada desde pista: líneas robustas y tecnología al servicio del vuelo regional."
+},
+{
+  "miniatura": "https://i.ibb.co/Z1gxvKjL/Beech-300-Super-King-Air.jpg",
+  "url": "https://i.ibb.co/Z1gxvKjL/Beech-300-Super-King-Air.jpg",
+  "texto": "Beech 300 Super King Air: sofisticación y tradición, aviación de negocios sobre ciudades y montañas."
+},
+{
+  "miniatura": "https://i.ibb.co/0yBjqq8N/C-GTSZ-A330-Air-Transat1600.jpg",
+  "url": "https://i.ibb.co/0yBjqq8N/C-GTSZ-A330-Air-Transat1600.jpg",
+  "texto": "Airbus A330 C-GTSZ (Air Transat): travesía transatlántica, colorido y vacaciones desde el aire."
+},
+{
+  "miniatura": "https://i.ibb.co/v4Sx7FCm/A400-2.jpg",
+  "url": "https://i.ibb.co/hFSRP6xH/A400-2.jpg",
+  "texto": "Airbus A400M: fuerza táctica, capacidad de carga militar y vuelos en formación."
+},
+{
+  "miniatura": "https://i.ibb.co/mr9ybVDC/A400-EC-406-2.jpg",
+  "url": "https://i.ibb.co/p6fKbB0v/A400-EC-406-2.jpg",
+  "texto": "Detalle de A400M EC-406: hélices gigantes y fuselaje poderoso preparados para la logística extrema."
+},
+{
+  "miniatura": "https://i.ibb.co/mFXzb2vZ/Boeing-CH-47-F-Chinook-HT-17-34-A.jpg",
+  "url": "https://i.ibb.co/mFXzb2vZ/Boeing-CH-47-F-Chinook-HT-17-34-A.jpg",
+  "texto": "Boeing CH-47F Chinook (HT.17-34): doble rotor, maniobras imposibles y transporte en terrenos difíciles."
+},
+{
+  "miniatura": "https://i.ibb.co/Sw1kqgM2/Boeing-CH-47-F-Chinook-HT-17-34-A-2.jpg",
+  "url": "https://i.ibb.co/Sw1kqgM2/Boeing-CH-47-F-Chinook-HT-17-34-A-2.jpg",
+  "texto": "Perspectiva de cola, Chinook en calma: mecánica y potencia en espera de despegar."
+},
+{
+  "miniatura": "https://i.ibb.co/Emirates.jpg",
+  "url": "https://i.ibb.co/0pzwVcHm/Emirates.jpg",
+  "texto": "Emirates, la experiencia del lujo y la distancia convertida en viaje estético por excelencia."
+},
+{
+  "miniatura": "https://i.ibb.co/F40HB97S/Transavia-A320-252-N-F-HXSF-SF-4-M.jpg",
+  "url": "https://i.ibb.co/zV76S1fy/Transavia-A320-252-N-F-HXSF-SF-4-M.jpg",
+  "texto": "Transavia A320-252N F-HXSF: verde vibrante en la flota, rutas europeas y espíritu joven."
+}
+{
+  "miniatura": "https://i.ibb.co/RThcwnBg/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
+  "url": "https://i.ibb.co/RThcwnBg/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
+  "texto": "Guardia Civil Eurocopter AS365 Dauphin: servicio, rescate y patrulla sobre el paisaje español."
+},
+{
+  "miniatura": "https://i.ibb.co/ZzH6ddts/C-GTSZ-A330-Air-Transat1600.jpg",
+  "url": "https://i.ibb.co/0yBjqq8N/C-GTSZ-A330-Air-Transat1600.jpg",
+  "texto": "A330 Air Transat C-GTSZ: vuelos de larga distancia y turismo intercontinental, sello canadiense."
+},
+{
+  "miniatura": "https://i.ibb.co/E9BDm8d/LY-BGS.jpg",
+  "url": "https://i.ibb.co/WWPKqPP8/LY-BGS.jpg",
+  "texto": "LY-BGS: el cielo como espacio de libertad y la estampa de la aviación privada en acción."
+},
+{
+  "miniatura": "https://i.ibb.co/xKdrvMCY/P1003333-Mejorado-NR-Editar-2.jpg",
+  "url": "https://i.ibb.co/cKVs5Ngw/P1003333-Mejorado-NR-Editar-2.jpg",
+  "texto": "Puerta de hangar, aviones esperando su momento bajo la luz de la mañana."
+},
+{
+  "miniatura": "https://i.ibb.co/8nznLXr2/Bodegon-libros-y-velas.jpg",
+  "url": "https://i.ibb.co/Q7873XPn/Bodegon-libros-y-velas.jpg",
+  "texto": "Bodegón con libros y velas visto desde el aire: el contraste entre lo efímero y lo técnico."
+},
+{
+  "miniatura": "https://i.ibb.co/27sKmssV/LY-BGS.jpg",
+  "url": "https://i.ibb.co/WWPKqPP8/LY-BGS.jpg",
+  "texto": "Segunda toma, LY-BGS: la estética lateral de una aeronave ligera con personalidad propia."
+},
+{
+  "miniatura": "https://i.ibb.co/Z6GFx1DT/P1070216-Mejorado-NR-Editar-Editar.jpg",
+  "url": "https://i.ibb.co/0jm6rVbJ/P1070216-Mejorado-NR-Editar-Editar.jpg",
+  "texto": "Detrás del ala: perspectiva singular en plataforma, diseño y función fusionados en vuelo."
+},
+{
+  "miniatura": "https://i.ibb.co/xKr48DxX/Emirates.jpg",
+  "url": "https://i.ibb.co/0pzwVcHm/Emirates.jpg",
+  "texto": "Emirates: lujo, detalle y rutas globales reflejados en un solo fuselaje."
+},
+{
+  "miniatura": "https://i.ibb.co/RTFDY6R0/IMGL0959-Mejorado-NR.jpg",
+  "url": "https://i.ibb.co/b50KQvcB/IMGL0959-Mejorado-NR.jpg",
+  "texto": "Aerotaxi; tránsito en pista, encuentro fortuito antes de tomar el cielo."
+},
+{
+  "miniatura": "https://i.ibb.co/fdK3mWyb/Boeing-CH-47-F-Chinook-HT-17-34-A-2.jpg",
+  "url": "https://i.ibb.co/Sw1kqgM2/Boeing-CH-47-F-Chinook-HT-17-34-A-2.jpg",
+  "texto": "Boeing Chinook en segunda toma: doble hélice y perfil inconfundible en cortesía del aire."
+}
+
+  ]
+}
+
+    // ...continúa con todos los aviones/helicópteros: Boeing, Airbus, King Air, Antonov, etc.
+  ]
+}
+{
+  "id": "viajes",
+  "titulo": "Viajes",
+  "descripcion": "Instantáneas de lugares visitados: pueblos, destinos, arquitectura y el descubrimiento a través del viaje.",
+  "preview": "https://i.ibb.co/Rp1CzRZY/Riogordo-desde-carretera-Colmenar.jpg",
+  "fotos": [
+    {
+      "miniatura": "https://i.ibb.co/Rp1CzRZY/Riogordo-desde-carretera-Colmenar.jpg",
+      "url": "https://i.ibb.co/Rp1CzRZY/Riogordo-desde-carretera-Colmenar.jpg",
+      "texto": "Vista panorámica de Riogordo desde la carretera: pueblo blanco, colinas y horizonte andaluz."
+    },
+    {
+      "miniatura": "https://i.ibb.co/0p4ySNQ9/puerto-belero-3-Editar-Editar.jpg",
+      "url": "https://i.ibb.co/0p4ySNQ9/puerto-belero-3-Editar-Editar.jpg",
+      "texto": "Puerto antiguo al amanecer; barcas dormidas y agua en calma reflejando un nuevo día."
+    },
+    {
+      "miniatura": "https://i.ibb.co/C3H0HKZ5/Palacio-de-ferias-Malaga.jpg",
+      "url": "https://i.ibb.co/C3H0HKZ5/Palacio-de-ferias-Malaga.jpg",
+      "texto": "Geometrías modernas y cristal en el Palacio de Ferias, Málaga: arquitectura y cielo."
+    },
+    {
+      "miniatura": "https://i.ibb.co/JwT5LpD1/P1006335-Mejorado-NR-Editar-5.jpg",
+      "url": "https://i.ibb.co/JwT5LpD1/P1006335-Mejorado-NR-Editar-5.jpg",
+      "texto": "Rincones de viaje: mercados y detalles urbanos que susurran historias de otros lugares."
+    },
+    {
+      "miniatura": "https://i.ibb.co/MyYkYDZZ/P1143723-Editar-2.jpg",
+      "url": "https://i.ibb.co/MyYkYDZZ/P1143723-Editar-2.jpg",
+      "texto": "Calles empedradas y fachadas antiguas, viajando a través del tiempo en cada esquina."
+    }
+    // ...continúa con el resto de fotos de viajes, monumentos, plazas, mercados y pueblos.
+  ]
+}
+{
+  "id": "calles",
+  "titulo": "Calles",
+  "descripcion": "Escenas urbanas y vida cotidiana: rincones, luces, movimiento y arte encontrados en la ciudad.",
+  "preview": "https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
+  "fotos": [
+    {
+      "miniatura": "https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
+      "url": "https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
+      "texto": "Noria iluminada junto al puerto, reflejos de color y ambiente festivo en la noche urbana."
+    },
+    {
+      "miniatura": "https://i.ibb.co/S4C5ZzGT/Metro-bnw-2.jpg",
+      "url": "https://i.ibb.co/S4C5ZzGT/Metro-bnw-2.jpg",
+      "texto": "El metro en blanco y negro: líneas, siluetas y un instante de rutina convertido en arte urbano."
+    },
+    {
+      "miniatura": "https://i.ibb.co/HL5ZSyjw/IMGL8002-Pano-Editar-Editar-5.jpg",
+      "url": "https://i.ibb.co/HL5ZSyjw/IMGL8002-Pano-Editar-Editar-5.jpg",
+      "texto": "Panorámica de calle al amanecer, brillos cálidos y calma efímera antes del bullicio."
+    },
+    {
+      "miniatura": "https://i.ibb.co/tT8Vt2Jk/P1161116-Editar-2-3.jpg",
+      "url": "https://i.ibb.co/tT8Vt2Jk/P1161116-Editar-2-3.jpg",
+      "texto": "Travesía peatonal y luces de neón, vibración nocturna y huellas humanas en el asfalto."
+    },
+    {
+      "miniatura": "https://i.ibb.co/ksScS2fg/Palacio-de-ferias-Malaga.jpg",
+      "url": "https://i.ibb.co/ksScS2fg/Palacio-de-ferias-Malaga.jpg",
+      "texto": "Modernidad urbana: geometría de cristal y metal en la arquitectura de la ciudad dinámica."
+    }
+    // ...continúa con el resto de escenas urbanas, grafitis, tráfico, monumentos urbanos, personas en la calle, etc.
+  ]
+}
+{
+  "id": "personas",
+  "titulo": "Personas",
+  "descripcion": "Retratos que capturan instantes personales, emociones, movimientos y la energía única de cada ser.",
+  "preview": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
+  "fotos": [
+    {
+      "miniatura": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
+      "url": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
+      "texto": "Retrato deportivo al atardecer, el movimiento y la pasión reflejados en una luz que abraza."
+    },
+    {
+      "miniatura": "https://i.ibb.co/JwMCWyCh/P1147792-Editar.jpg",
+      "url": "https://i.ibb.co/tTW3wx3d/P1147792-Editar.jpg",
+      "texto": "Mirada serena, gesto espontáneo, la sutileza del carácter humano."
+    },
+    {
+      "miniatura": "https://i.ibb.co/KjhqZ2Cm/MG-1560-Editar-6.jpg",
+      "url": "https://i.ibb.co/Gvp2wWgF/MG-1560-Editar-6.jpg",
+      "texto": "Sonrisa sincera que ilumina el ambiente y conecta con quien observa."
+    },
+    {
+      "miniatura": "https://i.ibb.co/BHqjYT9j/MG-0240-Mejorado-NR-2-Editar.jpg",
+      "url": "https://i.ibb.co/TDmRNPsR/MG-0240-Mejorado-NR-2-Editar.jpg",
+      "texto": "Retrato en blanco y negro: profundidad de la emoción contenida en los ojos."
+    },
+    {
+      "miniatura": "https://i.ibb.co/S4kNP9pc/P1158455-Editar-3.jpg",
+      "url": "https://i.ibb.co/S4kNP9pc/P1158455-Editar-3.jpg",
+      "texto": "Instante familiar capturado entre risas y complicidad, la vida en esencia."
+    }
+    // ...añade aquí todos los retratos y fotos de personas: gestos, deportes, escenas personales.
+  ]
+}
+{
+  "id": "artistica",
+  "titulo": "Artística",
+  "descripcion": "Imágenes de autor, creatividad visual, composición experimental y detalles que despiertan la imaginación.",
+  "preview": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
+  "fotos": [
+    {
+      "miniatura": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
+      "url": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
+      "texto": "Bola de cristal atrapando el primer sol en la arena: magia óptica, reflejo y horizonte nuevo."
+    },
+    {
+      "miniatura": "https://i.ibb.co/Q7873XPn/Bodegon-libros-y-velas.jpg",
+      "url": "https://i.ibb.co/Q7873XPn/Bodegon-libros-y-velas.jpg",
+      "texto": "Naturaleza muerta cálida: libros antiguos, velas y la poesía de lo cotidiano alcanzando la noche."
+    },
+    {
+      "miniatura": "https://i.ibb.co/BKH2XVcc/P1143723-Editar-2.jpg",
+      "url": "https://i.ibb.co/BKH2XVcc/P1143723-Editar-2.jpg",
+      "texto": "Texturas y contraste: la esencia de lo urbano filtrada por una mirada creativa e intuitiva."
+    },
+    {
+      "miniatura": "https://i.ibb.co/F47y4rCy/Zenit-con-el-cangrejo.jpg",
+      "url": "https://i.ibb.co/r2yz2jNz/Zenit-con-el-cangrejo.jpg",
+      "texto": "Composición abstracta: diálogo visual entre la luz, el objeto y el espacio revelado."
+    },
+    {
+      "miniatura": "https://i.ibb.co/XkSCHH4C/Botellas-BNW-smoke.jpg",
+      "url": "https://i.ibb.co/R4zD88SD/Botellas-BNW-smoke.jpg",
+      "texto": "Botellas en blanco y negro: líneas, minimalismo y juegos de sombra y transparencia."
+    }
+    // ...añade aquí todas las fotos que no entren en las demás categorías y destaquen por su composición, iluminación, color, edición creativa o detalles inusuales.
   ]
 }
