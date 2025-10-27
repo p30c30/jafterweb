@@ -1,72 +1,72 @@
 {
     "secciones": [
         {
-            "id": "retratos",
-            "titulo": "Retratos",
-            "descripcion": "Capturando la esencia de las personas",
-            "preview": "imagenes/previews/retratos-preview.jpg",
-            "fotos": [
-                {
-                    "id": "retrato-1",
-                    "miniatura": "imagenes/retratos/miniaturas/retrato-1-min.jpg",
-                    "url": "imagenes/retratos/retrato-1.jpg",
-                    "texto": "Retrato en estudio con luz natural"
-                },
-                {
-                    "id": "retrato-2",
-                    "miniatura": "imagenes/retratos/miniaturas/retrato-2-min.jpg",
-                    "url": "imagenes/retratos/retrato-2.jpg",
-                    "texto": "Retrato urbano en blanco y negro"
-                },
-                {
-                    "id": "retrato-3",
-                    "miniatura": "imagenes/retratos/miniaturas/retrato-3-min.jpg",
-                    "url": "imagenes/retratos/retrato-3.jpg",
-                    "texto": "Primer plano con iluminación dramática"
-                },
-                {
-                    "id": "retrato-4",
-                    "miniatura": "imagenes/retratos/miniaturas/retrato-4-min.jpg",
-                    "url": "imagenes/retratos/retrato-4.jpg",
-                    "texto": "Retrato grupal en exteriores"
-                },
-                {
-                    "id": "retrato-5",
-                    "miniatura": "imagenes/retratos/miniaturas/retrato-5-min.jpg",
-                    "url": "imagenes/retratos/retrato-5.jpg",
-                    "texto": "Expresión espontánea"
-                }
-            ]
-        },
-        {
             "id": "paisajes",
-            "titulo": "Fotografía de Paisajes",
-            "descripcion": "La belleza de la naturaleza en su máximo esplendor",
-            "preview": "imagenes/previews/paisajes-preview.jpg",
+            "titulo": "Paisajes",
+            "descripcion": "La naturaleza en su máximo esplendor",
+            "preview": "https://i.ibb.co/HL0wQjLp/P1111884-Mejorado-NR-Editar-Editar-2-2.jpg",
             "fotos": [
                 {
                     "miniatura": "https://i.ibb.co/HL0wQjLp/P1111884-Mejorado-NR-Editar-Editar-2-2.jpg",
                     "url": "https://i.ibb.co/1Y3yxkYJ/P1111884-Mejorado-NR-Editar-Editar-2-2.jpg",
-                    "texto": "Amanecer sobre campos dorados con neblina dispersa, luz suave y esperanza de un nuevo día."
+                    "texto": "Amanecer sobre campos dorados con neblina dispersa"
                 },
                 {
                     "miniatura": "https://i.ibb.co/XkSCHH4C/Botellas-BNW-smoke.jpg",
                     "url": "https://i.ibb.co/R4zD88SD/Botellas-BNW-smoke.jpg",
-                    "texto": "Botellas en blanco y negro: líneas, minimalismo y juegos de sombra y transparencia."
+                    "texto": "Botellas en blanco y negro"
                 }
+                // Agrega 20-25 fotos de paisajes aquí
             ]
         },
         {
             "id": "spotting",
             "titulo": "Spotting",
-            "descripcion": "Aviation photography",
+            "descripcion": "Fotografía de aviación y aeronaves",
             "preview": "https://i.ibb.co/7y4W6h3h/IMG-20200913-184538-2.jpg",
             "fotos": [
                 {
                     "miniatura": "https://i.ibb.co/7y4W6h3h/IMG-20200913-184538-2.jpg",
                     "url": "https://i.ibb.co/7y4W6h3h/IMG-20200913-184538-2.jpg",
-                    "texto": "Airplane"
+                    "texto": "Avión en despegue"
                 }
+                // Agrega 20-25 fotos de spotting aquí
+            ]
+        },
+        {
+            "id": "viajes",
+            "titulo": "Viajes",
+            "descripcion": "Rincones del mundo capturados en imágenes",
+            "preview": "https://ejemplo.com/preview-viajes.jpg",
+            "fotos": [
+                // Agrega 25-30 fotos de viajes aquí
+            ]
+        },
+        {
+            "id": "calles",
+            "titulo": "Calles",
+            "descripcion": "La vida urbana y la esencia de la ciudad",
+            "preview": "https://ejemplo.com/preview-calles.jpg",
+            "fotos": [
+                // Agrega 20-25 fotos de street photography aquí
+            ]
+        },
+        {
+            "id": "personas",
+            "titulo": "Personas",
+            "descripcion": "Retratos y momentos humanos espontáneos",
+            "preview": "https://ejemplo.com/preview-personas.jpg",
+            "fotos": [
+                // Agrega 20-25 fotos de personas aquí
+            ]
+        },
+        {
+            "id": "artisticas",
+            "titulo": "Artísticas",
+            "descripcion": "Composiciones creativas y visiones abstractas",
+            "preview": "https://ejemplo.com/preview-artisticas.jpg",
+            "fotos": [
+                // Agrega 20-25 fotos artísticas aquí
             ]
         }
     ]
