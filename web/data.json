@@ -1,134 +1,73 @@
-[
 {
-   "id": "paisajes",
-   "titulo": "Paisajes",
-   "descripcion": "Capturas de la belleza natural y urbana, escenas de luz, cielo, montaña y paisajes donde el alma respira.",
-   "preview": "https://i.ibb.co/4wDyzvq1/P1109293-Mejorado-NR-Editar.jpg",
-   "fotos": [
-      {
-         "miniatura": "https://i.ibb.co/6cphz9MX/P1109293-Mejorado-NR-Editar.jpg",
-         "url": "https://i.ibb.co/4wDyzvq1/P1109293-Mejorado-NR-Editar.jpg",
-         "texto": "Montañas al atardecer: la luz cálida acaricia las cumbres y las nubes parecen trazos de un óleo sereno."
-      },
-      {
-         "miniatura": "https://i.ibb.co/bMFJzfyV/P1108274-Mejorado-NR-Editar-Editar-2-3.jpg",
-         "url": "https://i.ibb.co/q3C5kZ48/P1108274-Mejorado-NR-Editar-Editar-2-3.jpg",
-         "texto": "Paisaje crepuscular, fachadas y ventanas reflejando la última luz, geometría cálida y urbana."
-      },
-      {
-         "miniatura": "https://i.ibb.co/Mxk6vc78/P1102706-Mejorado-NR-Editar-Editar.jpg",
-         "url": "https://i.ibb.co/213N9vd8/P1102706-Mejorado-NR-Editar-Editar.jpg",
-         "texto": "Valle bañado en verde profundo; cielo abierto y atmósfera de aventura y calma natural."
-      },
-      {
-         "miniatura": "https://i.ibb.co/1YJpw4Kh/P1102626-Mejorado-NR-Editar-Editar.jpg",
-         "url": "https://i.ibb.co/TDqnFNRp/P1102626-Mejorado-NR-Editar-Editar.jpg",
-         "texto": "Bosque húmedo envuelto en niebla, la calma y el misterio dominan los sentidos."
-      },
-      {
-         "miniatura": "https://i.ibb.co/wNg1VDn4/IMGL8009-Editar.jpg",
-         "url": "https://i.ibb.co/rG0JYnBH/IMGL8009-Editar.jpg",
-         "texto": "Reflejos del bosque en la superficie de un lago; naturaleza duplicada, simetría y silencio."
-      },
-      {
-         "miniatura": "https://i.ibb.co/HL0wQjLp/P1111884-Mejorado-NR-Editar-Editar-2-2.jpg",
-         "url": "https://i.ibb.co/1Y3yxkYJ/P1111884-Mejorado-NR-Editar-Editar-2-2.jpg",
-         "texto": "Amanecer sobre campos dorados con neblina dispersa, luz suave y esperanza de un nuevo día."
-      }
-   ]
-},
-{
-   "id": "spotting",
-   "titulo": "Spotting",
-   "descripcion": "Fotografía de aviación y transporte. Retratos de vuelos, potencia técnica y elegancia en cielos y plataformas.",
-   "preview": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
-   "fotos": [
-      {
-         "miniatura": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
-         "url": "https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
-         "texto": "McDonnell Douglas EF-18 Hornet en vuelo bajo: energía, precisión y la belleza de la ingeniería militar."
-      },
-      {
-         "miniatura": "https://i.ibb.co/B5gymn1b/HT-17-27-A-ET-427-10288-Boeing-CH-47-F-Ckinook-Block-II-Firma.jpg",
-         "url": "https://i.ibb.co/B5gymn1b/HT-17-27-A-ET-427-10288-Boeing-CH-47-F-Ckinook-Block-II-Firma.jpg",
-         "texto": "Helicóptero Boeing CH-47F Chinook: doble rotor surcando el cielo, imagen de fuerza y capacidad logística."
-      },
-      {
-         "miniatura": "https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
-         "url": "https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
-         "texto": "Eurocopter AS365 Dauphin de la Guardia Civil: patrulla aérea, vigilancia desde las alturas, mirada de seguridad."
-      },
-      {
-         "miniatura": "https://i.ibb.co/DXn7hd1/Eurofighter-50-aniversario-14-66.jpg",
-         "url": "https://i.ibb.co/DXn7hd1/Eurofighter-50-aniversario-14-66.jpg",
-         "texto": "Eurofighter en vuelo: potencia, tecnología y diseño militar al servicio del espectáculo aéreo."
-      }
-   ]
-},
-{
-   "id": "retratos",
-   "titulo": "Retratos",
-   "descripcion": "Fotografía de personas, miradas, gestos, deportes, escenas personales.",
-   "preview": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
-   "fotos": [
-      {
-         "miniatura": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
-         "url": "https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
-         "texto": "Retrato deportivo al atardecer, el movimiento y la pasión reflejados en una luz que abraza."
-      },
-      {
-         "miniatura": "https://i.ibb.co/JwMCWyCh/P1147792-Editar.jpg",
-         "url": "https://i.ibb.co/tTW3wx3d/P1147792-Editar.jpg",
-         "texto": "Mirada serena, gesto espontáneo, la sutileza del carácter humano."
-      },
-      {
-         "miniatura": "https://i.ibb.co/KjhqZ2Cm/MG-1560-Editar-6.jpg",
-         "url": "https://i.ibb.co/Gvp2wWgF/MG-1560-Editar-6.jpg",
-         "texto": "Sonrisa sincera que ilumina el ambiente y conecta con quien observa."
-      },
-      {
-         "miniatura": "https://i.ibb.co/BHqjYT9j/MG-0240-Mejorado-NR-2-Editar.jpg",
-         "url": "https://i.ibb.co/TDmRNPsR/MG-0240-Mejorado-NR-2-Editar.jpg",
-         "texto": "Retrato en blanco y negro: profundidad de la emoción contenida en los ojos."
-      },
-      {
-         "miniatura": "https://i.ibb.co/S4kNP9pc/P1158455-Editar-3.jpg",
-         "url": "https://i.ibb.co/S4kNP9pc/P1158455-Editar-3.jpg",
-         "texto": "Instante familiar capturado entre risas y complicidad, la vida en esencia."
-      }
-   ]
-},
-{
-   "id": "artistica",
-   "titulo": "Artística",
-   "descripcion": "Imágenes de autor, creatividad visual, composición experimental y detalles que despiertan la imaginación.",
-   "preview": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
-   "fotos": [
-      {
-         "miniatura": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
-         "url": "https://i.ibb.co/4ZfsqJ6x/Bola-amanecer-torremolinos.jpg",
-         "texto": "Bola de cristal atrapando el primer sol en la arena: magia óptica, reflejo y horizonte nuevo."
-      },
-      {
-         "miniatura": "https://i.ibb.co/Q7873XPn/Bodegon-libros-y-velas.jpg",
-         "url": "https://i.ibb.co/Q7873XPn/Bodegon-libros-y-velas.jpg",
-         "texto": "Naturaleza muerta cálida: libros antiguos, velas y la poesía de lo cotidiano alcanzando la noche."
-      },
-      {
-         "miniatura": "https://i.ibb.co/BKH2XVcc/P1143723-Editar-2.jpg",
-         "url": "https://i.ibb.co/BKH2XVcc/P1143723-Editar-2.jpg",
-         "texto": "Texturas y contraste: la esencia de lo urbano filtrada por una mirada creativa e intuitiva."
-      },
-      {
-         "miniatura": "https://i.ibb.co/F47y4rCy/Zenit-con-el-cangrejo.jpg",
-         "url": "https://i.ibb.co/r2yz2jNz/Zenit-con-el-cangrejo.jpg",
-         "texto": "Composición abstracta: diálogo visual entre la luz, el objeto y el espacio revelado."
-      },
-      {
-         "miniatura": "https://i.ibb.co/XkSCHH4C/Botellas-BNW-smoke.jpg",
-         "url": "https://i.ibb.co/R4zD88SD/Botellas-BNW-smoke.jpg",
-         "texto": "Botellas en blanco y negro: líneas, minimalismo y juegos de sombra y transparencia."
-      }
-   ]
+    "secciones": [
+        {
+            "id": "retratos",
+            "titulo": "Retratos",
+            "descripcion": "Capturando la esencia de las personas",
+            "preview": "imagenes/previews/retratos-preview.jpg",
+            "fotos": [
+                {
+                    "id": "retrato-1",
+                    "miniatura": "imagenes/retratos/miniaturas/retrato-1-min.jpg",
+                    "url": "imagenes/retratos/retrato-1.jpg",
+                    "texto": "Retrato en estudio con luz natural"
+                },
+                {
+                    "id": "retrato-2",
+                    "miniatura": "imagenes/retratos/miniaturas/retrato-2-min.jpg",
+                    "url": "imagenes/retratos/retrato-2.jpg",
+                    "texto": "Retrato urbano en blanco y negro"
+                },
+                {
+                    "id": "retrato-3",
+                    "miniatura": "imagenes/retratos/miniaturas/retrato-3-min.jpg",
+                    "url": "imagenes/retratos/retrato-3.jpg",
+                    "texto": "Primer plano con iluminación dramática"
+                },
+                {
+                    "id": "retrato-4",
+                    "miniatura": "imagenes/retratos/miniaturas/retrato-4-min.jpg",
+                    "url": "imagenes/retratos/retrato-4.jpg",
+                    "texto": "Retrato grupal en exteriores"
+                },
+                {
+                    "id": "retrato-5",
+                    "miniatura": "imagenes/retratos/miniaturas/retrato-5-min.jpg",
+                    "url": "imagenes/retratos/retrato-5.jpg",
+                    "texto": "Expresión espontánea"
+                }
+            ]
+        },
+        {
+            "id": "paisajes",
+            "titulo": "Fotografía de Paisajes",
+            "descripcion": "La belleza de la naturaleza en su máximo esplendor",
+            "preview": "imagenes/previews/paisajes-preview.jpg",
+            "fotos": [
+                {
+                    "miniatura": "https://i.ibb.co/HL0wQjLp/P1111884-Mejorado-NR-Editar-Editar-2-2.jpg",
+                    "url": "https://i.ibb.co/1Y3yxkYJ/P1111884-Mejorado-NR-Editar-Editar-2-2.jpg",
+                    "texto": "Amanecer sobre campos dorados con neblina dispersa, luz suave y esperanza de un nuevo día."
+                },
+                {
+                    "miniatura": "https://i.ibb.co/XkSCHH4C/Botellas-BNW-smoke.jpg",
+                    "url": "https://i.ibb.co/R4zD88SD/Botellas-BNW-smoke.jpg",
+                    "texto": "Botellas en blanco y negro: líneas, minimalismo y juegos de sombra y transparencia."
+                }
+            ]
+        },
+        {
+            "id": "spotting",
+            "titulo": "Spotting",
+            "descripcion": "Aviation photography",
+            "preview": "https://i.ibb.co/7y4W6h3h/IMG-20200913-184538-2.jpg",
+            "fotos": [
+                {
+                    "miniatura": "https://i.ibb.co/7y4W6h3h/IMG-20200913-184538-2.jpg",
+                    "url": "https://i.ibb.co/7y4W6h3h/IMG-20200913-184538-2.jpg",
+                    "texto": "Airplane"
+                }
+            ]
+        }
+    ]
 }
-]
