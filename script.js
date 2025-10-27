@@ -1,31 +1,54 @@
 // Cargar y mostrar las secciones
 async function cargarSecciones() {
     try {
+        console.log('🔍 Cargando secciones...');
         const response = await fetch('data.json');
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
         const data = await response.json();
+        console.log('✅ Datos cargados:', data);
         
         const container = document.getElementById('secciones-container');
+        if (!container) {
+            console.error('❌ No se encontró el contenedor de secciones');
+            return;
+        }
+        
         container.innerHTML = '';
+        
+        if (!data.secciones || data.secciones.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #ff6b6b; padding: 2rem;">No hay secciones disponibles.</p>';
+            return;
+        }
         
         data.secciones.forEach(seccion => {
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <img src="${seccion.preview}" alt="${seccion.titulo}" class="card-image">
+                <img src="${seccion.preview}" alt="${seccion.titulo}" class="card-image" 
+                     onerror="this.src='https://via.placeholder.com/400x300/333/fff?text=Imagen+no+disponible'">
                 <div class="card-content">
                     <h3>${seccion.titulo}</h3>
                     <p>${seccion.descripcion}</p>
                 </div>
             `;
             card.addEventListener('click', () => {
+                console.log('🔄 Navegando a sección:', seccion.id);
                 window.location.href = `seccion.html?id=${seccion.id}`;
             });
             container.appendChild(card);
         });
+        
+        console.log('🎉 Secciones cargadas correctamente');
     } catch (error) {
-        console.error('Error cargando secciones:', error);
-        document.getElementById('secciones-container').innerHTML = 
-            '<p style="text-align: center; color: #ff6b6b; grid-column: 1/-1;">Error cargando las secciones. Por favor, recarga la página.</p>';
+        console.error('❌ Error cargando secciones:', error);
+        const container = document.getElementById('secciones-container');
+        if (container) {
+            container.innerHTML = '<p style="text-align: center; color: #ff6b6b; padding: 2rem;">Error cargando las secciones. Por favor, recarga la página.</p>';
+        }
     }
 }
 
@@ -40,7 +63,10 @@ function cargarSeccion() {
     }
     
     fetch('data.json')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error('Error cargando datos');
+            return response.json();
+        })
         .then(data => {
             const seccion = data.secciones.find(s => s.id === seccionId);
             if (!seccion) {
@@ -66,11 +92,11 @@ function cargarSeccion() {
                 const fotoElement = document.createElement('div');
                 fotoElement.className = 'foto-item';
                 fotoElement.innerHTML = `
-                    <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura">
+                    <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura"
+                         onerror="this.src='https://via.placeholder.com/300x200/333/fff?text=Imagen+no+disponible'">
                     <p class="foto-texto">${foto.texto}</p>
                 `;
                 fotoElement.addEventListener('click', () => {
-                    // Abrir imagen en nueva pestaña
                     window.open(foto.url, '_blank');
                 });
                 container.appendChild(fotoElement);
@@ -82,19 +108,6 @@ function cargarSeccion() {
         });
 }
 
-// Función para el modal (opcional - para vista en misma página)
-function showModal(imageUrl) {
-    const modal = document.getElementById('modal');
-    const modalImg = document.getElementById('modal-img');
-    modalImg.src = imageUrl;
-    modal.classList.add('active');
-}
-
-function hideModal() {
-    const modal = document.getElementById('modal');
-    modal.classList.remove('active');
-}
-
 // Logo click para ir al inicio
 document.addEventListener('DOMContentLoaded', function() {
     const logo = document.getElementById('logoHome');
@@ -103,11 +116,11 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = 'index.html';
         });
     }
+    
+    // Verificar si estamos en la página de sección
+    if (window.location.pathname.includes('seccion.html')) {
+        cargarSeccion();
+    } else {
+        cargarSecciones();
+    }
 });
-
-// Inicializar
-if (window.location.pathname.includes('seccion.html')) {
-    document.addEventListener('DOMContentLoaded', cargarSeccion);
-} else {
-    document.addEventListener('DOMContentLoaded', cargarSecciones);
-}
