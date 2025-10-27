@@ -26,12 +26,22 @@ function iniciar() {
     }, 1000);
 }
 
-// Cargar datos y crear tarjetas
+// Cargar datos y crear tarjetas - VERSIÓN CORREGIDA
 async function cargarDatos(container) {
     try {
         console.log('📥 Cargando data.json...');
         const response = await fetch('data.json');
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
         const data = await response.json();
+        
+        // VERIFICACIÓN CRÍTICA
+        if (!data || !data.secciones || !Array.isArray(data.secciones)) {
+            throw new Error('Estructura de datos inválida en data.json');
+        }
         
         console.log('🎨 Creando', data.secciones.length, 'tarjetas...');
         container.innerHTML = '';
@@ -58,13 +68,28 @@ async function cargarDatos(container) {
         console.log('🎉 ÉXITO: Secciones cargadas');
         
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('❌ Error cargando datos:', error);
+        
+        // Mostrar mensaje de error al usuario
+        container.innerHTML = `
+            <div class="error-message">
+                <h3>Error al cargar los datos</h3>
+                <p>${error.message}</p>
+                <button onclick="location.reload()">Reintentar</button>
+            </div>
+        `;
     }
 }
 
-// Mostrar sección específica
+// Mostrar sección específica - VERSIÓN SEGURA
 function mostrarSeccion(seccion) {
     console.log('🖼️ Mostrando sección:', seccion.titulo);
+    
+    // Verificar que la sección tiene fotos
+    if (!seccion.fotos || !Array.isArray(seccion.fotos)) {
+        console.error('❌ No hay fotos en esta sección:', seccion);
+        return;
+    }
     
     // Ocultar vista principal
     const homeView = document.getElementById('home-view');
@@ -105,6 +130,12 @@ function mostrarSeccion(seccion) {
         container.innerHTML = '';
         
         seccion.fotos.forEach(foto => {
+            // Verificar que cada foto tiene los campos necesarios
+            if (!foto.miniatura || !foto.texto || !foto.url) {
+                console.warn('Foto incompleta:', foto);
+                return;
+            }
+            
             const fotoElement = document.createElement('div');
             fotoElement.className = 'foto-item';
             fotoElement.innerHTML = `
@@ -122,18 +153,43 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal
+// Función para mostrar modal - VERSIÓN MEJORADA
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modal-img');
     
-    modalImg.src = imageUrl;
-    modalImg.alt = title;
-    modal.classList.add('active');
+    // Precargar imagen para conocer sus dimensiones
+    const img = new Image();
+    img.onload = function() {
+        modalImg.src = imageUrl;
+        modalImg.alt = title;
+        
+        // Agregar clases según orientación
+        if (img.width > img.height) {
+            modalImg.classList.add('horizontal');
+            modalImg.classList.remove('vertical');
+        } else {
+            modalImg.classList.add('vertical');
+            modalImg.classList.remove('horizontal');
+        }
+        
+        modal.classList.add('active');
+        document.body.classList.add('modal-open');
+    };
+    img.onerror = function() {
+        // Si hay error cargando la imagen, mostrar igual pero sin clases de orientación
+        modalImg.src = imageUrl;
+        modalImg.alt = title;
+        modal.classList.add('active');
+        document.body.classList.add('modal-open');
+    };
+    img.src = imageUrl;
     
     // Configurar cerrar modal
     const closeModal = () => {
         modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+        modalImg.classList.remove('horizontal', 'vertical');
     };
     
     // Cerrar al hacer clic en la X
@@ -142,10 +198,7 @@ function mostrarModal(imageUrl, title) {
         closeBtn.onclick = closeModal;
     }
     
-    // Cerrar al hacer clic en la imagen
-    modalImg.onclick = closeModal;
-    
-    // Cerrar al hacer clic fuera de la imagen (en el fondo)
+    // Cerrar al hacer clic en el fondo del modal
     modal.onclick = function(event) {
         if (event.target === modal) {
             closeModal();
@@ -180,6 +233,7 @@ function volverAGaleria() {
     const modal = document.getElementById('modal');
     if (modal) {
         modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
     }
 }
 
