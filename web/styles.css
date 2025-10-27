@@ -385,7 +385,7 @@ body {
     }
 }
 
-/* Modal MEJORADO - MÁXIMA PANTALLA Y CIERRE CON CLIC */
+/* Modal MEJORADO - SIN LUPAS Y CIERRE CON CLIC */
 .modal {
     display: none;
     position: fixed;
@@ -396,7 +396,7 @@ body {
     background: rgba(0, 0, 0, 0.98);
     z-index: 1000;
     overflow: auto;
-    cursor: pointer;
+    cursor: pointer; /* Cursor normal para cerrar */
 }
 
 .modal.active {
@@ -409,7 +409,7 @@ body {
     align-items: center;
     min-height: 100vh;
     padding: 20px;
-    cursor: default;
+    cursor: default; /* Cursor normal en el contenido */
 }
 
 .modal-img-container {
@@ -418,7 +418,7 @@ body {
     align-items: center;
     max-width: 100%;
     max-height: 100%;
-    cursor: default;
+    cursor: default; /* Cursor normal en el contenedor */
 }
 
 .modal-img {
@@ -430,17 +430,13 @@ body {
     display: block;
     border-radius: 4px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
-    cursor: zoom-in;
+    cursor: default; /* Cursor normal en la imagen - SIN LUPA */
     transition: transform 0.3s ease;
 }
 
-/* Cuando la imagen está en zoom */
+/* Cuando la imagen está en zoom - cursor normal */
 .modal-img.zoomed {
-    cursor: grab;
-}
-
-.modal-img.zoomed:active {
-    cursor: grabbing;
+    cursor: default; /* SIN MANO */
 }
 
 /* Botón de cerrar DISIMULADO */
