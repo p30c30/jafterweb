@@ -1,17 +1,48 @@
+// Función de debug para verificar elementos
+function debugElements() {
+    console.log('=== DEBUG ELEMENTOS ===');
+    console.log('1. secciones-container:', document.getElementById('secciones-container'));
+    console.log('2. home-view:', document.getElementById('home-view'));
+    console.log('3. section-cards:', document.getElementById('section-cards'));
+    console.log('4. Body content:', document.body.innerHTML.substring(0, 500) + '...');
+    console.log('=======================');
+}
+
 // Cargar y mostrar las secciones
 async function cargarSecciones() {
     try {
-        console.log('🔍 Buscando contenedor con ID: secciones-container');
+        console.log('🔍 INICIANDO CARGA DE SECCIONES...');
+        debugElements();
         
-        // Buscar el contenedor con el ID CORRECTO
-        const container = document.getElementById('secciones-container');
-        console.log('📦 Contenedor encontrado:', container);
+        // Esperar un poco más para asegurar que el DOM esté listo
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Buscar el contenedor de múltiples formas
+        let container = document.getElementById('secciones-container');
         
         if (!container) {
-            console.error('❌ No se pudo encontrar el contenedor secciones-container');
+            console.log('🔄 Buscando alternativas...');
+            container = document.querySelector('.section-cards');
+        }
+        
+        if (!container) {
+            console.log('🔄 Buscando en home-view...');
+            const homeView = document.getElementById('home-view');
+            if (homeView) {
+                container = homeView.querySelector('#secciones-container') || 
+                           homeView.querySelector('.section-cards');
+            }
+        }
+        
+        console.log('📦 CONTENEDOR FINAL:', container);
+        
+        if (!container) {
+            console.error('❌ CRÍTICO: No se encontró ningún contenedor');
+            debugElements();
             return;
         }
         
+        console.log('✅ Contenedor encontrado, cargando data.json...');
         const response = await fetch('data.json');
         
         if (!response.ok) {
@@ -21,8 +52,9 @@ async function cargarSecciones() {
         const data = await response.json();
         console.log('✅ Datos cargados, secciones:', data.secciones?.length);
         
-        // Limpiar contenedor
+        // LIMPIAR CONTENEDOR - ESTA ES LA LÍNEA QUE FALLA
         container.innerHTML = '';
+        console.log('✅ Contenedor limpiado');
         
         if (!data.secciones || data.secciones.length === 0) {
             container.innerHTML = '<p style="text-align: center; color: #ff6b6b; padding: 2rem;">No hay secciones disponibles.</p>';
@@ -30,6 +62,7 @@ async function cargarSecciones() {
         }
         
         // Crear tarjetas
+        console.log('🎨 Creando tarjetas...');
         data.secciones.forEach(seccion => {
             const card = document.createElement('div');
             card.className = 'card';
@@ -48,14 +81,11 @@ async function cargarSecciones() {
             container.appendChild(card);
         });
         
-        console.log('🎉 Secciones cargadas correctamente');
+        console.log('🎉 SECCIONES CARGADAS CORRECTAMENTE');
         
     } catch (error) {
-        console.error('❌ Error cargando secciones:', error);
-        const container = document.getElementById('secciones-container');
-        if (container) {
-            container.innerHTML = '<p style="text-align: center; color: #ff6b6b; padding: 2rem;">Error cargando las secciones. Por favor, recarga la página.</p>';
-        }
+        console.error('❌ ERROR CRÍTICO cargando secciones:', error);
+        debugElements();
     }
 }
 
@@ -157,13 +187,14 @@ function mostrarVistaPrincipal() {
     const seccionView = document.getElementById('seccion-view');
     if (seccionView) seccionView.style.display = 'none';
     
-    // Recargar secciones si es necesario
-    cargarSecciones();
+    // Recargar secciones
+    setTimeout(cargarSecciones, 100);
 }
 
-// Inicialización
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 DOM completamente cargado');
+// INICIALIZACIÓN PRINCIPAL
+function inicializarApp() {
+    console.log('🚀 INICIALIZANDO APLICACIÓN...');
+    debugElements();
     
     // Logo click
     const logo = document.getElementById('logoHome');
@@ -171,8 +202,9 @@ document.addEventListener('DOMContentLoaded', function() {
         logo.addEventListener('click', mostrarVistaPrincipal);
     }
     
-    // Pequeño delay para asegurar que todo esté listo
+    // Esperar a que todo esté listo
     setTimeout(() => {
+        console.log('⏰ Ejecutando después de delay...');
         if (window.location.hash && window.location.hash.startsWith('#seccion/')) {
             console.log('🔗 Hash detectado al cargar');
             cargarSeccionDesdeHash();
@@ -180,8 +212,8 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('📄 Cargando vista principal');
             cargarSecciones();
         }
-    }, 100);
-});
+    }, 300);
+}
 
 // Manejar cambios en el hash
 window.addEventListener('hashchange', function() {
@@ -191,4 +223,22 @@ window.addEventListener('hashchange', function() {
     } else {
         mostrarVistaPrincipal();
     }
+});
+
+// EJECUCIÓN PRINCIPAL - MÚLTIPLES ESTRATEGIAS
+console.log('📄 Script.js cargado, esperando DOM...');
+
+// Estrategia 1: DOMContentLoaded
+document.addEventListener('DOMContentLoaded', inicializarApp);
+
+// Estrategia 2: Si ya está cargado
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    console.log('⚡ DOM ya está listo, ejecutando inmediatamente');
+    setTimeout(inicializarApp, 100);
+}
+
+// Estrategia 3: Como último recurso
+window.addEventListener('load', function() {
+    console.log('📦 Window loaded, verificando si ya se inicializó...');
+    setTimeout(inicializarApp, 500);
 });
