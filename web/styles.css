@@ -338,7 +338,7 @@ body {
     display: none;
 }
 
-/* EFECTO PARALLAX EN SECCIÓN INSPIRADORA */
+/* EFECTO PARALLAX EN SECCIÓN INSPIRADORA - CORREGIDO */
 #inspiration-section {
     position: relative;
     overflow: hidden;
@@ -350,15 +350,16 @@ body {
 #inspiration-section::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    right: -50%;
-    bottom: -50%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: url('https://images2.imgbox.com/a7/ae/imIfzK4c_o.jpg') center/cover fixed;
-    opacity: 0.06;
+    opacity: 0.05;
     z-index: -1;
     transform: translateZ(0);
     will-change: transform;
+    border-radius: 16px; /* Mismo radio que el contenedor */
 }
 
 #inspiration-section > div {
@@ -366,12 +367,12 @@ body {
     grid-template-columns: 1.1fr 0.9fr;
     gap: 28px;
     align-items: center;
-    background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-    border: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 16px;
     padding: 28px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(4px);
     position: relative;
     z-index: 1;
 }
@@ -386,7 +387,7 @@ body {
     
     #inspiration-section::before {
         background-attachment: scroll; /* Desactivar parallax en móviles */
-        opacity: 0.04; /* Más sutil en móviles */
+        opacity: 0.03; /* Más sutil en móviles */
     }
 }
 
