@@ -9,17 +9,32 @@
                 {
                     "miniatura": "https://i.ibb.co/ZTWJy8Q/landscape1.jpg",
                     "url": "https://i.ibb.co/ZTWJy8Q/landscape1.jpg",
-                    "texto": "Paisaje montañoso al atardecer"
+                    "texto": "Paisaje montañoso al atardecer con cielos dramáticos"
                 },
                 {
                     "miniatura": "https://i.ibb.co/9ZRnxBK/landscape2.jpg",
                     "url": "https://i.ibb.co/9ZRnxBK/landscape2.jpg",
-                    "texto": "Costa rocosa con olas"
+                    "texto": "Costa rocosa con olas rompiendo contra las piedras"
                 },
                 {
                     "miniatura": "https://i.ibb.co/KVq7yfJ/landscape3.jpg",
                     "url": "https://i.ibb.co/KVq7yfJ/landscape3.jpg",
-                    "texto": "Valle verde con río"
+                    "texto": "Valle verde serpenteante con río cristalino"
+                },
+                {
+                    "miniatura": "https://i.ibb.co/0Q8L1n1/landscape4.jpg",
+                    "url": "https://i.ibb.co/0Q8L1n1/landscape4.jpg",
+                    "texto": "Montañas nevadas reflejadas en lago tranquilo"
+                },
+                {
+                    "miniatura": "https://i.ibb.co/7W0s3w2/landscape5.jpg",
+                    "url": "https://i.ibb.co/7W0s3w2/landscape5.jpg",
+                    "texto": "Bosque otoñal con colores dorados y rojizos"
+                },
+                {
+                    "miniatura": "https://i.ibb.co/4N4y6Y2/landscape6.jpg",
+                    "url": "https://i.ibb.co/4N4y6Y2/landscape6.jpg",
+                    "texto": "Amanecer sobre campos de cultivo con neblina"
                 }
             ]
         },
@@ -32,17 +47,17 @@
                 {
                     "miniatura": "https://i.ibb.co/5Yx8M3p/plane1.jpg",
                     "url": "https://i.ibb.co/5Yx8M3p/plane1.jpg",
-                    "texto": "Avión comercial en despegue"
+                    "texto": "Avión comercial en despegue con estela de condensación"
                 },
                 {
                     "miniatura": "https://i.ibb.co/7Q8nPfW/plane2.jpg",
                     "url": "https://i.ibb.co/7Q8nPfW/plane2.jpg",
-                    "texto": "Avión en aproximación final"
+                    "texto": "Avión en aproximación final sobre pista iluminada"
                 },
                 {
                     "miniatura": "https://i.ibb.co/JKBZW5X/plane3.jpg",
                     "url": "https://i.ibb.co/JKBZW5X/plane3.jpg",
-                    "texto": "Vista lateral de aeronave"
+                    "texto": "Vista lateral de aeronave mostrando detalles técnicos"
                 }
             ]
         },
@@ -55,17 +70,17 @@
                 {
                     "miniatura": "https://i.ibb.co/XSy7ZgW/travel1.jpg",
                     "url": "https://i.ibb.co/XSy7ZgW/travel1.jpg",
-                    "texto": "Templo antiguo en Asia"
+                    "texto": "Templo antiguo en Asia con arquitectura tradicional"
                 },
                 {
                     "miniatura": "https://i.ibb.co/nPqVxKy/travel2.jpg",
                     "url": "https://i.ibb.co/nPqVxKy/travel2.jpg",
-                    "texto": "Plaza europea histórica"
+                    "texto": "Plaza europea histórica con edificios centenarios"
                 },
                 {
                     "miniatura": "https://i.ibb.co/9g5XLPF/travel3.jpg",
                     "url": "https://i.ibb.co/9g5XLPF/travel3.jpg",
-                    "texto": "Mercado local colorido"
+                    "texto": "Mercado local colorido con productos frescos"
                 }
             ]
         },
@@ -78,17 +93,17 @@
                 {
                     "miniatura": "https://i.ibb.co/9vNGbcX/street1.jpg",
                     "url": "https://i.ibb.co/9vNGbcX/street1.jpg",
-                    "texto": "Calle urbana al anochecer"
+                    "texto": "Calle urbana al anochecer con luces de neón"
                 },
                 {
                     "miniatura": "https://i.ibb.co/TmWYB9R/street2.jpg",
                     "url": "https://i.ibb.co/TmWYB9R/street2.jpg",
-                    "texto": "Graffiti en pared urbana"
+                    "texto": "Graffiti artístico en pared urbana abandonada"
                 },
                 {
                     "miniatura": "https://i.ibb.co/x7jh3Cq/street3.jpg",
                     "url": "https://i.ibb.co/x7jh3Cq/street3.jpg",
-                    "texto": "Transeúntes en cruce peatonal"
+                    "texto": "Transeúntes en cruce peatonal con movimiento urbano"
                 }
             ]
         },
@@ -101,17 +116,17 @@
                 {
                     "miniatura": "https://i.ibb.co/qDyj8vh/portrait1.jpg",
                     "url": "https://i.ibb.co/qDyj8vh/portrait1.jpg",
-                    "texto": "Retrato expresivo en blanco y negro"
+                    "texto": "Retrato expresivo en blanco y negro con mirada intensa"
                 },
                 {
                     "miniatura": "https://i.ibb.co/V3p4FH6/portrait2.jpg",
                     "url": "https://i.ibb.co/V3p4FH6/portrait2.jpg",
-                    "texto": "Sonrisa natural al aire libre"
+                    "texto": "Sonrisa natural al aire libre con luz suave"
                 },
                 {
                     "miniatura": "https://i.ibb.co/Hp8YPqN/portrait3.jpg",
                     "url": "https://i.ibb.co/Hp8YPqN/portrait3.jpg",
-                    "texto": "Momento espontáneo capturado"
+                    "texto": "Momento espontáneo capturado en ambiente natural"
                 }
             ]
         },
@@ -124,17 +139,17 @@
                 {
                     "miniatura": "https://i.ibb.co/7yq2pzp/art1.jpg",
                     "url": "https://i.ibb.co/7yq2pzp/art1.jpg",
-                    "texto": "Composición abstracta de luces"
+                    "texto": "Composición abstracta de luces y sombras danzantes"
                 },
                 {
                     "miniatura": "https://i.ibb.co/GcH6Nmd/art2.jpg",
                     "url": "https://i.ibb.co/GcH6Nmd/art2.jpg",
-                    "texto": "Juego de sombras y colores"
+                    "texto": "Juego de sombras y colores en perspectiva única"
                 },
                 {
                     "miniatura": "https://i.ibb.co/wK5Hw2C/art3.jpg",
                     "url": "https://i.ibb.co/wK5Hw2C/art3.jpg",
-                    "texto": "Perspectiva arquitectónica única"
+                    "texto": "Perspectiva arquitectónica con líneas geométricas"
                 }
             ]
         }
