@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN CON CIERRE CON CLIC EN LA IMAGEN
+// MAIN.JS - VERSIÓN CON ZOOM MÁS PRECISO
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -160,7 +160,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - CON CIERRE CON CLIC EN LA IMAGEN
+// Función para mostrar modal - CON ZOOM MÁS PRECISO
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
@@ -217,26 +217,20 @@ function mostrarModal(imageUrl, title) {
             }
         });
         
-        // Zoom con rueda del ratón
+        // ZOOM MÁS PRECISO CON LA RUEDA - pasos más pequeños
         modal.addEventListener('wheel', function(e) {
             e.preventDefault();
             
-            if (e.deltaY < 0) {
-                // Zoom in (rueda hacia arriba)
-                currentScale = Math.min(currentScale + 0.2, 5);
-            } else {
-                // Zoom out (rueda hacia abajo)
-                currentScale = Math.max(currentScale - 0.2, 0.5);
-            }
+            // Determinar dirección del zoom
+            const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9; // 10% de zoom in/out
+            const newScale = currentScale * zoomFactor;
             
-            aplicarZoom();
+            // Limitar el zoom entre 10% y 500%
+            if (newScale >= 0.1 && newScale <= 5) {
+                currentScale = newScale;
+                aplicarZoom();
+            }
         }, { passive: false });
-        
-        // Doble clic en la imagen para resetear zoom (sin cerrar)
-        modalImg.addEventListener('dblclick', function(e) {
-            e.stopPropagation(); // Evitar que el doble clic cierre el modal
-            resetZoom();
-        });
         
         // ARRASTRE - Solo cuando hay zoom
         modalImg.addEventListener('mousedown', startDrag);
