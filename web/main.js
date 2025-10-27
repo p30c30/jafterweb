@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN CON ARRASTRE MEJORADO
+// MAIN.JS - VERSIÓN CON ARRASTRE PERFECTO
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -7,6 +7,7 @@ let currentImage = null;
 let isDragging = false;
 let startX, startY;
 let translateX = 0, translateY = 0;
+let dragStartTime = 0;
 
 // Función principal
 function iniciar() {
@@ -160,7 +161,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - CON ARRASTRE MEJORADO
+// Función para mostrar modal - CON ARRASTRE PERFECTO
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
@@ -209,11 +210,19 @@ function mostrarModal(imageUrl, title) {
             closeBtn.onclick = closeModal;
         }
         
-        // CERRAR AL HACER CLIC EN CUALQUIER PARTE DEL MODAL (fondo O imagen)
-        // PERO solo si no estamos arrastrando
+        // CERRAR AL HACER CLIC EN EL FONDO SOLAMENTE
         modal.addEventListener('click', function(event) {
-            // Solo cerrar si NO estamos arrastrando
-            if (!isDragging && (event.target === modal || event.target === modalImg)) {
+            // Solo cerrar si se hace clic en el fondo (NO en la imagen)
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // MANEJAR CLIC EN LA IMAGEN SEPARADAMENTE
+        modalImg.addEventListener('click', function(event) {
+            // Solo cerrar si fue un clic rápido (no arrastre) y no hay zoom
+            const clickDuration = Date.now() - dragStartTime;
+            if (clickDuration < 200 && currentScale === 1 && !isDragging) {
                 closeModal();
             }
         });
@@ -233,7 +242,7 @@ function mostrarModal(imageUrl, title) {
             }
         }, { passive: false });
         
-        // ARRASTRE MEJORADO - Solo cuando hay zoom
+        // ARRASTRE PERFECTO - Solo cuando hay zoom
         modalImg.addEventListener('mousedown', startDrag);
         modalImg.addEventListener('touchstart', startDragTouch);
         
@@ -254,11 +263,12 @@ function mostrarModal(imageUrl, title) {
     }
 }
 
-// Funciones de arrastre MEJORADAS
+// Funciones de arrastre PERFECTAS
 function startDrag(e) {
     if (currentScale <= 1) return; // Solo arrastrar cuando hay zoom
     
     isDragging = true;
+    dragStartTime = Date.now();
     startX = e.clientX - translateX;
     startY = e.clientY - translateY;
     
@@ -270,13 +280,15 @@ function startDrag(e) {
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', stopDrag);
     
-    e.stopPropagation(); // Evitar que el arrastre active el cierre
+    e.preventDefault();
+    e.stopPropagation();
 }
 
 function startDragTouch(e) {
     if (currentScale <= 1) return; // Solo arrastrar cuando hay zoom
     
     isDragging = true;
+    dragStartTime = Date.now();
     const touch = e.touches[0];
     startX = touch.clientX - translateX;
     startY = touch.clientY - translateY;
@@ -284,12 +296,12 @@ function startDragTouch(e) {
     document.addEventListener('touchmove', dragTouch);
     document.addEventListener('touchend', stopDrag);
     
-    e.stopPropagation(); // Evitar que el arrastre active el cierre
+    e.preventDefault();
+    e.stopPropagation();
 }
 
 function drag(e) {
     if (!isDragging) return;
-    e.preventDefault();
     
     translateX = e.clientX - startX;
     translateY = e.clientY - startY;
@@ -299,7 +311,6 @@ function drag(e) {
 
 function dragTouch(e) {
     if (!isDragging) return;
-    e.preventDefault();
     
     const touch = e.touches[0];
     translateX = touch.clientX - startX;
@@ -309,6 +320,8 @@ function dragTouch(e) {
 }
 
 function stopDrag() {
+    if (!isDragging) return;
+    
     isDragging = false;
     
     // Restaurar cursor a "mover" cuando se suelta
@@ -318,11 +331,6 @@ function stopDrag() {
     
     document.removeEventListener('mousemove', drag);
     document.removeEventListener('touchmove', dragTouch);
-    
-    // Pequeño delay para evitar que el clic de soltar active el cierre
-    setTimeout(() => {
-        isDragging = false;
-    }, 10);
 }
 
 // Funciones de zoom
