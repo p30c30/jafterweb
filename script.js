@@ -37,7 +37,9 @@ async function cargarSecciones() {
             `;
             card.addEventListener('click', () => {
                 console.log('🔄 Navegando a sección:', seccion.id);
-                window.location.href = `seccion.html?id=${seccion.id}`;
+                // Usar hash routing en lugar de seccion.html
+                window.location.hash = `seccion/${seccion.id}`;
+                cargarSeccionDesdeHash();
             });
             container.appendChild(card);
         });
@@ -52,15 +54,16 @@ async function cargarSecciones() {
     }
 }
 
-// Cargar sección específica
-function cargarSeccion() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const seccionId = urlParams.get('id');
-    
-    if (!seccionId) {
-        window.location.href = 'index.html';
+// Cargar sección desde hash
+function cargarSeccionDesdeHash() {
+    const hash = window.location.hash;
+    if (!hash || !hash.startsWith('#seccion/')) {
+        mostrarVistaPrincipal();
         return;
     }
+    
+    const seccionId = hash.replace('#seccion/', '');
+    console.log('🔍 Cargando sección desde hash:', seccionId);
     
     fetch('data.json')
         .then(response => {
@@ -70,42 +73,77 @@ function cargarSeccion() {
         .then(data => {
             const seccion = data.secciones.find(s => s.id === seccionId);
             if (!seccion) {
-                window.location.href = 'index.html';
+                mostrarVistaPrincipal();
                 return;
             }
             
-            document.title = `${seccion.titulo} - JAfterPic`;
-            
-            const header = document.createElement('header');
-            header.className = 'seccion-header';
-            header.innerHTML = `
-                <button onclick="window.location.href='index.html'" class="back-button">← Volver a Galería</button>
-                <h1>${seccion.titulo}</h1>
-                <p>${seccion.descripcion}</p>
-            `;
-            document.body.insertBefore(header, document.body.firstChild);
-            
-            const container = document.getElementById('fotos-container');
-            container.innerHTML = '';
-            
-            seccion.fotos.forEach(foto => {
-                const fotoElement = document.createElement('div');
-                fotoElement.className = 'foto-item';
-                fotoElement.innerHTML = `
-                    <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura"
-                         onerror="this.src='https://via.placeholder.com/300x200/333/fff?text=Imagen+no+disponible'">
-                    <p class="foto-texto">${foto.texto}</p>
-                `;
-                fotoElement.addEventListener('click', () => {
-                    window.open(foto.url, '_blank');
-                });
-                container.appendChild(fotoElement);
-            });
+            mostrarVistaSeccion(seccion);
         })
         .catch(error => {
             console.error('Error cargando la sección:', error);
-            window.location.href = 'index.html';
+            mostrarVistaPrincipal();
         });
+}
+
+// Mostrar vista de sección
+function mostrarVistaSeccion(seccion) {
+    document.title = `${seccion.titulo} - JAfterPic`;
+    
+    // Ocultar vista principal
+    const homeView = document.getElementById('home-view');
+    const gallerySections = document.getElementById('gallery-sections');
+    
+    if (homeView) homeView.style.display = 'none';
+    
+    // Crear o mostrar vista de sección
+    let seccionView = document.getElementById('seccion-view');
+    if (!seccionView) {
+        seccionView = document.createElement('div');
+        seccionView.id = 'seccion-view';
+        seccionView.className = 'seccion-view';
+        document.getElementById('content').appendChild(seccionView);
+    }
+    
+    seccionView.innerHTML = `
+        <header class="seccion-header">
+            <button onclick="mostrarVistaPrincipal()" class="back-button">← Volver a Galería</button>
+            <h1>${seccion.titulo}</h1>
+            <p>${seccion.descripcion}</p>
+        </header>
+        <div class="fotos-grid" id="fotos-container"></div>
+    `;
+    
+    seccionView.style.display = 'block';
+    
+    // Cargar fotos
+    const container = document.getElementById('fotos-container');
+    container.innerHTML = '';
+    
+    seccion.fotos.forEach(foto => {
+        const fotoElement = document.createElement('div');
+        fotoElement.className = 'foto-item';
+        fotoElement.innerHTML = `
+            <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura"
+                 onerror="this.src='https://via.placeholder.com/300x200/333/fff?text=Imagen+no+disponible'">
+            <p class="foto-texto">${foto.texto}</p>
+        `;
+        fotoElement.addEventListener('click', () => {
+            window.open(foto.url, '_blank');
+        });
+        container.appendChild(fotoElement);
+    });
+}
+
+// Mostrar vista principal
+function mostrarVistaPrincipal() {
+    window.location.hash = '';
+    document.title = 'Galería Jafter - Fotografía Inspiradora';
+    
+    const homeView = document.getElementById('home-view');
+    const seccionView = document.getElementById('seccion-view');
+    
+    if (homeView) homeView.style.display = 'block';
+    if (seccionView) seccionView.style.display = 'none';
 }
 
 // Logo click para ir al inicio
@@ -113,14 +151,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const logo = document.getElementById('logoHome');
     if (logo) {
         logo.addEventListener('click', function() {
-            window.location.href = 'index.html';
+            mostrarVistaPrincipal();
         });
     }
     
-    // Verificar si estamos en la página de sección
-    if (window.location.pathname.includes('seccion.html')) {
-        cargarSeccion();
-    } else {
+    // Verificar hash al cargar
+    cargarSeccionDesdeHash();
+    
+    // También cargar secciones para la vista principal
+    if (!window.location.hash || !window.location.hash.startsWith('#seccion/')) {
         cargarSecciones();
     }
 });
