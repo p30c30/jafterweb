@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN CON ZOOM MÁS PRECISO
+// MAIN.JS - VERSIÓN CON ARRASTRE MEJORADO
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -160,7 +160,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - CON ZOOM MÁS PRECISO
+// Función para mostrar modal - CON ARRASTRE MEJORADO
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
@@ -210,14 +210,15 @@ function mostrarModal(imageUrl, title) {
         }
         
         // CERRAR AL HACER CLIC EN CUALQUIER PARTE DEL MODAL (fondo O imagen)
+        // PERO solo si no estamos arrastrando
         modal.addEventListener('click', function(event) {
-            // Cerrar si se hace clic en el fondo del modal O en la imagen
-            if (event.target === modal || event.target === modalImg) {
+            // Solo cerrar si NO estamos arrastrando
+            if (!isDragging && (event.target === modal || event.target === modalImg)) {
                 closeModal();
             }
         });
         
-        // ZOOM MÁS PRECISO CON LA RUEDA - pasos más pequeños
+        // ZOOM MÁS PRECISO CON LA RUEDA
         modal.addEventListener('wheel', function(e) {
             e.preventDefault();
             
@@ -232,7 +233,7 @@ function mostrarModal(imageUrl, title) {
             }
         }, { passive: false });
         
-        // ARRASTRE - Solo cuando hay zoom
+        // ARRASTRE MEJORADO - Solo cuando hay zoom
         modalImg.addEventListener('mousedown', startDrag);
         modalImg.addEventListener('touchstart', startDragTouch);
         
@@ -253,13 +254,18 @@ function mostrarModal(imageUrl, title) {
     }
 }
 
-// Funciones de arrastre
+// Funciones de arrastre MEJORADAS
 function startDrag(e) {
     if (currentScale <= 1) return; // Solo arrastrar cuando hay zoom
     
     isDragging = true;
     startX = e.clientX - translateX;
     startY = e.clientY - translateY;
+    
+    // Cambiar cursor a "agarrando"
+    if (currentImage) {
+        currentImage.style.cursor = 'grabbing';
+    }
     
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', stopDrag);
@@ -304,8 +310,19 @@ function dragTouch(e) {
 
 function stopDrag() {
     isDragging = false;
+    
+    // Restaurar cursor a "mover" cuando se suelta
+    if (currentImage && currentScale > 1) {
+        currentImage.style.cursor = 'move';
+    }
+    
     document.removeEventListener('mousemove', drag);
     document.removeEventListener('touchmove', dragTouch);
+    
+    // Pequeño delay para evitar que el clic de soltar active el cierre
+    setTimeout(() => {
+        isDragging = false;
+    }, 10);
 }
 
 // Funciones de zoom
@@ -315,11 +332,13 @@ function aplicarZoom() {
         currentImage.style.transform = `scale(${currentScale}) translate(${translateX}px, ${translateY}px)`;
         currentImage.style.transformOrigin = 'center center';
         
-        // Cambiar cursor solo cuando hay zoom para permitir arrastre
+        // Cambiar cursor según el estado
         if (currentScale > 1) {
             currentImage.classList.add('zoomed');
+            currentImage.style.cursor = isDragging ? 'grabbing' : 'move';
         } else {
             currentImage.classList.remove('zoomed');
+            currentImage.style.cursor = 'default';
             // Resetear posición cuando no hay zoom
             translateX = 0;
             translateY = 0;
@@ -331,9 +350,11 @@ function resetZoom() {
     currentScale = 1;
     translateX = 0;
     translateY = 0;
+    isDragging = false;
     if (currentImage) {
         currentImage.style.transform = 'none';
         currentImage.classList.remove('zoomed');
+        currentImage.style.cursor = 'default';
     }
 }
 
