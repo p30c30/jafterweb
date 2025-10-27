@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN CON ARRASTRE PERFECTO
+// MAIN.JS - VERSIÓN CON ARRASTRE SUAVE Y CLIC FUNCIONAL
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -8,6 +8,8 @@ let isDragging = false;
 let startX, startY;
 let translateX = 0, translateY = 0;
 let dragStartTime = 0;
+let lastX = 0, lastY = 0;
+let animationFrameId = null;
 
 // Función principal
 function iniciar() {
@@ -161,7 +163,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - CON ARRASTRE PERFECTO
+// Función para mostrar modal - CON ARRASTRE SUAVE
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
@@ -218,11 +220,11 @@ function mostrarModal(imageUrl, title) {
             }
         });
         
-        // MANEJAR CLIC EN LA IMAGEN SEPARADAMENTE
+        // CLIC EN LA IMAGEN - Siempre cierra (con o sin zoom)
         modalImg.addEventListener('click', function(event) {
-            // Solo cerrar si fue un clic rápido (no arrastre) y no hay zoom
+            // Solo cerrar si no fue un arrastre (clic rápido)
             const clickDuration = Date.now() - dragStartTime;
-            if (clickDuration < 200 && currentScale === 1 && !isDragging) {
+            if (clickDuration < 200 && !isDragging) {
                 closeModal();
             }
         });
@@ -242,7 +244,7 @@ function mostrarModal(imageUrl, title) {
             }
         }, { passive: false });
         
-        // ARRASTRE PERFECTO - Solo cuando hay zoom
+        // ARRASTRE SUAVE - Solo cuando hay zoom
         modalImg.addEventListener('mousedown', startDrag);
         modalImg.addEventListener('touchstart', startDragTouch);
         
@@ -263,7 +265,7 @@ function mostrarModal(imageUrl, title) {
     }
 }
 
-// Funciones de arrastre PERFECTAS
+// Funciones de arrastre SUAVES
 function startDrag(e) {
     if (currentScale <= 1) return; // Solo arrastrar cuando hay zoom
     
@@ -271,12 +273,15 @@ function startDrag(e) {
     dragStartTime = Date.now();
     startX = e.clientX - translateX;
     startY = e.clientY - translateY;
+    lastX = e.clientX;
+    lastY = e.clientY;
     
     // Cambiar cursor a "agarrando"
     if (currentImage) {
         currentImage.style.cursor = 'grabbing';
     }
     
+    // Usar requestAnimationFrame para animación suave
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', stopDrag);
     
@@ -292,6 +297,8 @@ function startDragTouch(e) {
     const touch = e.touches[0];
     startX = touch.clientX - translateX;
     startY = touch.clientY - translateY;
+    lastX = touch.clientX;
+    lastY = touch.clientY;
     
     document.addEventListener('touchmove', dragTouch);
     document.addEventListener('touchend', stopDrag);
@@ -303,26 +310,63 @@ function startDragTouch(e) {
 function drag(e) {
     if (!isDragging) return;
     
-    translateX = e.clientX - startX;
-    translateY = e.clientY - startY;
+    // Cancelar frame anterior si existe
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
     
-    aplicarZoom();
+    // Usar requestAnimationFrame para animación suave
+    animationFrameId = requestAnimationFrame(() => {
+        const deltaX = e.clientX - lastX;
+        const deltaY = e.clientY - lastY;
+        
+        // Aplicar movimiento suavizado
+        translateX += deltaX * 1.2; // Factor de suavizado
+        translateY += deltaY * 1.2;
+        
+        lastX = e.clientX;
+        lastY = e.clientY;
+        
+        aplicarZoom();
+    });
 }
 
 function dragTouch(e) {
     if (!isDragging) return;
     
     const touch = e.touches[0];
-    translateX = touch.clientX - startX;
-    translateY = touch.clientY - startY;
     
-    aplicarZoom();
+    // Cancelar frame anterior si existe
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+    
+    // Usar requestAnimationFrame para animación suave
+    animationFrameId = requestAnimationFrame(() => {
+        const deltaX = touch.clientX - lastX;
+        const deltaY = touch.clientY - lastY;
+        
+        // Aplicar movimiento suavizado
+        translateX += deltaX * 1.2; // Factor de suavizado
+        translateY += deltaY * 1.2;
+        
+        lastX = touch.clientX;
+        lastY = touch.clientY;
+        
+        aplicarZoom();
+    });
 }
 
 function stopDrag() {
     if (!isDragging) return;
     
     isDragging = false;
+    
+    // Cancelar cualquier animación pendiente
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
     
     // Restaurar cursor a "mover" cuando se suelta
     if (currentImage && currentScale > 1) {
@@ -359,6 +403,15 @@ function resetZoom() {
     translateX = 0;
     translateY = 0;
     isDragging = false;
+    lastX = 0;
+    lastY = 0;
+    
+    // Cancelar cualquier animación pendiente
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+    
     if (currentImage) {
         currentImage.style.transform = 'none';
         currentImage.classList.remove('zoomed');
