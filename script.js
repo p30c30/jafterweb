@@ -1,18 +1,40 @@
 // Cargar y mostrar las secciones
 async function cargarSecciones() {
     try {
-        console.log('🔍 Intentando cargar secciones...');
+        console.log('🔍 Buscando contenedor de secciones...');
         
-        // Esperar un poco más para asegurar que el DOM esté listo
-        await new Promise(resolve => setTimeout(resolve, 100));
-        
-        // Buscar el contenedor
-        const container = document.getElementById('section-cards');
-        console.log('📦 Contenedor encontrado:', container);
+        // Buscar el contenedor de múltiples formas
+        let container = document.getElementById('section-cards');
         
         if (!container) {
-            console.error('❌ No se pudo encontrar el contenedor section-cards');
-            return;
+            console.log('🔄 Contenedor no encontrado, buscando alternativas...');
+            // Buscar por clase
+            container = document.querySelector('.section-cards');
+        }
+        
+        if (!container) {
+            console.log('🔄 Buscando en home-view...');
+            const homeView = document.getElementById('home-view');
+            if (homeView) {
+                container = homeView.querySelector('#section-cards') || homeView.querySelector('.section-cards');
+            }
+        }
+        
+        console.log('📦 Contenedor:', container);
+        
+        if (!container) {
+            console.error('❌ No se pudo encontrar ningún contenedor para las secciones');
+            // Crear un contenedor si no existe
+            const homeView = document.getElementById('home-view');
+            if (homeView) {
+                container = document.createElement('div');
+                container.id = 'section-cards';
+                container.className = 'section-cards';
+                homeView.appendChild(container);
+                console.log('✅ Contenedor creado:', container);
+            } else {
+                return;
+            }
         }
         
         const response = await fetch('data.json');
@@ -55,7 +77,7 @@ async function cargarSecciones() {
         
     } catch (error) {
         console.error('❌ Error cargando secciones:', error);
-        const container = document.getElementById('section-cards');
+        const container = document.getElementById('section-cards') || document.querySelector('.section-cards');
         if (container) {
             container.innerHTML = '<p style="text-align: center; color: #ff6b6b; padding: 2rem;">Error cargando las secciones. Por favor, recarga la página.</p>';
         }
@@ -161,15 +183,12 @@ function mostrarVistaPrincipal() {
     if (seccionView) seccionView.style.display = 'none';
     
     // Recargar secciones si es necesario
-    const container = document.getElementById('section-cards');
-    if (container && container.children.length === 0) {
-        cargarSecciones();
-    }
+    cargarSecciones();
 }
 
-// Inicialización cuando el DOM esté listo
-function inicializar() {
-    console.log('🚀 Inicializando aplicación...');
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM completamente cargado');
     
     // Logo click
     const logo = document.getElementById('logoHome');
@@ -177,22 +196,17 @@ function inicializar() {
         logo.addEventListener('click', mostrarVistaPrincipal);
     }
     
-    // Verificar hash actual
-    if (window.location.hash && window.location.hash.startsWith('#seccion/')) {
-        console.log('🔗 Hash detectado al cargar');
-        cargarSeccionDesdeHash();
-    } else {
-        console.log('📄 Cargando vista principal');
-        cargarSecciones();
-    }
-}
-
-// Esperar a que el DOM esté completamente cargado
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', inicializar);
-} else {
-    inicializar();
-}
+    // Pequeño delay para asegurar que todo esté listo
+    setTimeout(() => {
+        if (window.location.hash && window.location.hash.startsWith('#seccion/')) {
+            console.log('🔗 Hash detectado al cargar');
+            cargarSeccionDesdeHash();
+        } else {
+            console.log('📄 Cargando vista principal');
+            cargarSecciones();
+        }
+    }, 100);
+});
 
 // Manejar cambios en el hash
 window.addEventListener('hashchange', function() {
