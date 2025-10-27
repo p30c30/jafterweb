@@ -2,7 +2,7 @@
     "secciones": [
         {
             "id": "paisajes",
-            "titulo": "Paisajes", 
+            "titulo": "Paisajes",
             "descripcion": "Capturas de la belleza natural y urbana",
             "preview": "https://i.ibb.co/ZTWJy8Q/landscape1.jpg",
             "fotos": [
@@ -13,7 +13,7 @@
                 },
                 {
                     "miniatura": "https://i.ibb.co/9ZRnxBK/landscape2.jpg",
-                    "url": "https://i.ibb.co/9ZRnxBK/landscape2.jpg", 
+                    "url": "https://i.ibb.co/9ZRnxBK/landscape2.jpg",
                     "texto": "Costa rocosa con olas"
                 },
                 {
@@ -26,7 +26,7 @@
         {
             "id": "spotting",
             "titulo": "Spotting",
-            "descripcion": "Fotografía de aviación y transporte", 
+            "descripcion": "Fotografía de aviación y transporte",
             "preview": "https://i.ibb.co/5Yx8M3p/plane1.jpg",
             "fotos": [
                 {
@@ -47,7 +47,7 @@
             ]
         },
         {
-            "id": "viajes", 
+            "id": "viajes",
             "titulo": "Viajes",
             "descripcion": "Momentos capturados en diferentes destinos",
             "preview": "https://i.ibb.co/XSy7ZgW/travel1.jpg",
@@ -73,7 +73,7 @@
             "id": "calles",
             "titulo": "Calles",
             "descripcion": "Vida urbana y escenas callejeras",
-            "preview": "https://i.ibb.co/9vNGbcX/street1.jpg", 
+            "preview": "https://i.ibb.co/9vNGbcX/street1.jpg",
             "fotos": [
                 {
                     "miniatura": "https://i.ibb.co/9vNGbcX/street1.jpg",
@@ -94,7 +94,7 @@
         },
         {
             "id": "personas",
-            "titulo": "Personas", 
+            "titulo": "Personas",
             "descripcion": "Retratos y fotografía de personas",
             "preview": "https://i.ibb.co/qDyj8vh/portrait1.jpg",
             "fotos": [
@@ -122,8 +122,8 @@
             "preview": "https://i.ibb.co/7yq2pzp/art1.jpg",
             "fotos": [
                 {
-                    "miniatura": "https://i.ibb.co/7yq2pZp/art1.jpg",
-                    "url": "https://i.ibb.co/7yq2pZp/art1.jpg",
+                    "miniatura": "https://i.ibb.co/7yq2pzp/art1.jpg",
+                    "url": "https://i.ibb.co/7yq2pzp/art1.jpg",
                     "texto": "Composición abstracta de luces"
                 },
                 {
