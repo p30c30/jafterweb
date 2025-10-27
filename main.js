@@ -1,3 +1,4 @@
+// UPDATED: main.js working version
 // MAIN.JS - VERSIÓN DEFINITIVA
 console.log('✅ main.js CARGADO - VERSIÓN NUEVA');
 
