@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN SIMPLIFICADA CON ZOOM POR RUEDA
+// MAIN.JS - VERSIÓN CORREGIDA SIN LUPAS
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom
@@ -157,11 +157,11 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - VERSIÓN SIMPLIFICADA
+// Función para mostrar modal - VERSIÓN SIN LUPAS
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
-    // Crear estructura del modal SIN botones de zoom
+    // Crear estructura del modal
     modal.innerHTML = `
         <div class="close-modal">×</div>
         <div class="modal-content">
@@ -206,31 +206,38 @@ function mostrarModal(imageUrl, title) {
             closeBtn.onclick = closeModal;
         }
         
-        // Cerrar al hacer clic en el fondo del modal (pero no en la imagen)
+        // Cerrar al hacer clic en cualquier parte del modal (fondo)
         modal.addEventListener('click', function(event) {
+            // Solo cerrar si se hace clic en el fondo del modal (no en la imagen o contenido)
             if (event.target === modal) {
                 closeModal();
             }
         });
         
-        // Zoom con rueda del ratón
+        // Zoom con rueda del ratón - funciona sobre toda el área del modal
         modal.addEventListener('wheel', function(e) {
             e.preventDefault();
             
             if (e.deltaY < 0) {
                 // Zoom in (rueda hacia arriba)
-                currentScale = Math.min(currentScale + 0.2, 3); // Máximo 300%
+                currentScale = Math.min(currentScale + 0.2, 3);
             } else {
                 // Zoom out (rueda hacia abajo)
-                currentScale = Math.max(currentScale - 0.2, 0.5); // Mínimo 50%
+                currentScale = Math.max(currentScale - 0.2, 0.5);
             }
             
             aplicarZoom();
         }, { passive: false });
         
-        // Doble clic para resetear zoom
-        modalImg.addEventListener('dblclick', function() {
+        // Doble clic en la imagen para resetear zoom
+        modalImg.addEventListener('dblclick', function(e) {
+            e.stopPropagation(); // Evitar que el clic se propague al modal
             resetZoom();
+        });
+        
+        // Prevenir que los clics en la imagen cierren el modal
+        modalImg.addEventListener('click', function(e) {
+            e.stopPropagation(); // Importante: evitar que el clic cierre el modal
         });
         
         // Cerrar con ESC
@@ -256,13 +263,11 @@ function aplicarZoom() {
         currentImage.style.transform = `scale(${currentScale})`;
         currentImage.style.transformOrigin = 'center center';
         
-        // Cambiar cursor según el nivel de zoom
+        // SIN cambiar cursores - siempre cursor normal
         if (currentScale > 1) {
             currentImage.classList.add('zoomed');
-            currentImage.style.cursor = 'grab';
         } else {
             currentImage.classList.remove('zoomed');
-            currentImage.style.cursor = 'zoom-in';
         }
     }
 }
@@ -272,7 +277,6 @@ function resetZoom() {
     if (currentImage) {
         currentImage.style.transform = 'none';
         currentImage.classList.remove('zoomed');
-        currentImage.style.cursor = 'zoom-in';
     }
 }
 
