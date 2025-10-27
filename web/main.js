@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN MEJORADA CON MODAL COMPLETO
+// MAIN.JS - VERSIÓN MEJORADA CON AJUSTE AUTOMÁTICO DE IMAGEN
 console.log('✅ main.js CARGADO');
 
 // Función principal
@@ -153,7 +153,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - VERSIÓN MEJORADA
+// Función para mostrar modal - VERSIÓN MEJORADA CON AJUSTE AUTOMÁTICO
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modal-img');
@@ -164,20 +164,22 @@ function mostrarModal(imageUrl, title) {
         modalImg.src = imageUrl;
         modalImg.alt = title;
         
-        // Agregar clases según orientación
-        if (img.width > img.height) {
-            modalImg.classList.add('horizontal');
-            modalImg.classList.remove('vertical');
+        // Detectar si la imagen es muy grande para la pantalla
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        // Si la imagen es más grande que la ventana en cualquier dimensión
+        if (img.width > windowWidth * 0.9 || img.height > windowHeight * 0.9) {
+            modalImg.classList.add('large-image');
         } else {
-            modalImg.classList.add('vertical');
-            modalImg.classList.remove('horizontal');
+            modalImg.classList.remove('large-image');
         }
         
         modal.classList.add('active');
         document.body.classList.add('modal-open');
     };
     img.onerror = function() {
-        // Si hay error cargando la imagen, mostrar igual pero sin clases de orientación
+        // Si hay error cargando la imagen, mostrar igual
         modalImg.src = imageUrl;
         modalImg.alt = title;
         modal.classList.add('active');
@@ -189,7 +191,7 @@ function mostrarModal(imageUrl, title) {
     const closeModal = () => {
         modal.classList.remove('active');
         document.body.classList.remove('modal-open');
-        modalImg.classList.remove('horizontal', 'vertical');
+        modalImg.classList.remove('large-image');
     };
     
     // Cerrar al hacer clic en la X
