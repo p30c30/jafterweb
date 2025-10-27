@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN SIMPLIFICADA CON IMAGEN AL 100%
+// MAIN.JS - VERSIÓN SIMPLIFICADA CON ZOOM POR RUEDA
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom
@@ -161,14 +161,9 @@ function mostrarSeccion(seccion) {
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
-    // Crear estructura del modal
+    // Crear estructura del modal SIN botones de zoom
     modal.innerHTML = `
         <div class="close-modal">×</div>
-        <div class="zoom-controls">
-            <button class="zoom-btn zoom-out">-</button>
-            <button class="zoom-btn zoom-reset">100%</button>
-            <button class="zoom-btn zoom-in">+</button>
-        </div>
         <div class="modal-content">
             <div class="modal-img-container">
                 <img src="" alt="${title}" class="modal-img" id="modal-img">
@@ -191,125 +186,94 @@ function mostrarModal(imageUrl, title) {
         modal.classList.add('active');
         document.body.classList.add('modal-open');
         
-        // Configurar eventos de zoom
-        configurarZoom();
+        // Configurar eventos
+        configurarEventos();
     };
     img.onerror = function() {
         modalImg.src = imageUrl;
         modalImg.alt = title;
         modal.classList.add('active');
         document.body.classList.add('modal-open');
-        configurarZoom();
+        configurarEventos();
     };
     img.src = imageUrl;
     
-    // Configurar cerrar modal
-    const closeModal = () => {
+    // Configurar eventos
+    function configurarEventos() {
+        // Cerrar al hacer clic en la X
+        const closeBtn = modal.querySelector('.close-modal');
+        if (closeBtn) {
+            closeBtn.onclick = closeModal;
+        }
+        
+        // Cerrar al hacer clic en el fondo del modal (pero no en la imagen)
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Zoom con rueda del ratón
+        modal.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            
+            if (e.deltaY < 0) {
+                // Zoom in (rueda hacia arriba)
+                currentScale = Math.min(currentScale + 0.2, 3); // Máximo 300%
+            } else {
+                // Zoom out (rueda hacia abajo)
+                currentScale = Math.max(currentScale - 0.2, 0.5); // Mínimo 50%
+            }
+            
+            aplicarZoom();
+        }, { passive: false });
+        
+        // Doble clic para resetear zoom
+        modalImg.addEventListener('dblclick', function() {
+            resetZoom();
+        });
+        
+        // Cerrar con ESC
+        document.addEventListener('keydown', function closeOnEsc(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+                document.removeEventListener('keydown', closeOnEsc);
+            }
+        });
+    }
+    
+    // Función para cerrar modal
+    function closeModal() {
         modal.classList.remove('active');
         document.body.classList.remove('modal-open');
         resetZoom();
-    };
-    
-    // Cerrar al hacer clic en la X
-    const closeBtn = modal.querySelector('.close-modal');
-    if (closeBtn) {
-        closeBtn.onclick = closeModal;
-    }
-    
-    // Cerrar al hacer clic en el fondo del modal
-    modal.onclick = function(event) {
-        if (event.target === modal) {
-            closeModal();
-        }
-    };
-    
-    // Cerrar con ESC
-    document.addEventListener('keydown', function closeOnEsc(event) {
-        if (event.key === 'Escape') {
-            closeModal();
-            document.removeEventListener('keydown', closeOnEsc);
-        }
-    });
-}
-
-// Configurar zoom
-function configurarZoom() {
-    const zoomInBtn = document.querySelector('.zoom-in');
-    const zoomOutBtn = document.querySelector('.zoom-out');
-    const zoomResetBtn = document.querySelector('.zoom-reset');
-    
-    // Zoom in
-    zoomInBtn.addEventListener('click', () => {
-        currentScale += 0.5;
-        aplicarZoom();
-    });
-    
-    // Zoom out
-    zoomOutBtn.addEventListener('click', () => {
-        if (currentScale > 0.5) {
-            currentScale -= 0.5;
-            aplicarZoom();
-        }
-    });
-    
-    // Reset zoom
-    zoomResetBtn.addEventListener('click', resetZoom);
-    
-    // Zoom con rueda del mouse
-    document.addEventListener('wheel', (e) => {
-        if (!document.querySelector('.modal.active')) return;
-        e.preventDefault();
-        
-        if (e.deltaY < 0) {
-            // Zoom in
-            currentScale += 0.2;
-        } else {
-            // Zoom out
-            if (currentScale > 0.5) {
-                currentScale -= 0.2;
-            }
-        }
-        aplicarZoom();
-    }, { passive: false });
-    
-    // Zoom al hacer doble clic
-    if (currentImage) {
-        currentImage.addEventListener('dblclick', () => {
-            if (currentScale === 1) {
-                currentScale = 2;
-            } else {
-                currentScale = 1;
-            }
-            aplicarZoom();
-        });
     }
 }
 
 // Funciones de zoom
 function aplicarZoom() {
     if (currentImage) {
-        currentImage.style.setProperty('--zoom-scale', currentScale);
+        currentImage.style.transform = `scale(${currentScale})`;
+        currentImage.style.transformOrigin = 'center center';
         
+        // Cambiar cursor según el nivel de zoom
         if (currentScale > 1) {
             currentImage.classList.add('zoomed');
             currentImage.style.cursor = 'grab';
         } else {
             currentImage.classList.remove('zoomed');
             currentImage.style.cursor = 'zoom-in';
-            currentImage.style.transform = 'none';
-        }
-        
-        // Actualizar texto del botón reset
-        const zoomResetBtn = document.querySelector('.zoom-reset');
-        if (zoomResetBtn) {
-            zoomResetBtn.textContent = Math.round(currentScale * 100) + '%';
         }
     }
 }
 
 function resetZoom() {
     currentScale = 1;
-    aplicarZoom();
+    if (currentImage) {
+        currentImage.style.transform = 'none';
+        currentImage.classList.remove('zoomed');
+        currentImage.style.cursor = 'zoom-in';
+    }
 }
 
 // Función para volver a la galería
