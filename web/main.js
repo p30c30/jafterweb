@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN CON ARRASTRE FUNCIONAL
+// MAIN.JS - VERSIÓN CON CIERRE CON CLIC EN LA IMAGEN
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -160,7 +160,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - CON ARRASTRE FUNCIONAL
+// Función para mostrar modal - CON CIERRE CON CLIC EN LA IMAGEN
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
@@ -209,9 +209,10 @@ function mostrarModal(imageUrl, title) {
             closeBtn.onclick = closeModal;
         }
         
-        // Cerrar al hacer clic en el fondo del modal
+        // CERRAR AL HACER CLIC EN CUALQUIER PARTE DEL MODAL (fondo O imagen)
         modal.addEventListener('click', function(event) {
-            if (event.target === modal) {
+            // Cerrar si se hace clic en el fondo del modal O en la imagen
+            if (event.target === modal || event.target === modalImg) {
                 closeModal();
             }
         });
@@ -222,29 +223,24 @@ function mostrarModal(imageUrl, title) {
             
             if (e.deltaY < 0) {
                 // Zoom in (rueda hacia arriba)
-                currentScale = Math.min(currentScale + 0.2, 5); // Máximo 500%
+                currentScale = Math.min(currentScale + 0.2, 5);
             } else {
                 // Zoom out (rueda hacia abajo)
-                currentScale = Math.max(currentScale - 0.2, 0.5); // Mínimo 50%
+                currentScale = Math.max(currentScale - 0.2, 0.5);
             }
             
             aplicarZoom();
         }, { passive: false });
         
-        // Doble clic en la imagen para resetear zoom
+        // Doble clic en la imagen para resetear zoom (sin cerrar)
         modalImg.addEventListener('dblclick', function(e) {
-            e.stopPropagation();
+            e.stopPropagation(); // Evitar que el doble clic cierre el modal
             resetZoom();
         });
         
         // ARRASTRE - Solo cuando hay zoom
         modalImg.addEventListener('mousedown', startDrag);
         modalImg.addEventListener('touchstart', startDragTouch);
-        
-        // Prevenir que los clics en la imagen cierren el modal
-        modalImg.addEventListener('click', function(e) {
-            e.stopPropagation();
-        });
         
         // Cerrar con ESC
         document.addEventListener('keydown', function closeOnEsc(event) {
@@ -273,6 +269,8 @@ function startDrag(e) {
     
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', stopDrag);
+    
+    e.stopPropagation(); // Evitar que el arrastre active el cierre
 }
 
 function startDragTouch(e) {
@@ -285,6 +283,8 @@ function startDragTouch(e) {
     
     document.addEventListener('touchmove', dragTouch);
     document.addEventListener('touchend', stopDrag);
+    
+    e.stopPropagation(); // Evitar que el arrastre active el cierre
 }
 
 function drag(e) {
