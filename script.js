@@ -1,31 +1,19 @@
-// Función para esperar a que un elemento exista
-function waitForElement(selector, timeout = 5000) {
-    return new Promise((resolve, reject) => {
-        const startTime = Date.now();
-        
-        function checkElement() {
-            const element = document.getElementById(selector);
-            if (element) {
-                resolve(element);
-            } else if (Date.now() - startTime >= timeout) {
-                reject(new Error(`Elemento ${selector} no encontrado después de ${timeout}ms`));
-            } else {
-                setTimeout(checkElement, 100);
-            }
-        }
-        
-        checkElement();
-    });
-}
-
 // Cargar y mostrar las secciones
 async function cargarSecciones() {
     try {
-        console.log('🔍 Cargando secciones...');
+        console.log('🔍 Intentando cargar secciones...');
         
-        // Esperar a que el contenedor exista
-        let container = await waitForElement('section-cards');
-        console.log('✅ Contenedor encontrado:', container);
+        // Esperar un poco más para asegurar que el DOM esté listo
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Buscar el contenedor
+        const container = document.getElementById('section-cards');
+        console.log('📦 Contenedor encontrado:', container);
+        
+        if (!container) {
+            console.error('❌ No se pudo encontrar el contenedor section-cards');
+            return;
+        }
         
         const response = await fetch('data.json');
         
@@ -34,8 +22,9 @@ async function cargarSecciones() {
         }
         
         const data = await response.json();
-        console.log('✅ Datos cargados:', data);
+        console.log('✅ Datos cargados, secciones:', data.secciones?.length);
         
+        // Limpiar contenedor
         container.innerHTML = '';
         
         if (!data.secciones || data.secciones.length === 0) {
@@ -43,6 +32,7 @@ async function cargarSecciones() {
             return;
         }
         
+        // Crear tarjetas
         data.secciones.forEach(seccion => {
             const card = document.createElement('div');
             card.className = 'card';
@@ -62,9 +52,9 @@ async function cargarSecciones() {
         });
         
         console.log('🎉 Secciones cargadas correctamente');
+        
     } catch (error) {
         console.error('❌ Error cargando secciones:', error);
-        // Intentar encontrar el contenedor de otra forma
         const container = document.getElementById('section-cards');
         if (container) {
             container.innerHTML = '<p style="text-align: center; color: #ff6b6b; padding: 2rem;">Error cargando las secciones. Por favor, recarga la página.</p>';
@@ -75,13 +65,15 @@ async function cargarSecciones() {
 // Cargar sección desde hash
 function cargarSeccionDesdeHash() {
     const hash = window.location.hash;
+    console.log('🔗 Hash actual:', hash);
+    
     if (!hash || !hash.startsWith('#seccion/')) {
         mostrarVistaPrincipal();
         return;
     }
     
     const seccionId = hash.replace('#seccion/', '');
-    console.log('🔍 Cargando sección desde hash:', seccionId);
+    console.log('🔍 Cargando sección:', seccionId);
     
     fetch('data.json')
         .then(response => {
@@ -91,6 +83,7 @@ function cargarSeccionDesdeHash() {
         .then(data => {
             const seccion = data.secciones.find(s => s.id === seccionId);
             if (!seccion) {
+                console.error('❌ Sección no encontrada:', seccionId);
                 mostrarVistaPrincipal();
                 return;
             }
@@ -105,19 +98,12 @@ function cargarSeccionDesdeHash() {
 
 // Mostrar vista de sección
 function mostrarVistaSeccion(seccion) {
+    console.log('🖼️ Mostrando sección:', seccion.titulo);
     document.title = `${seccion.titulo} - JAfterPic`;
     
-    // Ocultar vista principal
+    // Ocultar elementos principales
     const homeView = document.getElementById('home-view');
     if (homeView) homeView.style.display = 'none';
-    
-    // Ocultar secciones
-    const sectionCards = document.getElementById('section-cards');
-    if (sectionCards) sectionCards.style.display = 'none';
-    
-    // Ocultar sección inspiradora
-    const inspirationSection = document.getElementById('inspiration-section');
-    if (inspirationSection) inspirationSection.style.display = 'none';
     
     // Crear o mostrar vista de sección
     let seccionView = document.getElementById('seccion-view');
@@ -125,12 +111,7 @@ function mostrarVistaSeccion(seccion) {
         seccionView = document.createElement('div');
         seccionView.id = 'seccion-view';
         seccionView.className = 'seccion-view';
-        const content = document.getElementById('content');
-        if (content) {
-            content.appendChild(seccionView);
-        } else {
-            document.body.appendChild(seccionView);
-        }
+        document.body.appendChild(seccionView);
     }
     
     seccionView.innerHTML = `
@@ -167,6 +148,7 @@ function mostrarVistaSeccion(seccion) {
 
 // Mostrar vista principal
 function mostrarVistaPrincipal() {
+    console.log('🏠 Mostrando vista principal');
     window.location.hash = '';
     document.title = 'Galería Jafter - Fotografía Inspiradora';
     
@@ -174,40 +156,47 @@ function mostrarVistaPrincipal() {
     const homeView = document.getElementById('home-view');
     if (homeView) homeView.style.display = 'block';
     
-    const sectionCards = document.getElementById('section-cards');
-    if (sectionCards) sectionCards.style.display = 'grid';
-    
-    const inspirationSection = document.getElementById('inspiration-section');
-    if (inspirationSection) inspirationSection.style.display = 'block';
-    
     // Ocultar vista de sección
     const seccionView = document.getElementById('seccion-view');
     if (seccionView) seccionView.style.display = 'none';
+    
+    // Recargar secciones si es necesario
+    const container = document.getElementById('section-cards');
+    if (container && container.children.length === 0) {
+        cargarSecciones();
+    }
 }
 
-// Inicialización
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 DOM cargado, inicializando...');
+// Inicialización cuando el DOM esté listo
+function inicializar() {
+    console.log('🚀 Inicializando aplicación...');
     
     // Logo click
     const logo = document.getElementById('logoHome');
     if (logo) {
-        logo.addEventListener('click', function() {
-            mostrarVistaPrincipal();
-        });
+        logo.addEventListener('click', mostrarVistaPrincipal);
     }
     
-    // Verificar hash al cargar
+    // Verificar hash actual
     if (window.location.hash && window.location.hash.startsWith('#seccion/')) {
+        console.log('🔗 Hash detectado al cargar');
         cargarSeccionDesdeHash();
     } else {
-        // Cargar secciones principal
+        console.log('📄 Cargando vista principal');
         cargarSecciones();
     }
-});
+}
+
+// Esperar a que el DOM esté completamente cargado
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializar);
+} else {
+    inicializar();
+}
 
 // Manejar cambios en el hash
 window.addEventListener('hashchange', function() {
+    console.log('🔗 Hash cambiado:', window.location.hash);
     if (window.location.hash && window.location.hash.startsWith('#seccion/')) {
         cargarSeccionDesdeHash();
     } else {
