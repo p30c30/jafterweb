@@ -198,9 +198,10 @@ function mostrarModal(imageUrl, title) {
         closeBtn.onclick = closeModal;
     }
     
-    // Cerrar al hacer clic en el fondo del modal
+    // CERRAR AL HACER CLIC EN CUALQUIER PARTE DEL MODAL (fondo o imagen)
     modal.onclick = function(event) {
-        if (event.target === modal) {
+        // Cerrar si se hace clic en el fondo (modal) o en la imagen
+        if (event.target === modal || event.target === modalImg) {
             closeModal();
         }
     };
