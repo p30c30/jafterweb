@@ -385,7 +385,7 @@ body {
     }
 }
 
-/* Modal MEJORADO - IMAGEN QUE SE AJUSTA AUTOMÁTICAMENTE A PANTALLA */
+/* Modal MEJORADO - CON SCROLL Y ZOOM */
 .modal {
     display: none;
     position: fixed;
@@ -393,50 +393,67 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(0, 0, 0, 0.98);
     z-index: 1000;
-    justify-content: center;
-    align-items: center;
+    overflow: auto;
     padding: 20px;
 }
 
 .modal.active {
-    display: flex;
+    display: block;
 }
 
 .modal-content {
-    position: relative;
     display: flex;
     justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
+    align-items: flex-start;
+    min-height: 100%;
+    padding: 40px 0;
+}
+
+.modal-img-container {
+    position: relative;
+    display: inline-block;
+    max-width: none;
+    cursor: grab;
+    transition: transform 0.2s ease;
+}
+
+.modal-img-container:active {
+    cursor: grabbing;
 }
 
 .modal-img {
-    max-width: 100%;
-    max-height: 100%;
-    width: auto;
+    max-width: none;
     height: auto;
-    object-fit: contain;
-    cursor: pointer;
+    display: block;
+    cursor: grab;
     border-radius: 4px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+    user-select: none;
+    -webkit-user-drag: none;
 }
 
-/* Asegurar que las imágenes muy grandes se reduzcan */
-.modal-img.large-image {
-    width: auto !important;
-    height: auto !important;
-    max-width: 95% !important;
-    max-height: 95% !important;
+.modal-img:active {
+    cursor: grabbing;
+}
+
+/* Estados de zoom */
+.modal-img.zoomable {
+    cursor: zoom-in;
+}
+
+.modal-img.zoomed {
+    cursor: grab;
+}
+
+.modal-img.zoomed:active {
+    cursor: grabbing;
 }
 
 /* Botón de cerrar DISIMULADO */
 .close-modal {
-    position: absolute;
+    position: fixed;
     top: 25px;
     right: 25px;
     color: rgba(253, 184, 19, 0.7);
@@ -463,10 +480,83 @@ body {
     opacity: 1;
 }
 
+/* Controles de zoom */
+.zoom-controls {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 1001;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 10px 15px;
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.zoom-btn {
+    background: rgba(253, 184, 19, 0.3);
+    color: #FDB813;
+    border: 1px solid rgba(253, 184, 19, 0.5);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.zoom-btn:hover {
+    background: rgba(253, 184, 19, 0.6);
+    color: #000;
+    transform: scale(1.1);
+}
+
+.zoom-reset {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.zoom-reset:hover {
+    background: rgba(255, 255, 255, 0.4);
+    color: #000;
+}
+
+/* Indicador de que se puede hacer zoom */
+.zoom-hint {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.8rem;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 8px 16px;
+    border-radius: 20px;
+    z-index: 1001;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal.active .zoom-hint {
+    opacity: 1;
+}
+
 /* Para móviles */
 @media (max-width: 768px) {
     .modal {
-        padding: 15px;
+        padding: 10px;
+    }
+    
+    .modal-content {
+        padding: 20px 0;
     }
     
     .close-modal {
@@ -477,27 +567,25 @@ body {
         font-size: 18px;
     }
     
-    .modal-img {
-        border-radius: 2px;
+    .zoom-controls {
+        bottom: 20px;
+        padding: 8px 12px;
+    }
+    
+    .zoom-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+    
+    .zoom-hint {
+        bottom: 60px;
+        font-size: 0.7rem;
+        padding: 6px 12px;
     }
 }
 
-/* Para tablets */
-@media (max-width: 1024px) and (min-width: 769px) {
-    .modal {
-        padding: 20px;
-    }
-}
-
-/* Para pantallas muy grandes */
-@media (min-width: 1600px) {
-    .modal-img {
-        max-width: 90%;
-        max-height: 90%;
-    }
-}
-
-/* Asegurar que no haya scroll innecesario */
+/* Asegurar que el body tenga scroll cuando el modal está abierto */
 body.modal-open {
     overflow: hidden;
 }
