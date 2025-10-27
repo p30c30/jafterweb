@@ -1,5 +1,11 @@
-// MAIN.JS - VERSIÓN MEJORADA CON AJUSTE AUTOMÁTICO DE IMAGEN
+// MAIN.JS - VERSIÓN MEJORADA CON ZOOM Y ARRASTRE
 console.log('✅ main.js CARGADO');
+
+// Variables globales para el zoom y arrastre
+let currentScale = 1;
+let isDragging = false;
+let startX, startY, scrollLeft, scrollTop;
+let currentImage = null;
 
 // Función principal
 function iniciar() {
@@ -26,7 +32,7 @@ function iniciar() {
     }, 1000);
 }
 
-// Cargar datos y crear tarjetas - VERSIÓN CORREGIDA
+// Cargar datos y crear tarjetas
 async function cargarDatos(container) {
     try {
         console.log('📥 Cargando data.json...');
@@ -81,7 +87,7 @@ async function cargarDatos(container) {
     }
 }
 
-// Mostrar sección específica - VERSIÓN SEGURA
+// Mostrar sección específica
 function mostrarSeccion(seccion) {
     console.log('🖼️ Mostrando sección:', seccion.titulo);
     
@@ -153,37 +159,51 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - VERSIÓN MEJORADA CON AJUSTE AUTOMÁTICO
+// Función para mostrar modal con zoom y arrastre
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
-    const modalImg = document.getElementById('modal-img');
     
-    // Precargar imagen para conocer sus dimensiones
+    // Crear estructura del modal con controles de zoom
+    modal.innerHTML = `
+        <div class="close-modal">×</div>
+        <div class="zoom-controls">
+            <button class="zoom-btn zoom-out">-</button>
+            <button class="zoom-btn zoom-reset">100%</button>
+            <button class="zoom-btn zoom-in">+</button>
+        </div>
+        <div class="zoom-hint">Haz clic para zoom • Arrastra para mover</div>
+        <div class="modal-content">
+            <div class="modal-img-container">
+                <img src="" alt="${title}" class="modal-img" id="modal-img">
+            </div>
+        </div>
+    `;
+    
+    const modalImg = document.getElementById('modal-img');
+    const modalContainer = modal.querySelector('.modal-img-container');
+    
+    // Precargar imagen
     const img = new Image();
     img.onload = function() {
         modalImg.src = imageUrl;
         modalImg.alt = title;
+        currentImage = modalImg;
         
-        // Detectar si la imagen es muy grande para la pantalla
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        
-        // Si la imagen es más grande que la ventana en cualquier dimensión
-        if (img.width > windowWidth * 0.9 || img.height > windowHeight * 0.9) {
-            modalImg.classList.add('large-image');
-        } else {
-            modalImg.classList.remove('large-image');
-        }
+        // Resetear zoom y posición
+        resetZoom();
         
         modal.classList.add('active');
         document.body.classList.add('modal-open');
+        
+        // Configurar eventos de zoom y arrastre
+        configurarZoomYArrastre(modalImg, modalContainer);
     };
     img.onerror = function() {
-        // Si hay error cargando la imagen, mostrar igual
         modalImg.src = imageUrl;
         modalImg.alt = title;
         modal.classList.add('active');
         document.body.classList.add('modal-open');
+        configurarZoomYArrastre(modalImg, modalContainer);
     };
     img.src = imageUrl;
     
@@ -191,7 +211,7 @@ function mostrarModal(imageUrl, title) {
     const closeModal = () => {
         modal.classList.remove('active');
         document.body.classList.remove('modal-open');
-        modalImg.classList.remove('large-image');
+        resetZoom();
     };
     
     // Cerrar al hacer clic en la X
@@ -200,10 +220,9 @@ function mostrarModal(imageUrl, title) {
         closeBtn.onclick = closeModal;
     }
     
-    // CERRAR AL HACER CLIC EN CUALQUIER PARTE DEL MODAL (fondo o imagen)
+    // Cerrar al hacer clic en el fondo del modal
     modal.onclick = function(event) {
-        // Cerrar si se hace clic en el fondo (modal) o en la imagen
-        if (event.target === modal || event.target === modalImg) {
+        if (event.target === modal) {
             closeModal();
         }
     };
@@ -215,6 +234,159 @@ function mostrarModal(imageUrl, title) {
             document.removeEventListener('keydown', closeOnEsc);
         }
     });
+}
+
+// Configurar zoom y arrastre
+function configurarZoomYArrastre(modalImg, modalContainer) {
+    // Controles de zoom
+    const zoomInBtn = document.querySelector('.zoom-in');
+    const zoomOutBtn = document.querySelector('.zoom-out');
+    const zoomResetBtn = document.querySelector('.zoom-reset');
+    
+    // Zoom in
+    zoomInBtn.addEventListener('click', () => {
+        currentScale += 0.5;
+        aplicarZoom();
+    });
+    
+    // Zoom out
+    zoomOutBtn.addEventListener('click', () => {
+        if (currentScale > 0.5) {
+            currentScale -= 0.5;
+            aplicarZoom();
+        }
+    });
+    
+    // Reset zoom
+    zoomResetBtn.addEventListener('click', resetZoom);
+    
+    // Zoom con rueda del mouse
+    modalContainer.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (e.deltaY < 0) {
+            // Zoom in
+            currentScale += 0.2;
+        } else {
+            // Zoom out
+            if (currentScale > 0.5) {
+                currentScale -= 0.2;
+            }
+        }
+        aplicarZoom();
+    });
+    
+    // Zoom al hacer doble clic
+    modalImg.addEventListener('dblclick', () => {
+        if (currentScale === 1) {
+            currentScale = 2;
+        } else {
+            currentScale = 1;
+        }
+        aplicarZoom();
+    });
+    
+    // Arrastre
+    modalContainer.addEventListener('mousedown', startDrag);
+    modalContainer.addEventListener('touchstart', startDragTouch);
+    
+    // Prevenir arrastre de la imagen
+    modalImg.addEventListener('dragstart', (e) => {
+        e.preventDefault();
+    });
+}
+
+// Funciones de zoom
+function aplicarZoom() {
+    if (currentImage) {
+        currentImage.style.transform = `scale(${currentScale})`;
+        currentImage.style.transformOrigin = 'center center';
+        
+        // Actualizar cursor
+        if (currentScale > 1) {
+            currentImage.classList.add('zoomed');
+            currentImage.classList.remove('zoomable');
+        } else {
+            currentImage.classList.add('zoomable');
+            currentImage.classList.remove('zoomed');
+        }
+        
+        // Actualizar texto del botón reset
+        const zoomResetBtn = document.querySelector('.zoom-reset');
+        if (zoomResetBtn) {
+            zoomResetBtn.textContent = Math.round(currentScale * 100) + '%';
+        }
+    }
+}
+
+function resetZoom() {
+    currentScale = 1;
+    aplicarZoom();
+    
+    // Resetear posición de arrastre
+    if (currentImage) {
+        currentImage.style.transform = `scale(1) translate(0px, 0px)`;
+    }
+}
+
+// Funciones de arrastre
+function startDrag(e) {
+    if (currentScale <= 1) return;
+    
+    isDragging = true;
+    startX = e.pageX - currentImage.offsetLeft;
+    startY = e.pageY - currentImage.offsetTop;
+    
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDrag);
+    
+    currentImage.style.cursor = 'grabbing';
+}
+
+function startDragTouch(e) {
+    if (currentScale <= 1) return;
+    
+    isDragging = true;
+    const touch = e.touches[0];
+    startX = touch.pageX - currentImage.offsetLeft;
+    startY = touch.pageY - currentImage.offsetTop;
+    
+    document.addEventListener('touchmove', dragTouch);
+    document.addEventListener('touchend', stopDrag);
+}
+
+function drag(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    const x = e.pageX - startX;
+    const y = e.pageY - startY;
+    
+    currentImage.style.left = x + 'px';
+    currentImage.style.top = y + 'px';
+    currentImage.style.position = 'relative';
+}
+
+function dragTouch(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const x = touch.pageX - startX;
+    const y = touch.pageY - startY;
+    
+    currentImage.style.left = x + 'px';
+    currentImage.style.top = y + 'px';
+    currentImage.style.position = 'relative';
+}
+
+function stopDrag() {
+    isDragging = false;
+    document.removeEventListener('mousemove', drag);
+    document.removeEventListener('touchmove', dragTouch);
+    
+    if (currentImage) {
+        currentImage.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
+    }
 }
 
 // Función para volver a la galería
@@ -237,6 +409,7 @@ function volverAGaleria() {
     if (modal) {
         modal.classList.remove('active');
         document.body.classList.remove('modal-open');
+        resetZoom();
     }
 }
 
