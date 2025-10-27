@@ -1,9 +1,15 @@
-// MAIN.JS - VERSIÓN CON NAVEGACIÓN CORRECTA
+// MAIN.JS - VERSIÓN MEJORADA
 console.log('✅ main.js CARGADO');
 
 // Función principal
 function iniciar() {
     console.log('🚀 INICIANDO...');
+    
+    // Configurar logo para volver al inicio
+    const logo = document.getElementById('logoHome');
+    if (logo) {
+        logo.addEventListener('click', volverAGaleria);
+    }
     
     setTimeout(() => {
         console.log('🔍 Buscando contenedor...');
@@ -41,7 +47,6 @@ async function cargarDatos(container) {
                 </div>
             `;
             
-            // NAVEGACIÓN CORREGIDA - usa hash en lugar de seccion.html
             card.addEventListener('click', () => {
                 console.log('🔄 Navegando a sección:', seccion.id);
                 mostrarSeccion(seccion);
@@ -65,11 +70,10 @@ function mostrarSeccion(seccion) {
     const homeView = document.getElementById('home-view');
     if (homeView) homeView.style.display = 'none';
     
-    // Ocultar sección inspiradora
     const inspirationSection = document.getElementById('inspiration-section');
     if (inspirationSection) inspirationSection.style.display = 'none';
     
-    // Crear o mostrar vista de sección
+    // Crear vista de sección
     let seccionView = document.getElementById('seccion-view');
     if (!seccionView) {
         seccionView = document.createElement('div');
@@ -80,7 +84,7 @@ function mostrarSeccion(seccion) {
     
     seccionView.innerHTML = `
         <header class="seccion-header">
-            <button onclick="volverAGaleria()" class="back-button">← Volver a Galería</button>
+            <button class="back-button" title="Volver">←</button>
             <h1>${seccion.titulo}</h1>
             <p>${seccion.descripcion}</p>
         </header>
@@ -89,7 +93,13 @@ function mostrarSeccion(seccion) {
     
     seccionView.style.display = 'block';
     
-    // Cargar fotos de la sección
+    // Configurar botón de volver
+    const backButton = seccionView.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', volverAGaleria);
+    }
+    
+    // Cargar fotos
     const container = document.getElementById('fotos-container');
     if (container) {
         container.innerHTML = '';
@@ -101,17 +111,55 @@ function mostrarSeccion(seccion) {
                 <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura">
                 <p class="foto-texto">${foto.texto}</p>
             `;
+            
+            // Abrir en modal en misma ventana
             fotoElement.addEventListener('click', () => {
-                // Abrir imagen en máxima resolución
-                window.open(foto.url, '_blank');
+                mostrarModal(foto.url, foto.texto);
             });
+            
             container.appendChild(fotoElement);
         });
     }
 }
 
-// Función para volver a la galería (debe ser global)
-window.volverAGaleria = function() {
+// Función para mostrar modal
+function mostrarModal(imageUrl, title) {
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
+    
+    modalImg.src = imageUrl;
+    modalImg.alt = title;
+    modal.classList.add('active');
+    
+    // Configurar cerrar modal
+    const closeModal = () => {
+        modal.classList.remove('active');
+    };
+    
+    // Cerrar al hacer clic en la X
+    const closeBtn = modal.querySelector('.close-modal');
+    if (closeBtn) {
+        closeBtn.onclick = closeModal;
+    }
+    
+    // Cerrar al hacer clic fuera de la imagen
+    modal.onclick = function(event) {
+        if (event.target === modal) {
+            closeModal();
+        }
+    };
+    
+    // Cerrar con ESC
+    document.addEventListener('keydown', function closeOnEsc(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+            document.removeEventListener('keydown', closeOnEsc);
+        }
+    });
+}
+
+// Función para volver a la galería
+function volverAGaleria() {
     console.log('🏠 Volviendo a galería...');
     
     // Mostrar elementos principales
@@ -124,7 +172,13 @@ window.volverAGaleria = function() {
     // Ocultar vista de sección
     const seccionView = document.getElementById('seccion-view');
     if (seccionView) seccionView.style.display = 'none';
-};
+    
+    // Cerrar modal si está abierto
+    const modal = document.getElementById('modal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', iniciar);
