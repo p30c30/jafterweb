@@ -1,0 +1,30 @@
+{
+  "secciones": [
+    {
+      "id": "retratos",
+      "nombre": "Retratos", 
+      "miniatura": "https://i.ibb.co/ABCD123/retrato-miniatura.jpg",
+      "texto": "Capturando la esencia humana",
+      "fotos": [
+        {
+          "miniatura": "https://i.ibb.co/EFGH456/retrato1-thumb.jpg",
+          "grande": "https://i.ibb.co/IJKL789/retrato1-full.jpg",
+          "texto": "Mirada profunda"
+        }
+      ]
+    },
+    {
+      "id": "paisajes",
+      "nombre": "Paisajes",
+      "miniatura": "https://i.ibb.co/MNO012/paisaje-miniatura.jpg", 
+      "texto": "La belleza natural en su máximo esplendor",
+      "fotos": [
+        {
+          "miniatura": "https://i.ibb.co/PQR345/paisaje1-thumb.jpg",
+          "grande": "https://i.ibb.co/STU678/paisaje1-full.jpg",
+          "texto": "Atardecer en la montaña"
+        }
+      ]
+    }
+  ]
+}
