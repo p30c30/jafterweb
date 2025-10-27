@@ -235,7 +235,7 @@ body {
     display: none;
 }
 
-/* Modal mejorado para misma ventana */
+/* Modal mejorado - X amarilla y cerrar con click en foto */
 .modal {
     display: none;
     position: fixed;
@@ -260,24 +260,49 @@ body {
     object-fit: contain;
     border-radius: 8px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    cursor: pointer; /* Cursor pointer para indicar que es clickeable */
 }
 
 .close-modal {
     position: absolute;
     top: 20px;
     right: 30px;
-    color: white;
-    font-size: 40px;
+    color: #FDB813; /* Amarillo */
+    font-size: 35px;
     font-weight: bold;
     cursor: pointer;
-    background: none;
-    border: none;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #FDB813;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 1001;
-    transition: opacity 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .close-modal:hover {
-    opacity: 0.7;
+    background: #FDB813;
+    color: #000;
+    transform: scale(1.1);
+}
+
+/* Para móviles */
+@media (max-width: 768px) {
+    .close-modal {
+        top: 15px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        font-size: 30px;
+    }
+    
+    .modal-img {
+        max-width: 95%;
+        max-height: 95%;
+    }
 }
 
 /* Footer */
