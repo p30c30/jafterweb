@@ -385,7 +385,7 @@ body {
     }
 }
 
-/* Modal MEJORADO - IMAGEN COMPLETA Y BOTÓN DISIMULADO */
+/* Modal MEJORADO - IMAGEN QUE SE AJUSTA AUTOMÁTICAMENTE A PANTALLA */
 .modal {
     display: none;
     position: fixed;
@@ -397,7 +397,7 @@ body {
     z-index: 1000;
     justify-content: center;
     align-items: center;
-    padding: 0;
+    padding: 20px;
 }
 
 .modal.active {
@@ -411,47 +411,43 @@ body {
     align-items: center;
     width: 100%;
     height: 100%;
-    max-width: 100vw;
-    max-height: 100vh;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .modal-img {
-    max-width: 100vw;
-    max-height: 100vh;
+    max-width: 100%;
+    max-height: 100%;
     width: auto;
     height: auto;
     object-fit: contain;
     cursor: pointer;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-/* Para imágenes horizontales */
-.modal-img.horizontal {
-    width: 100vw;
-    height: auto;
-    max-height: 100vh;
-}
-
-/* Para imágenes verticales */
-.modal-img.vertical {
-    height: 100vh;
-    width: auto;
-    max-width: 100vw;
+/* Asegurar que las imágenes muy grandes se reduzcan */
+.modal-img.large-image {
+    width: auto !important;
+    height: auto !important;
+    max-width: 95% !important;
+    max-height: 95% !important;
 }
 
 /* Botón de cerrar DISIMULADO */
 .close-modal {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 25px;
+    right: 25px;
     color: rgba(253, 184, 19, 0.7);
-    font-size: 28px;
+    font-size: 24px;
     font-weight: bold;
     cursor: pointer;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(253, 184, 19, 0.3);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(253, 184, 19, 0.4);
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -470,22 +466,34 @@ body {
 /* Para móviles */
 @media (max-width: 768px) {
     .modal {
-        padding: 0;
+        padding: 15px;
     }
     
     .close-modal {
         top: 15px;
         right: 15px;
-        width: 35px;
-        height: 35px;
-        font-size: 22px;
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+    }
+    
+    .modal-img {
+        border-radius: 2px;
     }
 }
 
 /* Para tablets */
 @media (max-width: 1024px) and (min-width: 769px) {
     .modal {
-        padding: 0;
+        padding: 20px;
+    }
+}
+
+/* Para pantallas muy grandes */
+@media (min-width: 1600px) {
+    .modal-img {
+        max-width: 90%;
+        max-height: 90%;
     }
 }
 
