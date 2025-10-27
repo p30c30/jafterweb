@@ -385,7 +385,7 @@ body {
     }
 }
 
-/* Modal MEJORADO - IMAGEN QUE SE AJUSTA AL 100% */
+/* Modal MEJORADO - MÁXIMA PANTALLA Y CIERRE CON CLIC */
 .modal {
     display: none;
     position: fixed;
@@ -396,6 +396,7 @@ body {
     background: rgba(0, 0, 0, 0.98);
     z-index: 1000;
     overflow: auto;
+    cursor: pointer;
 }
 
 .modal.active {
@@ -407,7 +408,8 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 60px 20px;
+    padding: 20px;
+    cursor: default;
 }
 
 .modal-img-container {
@@ -416,25 +418,25 @@ body {
     align-items: center;
     max-width: 100%;
     max-height: 100%;
+    cursor: default;
 }
 
 .modal-img {
-    max-width: 100%;
-    max-height: 90vh;
+    max-width: 95vw;
+    max-height: 95vh;
     width: auto;
     height: auto;
     object-fit: contain;
     display: block;
-    border-radius: 8px;
+    border-radius: 4px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     cursor: zoom-in;
-    transition: transform 0.3s ease, cursor 0.3s ease;
+    transition: transform 0.3s ease;
 }
 
 /* Cuando la imagen está en zoom */
 .modal-img.zoomed {
     cursor: grab;
-    transform: scale(var(--zoom-scale, 1));
 }
 
 .modal-img.zoomed:active {
@@ -444,17 +446,17 @@ body {
 /* Botón de cerrar DISIMULADO */
 .close-modal {
     position: fixed;
-    top: 25px;
-    right: 25px;
+    top: 20px;
+    right: 20px;
     color: rgba(253, 184, 19, 0.7);
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     cursor: pointer;
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid rgba(253, 184, 19, 0.4);
     border-radius: 50%;
-    width: 35px;
-    height: 35px;
+    width: 30px;
+    height: 30px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -470,89 +472,23 @@ body {
     opacity: 1;
 }
 
-/* Controles de zoom */
-.zoom-controls {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 10px;
-    z-index: 1001;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 10px 15px;
-    border-radius: 25px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.zoom-btn {
-    background: rgba(253, 184, 19, 0.3);
-    color: #FDB813;
-    border: 1px solid rgba(253, 184, 19, 0.5);
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.zoom-btn:hover {
-    background: rgba(253, 184, 19, 0.6);
-    color: #000;
-    transform: scale(1.1);
-}
-
-.zoom-reset {
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.zoom-reset:hover {
-    background: rgba(255, 255, 255, 0.4);
-    color: #000;
-}
-
 /* Para móviles */
 @media (max-width: 768px) {
     .modal-content {
-        padding: 40px 15px;
+        padding: 10px;
     }
     
     .modal-img {
-        max-height: 85vh;
+        max-width: 98vw;
+        max-height: 98vh;
     }
     
     .close-modal {
-        top: 15px;
-        right: 15px;
-        width: 30px;
-        height: 30px;
-        font-size: 18px;
-    }
-    
-    .zoom-controls {
-        bottom: 20px;
-        padding: 8px 12px;
-    }
-    
-    .zoom-btn {
-        width: 35px;
-        height: 35px;
+        top: 10px;
+        right: 10px;
+        width: 25px;
+        height: 25px;
         font-size: 16px;
-    }
-}
-
-/* Para tablets */
-@media (max-width: 1024px) and (min-width: 769px) {
-    .modal-content {
-        padding: 50px 20px;
     }
 }
 
