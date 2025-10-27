@@ -25,7 +25,7 @@ async function cargarSecciones() {
     } catch (error) {
         console.error('Error cargando secciones:', error);
         document.getElementById('secciones-container').innerHTML = 
-            '<p>Error cargando las secciones. Por favor, recarga la página.</p>';
+            '<p style="text-align: center; color: #ff6b6b; grid-column: 1/-1;">Error cargando las secciones. Por favor, recarga la página.</p>';
     }
 }
 
@@ -53,7 +53,7 @@ function cargarSeccion() {
             const header = document.createElement('header');
             header.className = 'seccion-header';
             header.innerHTML = `
-                <button onclick="window.history.back()" class="back-button">← Volver</button>
+                <button onclick="window.location.href='index.html'" class="back-button">← Volver a Galería</button>
                 <h1>${seccion.titulo}</h1>
                 <p>${seccion.descripcion}</p>
             `;
@@ -70,6 +70,7 @@ function cargarSeccion() {
                     <p class="foto-texto">${foto.texto}</p>
                 `;
                 fotoElement.addEventListener('click', () => {
+                    // Abrir imagen en nueva pestaña
                     window.open(foto.url, '_blank');
                 });
                 container.appendChild(fotoElement);
@@ -80,6 +81,29 @@ function cargarSeccion() {
             window.location.href = 'index.html';
         });
 }
+
+// Función para el modal (opcional - para vista en misma página)
+function showModal(imageUrl) {
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
+    modalImg.src = imageUrl;
+    modal.classList.add('active');
+}
+
+function hideModal() {
+    const modal = document.getElementById('modal');
+    modal.classList.remove('active');
+}
+
+// Logo click para ir al inicio
+document.addEventListener('DOMContentLoaded', function() {
+    const logo = document.getElementById('logoHome');
+    if (logo) {
+        logo.addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+    }
+});
 
 // Inicializar
 if (window.location.pathname.includes('seccion.html')) {
