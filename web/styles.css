@@ -385,7 +385,7 @@ body {
     }
 }
 
-/* Modal MEJORADO - CON SCROLL Y ZOOM */
+/* Modal MEJORADO - IMAGEN QUE SE AJUSTA AL 100% */
 .modal {
     display: none;
     position: fixed;
@@ -396,7 +396,6 @@ body {
     background: rgba(0, 0, 0, 0.98);
     z-index: 1000;
     overflow: auto;
-    padding: 20px;
 }
 
 .modal.active {
@@ -406,45 +405,36 @@ body {
 .modal-content {
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    min-height: 100%;
-    padding: 40px 0;
+    align-items: center;
+    min-height: 100vh;
+    padding: 60px 20px;
 }
 
 .modal-img-container {
-    position: relative;
-    display: inline-block;
-    max-width: none;
-    cursor: grab;
-    transition: transform 0.2s ease;
-}
-
-.modal-img-container:active {
-    cursor: grabbing;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100%;
+    max-height: 100%;
 }
 
 .modal-img {
-    max-width: none;
+    max-width: 100%;
+    max-height: 90vh;
+    width: auto;
     height: auto;
+    object-fit: contain;
     display: block;
-    cursor: grab;
-    border-radius: 4px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
-    user-select: none;
-    -webkit-user-drag: none;
-}
-
-.modal-img:active {
-    cursor: grabbing;
-}
-
-/* Estados de zoom */
-.modal-img.zoomable {
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     cursor: zoom-in;
+    transition: transform 0.3s ease, cursor 0.3s ease;
 }
 
+/* Cuando la imagen está en zoom */
 .modal-img.zoomed {
     cursor: grab;
+    transform: scale(var(--zoom-scale, 1));
 }
 
 .modal-img.zoomed:active {
@@ -529,34 +519,14 @@ body {
     color: #000;
 }
 
-/* Indicador de que se puede hacer zoom */
-.zoom-hint {
-    position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.8rem;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 8px 16px;
-    border-radius: 20px;
-    z-index: 1001;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.modal.active .zoom-hint {
-    opacity: 1;
-}
-
 /* Para móviles */
 @media (max-width: 768px) {
-    .modal {
-        padding: 10px;
+    .modal-content {
+        padding: 40px 15px;
     }
     
-    .modal-content {
-        padding: 20px 0;
+    .modal-img {
+        max-height: 85vh;
     }
     
     .close-modal {
@@ -577,11 +547,12 @@ body {
         height: 35px;
         font-size: 16px;
     }
-    
-    .zoom-hint {
-        bottom: 60px;
-        font-size: 0.7rem;
-        padding: 6px 12px;
+}
+
+/* Para tablets */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .modal-content {
+        padding: 50px 20px;
     }
 }
 
