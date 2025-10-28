@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN CORREGIDA SIN DUPLICACIONES
+// MAIN.JS - VERSIÓN COMPLETA FUNCIONAL
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -163,7 +163,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - CORREGIDA SIN DUPLICACIONES
+// Función para mostrar modal - COMPLETAMENTE FUNCIONAL
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
@@ -220,9 +220,11 @@ function mostrarModal(imageUrl, title) {
             }
         });
         
-        // CLIC EN LA IMAGEN - Cierra inmediatamente
+        // CLIC EN LA IMAGEN - Cierra inmediatamente (solo sin zoom)
         modalImg.addEventListener('click', function(event) {
-            closeModal();
+            if (currentScale <= 1) {
+                closeModal();
+            }
         });
         
         // ZOOM MÁS PRECISO CON LA RUEDA
@@ -274,6 +276,7 @@ function startDrag(e) {
     
     if (currentImage) {
         currentImage.style.cursor = 'grabbing';
+        currentImage.classList.add('grabbing');
     }
     
     document.addEventListener('mousemove', drag);
@@ -293,6 +296,10 @@ function startDragTouch(e) {
     startY = touch.clientY - translateY;
     lastX = touch.clientX;
     lastY = touch.clientY;
+    
+    if (currentImage) {
+        currentImage.classList.add('grabbing');
+    }
     
     document.addEventListener('touchmove', dragTouch);
     document.addEventListener('touchend', stopDrag);
@@ -357,10 +364,13 @@ function stopDrag() {
     
     if (currentImage && currentScale > 1) {
         currentImage.style.cursor = 'move';
+        currentImage.classList.remove('grabbing');
     }
     
     document.removeEventListener('mousemove', drag);
     document.removeEventListener('touchmove', dragTouch);
+    document.removeEventListener('mouseup', stopDrag);
+    document.removeEventListener('touchend', stopDrag);
 }
 
 // Funciones de zoom
@@ -396,7 +406,7 @@ function resetZoom() {
     
     if (currentImage) {
         currentImage.style.transform = 'none';
-        currentImage.classList.remove('zoomed');
+        currentImage.classList.remove('zoomed', 'grabbing');
         currentImage.style.cursor = 'default';
     }
 }
