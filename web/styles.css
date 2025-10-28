@@ -385,7 +385,7 @@ body {
     }
 }
 
-/* === MODAL COMPLETAMENTE FUNCIONAL === */
+/* === MODAL MEJORADO CON NAVEGACIÓN === */
 .modal {
     display: none;
     position: fixed;
@@ -405,6 +405,7 @@ body {
 
 .modal-content {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
@@ -417,14 +418,15 @@ body {
     justify-content: center;
     align-items: center;
     max-width: 100%;
-    max-height: 100%;
+    max-height: 80vh;
     cursor: default;
     position: relative;
+    flex: 1;
 }
 
 .modal-img {
     max-width: 95vw;
-    max-height: 95vh;
+    max-height: 80vh;
     width: auto;
     height: auto;
     object-fit: contain;
@@ -444,6 +446,67 @@ body {
 /* Cursor grabbing durante el arrastre */
 .modal-img.grabbing {
     cursor: grabbing !important;
+}
+
+/* Botones de navegación */
+.nav-button {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.6);
+    color: #FDB813;
+    border: 2px solid rgba(253, 184, 19, 0.6);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1002;
+    transition: all 0.3s ease;
+    opacity: 0.7;
+    user-select: none;
+}
+
+.nav-button:hover {
+    background: rgba(253, 184, 19, 0.9);
+    color: #000;
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.prev-button {
+    left: 20px;
+}
+
+.next-button {
+    right: 20px;
+}
+
+/* Información de la foto */
+.modal-info {
+    text-align: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 10px;
+    margin-top: 1rem;
+    max-width: 80%;
+}
+
+.foto-counter {
+    color: #FDB813;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.foto-title {
+    color: #ffffff;
+    font-size: 1.1rem;
+    line-height: 1.4;
 }
 
 /* Botón cerrar - asegurar que esté por encima */
@@ -488,7 +551,34 @@ body.modal-open {
     
     .modal-img {
         max-width: 98vw;
-        max-height: 98vh;
+        max-height: 70vh;
+    }
+
+    .modal-img-container {
+        max-height: 70vh;
+    }
+
+    .nav-button {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+
+    .prev-button {
+        left: 10px;
+    }
+
+    .next-button {
+        right: 10px;
+    }
+
+    .modal-info {
+        max-width: 95%;
+        padding: 0.8rem;
+    }
+
+    .foto-title {
+        font-size: 1rem;
     }
 
     .close-modal {
@@ -497,6 +587,23 @@ body.modal-open {
         width: 25px;
         height: 25px;
         font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-button {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        opacity: 0.8;
+    }
+
+    .modal-img {
+        max-height: 60vh;
+    }
+
+    .modal-img-container {
+        max-height: 60vh;
     }
 }
 
