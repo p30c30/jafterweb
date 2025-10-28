@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN SIMPLIFICADA CON CLIC FUNCIONAL
+// MAIN.JS - VERSIÓN CON CARRUSEL INTEGRADO
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -14,6 +14,12 @@ let animationFrameId = null;
 let currentSeccion = null;
 let currentFotoIndex = 0;
 let todasLasFotos = [];
+
+// Variables para el carrusel
+let carruselActualIndex = 0;
+let carruselFotos = [];
+let autoPlayInterval;
+let datosGlobales = null;
 
 // Función principal
 function iniciar() {
@@ -51,6 +57,7 @@ async function cargarDatos(container) {
         }
         
         const data = await response.json();
+        datosGlobales = data; // Guardar datos globalmente
         
         // VERIFICACIÓN CRÍTICA
         if (!data || !data.secciones || !Array.isArray(data.secciones)) {
@@ -81,6 +88,9 @@ async function cargarDatos(container) {
         
         console.log('🎉 ÉXITO: Secciones cargadas');
         
+        // CARGAR CARRUSEL DESPUÉS DE LAS SECCIONES
+        cargarCarrusel(data);
+        
     } catch (error) {
         console.error('❌ Error cargando datos:', error);
         
@@ -94,6 +104,181 @@ async function cargarDatos(container) {
         `;
     }
 }
+
+// ================== CARRUSEL ÚLTIMAS FOTOS ==================
+function cargarCarrusel(data) {
+    const container = document.getElementById('ultimas-fotos-carrusel');
+    const dotsContainer = document.getElementById('carrusel-dots');
+    
+    if (!container) {
+        console.log('❌ Contenedor del carrusel no encontrado');
+        return;
+    }
+    
+    console.log('🔄 Cargando carrusel de últimas fotos...');
+    carruselFotos = obtenerFotosParaCarrusel(data);
+    mostrarCarruselFotos(carruselFotos, container, dotsContainer);
+    
+    // Configurar navegación automática
+    iniciarAutoPlay();
+    configurarInteraccionCarrusel();
+}
+
+function obtenerFotosParaCarrusel(data) {
+    const todasLasFotos = [];
+    
+    // Recopilar todas las fotos de todas las secciones
+    data.secciones.forEach(seccion => {
+        if (seccion.fotos && Array.isArray(seccion.fotos)) {
+            seccion.fotos.forEach((foto, index) => {
+                todasLasFotos.push({
+                    ...foto,
+                    seccionId: seccion.id,
+                    seccionTitulo: seccion.titulo,
+                    indiceEnSeccion: index
+                });
+            });
+        }
+    });
+    
+    console.log(`📸 Encontradas ${todasLasFotos.length} fotos en total`);
+    
+    // Tomar las últimas 6 fotas (orden inverso)
+    const ultimas = todasLasFotos.slice(-6).reverse();
+    console.log(`🎠 Mostrando ${ultimas.length} fotos en el carrusel`);
+    
+    return ultimas;
+}
+
+function mostrarCarruselFotos(fotos, container, dotsContainer) {
+    container.innerHTML = '';
+    dotsContainer.innerHTML = '';
+    
+    if (fotos.length === 0) {
+        container.innerHTML = '<div class="carrusel-item"><p class="no-fotos">No hay fotos recientes</p></div>';
+        return;
+    }
+    
+    // Crear items del carrusel
+    fotos.forEach((foto, index) => {
+        const carruselItem = document.createElement('div');
+        carruselItem.className = `carrusel-item ${index === 0 ? 'active' : ''}`;
+        carruselItem.innerHTML = `
+            <img src="${foto.url}" alt="${foto.texto}" class="carrusel-img">
+            <div class="carrusel-info">
+                <div class="carrusel-seccion">${foto.seccionTitulo}</div>
+                <div class="carrusel-desc">${foto.texto}</div>
+            </div>
+        `;
+        
+        carruselItem.addEventListener('click', () => {
+            irAFotoEnSeccion(foto.seccionId, foto.indiceEnSeccion);
+        });
+        
+        container.appendChild(carruselItem);
+    });
+    
+    // Crear dots de navegación
+    fotos.forEach((_, index) => {
+        const dot = document.createElement('button');
+        dot.className = `carrusel-dot ${index === 0 ? 'active' : ''}`;
+        dot.addEventListener('click', () => {
+            moverCarruselA(index);
+        });
+        dotsContainer.appendChild(dot);
+    });
+    
+    // Configurar botones de navegación
+    configurarBotonesCarrusel();
+    
+    // Actualizar posición inicial
+    actualizarCarrusel();
+}
+
+function configurarBotonesCarrusel() {
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => moverCarruselA(carruselActualIndex - 1));
+    }
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => moverCarruselA(carruselActualIndex + 1));
+    }
+}
+
+function moverCarruselA(nuevoIndex) {
+    // Scroll infinito
+    if (nuevoIndex < 0) {
+        nuevoIndex = carruselFotos.length - 1;
+    } else if (nuevoIndex >= carruselFotos.length) {
+        nuevoIndex = 0;
+    }
+    
+    carruselActualIndex = nuevoIndex;
+    actualizarCarrusel();
+    resetAutoPlay();
+}
+
+function actualizarCarrusel() {
+    const carruselInner = document.querySelector('.carrusel-inner');
+    const dots = document.querySelectorAll('.carrusel-dot');
+    
+    if (carruselInner) {
+        carruselInner.style.transform = `translateX(-${carruselActualIndex * 100}%)`;
+    }
+    
+    // Actualizar dots activos
+    dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === carruselActualIndex);
+    });
+}
+
+// Auto-play del carrusel
+function iniciarAutoPlay() {
+    autoPlayInterval = setInterval(() => {
+        moverCarruselA(carruselActualIndex + 1);
+    }, 5000); // Cambia cada 5 segundos
+}
+
+function resetAutoPlay() {
+    clearInterval(autoPlayInterval);
+    iniciarAutoPlay();
+}
+
+function configurarInteraccionCarrusel() {
+    const carrusel = document.querySelector('.carrusel');
+    if (carrusel) {
+        carrusel.addEventListener('mouseenter', () => {
+            clearInterval(autoPlayInterval);
+        });
+        
+        carrusel.addEventListener('mouseleave', () => {
+            iniciarAutoPlay();
+        });
+    }
+}
+
+function irAFotoEnSeccion(seccionId, fotoIndex) {
+    if (!datosGlobales) return;
+    
+    const seccion = datosGlobales.secciones.find(s => s.id === seccionId);
+    if (seccion) {
+        // Mostrar la sección
+        mostrarSeccion(seccion);
+        
+        // Abrir el modal después de un pequeño delay
+        setTimeout(() => {
+            const foto = seccion.fotos[fotoIndex];
+            if (foto) {
+                mostrarModal(foto.url, foto.texto, fotoIndex);
+            }
+        }, 400);
+    }
+}
+
+// ================== FUNCIONES EXISTENTES (SE MANTIENEN IGUAL) ==================
 
 // Mostrar sección específica
 function mostrarSeccion(seccion) {
