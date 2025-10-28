@@ -11,7 +11,7 @@
                     "url": "https://i.ibb.co/TDmRNPsR/MG-0240-Mejorado-NR-2-Editar.jpg",
                     "texto": "Meditando al anochecer"
                 },
-                {
+                                {
                     "miniatura": "https://i.ibb.co/XkSCHH4C/Botellas-BNW-smoke.jpg",
                     "url": "https://i.ibb.co/R4zD88SD/Botellas-BNW-smoke.jpg",
                     "texto": "Botellas en blanco y negro"
@@ -291,8 +291,12 @@
   "miniatura": "https://i.ibb.co/fdK3mWyb/Boeing-CH-47-F-Chinook-HT-17-34-A-2.jpg",
   "url": "https://i.ibb.co/Sw1kqgM2/Boeing-CH-47-F-Chinook-HT-17-34-A-2.jpg",
   "texto": "Boeing Chinook en segunda toma: doble hélice y perfil inconfundible en cortesía del aire."
+},
+  "miniatura": "https://i.ibb.co/6cphz9MX/P1109293-Mejorado-NR-Editar.jpg",
+  "url": "https://i.ibb.co/4wDyzvq1/P1109293-Mejorado-NR-Editar.jpg",
+  "texto": "Meditando al anochecer"
 }
-               
+
             ]
         },
         {
