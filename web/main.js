@@ -1,7 +1,7 @@
-// MAIN.JS - VERSIÓN FINAL CON CIERRE INMEDIATO
+// MAIN.JS - VERSIÓN CON NAVEGACIÓN ENTRE FOTOS
 console.log('✅ main.js CARGADO');
 
-// Variables globales para el zoom y arrastre
+// Variables globales para el zoom, arrastre y navegación
 let currentScale = 1;
 let currentImage = null;
 let isDragging = false;
@@ -10,6 +10,11 @@ let translateX = 0, translateY = 0;
 let dragStartTime = 0;
 let lastX = 0, lastY = 0;
 let animationFrameId = null;
+
+// Variables para navegación
+let currentSeccion = null;
+let currentFotoIndex = 0;
+let totalFotos = 0;
 
 // Función principal
 function iniciar() {
@@ -95,6 +100,9 @@ async function cargarDatos(container) {
 function mostrarSeccion(seccion) {
     console.log('🖼️ Mostrando sección:', seccion.titulo);
     
+    // Guardar la sección actual para la navegación
+    currentSeccion = seccion;
+    
     // Verificar que la sección tiene fotos
     if (!seccion.fotos || !Array.isArray(seccion.fotos)) {
         console.error('❌ No hay fotos en esta sección:', seccion);
@@ -139,7 +147,7 @@ function mostrarSeccion(seccion) {
     if (container) {
         container.innerHTML = '';
         
-        seccion.fotos.forEach(foto => {
+        seccion.fotos.forEach((foto, index) => {
             // Verificar que cada foto tiene los campos necesarios
             if (!foto.miniatura || !foto.texto || !foto.url) {
                 console.warn('Foto incompleta:', foto);
@@ -155,7 +163,7 @@ function mostrarSeccion(seccion) {
             
             // Abrir en modal en misma ventana
             fotoElement.addEventListener('click', () => {
-                mostrarModal(foto.url, foto.texto);
+                mostrarModal(seccion, index);
             });
             
             container.appendChild(fotoElement);
@@ -163,46 +171,32 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - CON CIERRE INMEDIATO FUNCIONANDO
-function mostrarModal(imageUrl, title) {
+// Función para mostrar modal - CON NAVEGACIÓN
+function mostrarModal(seccion, fotoIndex) {
     const modal = document.getElementById('modal');
     
-    // Crear estructura del modal
+    // Guardar información de navegación
+    currentSeccion = seccion;
+    currentFotoIndex = fotoIndex;
+    totalFotos = seccion.fotos.length;
+    
+    // Crear estructura del modal CON FLECHAS
     modal.innerHTML = `
         <div class="close-modal">×</div>
+        <div class="nav-arrow prev">‹</div>
+        <div class="nav-arrow next">›</div>
+        <div class="photo-counter">${fotoIndex + 1} / ${totalFotos}</div>
         <div class="modal-content">
             <div class="modal-img-container">
-                <img src="" alt="${title}" class="modal-img" id="modal-img">
+                <img src="" alt="" class="modal-img" id="modal-img">
             </div>
         </div>
     `;
     
     const modalImg = document.getElementById('modal-img');
     
-    // Precargar imagen
-    const img = new Image();
-    img.onload = function() {
-        modalImg.src = imageUrl;
-        modalImg.alt = title;
-        currentImage = modalImg;
-        
-        // Resetear zoom y posición
-        resetZoom();
-        
-        modal.classList.add('active');
-        document.body.classList.add('modal-open');
-        
-        // Configurar eventos
-        configurarEventos();
-    };
-    img.onerror = function() {
-        modalImg.src = imageUrl;
-        modalImg.alt = title;
-        modal.classList.add('active');
-        document.body.classList.add('modal-open');
-        configurarEventos();
-    };
-    img.src = imageUrl;
+    // Cargar la imagen actual
+    cargarImagenActual();
     
     // Configurar eventos
     function configurarEventos() {
@@ -212,45 +206,111 @@ function mostrarModal(imageUrl, title) {
             closeBtn.onclick = closeModal;
         }
         
+        // Navegación con flechas
+        const prevArrow = modal.querySelector('.nav-arrow.prev');
+        const nextArrow = modal.querySelector('.nav-arrow.next');
+        
+        if (prevArrow) {
+            prevArrow.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fotoAnterior();
+            });
+        }
+        
+        if (nextArrow) {
+            nextArrow.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fotoSiguiente();
+            });
+        }
+        
+        // Navegación con teclado
+        document.addEventListener('keydown', function navegarConTeclado(event) {
+            if (event.key === 'ArrowLeft') {
+                fotoAnterior();
+            } else if (event.key === 'ArrowRight') {
+                fotoSiguiente();
+            } else if (event.key === 'Escape') {
+                closeModal();
+                document.removeEventListener('keydown', navegarConTeclado);
+            }
+        });
+        
         // CERRAR AL HACER CLIC EN EL FONDO DEL MODAL
         modal.addEventListener('click', function(event) {
-            // Solo cerrar si se hace clic en el fondo (NO en la imagen)
             if (event.target === modal) {
                 closeModal();
             }
         });
         
-        // CLIC EN LA IMAGEN - Cierra inmediatamente
+        // PREVENIR que el clic en la imagen se propague al modal
         modalImg.addEventListener('click', function(event) {
-            closeModal();
+            event.stopPropagation();
         });
         
-        // ZOOM MÁS PRECISO CON LA RUEDA
+        // ZOOM con rueda del ratón
         modal.addEventListener('wheel', function(e) {
             e.preventDefault();
             
-            // Determinar dirección del zoom
-            const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9; // 10% de zoom in/out
+            const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
             const newScale = currentScale * zoomFactor;
             
-            // Limitar el zoom entre 10% y 500%
             if (newScale >= 0.1 && newScale <= 5) {
                 currentScale = newScale;
                 aplicarZoom();
             }
         }, { passive: false });
         
-        // ARRASTRE SUAVE - Solo cuando hay zoom
+        // ARRASTRE - Solo cuando hay zoom
         modalImg.addEventListener('mousedown', startDrag);
         modalImg.addEventListener('touchstart', startDragTouch);
+    }
+    
+    function cargarImagenActual() {
+        const fotoActual = currentSeccion.fotos[currentFotoIndex];
         
-        // Cerrar con ESC
-        document.addEventListener('keydown', function closeOnEsc(event) {
-            if (event.key === 'Escape') {
-                closeModal();
-                document.removeEventListener('keydown', closeOnEsc);
+        // Precargar imagen
+        const img = new Image();
+        img.onload = function() {
+            modalImg.src = fotoActual.url;
+            modalImg.alt = fotoActual.texto;
+            currentImage = modalImg;
+            
+            // Resetear zoom y posición
+            resetZoom();
+            
+            modal.classList.add('active');
+            document.body.classList.add('modal-open');
+            
+            // Actualizar contador
+            const counter = modal.querySelector('.photo-counter');
+            if (counter) {
+                counter.textContent = `${currentFotoIndex + 1} / ${totalFotos}`;
             }
-        });
+            
+            // Configurar eventos
+            configurarEventos();
+        };
+        img.onerror = function() {
+            modalImg.src = fotoActual.url;
+            modalImg.alt = fotoActual.texto;
+            modal.classList.add('active');
+            document.body.classList.add('modal-open');
+            configurarEventos();
+        };
+        img.src = fotoActual.url;
+    }
+    
+    function fotoAnterior() {
+        // Carrusel infinito: si es la primera, va a la última
+        currentFotoIndex = currentFotoIndex === 0 ? totalFotos - 1 : currentFotoIndex - 1;
+        cargarImagenActual();
+    }
+    
+    function fotoSiguiente() {
+        // Carrusel infinito: si es la última, va a la primera
+        currentFotoIndex = currentFotoIndex === totalFotos - 1 ? 0 : currentFotoIndex + 1;
+        cargarImagenActual();
     }
     
     // Función para cerrar modal
@@ -261,9 +321,11 @@ function mostrarModal(imageUrl, title) {
     }
 }
 
-// Funciones de arrastre SUAVES
+// ... (el resto de las funciones se mantienen IGUAL: startDrag, drag, stopDrag, aplicarZoom, resetZoom, volverAGaleria)
+
+// Funciones de arrastre SUAVES (se mantienen igual)
 function startDrag(e) {
-    if (currentScale <= 1) return; // Solo arrastrar cuando hay zoom
+    if (currentScale <= 1) return;
     
     isDragging = true;
     dragStartTime = Date.now();
@@ -272,32 +334,12 @@ function startDrag(e) {
     lastX = e.clientX;
     lastY = e.clientY;
     
-    // Cambiar cursor a "agarrando"
     if (currentImage) {
         currentImage.style.cursor = 'grabbing';
     }
     
-    // Usar requestAnimationFrame para animación suave
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', stopDrag);
-    
-    e.preventDefault();
-    e.stopPropagation();
-}
-
-function startDragTouch(e) {
-    if (currentScale <= 1) return; // Solo arrastrar cuando hay zoom
-    
-    isDragging = true;
-    dragStartTime = Date.now();
-    const touch = e.touches[0];
-    startX = touch.clientX - translateX;
-    startY = touch.clientY - translateY;
-    lastX = touch.clientX;
-    lastY = touch.clientY;
-    
-    document.addEventListener('touchmove', dragTouch);
-    document.addEventListener('touchend', stopDrag);
     
     e.preventDefault();
     e.stopPropagation();
@@ -306,48 +348,19 @@ function startDragTouch(e) {
 function drag(e) {
     if (!isDragging) return;
     
-    // Cancelar frame anterior si existe
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
     }
     
-    // Usar requestAnimationFrame para animación suave
     animationFrameId = requestAnimationFrame(() => {
         const deltaX = e.clientX - lastX;
         const deltaY = e.clientY - lastY;
         
-        // Aplicar movimiento suavizado
-        translateX += deltaX * 1.2; // Factor de suavizado
+        translateX += deltaX * 1.2;
         translateY += deltaY * 1.2;
         
         lastX = e.clientX;
         lastY = e.clientY;
-        
-        aplicarZoom();
-    });
-}
-
-function dragTouch(e) {
-    if (!isDragging) return;
-    
-    const touch = e.touches[0];
-    
-    // Cancelar frame anterior si existe
-    if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-    }
-    
-    // Usar requestAnimationFrame para animación suave
-    animationFrameId = requestAnimationFrame(() => {
-        const deltaX = touch.clientX - lastX;
-        const deltaY = touch.clientY - lastY;
-        
-        // Aplicar movimiento suavizado
-        translateX += deltaX * 1.2; // Factor de suavizado
-        translateY += deltaY * 1.2;
-        
-        lastX = touch.clientX;
-        lastY = touch.clientY;
         
         aplicarZoom();
     });
@@ -358,36 +371,30 @@ function stopDrag() {
     
     isDragging = false;
     
-    // Cancelar cualquier animación pendiente
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null;
     }
     
-    // Restaurar cursor a "mover" cuando se suelta
     if (currentImage && currentScale > 1) {
         currentImage.style.cursor = 'move';
     }
     
     document.removeEventListener('mousemove', drag);
-    document.removeEventListener('touchmove', dragTouch);
 }
 
-// Funciones de zoom
+// Funciones de zoom (se mantienen igual)
 function aplicarZoom() {
     if (currentImage) {
-        // Aplicar transformación combinada (zoom + traslación)
         currentImage.style.transform = `scale(${currentScale}) translate(${translateX}px, ${translateY}px)`;
         currentImage.style.transformOrigin = 'center center';
         
-        // Cambiar cursor según el estado
         if (currentScale > 1) {
             currentImage.classList.add('zoomed');
             currentImage.style.cursor = isDragging ? 'grabbing' : 'move';
         } else {
             currentImage.classList.remove('zoomed');
             currentImage.style.cursor = 'default';
-            // Resetear posición cuando no hay zoom
             translateX = 0;
             translateY = 0;
         }
@@ -402,7 +409,6 @@ function resetZoom() {
     lastX = 0;
     lastY = 0;
     
-    // Cancelar cualquier animación pendiente
     if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
         animationFrameId = null;
@@ -415,22 +421,19 @@ function resetZoom() {
     }
 }
 
-// Función para volver a la galería
+// Función para volver a la galería (se mantiene igual)
 function volverAGaleria() {
     console.log('🏠 Volviendo a galería...');
     
-    // Mostrar elementos principales
     const homeView = document.getElementById('home-view');
     if (homeView) homeView.style.display = 'block';
     
     const inspirationSection = document.getElementById('inspiration-section');
     if (inspirationSection) inspirationSection.style.display = 'block';
     
-    // Ocultar vista de sección
     const seccionView = document.getElementById('seccion-view');
     if (seccionView) seccionView.style.display = 'none';
     
-    // Cerrar modal si está abierto
     const modal = document.getElementById('modal');
     if (modal) {
         modal.classList.remove('active');
