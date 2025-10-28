@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN CORREGIDA CON CLIC SUAVE FUNCIONAL
+// MAIN.JS - VERSIÓN SIMPLIFICADA CON CLIC FUNCIONAL
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -7,7 +7,6 @@ let currentImage = null;
 let isDragging = false;
 let startX, startY;
 let translateX = 0, translateY = 0;
-let dragStartTime = 0;
 let lastX = 0, lastY = 0;
 let animationFrameId = null;
 
@@ -15,13 +14,6 @@ let animationFrameId = null;
 let currentSeccion = null;
 let currentFotoIndex = 0;
 let todasLasFotos = [];
-
-// Variables para detección de clics
-let clickStartX = 0;
-let clickStartY = 0;
-let clickStartTime = 0;
-const CLICK_MAX_DISTANCE = 5; // píxeles
-const CLICK_MAX_DURATION = 200; // milisegundos
 
 // Función principal
 function iniciar() {
@@ -181,7 +173,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - MEJORADA CON DETECCIÓN DE CLICS
+// Función para mostrar modal - VERSIÓN SIMPLIFICADA
 function mostrarModal(imageUrl, title, fotoIndex) {
     const modal = document.getElementById('modal');
     
@@ -231,7 +223,7 @@ function mostrarModal(imageUrl, title, fotoIndex) {
     };
     img.src = imageUrl;
     
-    // Configurar eventos - VERSIÓN MEJORADA
+    // Configurar eventos - VERSIÓN SIMPLIFICADA
     function configurarEventos() {
         // Cerrar al hacer clic en la X
         const closeBtn = modal.querySelector('.close-modal');
@@ -250,81 +242,53 @@ function mostrarModal(imageUrl, title, fotoIndex) {
             nextBtn.onclick = () => navegarFoto(1);
         }
         
-        // CERRAR AL HACER CLIC EN EL FONDO DEL MODAL SOLAMENTE
+        // CERRAR AL HACER CLIC EN EL FONDO DEL MODAL
         modal.addEventListener('click', function(event) {
-            // Solo cerrar si se hace clic en el fondo (NO en la imagen, botones, etc.)
             if (event.target === modal) {
                 closeModal();
             }
         });
         
-        // DETECCIÓN MEJORADA DE CLICS EN LA IMAGEN
-        modalImg.addEventListener('mousedown', function(event) {
-            // Guardar posición y tiempo inicial para detectar clics
-            clickStartX = event.clientX;
-            clickStartY = event.clientY;
-            clickStartTime = Date.now();
-        });
+        // CLIC EN LA IMAGEN - Cierra SIEMPRE con doble clic o clic rápido
+        let clickCount = 0;
+        let clickTimer = null;
         
-        modalImg.addEventListener('mouseup', function(event) {
-            // Calcular distancia y tiempo del movimiento
-            const distance = Math.sqrt(
-                Math.pow(event.clientX - clickStartX, 2) + 
-                Math.pow(event.clientY - clickStartY, 2)
-            );
-            const duration = Date.now() - clickStartTime;
+        modalImg.addEventListener('click', function(event) {
+            clickCount++;
             
-            // Si fue un clic (poca distancia y poco tiempo) y NO estamos en modo arrastre
-            if (distance <= CLICK_MAX_DISTANCE && 
-                duration <= CLICK_MAX_DURATION && 
-                !isDragging) {
-                
-                // Cerrar modal con clic suave (funciona con o sin zoom)
+            if (clickCount === 1) {
+                // Primer clic - esperar para ver si es doble clic
+                clickTimer = setTimeout(() => {
+                    // Si pasó el tiempo y es un solo clic, cerrar SOLO si no hay zoom
+                    if (currentScale <= 1) {
+                        closeModal();
+                    }
+                    clickCount = 0;
+                }, 300);
+            } else if (clickCount === 2) {
+                // Doble clic - cerrar SIEMPRE (con o sin zoom)
+                clearTimeout(clickTimer);
                 closeModal();
+                clickCount = 0;
             }
-        });
-        
-        // Para touch devices
-        modalImg.addEventListener('touchstart', function(event) {
-            const touch = event.touches[0];
-            clickStartX = touch.clientX;
-            clickStartY = touch.clientY;
-            clickStartTime = Date.now();
-        });
-        
-        modalImg.addEventListener('touchend', function(event) {
-            if (!event.changedTouches[0]) return;
             
-            const touch = event.changedTouches[0];
-            const distance = Math.sqrt(
-                Math.pow(touch.clientX - clickStartX, 2) + 
-                Math.pow(touch.clientY - clickStartY, 2)
-            );
-            const duration = Date.now() - clickStartTime;
-            
-            if (distance <= CLICK_MAX_DISTANCE && 
-                duration <= CLICK_MAX_DURATION && 
-                !isDragging) {
-                closeModal();
-            }
+            event.stopPropagation();
         });
         
-        // ZOOM MÁS PRECISO CON LA RUEDA
+        // ZOOM CON RUEDA DEL RATÓN
         modal.addEventListener('wheel', function(e) {
             e.preventDefault();
             
-            // Determinar dirección del zoom
             const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
             const newScale = currentScale * zoomFactor;
             
-            // Limitar el zoom entre 10% y 500%
             if (newScale >= 0.1 && newScale <= 5) {
                 currentScale = newScale;
                 aplicarZoom();
             }
         }, { passive: false });
         
-        // ARRASTRE SUAVE - Solo cuando hay zoom
+        // ARRASTRE - Solo cuando hay zoom
         modalImg.addEventListener('mousedown', startDrag);
         modalImg.addEventListener('touchstart', startDragTouch);
         
@@ -359,20 +323,17 @@ function mostrarModal(imageUrl, title, fotoIndex) {
 function navegarFoto(direccion) {
     if (!todasLasFotos.length) return;
     
-    // Calcular nuevo índice con scroll infinito
     let nuevoIndex = currentFotoIndex + direccion;
     
     if (nuevoIndex < 0) {
-        nuevoIndex = todasLasFotos.length - 1; // Ir a la última
+        nuevoIndex = todasLasFotos.length - 1;
     } else if (nuevoIndex >= todasLasFotos.length) {
-        nuevoIndex = 0; // Volver a la primera
+        nuevoIndex = 0;
     }
     
-    // Actualizar índice
     currentFotoIndex = nuevoIndex;
     const nuevaFoto = todasLasFotos[currentFotoIndex];
     
-    // Actualizar modal con nueva foto
     const modal = document.getElementById('modal');
     const modalImg = document.getElementById('modal-img');
     const fotoCounter = modal.querySelector('.foto-counter');
@@ -388,7 +349,6 @@ function navegarFoto(direccion) {
         modalImg.alt = nuevaFoto.texto;
         currentImage = modalImg;
         
-        // Actualizar información
         if (fotoCounter) {
             fotoCounter.textContent = `${currentFotoIndex + 1} / ${todasLasFotos.length}`;
         }
@@ -409,9 +369,8 @@ function navegarFoto(direccion) {
     img.src = nuevaFoto.url;
 }
 
-// Funciones de arrastre SUAVES
+// Funciones de arrastre
 function startDrag(e) {
-    // Solo arrastrar si hay zoom
     if (currentScale <= 1) return;
     
     isDragging = true;
@@ -556,27 +515,23 @@ function resetZoom() {
     }
 }
 
-// Función para volver a la galería - CON SCROLL AL INICIO
+// Función para volver a la galería
 function volverAGaleria() {
     console.log('🏠 Volviendo a galería...');
     
-    // Resetear variables de navegación
     currentSeccion = null;
     currentFotoIndex = 0;
     todasLasFotos = [];
     
-    // Mostrar elementos principales
     const homeView = document.getElementById('home-view');
     if (homeView) homeView.style.display = 'block';
     
     const inspirationSection = document.getElementById('inspiration-section');
     if (inspirationSection) inspirationSection.style.display = 'block';
     
-    // Ocultar vista de sección
     const seccionView = document.getElementById('seccion-view');
     if (seccionView) seccionView.style.display = 'none';
     
-    // Cerrar modal si está abierto
     const modal = document.getElementById('modal');
     if (modal) {
         modal.classList.remove('active');
@@ -584,7 +539,6 @@ function volverAGaleria() {
         resetZoom();
     }
     
-    // SCROLL SUAVE AL INICIO DE LA PÁGINA
     window.scrollTo({
         top: 0,
         left: 0,
