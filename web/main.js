@@ -166,7 +166,6 @@ function mostrarCarruselFotos(fotos, container, dotsContainer) {
         carruselItem.innerHTML = `
             <img src="${foto.url}" alt="${foto.texto}" class="carrusel-img">
             <div class="carrusel-info">
-                <div class="carrusel-seccion">${foto.seccionTitulo}</div>
                 <div class="carrusel-desc">${foto.texto}</div>
             </div>
         `;
@@ -183,6 +182,7 @@ function mostrarCarruselFotos(fotos, container, dotsContainer) {
         const dot = document.createElement('button');
         dot.className = `carrusel-dot ${index === 0 ? 'active' : ''}`;
         dot.addEventListener('click', () => {
+            pausarCarrusel();
             moverCarruselA(index);
         });
         dotsContainer.appendChild(dot);
@@ -200,12 +200,26 @@ function configurarBotonesCarrusel() {
     const nextBtn = document.querySelector('.next-btn');
     
     if (prevBtn) {
-        prevBtn.addEventListener('click', () => moverCarruselA(carruselActualIndex - 1));
+        prevBtn.addEventListener('click', () => {
+            pausarCarrusel();
+            moverCarruselA(carruselActualIndex - 1);
+        });
     }
     
     if (nextBtn) {
-        nextBtn.addEventListener('click', () => moverCarruselA(carruselActualIndex + 1));
+        nextBtn.addEventListener('click', () => {
+            pausarCarrusel();
+            moverCarruselA(carruselActualIndex + 1);
+        });
     }
+}
+
+function pausarCarrusel() {
+    clearInterval(autoPlayInterval);
+    // Reanudar después de 30 segundos de inactividad
+    setTimeout(() => {
+        iniciarAutoPlay();
+    }, 30000);
 }
 
 function moverCarruselA(nuevoIndex) {
@@ -218,7 +232,6 @@ function moverCarruselA(nuevoIndex) {
     
     carruselActualIndex = nuevoIndex;
     actualizarCarrusel();
-    resetAutoPlay();
 }
 
 function actualizarCarrusel() {
@@ -235,11 +248,11 @@ function actualizarCarrusel() {
     });
 }
 
-// Auto-play del carrusel
+// Auto-play del carrusel - 20 SEGUNDOS
 function iniciarAutoPlay() {
     autoPlayInterval = setInterval(() => {
         moverCarruselA(carruselActualIndex + 1);
-    }, 5000); // Cambia cada 5 segundos
+    }, 20000); // Cambia cada 20 segundos
 }
 
 function resetAutoPlay() {
@@ -259,7 +272,6 @@ function configurarInteraccionCarrusel() {
         });
     }
 }
-
 function irAFotoEnSeccion(seccionId, fotoIndex) {
     if (!datosGlobales) return;
     
