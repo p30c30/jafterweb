@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN COMPLETA FUNCIONAL
+// MAIN.JS - VERSIÓN MEJORADA CON NAVEGACIÓN Y CLIC CORRECTO
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -10,6 +10,11 @@ let translateX = 0, translateY = 0;
 let dragStartTime = 0;
 let lastX = 0, lastY = 0;
 let animationFrameId = null;
+
+// Variables para navegación entre fotos
+let currentSeccion = null;
+let currentFotoIndex = 0;
+let todasLasFotos = [];
 
 // Función principal
 function iniciar() {
@@ -95,11 +100,17 @@ async function cargarDatos(container) {
 function mostrarSeccion(seccion) {
     console.log('🖼️ Mostrando sección:', seccion.titulo);
     
+    // Guardar la sección actual para navegación
+    currentSeccion = seccion;
+    
     // Verificar que la sección tiene fotos
     if (!seccion.fotos || !Array.isArray(seccion.fotos)) {
         console.error('❌ No hay fotos en esta sección:', seccion);
         return;
     }
+    
+    // Preparar todas las fotos para navegación
+    todasLasFotos = seccion.fotos;
     
     // Ocultar vista principal
     const homeView = document.getElementById('home-view');
@@ -139,7 +150,7 @@ function mostrarSeccion(seccion) {
     if (container) {
         container.innerHTML = '';
         
-        seccion.fotos.forEach(foto => {
+        seccion.fotos.forEach((foto, index) => {
             // Verificar que cada foto tiene los campos necesarios
             if (!foto.miniatura || !foto.texto || !foto.url) {
                 console.warn('Foto incompleta:', foto);
@@ -155,7 +166,7 @@ function mostrarSeccion(seccion) {
             
             // Abrir en modal en misma ventana
             fotoElement.addEventListener('click', () => {
-                mostrarModal(foto.url, foto.texto);
+                mostrarModal(foto.url, foto.texto, index);
             });
             
             container.appendChild(fotoElement);
@@ -163,16 +174,25 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - COMPLETAMENTE FUNCIONAL
-function mostrarModal(imageUrl, title) {
+// Función para mostrar modal - MEJORADA CON NAVEGACIÓN
+function mostrarModal(imageUrl, title, fotoIndex) {
     const modal = document.getElementById('modal');
     
-    // Crear estructura del modal
+    // Actualizar índice actual
+    currentFotoIndex = fotoIndex;
+    
+    // Crear estructura del modal con navegación
     modal.innerHTML = `
         <div class="close-modal">×</div>
+        <div class="nav-button prev-button">‹</div>
+        <div class="nav-button next-button">›</div>
         <div class="modal-content">
             <div class="modal-img-container">
                 <img src="" alt="${title}" class="modal-img" id="modal-img">
+            </div>
+            <div class="modal-info">
+                <div class="foto-counter">${currentFotoIndex + 1} / ${todasLasFotos.length}</div>
+                <div class="foto-title">${title}</div>
             </div>
         </div>
     `;
@@ -204,7 +224,7 @@ function mostrarModal(imageUrl, title) {
     };
     img.src = imageUrl;
     
-    // Configurar eventos - VERSIÓN CORREGIDA
+    // Configurar eventos - VERSIÓN MEJORADA
     function configurarEventos() {
         // Cerrar al hacer clic en la X
         const closeBtn = modal.querySelector('.close-modal');
@@ -212,9 +232,20 @@ function mostrarModal(imageUrl, title) {
             closeBtn.onclick = closeModal;
         }
         
+        // Navegación con botones
+        const prevBtn = modal.querySelector('.prev-button');
+        const nextBtn = modal.querySelector('.next-button');
+        
+        if (prevBtn) {
+            prevBtn.onclick = () => navegarFoto(-1);
+        }
+        if (nextBtn) {
+            nextBtn.onclick = () => navegarFoto(1);
+        }
+        
         // CERRAR AL HACER CLIC EN EL FONDO DEL MODAL SOLAMENTE
         modal.addEventListener('click', function(event) {
-            // Solo cerrar si se hace clic en el fondo (NO en la imagen)
+            // Solo cerrar si se hace clic en el fondo (NO en la imagen, botones, etc.)
             if (event.target === modal) {
                 closeModal();
             }
@@ -222,8 +253,12 @@ function mostrarModal(imageUrl, title) {
         
         // CLIC EN LA IMAGEN - Cierra inmediatamente (solo sin zoom)
         modalImg.addEventListener('click', function(event) {
-            if (currentScale <= 1) {
-                closeModal();
+            // Solo cerrar si no hay zoom y no es un arrastre
+            if (currentScale <= 1 && !isDragging) {
+                const clickDuration = Date.now() - dragStartTime;
+                if (clickDuration < 200) { // Si fue un clic rápido
+                    closeModal();
+                }
             }
         });
         
@@ -246,11 +281,18 @@ function mostrarModal(imageUrl, title) {
         modalImg.addEventListener('mousedown', startDrag);
         modalImg.addEventListener('touchstart', startDragTouch);
         
-        // Cerrar con ESC
-        document.addEventListener('keydown', function closeOnEsc(event) {
-            if (event.key === 'Escape') {
-                closeModal();
-                document.removeEventListener('keydown', closeOnEsc);
+        // Navegación con teclado
+        document.addEventListener('keydown', function manejarTeclado(event) {
+            switch(event.key) {
+                case 'Escape':
+                    closeModal();
+                    break;
+                case 'ArrowLeft':
+                    navegarFoto(-1);
+                    break;
+                case 'ArrowRight':
+                    navegarFoto(1);
+                    break;
             }
         });
     }
@@ -260,15 +302,74 @@ function mostrarModal(imageUrl, title) {
         modal.classList.remove('active');
         document.body.classList.remove('modal-open');
         resetZoom();
+        
+        // Remover event listeners del teclado
+        document.removeEventListener('keydown', manejarTeclado);
     }
+}
+
+// Navegación entre fotos
+function navegarFoto(direccion) {
+    if (!todasLasFotos.length) return;
+    
+    // Calcular nuevo índice con scroll infinito
+    let nuevoIndex = currentFotoIndex + direccion;
+    
+    if (nuevoIndex < 0) {
+        nuevoIndex = todasLasFotos.length - 1; // Ir a la última
+    } else if (nuevoIndex >= todasLasFotos.length) {
+        nuevoIndex = 0; // Volver a la primera
+    }
+    
+    // Actualizar índice
+    currentFotoIndex = nuevoIndex;
+    const nuevaFoto = todasLasFotos[currentFotoIndex];
+    
+    // Actualizar modal con nueva foto
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
+    const fotoCounter = modal.querySelector('.foto-counter');
+    const fotoTitle = modal.querySelector('.foto-title');
+    
+    // Resetear zoom antes de cambiar la imagen
+    resetZoom();
+    
+    // Precargar nueva imagen
+    const img = new Image();
+    img.onload = function() {
+        modalImg.src = nuevaFoto.url;
+        modalImg.alt = nuevaFoto.texto;
+        currentImage = modalImg;
+        
+        // Actualizar información
+        if (fotoCounter) {
+            fotoCounter.textContent = `${currentFotoIndex + 1} / ${todasLasFotos.length}`;
+        }
+        if (fotoTitle) {
+            fotoTitle.textContent = nuevaFoto.texto;
+        }
+    };
+    img.onerror = function() {
+        modalImg.src = nuevaFoto.url;
+        modalImg.alt = nuevaFoto.texto;
+        if (fotoCounter) {
+            fotoCounter.textContent = `${currentFotoIndex + 1} / ${todasLasFotos.length}`;
+        }
+        if (fotoTitle) {
+            fotoTitle.textContent = nuevaFoto.texto;
+        }
+    };
+    img.src = nuevaFoto.url;
 }
 
 // Funciones de arrastre SUAVES
 function startDrag(e) {
+    // Guardar tiempo de inicio para detectar clics vs arrastres
+    dragStartTime = Date.now();
+    
     if (currentScale <= 1) return;
     
     isDragging = true;
-    dragStartTime = Date.now();
     startX = e.clientX - translateX;
     startY = e.clientY - translateY;
     lastX = e.clientX;
@@ -287,10 +388,11 @@ function startDrag(e) {
 }
 
 function startDragTouch(e) {
+    dragStartTime = Date.now();
+    
     if (currentScale <= 1) return;
     
     isDragging = true;
-    dragStartTime = Date.now();
     const touch = e.touches[0];
     startX = touch.clientX - translateX;
     startY = touch.clientY - translateY;
@@ -414,6 +516,11 @@ function resetZoom() {
 // Función para volver a la galería - CON SCROLL AL INICIO
 function volverAGaleria() {
     console.log('🏠 Volviendo a galería...');
+    
+    // Resetear variables de navegación
+    currentSeccion = null;
+    currentFotoIndex = 0;
+    todasLasFotos = [];
     
     // Mostrar elementos principales
     const homeView = document.getElementById('home-view');
