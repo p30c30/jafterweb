@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN CON ARRASTRE SUAVE Y CLIC FUNCIONAL
+// MAIN.JS - VERSIÓN CON CIERRE INMEDIATO Y ZOOM COMPLETO
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -163,7 +163,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - CON ARRASTRE SUAVE
+// Función para mostrar modal - CON CIERRE INMEDIATO
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
@@ -212,21 +212,15 @@ function mostrarModal(imageUrl, title) {
             closeBtn.onclick = closeModal;
         }
         
-        // CERRAR AL HACER CLIC EN EL FONDO SOLAMENTE
+        // CERRAR AL HACER CLIC EN CUALQUIER PARTE (fondo O imagen)
         modal.addEventListener('click', function(event) {
-            // Solo cerrar si se hace clic en el fondo (NO en la imagen)
-            if (event.target === modal) {
-                closeModal();
-            }
+            // Cerrar siempre, sin importar si es fondo o imagen
+            closeModal();
         });
         
-        // CLIC EN LA IMAGEN - Siempre cierra (con o sin zoom)
+        // PREVENIR que el clic en la imagen se propague al modal (para arrastre)
         modalImg.addEventListener('click', function(event) {
-            // Solo cerrar si no fue un arrastre (clic rápido)
-            const clickDuration = Date.now() - dragStartTime;
-            if (clickDuration < 200 && !isDragging) {
-                closeModal();
-            }
+            event.stopPropagation(); // IMPORTANTE: evitar que el clic llegue al modal
         });
         
         // ZOOM MÁS PRECISO CON LA RUEDA
