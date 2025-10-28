@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN MEJORADA CON NAVEGACIÓN Y CLIC CORRECTO
+// MAIN.JS - VERSIÓN CORREGIDA CON CLIC SUAVE FUNCIONAL
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -15,6 +15,13 @@ let animationFrameId = null;
 let currentSeccion = null;
 let currentFotoIndex = 0;
 let todasLasFotos = [];
+
+// Variables para detección de clics
+let clickStartX = 0;
+let clickStartY = 0;
+let clickStartTime = 0;
+const CLICK_MAX_DISTANCE = 5; // píxeles
+const CLICK_MAX_DURATION = 200; // milisegundos
 
 // Función principal
 function iniciar() {
@@ -174,7 +181,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - MEJORADA CON NAVEGACIÓN
+// Función para mostrar modal - MEJORADA CON DETECCIÓN DE CLICS
 function mostrarModal(imageUrl, title, fotoIndex) {
     const modal = document.getElementById('modal');
     
@@ -251,14 +258,54 @@ function mostrarModal(imageUrl, title, fotoIndex) {
             }
         });
         
-        // CLIC EN LA IMAGEN - Cierra inmediatamente (solo sin zoom)
-        modalImg.addEventListener('click', function(event) {
-            // Solo cerrar si no hay zoom y no es un arrastre
-            if (currentScale <= 1 && !isDragging) {
-                const clickDuration = Date.now() - dragStartTime;
-                if (clickDuration < 200) { // Si fue un clic rápido
-                    closeModal();
-                }
+        // DETECCIÓN MEJORADA DE CLICS EN LA IMAGEN
+        modalImg.addEventListener('mousedown', function(event) {
+            // Guardar posición y tiempo inicial para detectar clics
+            clickStartX = event.clientX;
+            clickStartY = event.clientY;
+            clickStartTime = Date.now();
+        });
+        
+        modalImg.addEventListener('mouseup', function(event) {
+            // Calcular distancia y tiempo del movimiento
+            const distance = Math.sqrt(
+                Math.pow(event.clientX - clickStartX, 2) + 
+                Math.pow(event.clientY - clickStartY, 2)
+            );
+            const duration = Date.now() - clickStartTime;
+            
+            // Si fue un clic (poca distancia y poco tiempo) y NO estamos en modo arrastre
+            if (distance <= CLICK_MAX_DISTANCE && 
+                duration <= CLICK_MAX_DURATION && 
+                !isDragging) {
+                
+                // Cerrar modal con clic suave (funciona con o sin zoom)
+                closeModal();
+            }
+        });
+        
+        // Para touch devices
+        modalImg.addEventListener('touchstart', function(event) {
+            const touch = event.touches[0];
+            clickStartX = touch.clientX;
+            clickStartY = touch.clientY;
+            clickStartTime = Date.now();
+        });
+        
+        modalImg.addEventListener('touchend', function(event) {
+            if (!event.changedTouches[0]) return;
+            
+            const touch = event.changedTouches[0];
+            const distance = Math.sqrt(
+                Math.pow(touch.clientX - clickStartX, 2) + 
+                Math.pow(touch.clientY - clickStartY, 2)
+            );
+            const duration = Date.now() - clickStartTime;
+            
+            if (distance <= CLICK_MAX_DISTANCE && 
+                duration <= CLICK_MAX_DURATION && 
+                !isDragging) {
+                closeModal();
             }
         });
         
@@ -364,9 +411,7 @@ function navegarFoto(direccion) {
 
 // Funciones de arrastre SUAVES
 function startDrag(e) {
-    // Guardar tiempo de inicio para detectar clics vs arrastres
-    dragStartTime = Date.now();
-    
+    // Solo arrastrar si hay zoom
     if (currentScale <= 1) return;
     
     isDragging = true;
@@ -388,8 +433,6 @@ function startDrag(e) {
 }
 
 function startDragTouch(e) {
-    dragStartTime = Date.now();
-    
     if (currentScale <= 1) return;
     
     isDragging = true;
