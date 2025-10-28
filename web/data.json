@@ -52,7 +52,7 @@
          "id":"spotting",
          "titulo":"Spotting",
          "descripcion":"Fotografía de aviación y aeronaves",
-         "preview":"https://i.ibb.co/Df1GvK4v/P1059253-Mejorado-NR-Editar-3.jpg",
+         "preview":"https://live.staticflickr.com/65535/54886911123_94c862ed11_b.jpg",
          "fotos":[
             {
                "miniatura":"https://i.ibb.co/Df1GvK4v/P1059253-Mejorado-NR-Editar-3.jpg",
@@ -331,7 +331,7 @@
       },
       {
          "id":"calles",
-         "titulo":"Calles",
+         "titulo":"Street Photo",
          "descripcion":"La vida urbana y la esencia de la ciudad",
          "preview":"https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
          "fotos":[
