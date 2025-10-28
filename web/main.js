@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN CON CIERRE INMEDIATO Y ZOOM COMPLETO
+// MAIN.JS - VERSIÓN FINAL CON CIERRE INMEDIATO
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -163,7 +163,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// Función para mostrar modal - CON CIERRE INMEDIATO
+// Función para mostrar modal - CON CIERRE INMEDIATO FUNCIONANDO
 function mostrarModal(imageUrl, title) {
     const modal = document.getElementById('modal');
     
@@ -212,15 +212,17 @@ function mostrarModal(imageUrl, title) {
             closeBtn.onclick = closeModal;
         }
         
-        // CERRAR AL HACER CLIC EN CUALQUIER PARTE (fondo O imagen)
+        // CERRAR AL HACER CLIC EN EL FONDO DEL MODAL
         modal.addEventListener('click', function(event) {
-            // Cerrar siempre, sin importar si es fondo o imagen
-            closeModal();
+            // Solo cerrar si se hace clic en el fondo (NO en la imagen)
+            if (event.target === modal) {
+                closeModal();
+            }
         });
         
-        // PREVENIR que el clic en la imagen se propague al modal (para arrastre)
+        // CLIC EN LA IMAGEN - Cierra inmediatamente
         modalImg.addEventListener('click', function(event) {
-            event.stopPropagation(); // IMPORTANTE: evitar que el clic llegue al modal
+            closeModal();
         });
         
         // ZOOM MÁS PRECISO CON LA RUEDA
