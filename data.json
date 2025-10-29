@@ -127,11 +127,16 @@
                "miniatura":"https://live.staticflickr.com/65535/54875930117_fbfa0a15d4_b.jpg",
                "url":"https://i.ibb.co/QjrtPjxd/farola-bn-web.jpg",
                "texto":"La Farola de Málaga"
-            }
+            },
             {
                "miniatura":"https://live.staticflickr.com/65535/54888174762_4dcbda01fe_b.jpg",
                "url":"https://i.ibb.co/LdBTZnn7/Zenit2.jpg",
                "texto":"Zenit"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54889290008_380f4ee250_b.jpg",
+               "url":"https://i.ibb.co/NnxrMrv8/Dados-bnw-web.jpg",
+               "texto":"Juegos de mesa"
             }
          ]
       },
