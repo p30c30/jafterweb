@@ -172,7 +172,8 @@
     backdrop-filter: blur(5px);
 }
 
-/* Solo mostrar el título sin overlay */
+/* no mostrar el título sin overlay */
+/*
 .foto-overlay {
     position: absolute;
     bottom: 0;
@@ -198,7 +199,7 @@
     line-height: 1.3;
     text-align: center;
 }
-
+*/
 /* Oculta completamente el texto descriptivo */
 .foto-desc {
     display: none;
