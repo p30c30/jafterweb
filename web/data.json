@@ -3,8 +3,8 @@
       {
          "id":"paisajes",
          "titulo":"Paisajes",
-         "descripcion":"Un viaje visual por los paisajes que inspiran",
-         "preview":"https://live.staticflickr.com/65535/54887076439_58d6408290_b.jpg",
+         "descripcion":"La naturaleza en su máximo esplendor",
+         "preview":"https://i.ibb.co/BHqjYT9j/MG-0240-Mejorado-NR-2-Editar.jpg",
          "fotos":[
             {
                "miniatura":"https://i.ibb.co/BHqjYT9j/MG-0240-Mejorado-NR-2-Editar.jpg",
@@ -17,9 +17,9 @@
                "texto":"Botellas en blanco y negro"
             },
             {
-               "miniatura":"https://i.ibb.co/6cphz9MX/P1109293-Mejorado-NR-Editar.jpg",
-               "url":"https://i.ibb.co/4wDyzvq1/P1109293-Mejorado-NR-Editar.jpg",
-               "texto":"Montañas al atardecer, la luz cálida acaricia las cumbres y las nubes parecen trazos de un óleo sereno."
+               "miniatura":"https://live.staticflickr.com/65535/54413583593_4e9d56ea4b_b.jpg",
+               "url":"https://i.ibb.co/7x4JCRxM/Malaga-mirador.jpg",
+               "texto":"Panorámica de Málaga desde Gibralfaro."
             },
             {
                "miniatura":"https://i.ibb.co/bMFJzfyV/P1108274-Mejorado-NR-Editar-Editar-2-3.jpg",
@@ -52,12 +52,12 @@
          "id":"spotting",
          "titulo":"Spotting",
          "descripcion":"Fotografía de aviación y aeronaves",
-         "preview":"https://live.staticflickr.com/65535/54886911123_94c862ed11_b.jpg",
+         "preview":"https://i.ibb.co/Df1GvK4v/P1059253-Mejorado-NR-Editar-3.jpg",
          "fotos":[
             {
                "miniatura":"https://i.ibb.co/Df1GvK4v/P1059253-Mejorado-NR-Editar-3.jpg",
-               "url":"https://live.staticflickr.com/65535/54886911123_94c862ed11_b.jpg",
-               "texto":"Antonov An-12BK fue fabricado en 1971 y entregado ese mismo año a la Fuerza Aérea soviética. A finales de 2025, el avión tendrá 54 años, superando el medio siglo en servicio. Apodado los Fumetas por el humo que sueltan eso los motores Ivchenkos"
+               "url":"https://i.ibb.co/XxWyKJXK/P1059253-Mejorado-NR-Editar-3.jpg",
+               "texto":"Peso pesado"
             },
             {
                "miniatura":"https://i.ibb.co/5hxRFjwL/Mc-Donnell-Douglas-EF-18-Hornet-C15-13.jpg",
@@ -298,9 +298,9 @@
       },
       {
          "id":"viajes",
-         "titulo":"Black & White",
-         "descripcion":"La belleza del blanco y negro donde cada sombra y luz revela una historia",
-         "preview":"https://live.staticflickr.com/65535/54887130733_79b44be44b_b.jpg",
+         "titulo":"Viajes",
+         "descripcion":"Rincones del mundo capturados en imágenes",
+         "preview":"https://i.ibb.co/Rp1CzRZY/Riogordo-desde-carretera-Colmenar.jpg",
          "fotos":[
             {
                "miniatura":"https://i.ibb.co/Rp1CzRZY/Riogordo-desde-carretera-Colmenar.jpg",
@@ -331,7 +331,7 @@
       },
       {
          "id":"calles",
-         "titulo":"Street Photo",
+         "titulo":"Calles",
          "descripcion":"La vida urbana y la esencia de la ciudad",
          "preview":"https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
          "fotos":[
@@ -364,9 +364,9 @@
       },
       {
          "id":"personas",
-         "titulo":"Naturaleza",
-         "descripcion":"Capturando la esencia de la naturaleza",
-         "preview":"https://live.staticflickr.com/65535/54886888386_b52168f923_b.jpg",
+         "titulo":"Personas",
+         "descripcion":"Retratos y momentos humanos espontáneos",
+         "preview":"https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
          "fotos":[
             {
                "miniatura":"https://i.ibb.co/tMNwY0tZ/Tenis-Esther-color-sunset.jpg",
