@@ -190,3 +190,85 @@
     font-size: 1.1rem;
     font-weight: 500;
 }
+/* ================== SECCIÓN INSPIRATION - TEXTO MÁS GRANDE ================== */
+#inspiration-section > div > div:first-child {
+    text-align: left;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+#inspiration-section h2 {
+    font-size: 2.8rem !important; /* Mucho más grande */
+    margin: 0 0 1.5rem !important;
+    color: #FDB813 !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    text-shadow: 0 0 20px rgba(253, 184, 19, 0.4) !important;
+    letter-spacing: 0.5px !important;
+}
+
+#inspiration-section p {
+    font-size: 1.5rem !important; /* Mucho más grande */
+    line-height: 1.8 !important;
+    margin: 0 0 1.5rem !important;
+    color: #f0f0f0 !important;
+    font-weight: 300 !important;
+}
+
+#inspiration-section p:last-child {
+    margin-bottom: 0 !important;
+}
+
+/* Para pantallas grandes */
+@media (min-width: 1200px) {
+    #inspiration-section > div {
+        padding: 45px !important; /* Más padding */
+    }
+    
+    #inspiration-section h2 {
+        font-size: 3rem !important;
+    }
+    
+    #inspiration-section p {
+        font-size: 1.6rem !important;
+    }
+}
+
+/* Para tablets */
+@media (max-width: 900px) {
+    #inspiration-section > div {
+        grid-template-columns: 1fr !important;
+        gap: 25px !important;
+        padding: 35px !important; /* Más padding en móvil */
+    }
+    
+    #inspiration-section h2 {
+        font-size: 2.2rem !important;
+        text-align: center !important;
+    }
+    
+    #inspiration-section p {
+        font-size: 1.3rem !important;
+        text-align: center !important;
+    }
+}
+
+/* Para móviles */
+@media (max-width: 480px) {
+    #inspiration-section {
+        padding: 0 15px !important;
+        margin: 50px auto !important;
+    }
+    
+    #inspiration-section > div {
+        padding: 25px !important;
+    }
+    
+    #inspiration-section h2 {
+        font-size: 1.9rem !important;
+    }
+    
+    #inspiration-section p {
+        font-size: 1.1rem !important;
+    }
+}
