@@ -739,23 +739,16 @@ body.modal-open {
     left: 0;
     right: 0;
     background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-    padding: 2rem 1rem 1rem;
+    padding: 1.5rem 1rem 1rem;
     color: white;
     text-align: center;
 }
 
-.carrusel-seccion {
-    color: #FDB813;
-    font-size: 0.9rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
+/* Eliminamos .carrusel-seccion ya que no lo usamos más */
 .carrusel-desc {
     color: #ffffff;
     font-size: 1.1rem;
-    margin-top: 0.5rem;
+    margin-top: 0;
 }
 
 /* Botones del carrusel */
