@@ -102,7 +102,7 @@ function scrollToTop() {
 async function cargarDatos(container) {
     try {
         console.log('📥 Cargando data.json...');
-        const response = await fetch('data.json');
+        const response = await fetch('data.json?v=' + Date.now());
         
         if (!response.ok) {
             throw new Error(`Error HTTP: ${response.status}`);
