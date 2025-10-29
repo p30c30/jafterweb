@@ -410,13 +410,11 @@ function mostrarSeccion(seccion) {
             fotoElement.className = 'foto-item';
             fotoElement.style.animationDelay = `${index * 0.1}s`;
             
-            // NUEVO HTML CON OVERLAY ELEGANTE
-            fotoElement.innerHTML = `
+            // sin overrlay solo la imagen:
+                fotoElement.innerHTML = `
                 <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">
-                <div class="foto-overlay">
-                <div class="foto-title">${foto.texto}</div>
-            </div>
-`        ;
+                <!-- SIN OVERLAY - SOLO LA IMAGEN -->
+`            ;
             
             // Abrir en modal en misma ventana
             fotoElement.addEventListener('click', () => {
