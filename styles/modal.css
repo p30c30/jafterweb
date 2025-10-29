@@ -101,11 +101,11 @@
 /* Mejorar la información del modal */
 .modal-info {
     text-align: center;
-    padding: 2.5rem;
+    padding: 2rem;
     background: rgba(0, 0, 0, 0.9);
-    border-radius: 20px;
-    margin-top: 2rem;
-    max-width: 80%;
+    border-radius: 16px;
+    margin-top: 1.5rem;
+    max-width: 85%;
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
@@ -113,7 +113,7 @@
 
 .foto-counter {
     color: #FDB813;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 1rem;
     letter-spacing: 1px;
@@ -121,7 +121,7 @@
 
 .foto-title {
     color: #ffffff;
-    font-size: 1.8rem;
+    font-size: 1.4rem;
     line-height: 1.4;
     font-weight: 500;
     margin-bottom: 0.5rem;
@@ -129,9 +129,10 @@
 
 .foto-seccion {
     color: rgba(255, 255, 255, 0.7);
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-style: italic;
 }
+
 /* Botón cerrar */
 .close-modal {
     position: fixed;
