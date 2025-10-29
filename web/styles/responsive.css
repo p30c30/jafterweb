@@ -244,3 +244,43 @@
         height: 600px;
     }
 }
+/* Grid responsive */
+@media (max-width: 1200px) {
+    .fotos-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .fotos-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+    
+    .foto-overlay {
+        padding: 2rem 1.5rem 1.5rem;
+    }
+    
+    .foto-title {
+        font-size: 1.2rem;
+    }
+    
+    .foto-desc {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .fotos-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        max-width: 400px;
+        margin: 2rem auto;
+    }
+    
+    .foto-item {
+        aspect-ratio: 3/2;
+    }
+}
