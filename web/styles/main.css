@@ -1,0 +1,67 @@
+/* Reset y base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #0c0c0c 0%, #1a1a1a 100%);
+    color: #ffffff;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+/* Header */
+.site-header {
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 2.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    text-align: center;
+}
+
+.logo {
+    font-size: 4rem;
+    font-weight: bold;
+    color: #FDB813;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 0;
+}
+
+.logo:hover {
+    opacity: 0.8;
+    transform: scale(1.05);
+}
+
+/* Footer */
+.site-footer {
+    background: rgba(0, 0, 0, 0.92);
+    padding: 3rem;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    margin-top: 6rem;
+}
+
+.contact-info {
+    color: #d0d0d0;
+    font-size: 1.2rem;
+}
+
+.contact-info a {
+    color: #FDB813;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.contact-info a:hover {
+    text-decoration: underline;
+    opacity: 0.9;
+    text-shadow: 0 0 10px rgba(253, 184, 19, 0.3);
+}
