@@ -414,10 +414,9 @@ function mostrarSeccion(seccion) {
             fotoElement.innerHTML = `
                 <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">
                 <div class="foto-overlay">
-                    <div class="foto-title">${foto.texto}</div>
-                    <div class="foto-desc">Haz clic para ver en grande</div>
-                </div>
-            `;
+                <div class="foto-title">${foto.texto}</div>
+            </div>
+`        ;
             
             // Abrir en modal en misma ventana
             fotoElement.addEventListener('click', () => {
