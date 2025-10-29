@@ -1,0 +1,130 @@
+/* Sección carrusel */
+.ultimas-fotos-section {
+    max-width: 95vw;
+    margin: 6rem auto;
+    padding: 0 2rem;
+    position: relative;
+}
+
+.ultimas-fotos-section h2 {
+    text-align: center;
+    color: #FDB813;
+    font-size: 2.8rem;
+    margin-bottom: 4rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+    text-shadow: 0 0 15px rgba(253, 184, 19, 0.3);
+}
+
+.carrusel-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.carrusel {
+    width: 100%;
+    max-width: 1200px;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+}
+
+.carrusel-inner {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    height: 500px;
+}
+
+.carrusel-item {
+    min-width: 100%;
+    height: 100%;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.carrusel-item:hover {
+    transform: scale(1.03);
+}
+
+.carrusel-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.carrusel-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+    padding: 2rem 1.5rem 1.5rem;
+    color: white;
+    text-align: center;
+    backdrop-filter: blur(5px);
+}
+
+.carrusel-desc {
+    color: #ffffff;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Botones del carrusel */
+.carrusel-btn {
+    background: rgba(0, 0, 0, 0.8);
+    color: #FDB813;
+    border: 3px solid rgba(253, 184, 19, 0.7);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.carrusel-btn:hover {
+    background: rgba(253, 184, 19, 0.95);
+    color: #000;
+    transform: scale(1.15);
+    box-shadow: 0 0 20px rgba(253, 184, 19, 0.6);
+}
+
+/* Dots de navegación */
+.carrusel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    margin-top: 2rem;
+}
+
+.carrusel-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.carrusel-dot.active {
+    background: #FDB813;
+    transform: scale(1.3);
+    box-shadow: 0 0 10px rgba(253, 184, 19, 0.5);
+}
+
+.carrusel-dot:hover {
+    background: rgba(253, 184, 19, 0.8);
+    transform: scale(1.2);
+}
