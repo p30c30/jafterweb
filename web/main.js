@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN CON CARRUSEL INTEGRADO
+// MAIN.JS - VERSIÓN CON NUEVO GRID MODERNO
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -272,6 +272,7 @@ function configurarInteraccionCarrusel() {
         });
     }
 }
+
 function irAFotoEnSeccion(seccionId, fotoIndex) {
     if (!datosGlobales) return;
     
@@ -290,9 +291,9 @@ function irAFotoEnSeccion(seccionId, fotoIndex) {
     }
 }
 
-// ================== FUNCIONES EXISTENTES (SE MANTIENEN IGUAL) ==================
+// ================== FUNCIÓN MOSTRAR SECCIÓN ACTUALIZADA ==================
 
-// Mostrar sección específica
+// Mostrar sección específica CON NUEVO GRID MODERNO
 function mostrarSeccion(seccion) {
     console.log('🖼️ Mostrando sección:', seccion.titulo);
     
@@ -341,7 +342,7 @@ function mostrarSeccion(seccion) {
         backButton.addEventListener('click', volverAGaleria);
     }
     
-    // Cargar fotos
+    // Cargar fotos CON NUEVO DISEÑO DE OVERLAY
     const container = document.getElementById('fotos-container');
     if (container) {
         container.innerHTML = '';
@@ -355,9 +356,15 @@ function mostrarSeccion(seccion) {
             
             const fotoElement = document.createElement('div');
             fotoElement.className = 'foto-item';
+            fotoElement.style.animationDelay = `${index * 0.1}s`;
+            
+            // NUEVO HTML CON OVERLAY ELEGANTE
             fotoElement.innerHTML = `
-                <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura">
-                <p class="foto-texto">${foto.texto}</p>
+                <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">
+                <div class="foto-overlay">
+                    <div class="foto-title">${foto.texto}</div>
+                    <div class="foto-desc">Haz clic para ver en grande</div>
+                </div>
             `;
             
             // Abrir en modal en misma ventana
@@ -367,6 +374,8 @@ function mostrarSeccion(seccion) {
             
             container.appendChild(fotoElement);
         });
+        
+        console.log(`🎨 Cargadas ${seccion.fotos.length} fotos con diseño moderno`);
     }
 }
 
@@ -389,6 +398,7 @@ function mostrarModal(imageUrl, title, fotoIndex) {
             <div class="modal-info">
                 <div class="foto-counter">${currentFotoIndex + 1} / ${todasLasFotos.length}</div>
                 <div class="foto-title">${title}</div>
+                <div class="foto-seccion">${currentSeccion?.titulo || ''}</div>
             </div>
         </div>
     `;
@@ -535,6 +545,7 @@ function navegarFoto(direccion) {
     const modalImg = document.getElementById('modal-img');
     const fotoCounter = modal.querySelector('.foto-counter');
     const fotoTitle = modal.querySelector('.foto-title');
+    const fotoSeccion = modal.querySelector('.foto-seccion');
     
     // Resetear zoom antes de cambiar la imagen
     resetZoom();
@@ -552,6 +563,9 @@ function navegarFoto(direccion) {
         if (fotoTitle) {
             fotoTitle.textContent = nuevaFoto.texto;
         }
+        if (fotoSeccion && currentSeccion) {
+            fotoSeccion.textContent = currentSeccion.titulo;
+        }
     };
     img.onerror = function() {
         modalImg.src = nuevaFoto.url;
@@ -561,6 +575,9 @@ function navegarFoto(direccion) {
         }
         if (fotoTitle) {
             fotoTitle.textContent = nuevaFoto.texto;
+        }
+        if (fotoSeccion && currentSeccion) {
+            fotoSeccion.textContent = currentSeccion.titulo;
         }
     };
     img.src = nuevaFoto.url;
