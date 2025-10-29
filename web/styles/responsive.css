@@ -1,0 +1,246 @@
+/* ================== RESPONSIVE ================== */
+
+/* Para tablets */
+@media (max-width: 1199px) {
+    .section-cards {
+        grid-template-columns: repeat(2, minmax(350px, 1fr));
+        gap: 2.5rem;
+    }
+    
+    .fotos-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.8rem;
+    }
+}
+
+/* Para móviles */
+@media (max-width: 767px) {
+    .section-cards {
+        grid-template-columns: minmax(320px, 500px);
+        gap: 2rem;
+    }
+    
+    .fotos-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+    
+    .container {
+        padding: 2rem 1.5rem;
+    }
+
+    .logo {
+        font-size: 3rem;
+    }
+
+    .home-view h1 {
+        font-size: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .seccion-header {
+        padding: 7rem 2rem 3rem 2rem;
+    }
+
+    .seccion-header h1 {
+        font-size: 2.5rem;
+    }
+
+    .seccion-header p {
+        font-size: 1.3rem;
+    }
+
+    .back-button {
+        top: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .card-content h3 {
+        font-size: 1.5rem;
+    }
+
+    .card-content p {
+        font-size: 1.1rem;
+    }
+    
+    /* Modal responsive */
+    .modal-content {
+        padding: 20px;
+    }
+    
+    .modal-img {
+        max-width: 98vw;
+        max-height: 75vh;
+    }
+
+    .modal-img-container {
+        max-height: 75vh;
+    }
+
+    .nav-button {
+        width: 55px;
+        height: 55px;
+        font-size: 2rem;
+    }
+
+    .prev-button {
+        left: 15px;
+    }
+
+    .next-button {
+        right: 15px;
+    }
+
+    .modal-info {
+        max-width: 95%;
+        padding: 1.2rem;
+    }
+
+    .foto-title {
+        font-size: 1.2rem;
+    }
+
+    .close-modal {
+        top: 15px;
+        right: 15px;
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+    
+    /* Carrusel responsive */
+    .ultimas-fotos-section {
+        padding: 0 1.5rem;
+        margin: 5rem auto;
+    }
+    
+    .carrusel-inner {
+        height: 400px;
+    }
+    
+    .carrusel-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .carrusel-info {
+        padding: 1.5rem 1rem 1rem;
+    }
+    
+    .carrusel-desc {
+        font-size: 1.3rem;
+    }
+}
+
+/* Móviles pequeños */
+@media (max-width: 480px) {
+    .container {
+        padding: 1.5rem 1rem;
+    }
+
+    .logo {
+        font-size: 2.5rem;
+    }
+
+    .home-view h1 {
+        font-size: 1.8rem;
+    }
+
+    .card-content {
+        padding: 1.5rem;
+    }
+    
+    .section-cards {
+        gap: 2.5rem;
+    }
+    
+    .nav-button {
+        width: 45px;
+        height: 45px;
+        font-size: 1.5rem;
+    }
+
+    .modal-img {
+        max-height: 65vh;
+    }
+
+    .modal-img-container {
+        max-height: 65vh;
+    }
+    
+    .carrusel-inner {
+        height: 320px;
+    }
+    
+    .carrusel-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .prev-btn {
+        left: 15px;
+    }
+    
+    .next-btn {
+        right: 15px;
+    }
+    
+    .carrusel-container {
+        gap: 0;
+    }
+    
+    .carrusel-desc {
+        font-size: 1.1rem;
+    }
+}
+
+/* Pantallas grandes */
+@media (min-width: 1600px) {
+    .container {
+        max-width: 1600px;
+    }
+    
+    .section-cards {
+        grid-template-columns: repeat(3, minmax(450px, 1fr));
+        gap: 4rem;
+    }
+    
+    .carrusel {
+        max-width: 1400px;
+    }
+    
+    .carrusel-inner {
+        height: 550px;
+    }
+    
+    .card-image {
+        height: 320px;
+    }
+}
+
+@media (min-width: 2000px) {
+    .container {
+        max-width: 1800px;
+    }
+    
+    .section-cards {
+        grid-template-columns: repeat(3, minmax(500px, 1fr));
+    }
+    
+    .carrusel {
+        max-width: 1600px;
+    }
+    
+    .carrusel-inner {
+        height: 600px;
+    }
+}
