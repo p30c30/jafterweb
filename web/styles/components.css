@@ -122,7 +122,7 @@
     color: #ffffff;
 }
 
-/* ================== GRID MODERNO CON OVERLAY ================== */
+/* ================== GRID MODERNO SIN TEXTO AL HOVER ================== */
 .fotos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -153,59 +153,14 @@
     filter: brightness(0.95);
 }
 
-/* Overlay elegante que se desliza */
-.foto-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(
-        to top, 
-        rgba(0, 0, 0, 0.9) 0%, 
-        rgba(0, 0, 0, 0.7) 50%, 
-        rgba(0, 0, 0, 0) 100%
-    );
-    padding: 3rem 2rem 2rem;
-    color: white;
-    transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    backdrop-filter: blur(5px);
-}
-
-/* no mostrar el título sin overlay */
-/*
-.foto-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(
-        to top, 
-        rgba(0, 0, 0, 0.8) 0%, 
-        rgba(0, 0, 0, 0.4) 50%, 
-        transparent 100%
-    );
-    padding: 1.5rem 1rem 1rem;
-    color: white;
-    transform: translateY(100%);
-    transition: transform 0.3s ease;
-}
-
-.foto-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #FDB813;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    line-height: 1.3;
-    text-align: center;
-}
-
-/* Oculta completamente el texto descriptivo */
+/* ELIMINAR COMPLETAMENTE CUALQUIER TEXTO AL HOVER */
+.foto-overlay,
+.foto-title,
 .foto-desc {
-    display: none;
+    display: none !important;
 }
-*/
-/* Efectos hover */
+
+/* Efectos hover - SOLO transformación visual */
 .foto-item:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 
@@ -217,19 +172,6 @@
 .foto-item:hover .foto-miniatura {
     transform: scale(1.08);
     filter: brightness(1.1);
-}
-
-.foto-item:hover .foto-overlay {
-    transform: translateY(0);
-}
-
-.foto-item:hover .foto-overlay::before {
-    opacity: 1;
-}
-
-.foto-item:hover .foto-desc {
-    opacity: 1;
-    transform: translateY(0);
 }
 
 /* Efecto de carga progresiva */
@@ -255,6 +197,7 @@
 .foto-item:nth-child(4) { animation-delay: 0.3s; }
 .foto-item:nth-child(5) { animation-delay: 0.4s; }
 .foto-item:nth-child(6) { animation-delay: 0.5s; }
+
 /* ================== SECCIÓN INSPIRATION - TEXTO MÁS GRANDE ================== */
 #inspiration-section > div > div:first-child {
     text-align: left;
@@ -263,7 +206,7 @@
 }
 
 #inspiration-section h2 {
-    font-size: 2.8rem !important; /* Mucho más grande */
+    font-size: 2.8rem !important;
     margin: 0 0 1.5rem !important;
     color: #FDB813 !important;
     font-weight: 600 !important;
@@ -273,7 +216,7 @@
 }
 
 #inspiration-section p {
-    font-size: 1.5rem !important; /* Mucho más grande */
+    font-size: 1.5rem !important;
     line-height: 1.8 !important;
     margin: 0 0 1.5rem !important;
     color: #f0f0f0 !important;
@@ -287,7 +230,7 @@
 /* Para pantallas grandes */
 @media (min-width: 1200px) {
     #inspiration-section > div {
-        padding: 45px !important; /* Más padding */
+        padding: 45px !important;
     }
     
     #inspiration-section h2 {
@@ -304,7 +247,7 @@
     #inspiration-section > div {
         grid-template-columns: 1fr !important;
         gap: 25px !important;
-        padding: 35px !important; /* Más padding en móvil */
+        padding: 35px !important;
     }
     
     #inspiration-section h2 {
@@ -337,6 +280,7 @@
         font-size: 1.1rem !important;
     }
 }
+
 /* ================== BOTÓN SCROLL TO TOP ================== */
 .scroll-to-top {
     position: fixed;
