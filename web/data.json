@@ -321,7 +321,7 @@
       },
       {
          "id":"calles",
-         "titulo":"Street Photo",
+         "titulo":"Street & People",
          "descripcion":"La vida urbana y la esencia de la ciudad",
          "preview":"https://i.ibb.co/m5cKZdYW/Noria-noche-puerto.jpg",
          "fotos":[
@@ -387,7 +387,7 @@
       },
       {
          "id":"artisticas",
-         "titulo":"Artísticas",
+         "titulo":"Artísticas & luces de La Noche",
          "descripcion":"Composiciones creativas y visiones abstractas",
          "preview":"https://live.staticflickr.com/65535/54888573534_ae0127f51f_b.jpg",
          "fotos":[
