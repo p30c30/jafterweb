@@ -23,6 +23,7 @@
     align-items: center;
     min-height: 100vh;
     padding: 30px;
+    padding-bottom: 80px; /* Espacio extra para la barra de tareas */
     cursor: default;
 }
 
@@ -105,6 +106,7 @@
     background: rgba(0, 0, 0, 0.9);
     border-radius: 16px;
     margin-top: 1.5rem;
+    margin-bottom: 20px; /* Separación del fondo */
     max-width: 85%;
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -165,4 +167,52 @@
 
 body.modal-open {
     overflow: hidden;
+}
+
+/* Para pantallas más pequeñas */
+@media (max-height: 800px) {
+    .modal-img-container {
+        max-height: 70vh; /* Más espacio para la info */
+    }
+    
+    .modal-content {
+        padding-bottom: 100px; /* Más espacio en pantallas cortas */
+    }
+    
+    .modal-info {
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+}
+
+/* Para móviles */
+@media (max-width: 768px) {
+    .modal-info {
+        max-width: 95%;
+        padding: 1.2rem;
+        margin-bottom: 30px; /* Extra seguro en móvil */
+    }
+    
+    .foto-title {
+        font-size: 1.2rem; /* Un poco más pequeño en móvil */
+    }
+    
+    .modal-content {
+        padding: 20px;
+        padding-bottom: 90px;
+    }
+    
+    .nav-button {
+        width: 50px;
+        height: 50px;
+        font-size: 1.8rem;
+    }
+    
+    .prev-button {
+        left: 15px;
+    }
+    
+    .next-button {
+        right: 15px;
+    }
 }
