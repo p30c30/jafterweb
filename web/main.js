@@ -1,4 +1,4 @@
-// MAIN.JS - VERSIÓN CON NUEVO GRID MODERNO
+// MAIN.JS - VERSIÓN CON SCROLL TO TOP
 console.log('✅ main.js CARGADO');
 
 // Variables globales para el zoom y arrastre
@@ -21,6 +21,10 @@ let carruselFotos = [];
 let autoPlayInterval;
 let datosGlobales = null;
 
+// Variables para el botón scroll to top
+let scrollToTopBtn = null;
+let isScrollBtnVisible = false;
+
 // Función principal
 function iniciar() {
     console.log('🚀 INICIANDO...');
@@ -30,6 +34,9 @@ function iniciar() {
     if (logo) {
         logo.addEventListener('click', volverAGaleria);
     }
+    
+    // Crear botón scroll to top
+    crearBotonScrollTop();
     
     setTimeout(() => {
         console.log('🔍 Buscando contenedor...');
@@ -45,6 +52,51 @@ function iniciar() {
         }
     }, 1000);
 }
+
+// ================== SCROLL TO TOP ==================
+function crearBotonScrollTop() {
+    scrollToTopBtn = document.createElement('button');
+    scrollToTopBtn.className = 'scroll-to-top';
+    scrollToTopBtn.innerHTML = '↑';
+    scrollToTopBtn.setAttribute('aria-label', 'Volver arriba');
+    scrollToTopBtn.setAttribute('title', 'Volver arriba');
+    
+    scrollToTopBtn.addEventListener('click', scrollToTop);
+    document.body.appendChild(scrollToTopBtn);
+    
+    // Configurar el scroll listener
+    window.addEventListener('scroll', manejarScroll);
+}
+
+function manejarScroll() {
+    const scrollY = window.scrollY;
+    const viewportHeight = window.innerHeight;
+    
+    // Mostrar botón después de 300px de scroll
+    if (scrollY > 300 && !isScrollBtnVisible) {
+        scrollToTopBtn.classList.add('visible');
+        isScrollBtnVisible = true;
+    } else if (scrollY <= 300 && isScrollBtnVisible) {
+        scrollToTopBtn.classList.remove('visible');
+        isScrollBtnVisible = false;
+    }
+}
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+    
+    // Feedback visual al hacer clic
+    if (scrollToTopBtn) {
+        scrollToTopBtn.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            scrollToTopBtn.style.transform = '';
+        }, 150);
+    }
+}
+
 
 // Cargar datos y crear tarjetas
 async function cargarDatos(container) {
