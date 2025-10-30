@@ -125,10 +125,8 @@
     opacity: 1;
 }
 
-/* OCULTAR INFO CON ZOOM - SELECTOR UNIVERSAL */
-#modal img.zoomed ~ .modal-info,
-.modal-img.zoomed ~ .modal-info,
-.modal-image.zoomed ~ .modal-info {
+/* OCULTAR INFO CON ZOOM - ID CORRECTO */
+#modal-img.zoomed ~ .modal-info {
     opacity: 0 !important;
     visibility: hidden !important;
     transform: translateX(-50%) translateY(20px) !important;
