@@ -449,19 +449,26 @@
     margin-bottom: 0.5rem !important;
 }
 
-/* ========== OCULTAR BORDE INFERIOR IMAGEN ========== */
-.card-image-container {
-    position: relative;
-    overflow: hidden;
+/* ========== FIX ::after VISIBLE PERMANENTEMENTE ========== */
+.card::after {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    filter: blur(0) !important;
+    background: transparent !important;
+    height: 0 !important;
+    bottom: 0 !important;
 }
 
-.card-image-container::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 5px;
-    background: #000000;
-    z-index: 3;
+.card:hover::after {
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: blur(20px) !important;
+    background: radial-gradient(ellipse at center, 
+        rgba(253, 184, 19, 0.5) 0%, 
+        rgba(253, 184, 19, 0.3) 30%, 
+        rgba(253, 184, 19, 0.2) 60%, 
+        transparent 100%) !important;
+    height: 50px !important;
+    bottom: -25px !important;
 }
