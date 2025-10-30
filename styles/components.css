@@ -1,127 +1,59 @@
-/* Grid de secciones/tarjetas */
+/* Grid de secciones/tarjetas - MÁS COMPACTO */
 .section-cards {
-display: grid;
-grid-template-columns: repeat(3, minmax(400px, 1fr));
-gap: 3rem;
-margin: 4rem 0;
-justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(350px, 1fr)); /* 400px → 350px */
+    gap: 2rem; /* 3rem → 2rem */
+    margin: 3rem 0; /* 4rem → 3rem */
+    justify-content: center;
 }
 
-/* Tarjetas */
+/* Tarjetas - MÁS COMPACTO */
 .card {
-background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-border: 1px solid rgba(255, 255, 255, 0.08);
-border-radius: 20px;
-padding: 0;
-overflow: hidden;
-cursor: pointer;
-transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
-height: 100%;
-position: relative;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px; /* 20px → 18px */
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Reducida */
+    height: 100%;
+    position: relative;
 }
 
-/* Efectos de tarjetas */
-.card::after {
-content: '';
-position: absolute;
-bottom: -25px;
-left: 50%;
-transform: translateX(-50%);
-width: 85%;
-height: 50px;
-background: radial-gradient(ellipse at center, 
-rgba(253, 184, 19, 0.5) 0%, 
-rgba(253, 184, 19, 0.3) 30%, 
-rgba(253, 184, 19, 0.2) 60%, 
-transparent 100%);
-opacity: 0;
-transition: all 0.4s ease;
-filter: blur(20px);
-z-index: 0;
-}
-
-.card::before {
-content: '';
-position: absolute;
-top: 0;
-left: -100%;
-width: 100%;
-height: 100%;
-background: linear-gradient(90deg, transparent, rgba(253, 184, 19, 0.3), transparent);
-transition: left 0.6s ease;
-z-index: 1;
-}
-
-.card:hover::before {
-left: 100%;
-}
-
-.card:hover {
-transform: translateY(-15px) scale(1.04);
-box-shadow: 
-0 35px 60px rgba(0, 0, 0, 0.6),
-0 0 50px rgba(253, 184, 19, 0.5),
-0 0 100px rgba(253, 184, 19, 0.4);
-border-color: rgba(253, 184, 19, 0.8);
-filter: brightness(1.2);
-}
-
-.card:hover::after {
-opacity: 1;
-bottom: -30px;
-width: 95%;
-height: 60px;
-filter: blur(25px);
-}
-
-/* Imagen de tarjeta */
+/* Imagen de tarjeta - MÁS PEQUEÑA */
 .card-image {
-width: 100%;
-height: 280px;
-object-fit: cover;
-display: block;
-transition: transform 0.4s ease;
-position: relative;
-z-index: 2;
+    width: 100%;
+    height: 240px; /* 280px → 240px */
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+    position: relative;
+    z-index: 2;
 }
 
-.card:hover .card-image {
-transform: scale(1.1);
-}
-
-/* Contenido de tarjeta */
+/* Contenido de tarjeta - MÁS COMPACTO */
 .card-content {
-padding: 2.2rem;
-position: relative;
-z-index: 2;
-background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.9) 100%);
+    padding: 1.8rem; /* 2.2rem → 1.8rem */
+    position: relative;
+    z-index: 2;
+    background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.9) 100%);
 }
 
 .card-content h3 {
-font-size: 1.8rem;
-margin-bottom: 1rem;
-color: #FDB813;
-transition: color 0.3s ease;
-font-weight: 600;
-}
-
-.card:hover .card-content h3 {
-color: #FFD700;
-text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    font-size: 1.5rem; /* 1.8rem → 1.5rem */
+    margin-bottom: 0.8rem; /* 1rem → 0.8rem */
+    color: #FDB813;
+    transition: color 0.3s ease;
+    font-weight: 600;
 }
 
 .card-content p {
-color: #e0e0e0;
-font-size: 1.2rem;
-line-height: 1.7;
-transition: color 0.3s ease;
+    color: #e0e0e0;
+    font-size: 1rem; /* 1.2rem → 1rem */
+    line-height: 1.6; /* 1.7 → 1.6 */
+    transition: color 0.3s ease;
 }
-
-.card:hover .card-content p {
-color: #ffffff;
-}
-
 /* ================== GRID MODERNO CON OVERLAY ================== */
 .fotos-grid {
 display: grid;
@@ -267,87 +199,87 @@ transform: translateY(0);
 .foto-item:nth-child(4) { animation-delay: 0.3s; }
 .foto-item:nth-child(5) { animation-delay: 0.4s; }
 .foto-item:nth-child(6) { animation-delay: 0.5s; }
-/* ================== SECCIÓN INSPIRATION - TEXTO MÁS GRANDE ================== */
+/* ================== SECCIÓN INSPIRATION - TEXTO AJUSTADO ================== */
 #inspiration-section > div > div:first-child {
-text-align: left;
-max-width: 640px;
-margin: 0 auto;
+    text-align: left;
+    max-width: 640px;
+    margin: 0 auto;
 }
 
 #inspiration-section h2 {
-font-size: 2.8rem !important; /* Mucho más grande */
-margin: 0 0 1.5rem !important;
-color: #FDB813 !important;
-font-weight: 600 !important;
-line-height: 1.2 !important;
-text-shadow: 0 0 20px rgba(253, 184, 19, 0.4) !important;
-letter-spacing: 0.5px !important;
+    font-size: 2.2rem !important; /* MANTENIDO */
+    margin: 0 0 1.2rem !important;
+    color: #FDB813 !important;
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+    text-shadow: 0 0 20px rgba(253, 184, 19, 0.4) !important;
+    letter-spacing: 0.5px !important;
 }
 
 #inspiration-section p {
-font-size: 1.5rem !important; /* Mucho más grande */
-line-height: 1.8 !important;
-margin: 0 0 1.5rem !important;
-color: #f0f0f0 !important;
-font-weight: 300 !important;
+    font-size: 1.2rem !important; /* CAMBIADO: 1.5rem → 1.2rem */
+    line-height: 1.6 !important;
+    margin: 0 0 1.2rem !important;
+    color: #f0f0f0 !important;
+    font-weight: 300 !important;
 }
 
 #inspiration-section p:last-child {
-margin-bottom: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 /* Para pantallas grandes */
 @media (min-width: 1200px) {
-#inspiration-section > div {
-padding: 45px !important; /* Más padding */
-}
+    #inspiration-section > div {
+        padding: 45px !important;
+    }
 
-#inspiration-section h2 {
-font-size: 3rem !important;
-}
+    #inspiration-section h2 {
+        font-size: 2.4rem !important; /* MANTENIDO */
+    }
 
-#inspiration-section p {
-font-size: 1.6rem !important;
-}
+    #inspiration-section p {
+        font-size: 1.3rem !important; /* MANTENIDO */
+    }
 }
 
 /* Para tablets */
 @media (max-width: 900px) {
-#inspiration-section > div {
-grid-template-columns: 1fr !important;
-gap: 25px !important;
-padding: 35px !important; /* Más padding en móvil */
-}
+    #inspiration-section > div {
+        grid-template-columns: 1fr !important;
+        gap: 25px !important;
+        padding: 35px !important;
+    }
 
-#inspiration-section h2 {
-font-size: 2.2rem !important;
-text-align: center !important;
-}
+    #inspiration-section h2 {
+        font-size: 2.2rem !important;
+        text-align: center !important;
+    }
 
-#inspiration-section p {
-font-size: 1.3rem !important;
-text-align: center !important;
-}
+    #inspiration-section p {
+        font-size: 1.3rem !important;
+        text-align: center !important;
+    }
 }
 
 /* Para móviles */
 @media (max-width: 480px) {
-#inspiration-section {
-padding: 0 15px !important;
-margin: 50px auto !important;
-}
+    #inspiration-section {
+        padding: 0 15px !important;
+        margin: 50px auto !important;
+    }
 
-#inspiration-section > div {
-padding: 25px !important;
-}
+    #inspiration-section > div {
+        padding: 25px !important;
+    }
 
-#inspiration-section h2 {
-font-size: 1.9rem !important;
-}
+    #inspiration-section h2 {
+        font-size: 1.9rem !important;
+    }
 
-#inspiration-section p {
-font-size: 1.1rem !important;
-}
+    #inspiration-section p {
+        font-size: 1.1rem !important;
+    }
 }
 /* ================== BOTÓN SCROLL TO TOP ================== */
 .scroll-to-top {

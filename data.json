@@ -1,6 +1,128 @@
 {
    "secciones":[
-      
+      {
+         "id":"paisajes",
+         "titulo":"Paisajes",
+         "descripcion":"Un viaje visual por los paisajes que inspiran",
+         "preview":"https://live.staticflickr.com/65535/54887076439_58d6408290_b.jpg",
+         "fotos":[
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54887076439_58d6408290_b.jpg",
+               "url":"https://i.ibb.co/LDwx2QGg/Torre-control-bombilla.jpg",
+               "texto":"Bombilla encendida en la torre de control"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54888435230_95eb69f80f_b.jpg",
+               "url":"https://i.ibb.co/1Ytsnq8f/Atardecer-desde-la-ara-a.jpg",
+               "texto":"Atardecer desde La Araña en Málaga"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54887406377_c033d6e6ea_b.jpg",
+               "url":"https://i.ibb.co/zWGwHrkK/Alozaina.jpg",
+               "texto":"Alozaina"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54413583593_4e9d56ea4b_b.jpg",
+               "url":"https://i.ibb.co/7d9VTBRN/Malaga-desde-Gibralfaro.jpg",
+               "texto":"Panorámica de Málaga desde Gibralfaro."
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54888537339_ec8c550818_b.jpg",
+               "url":"https://i.ibb.co/YCsZSKk/comprimido-sol-torre-de-control.jpg",
+               "texto":"El Sol en La Torre"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54888548709_a383eb21c6_b.jpg",
+               "url":"https://i.ibb.co/Txh6Hjnr/QDD-Amanecer-pe-on-3-sf.jpg",
+               "texto":"Amanecer en el Peñón del Cuervo"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54413332106_7eb9978b4e_b.jpg",
+               "url":"https://i.ibb.co/XrqZJkP9/La-Alhambra.jpg",
+               "texto":"La Alhambra desde San Nicolás"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54889445264_67f946655c_b.jpg",
+               "url":"https://i.ibb.co/MktVTbRs/pano-malaga.jpg",
+               "texto":"Paronámica de Málaga"
+            }
+         ]
+      },
+      {
+         "id":"spotting",
+         "titulo":"Spotting",
+         "descripcion":"Fotografía de aviación y aeronaves",
+         "preview":"https://live.staticflickr.com/65535/54886911123_94c862ed11_b.jpg",
+         "fotos":[
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54886911123_94c862ed11_b.jpg",
+               "url":"https://i.ibb.co/hJfL0JrS/Antonov-Fumeta.jpg",
+               "texto":"Antonov An-12BK fue fabricado en 1971 y entregado ese mismo año a la Fuerza Aérea soviética. A finales de 2025, el avión tendrá 54 años, superando el medio siglo en servicio. Apodado los Fumetas por el humo que sueltan eso los motores Ivchenkos"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54215747459_8d3d21719b_b.jpg",
+               "url":"https://i.ibb.co/fG9h92Cw/P1001550-Mejorado-NR-Editar-2-2-CR1.jpg",
+               "texto":"Salida al atardecer"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54302986841_8b847feb22_b.jpg",
+               "url":"https://i.ibb.co/N2GS7PmH/web-Ckinook-Block-II.jpg",
+               "texto":"Helicóptero Boeing CH-47F Chinook"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54283722602_de1b6d854e_b.jpg",
+               "url":"https://i.ibb.co/2YnjVxr3/Helicoptero-ceuta-1.jpg",
+               "texto":"Leonardo AW139 Helity Copter Airlines"
+            },
+            {
+               "miniatura":"https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
+               "url":"https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
+               "texto":"Eurocopter AS365 Dauphin de la Guardia Civil: patrulla aérea, vigilancia desde las alturas, mirada de seguridad."
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54517421873_fffab7f451_b.jpg",
+               "url":"https://i.ibb.co/4yD4gXn/Eurofighter-50-aniversario-14-66-web.jpg",
+               "texto":"Eurofighter Typhoon 50 aniversario: velocidad y aerodinámica, celebración tecnológica en vuelo."
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54295609555_a3e3832454_b.jpg",
+               "url":"https://i.ibb.co/zT5YRCdY/Diamond-Aircraft-DA-62-MPP-OO-MSA-web.jpg",
+               "texto":"Diamond DA62 MPP, líneas limpias y diseño moderno, explorando cielos en misión de reconocimiento."
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54274760502_4c9b045623_b.jpg",
+               "url":"https://i.ibb.co/qLNSpZpj/Air-Bus-A350-900-Qatar-A7-ALO-web.jpg",
+               "texto":"AirBus A350-900 Qatar A7-ALO"
+            },
+            
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54213294103_6bfd260822_b.jpg",
+               "url":"https://i.ibb.co/cKX7pdV3/Antonov-12-BP-web.jpg",
+               "texto":"Antonov, el potencial de la máquina a punto de liberar el vuelo."
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54867351694_443b34838f_b.jpg",
+               "url":"https://i.ibb.co/9kFZTdTM/Foca-22.jpg",
+               "texto":"Foca 22"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54841910270_ec1b15904c_b.jpg",
+               "url":"https://i.ibb.co/dwpH1w9M/eurofigter-tigre.jpg",
+               "texto":"Eurofighter"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54855598038_a786e8e652_b.jpg",
+               "url":"https://i.ibb.co/Ps8TRxTt/Salida-rojo-atardecer.jpg",
+               "texto":"Atardecer en la pista"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54309143121_6728acfc39_b.jpg",
+               "url":"https://i.ibb.co/RGt2Rm4P/EF-18-BM-CE-15-09-frente-web.jpg",
+               "texto":"Mc Donnell Douglas EF-18BM Hornet"
+            }
+
+         ]
+      },
       {
          "id":"viajes",
          "titulo":"Black & White",
@@ -56,6 +178,21 @@
                "miniatura":"https://live.staticflickr.com/65535/54889438370_7cfc7fe66a_b.jpg",
                "url":"https://i.ibb.co/h1Mg5K2y/Vias-tren.jpg",
                "texto":"Rumbo al infinito"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54889437933_a8276fc0b9_b.jpg",
+               "url":"https://i.ibb.co/bGDNfPb/Trompeta.jpg",
+               "texto":"Notas de un trompetista"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54889470284_28503ca14d_b.jpg",
+               "url":"https://i.ibb.co/8Dx7vTKp/botellas.jpg",
+               "texto":"Juego de botellas"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54888647464_8ed0bb9ee4_b.jpg",
+               "url":"https://i.ibb.co/j9wqXMnQ/Mano-y-pie-de-beb-r.jpg",
+               "texto":"Pequeñas huellas infinito amor"
             }
          ]
       },
@@ -113,7 +250,6 @@
             }
          ]
       },
-      
       {
          "id":"calles",
          "titulo":"Street & People",
@@ -149,6 +285,16 @@
                "miniatura":"https://live.staticflickr.com/65535/54889450480_f2f543caa3_b.jpg",
                "url":"https://i.ibb.co/d0d7wjR7/ni-o-con-sombreo.jpg",
                "texto":"Niño con sombreo"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54888304712_697267d9f8_b.jpg",
+               "url":"https://i.ibb.co/4ZvjYd2G/coliseo.jpg",
+               "texto":"El Coliseo"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54890211123_567f84f9ba_b.jpg",
+               "url":"https://i.ibb.co/pv03MdyN/IMGL8206-Editar-Editar-Editar-Editar-2-3.jpg",
+               "texto":"Esencia en blanco y negro"
             }
          ]
       },
@@ -248,11 +394,6 @@
                "miniatura":"https://live.staticflickr.com/65535/54888382266_2287e43a66_b.jpg",
                "url":"https://i.ibb.co/21x0dmQP/Zenit.jpg",
                "texto":"Zenit: diálogo visual entre la luz, el objeto y el espacio"
-            },
-            {
-               "miniatura":"https://live.staticflickr.com/65535/54888647464_8ed0bb9ee4_b.jpg",
-               "url":"https://i.ibb.co/j9wqXMnQ/Mano-y-pie-de-beb-r.jpg",
-               "texto":"Pequeñas huellas infinito amor"
             }
          ]
       }
