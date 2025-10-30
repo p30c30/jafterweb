@@ -140,7 +140,8 @@ function abrirModal(index) {
     const foto = currentPhotos[currentIndex];
     if (!foto) return;
     
-    const modalImage = document.getElementById('modalImage');
+    const modalImage = document.getElementById('modal-img'); // ID CORREGIDO
+    
     modalImage.src = foto.url;
     
     // LIMPIAR TEXTO - REMOVER SPOTTING
@@ -172,17 +173,11 @@ function abrirModal(index) {
     }, 10);
 }
 
-// DETECTAR ZOOM - VERSIÓN COMPATIBLE
+// DETECTAR ZOOM - VERSIÓN CORRECTA
 function configurarDeteccionZoom() {
     console.log('🎯 Configurando detección de zoom...');
     
-    // Probar diferentes selectores de imagen
-    const modalImage = document.getElementById('modalImage') || 
-                      document.getElementById('modal-img') ||
-                      document.querySelector('.modal-img') ||
-                      document.querySelector('.modal-image') ||
-                      document.querySelector('#modal img') ||
-                      document.querySelector('.modal-content img');
+    const modalImage = document.getElementById('modal-img'); // ID CORREGIDO
     
     if (!modalImage) {
         console.log('❌ No se pudo encontrar la imagen del modal');
@@ -191,62 +186,48 @@ function configurarDeteccionZoom() {
     
     console.log('✅ Imagen del modal encontrada:', modalImage);
     
-    // Agregar eventos de zoom
     const modal = document.getElementById('modal');
     
-    // Evento de rueda para zoom
+    // Observar cambios en el transform para detectar zoom automáticamente
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                const transform = modalImage.style.transform;
+                const tieneZoom = transform && transform !== 'none' && transform !== 'scale(1)';
+                
+                if (tieneZoom && !modalImage.classList.contains('zoomed')) {
+                    modalImage.classList.add('zoomed');
+                    console.log('🔍 Zoom detectado:', transform);
+                } else if (!tieneZoom && modalImage.classList.contains('zoomed')) {
+                    modalImage.classList.remove('zoomed');
+                    console.log('🔍 Sin zoom');
+                }
+            }
+        });
+    });
+    
+    observer.observe(modalImage, {
+        attributes: true,
+        attributeFilter: ['style']
+    });
+    
+    // También agregar eventos manuales por si acaso
     modal.addEventListener('wheel', function(e) {
         if (e.ctrlKey) {
-            e.preventDefault();
             setTimeout(() => {
-                modalImage.classList.add('zoomed');
-                console.log('🔍 Zoom por rueda detectado');
-            }, 50);
+                if (!modalImage.classList.contains('zoomed')) {
+                    modalImage.classList.add('zoomed');
+                }
+            }, 100);
         }
     }, { passive: false });
     
     // Doble click para alternar zoom
     modalImage.ondblclick = function(e) {
         e.stopPropagation();
-        if (modalImage.classList.contains('zoomed')) {
-            modalImage.classList.remove('zoomed');
-            console.log('🔍 Deszoom por doble click');
-        } else {
-            modalImage.classList.add('zoomed');
-            console.log('🔍 Zoom por doble click');
-        }
+        modalImage.classList.toggle('zoomed');
+        console.log('🔍 Zoom toggled:', modalImage.classList.contains('zoomed'));
     };
-    
-    // Click en el modal (fuera de la imagen) para deszoom
-    modal.onclick = function(e) {
-        if (e.target === modal && modalImage.classList.contains('zoomed')) {
-            modalImage.classList.remove('zoomed');
-            console.log('🔍 Deszoom por click fuera');
-        }
-    };
-    
-    // Tecla ESC para deszoom
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && modalImage.classList.contains('zoomed') && isModalOpen) {
-            modalImage.classList.remove('zoomed');
-            console.log('🔍 Deszoom por ESC');
-        }
-    });
-    
-    // También agregar clase zoomed cuando se navega entre fotos con zoom activo
-    const originalNavegarFotos = navegarFotos;
-    navegarFotos = function(direccion) {
-        if (modalImage.classList.contains('zoomed')) {
-            modalImage.classList.remove('zoomed');
-        }
-        originalNavegarFotos(direccion);
-    };
-}
-    
-    observer.observe(modalImage, {
-        attributes: true,
-        attributeFilter: ['style']
-    });
 }
 
 function cerrarModal() {
@@ -270,7 +251,8 @@ function navegarFotos(direccion) {
     }
     
     const foto = currentPhotos[currentIndex];
-    const modalImage = document.getElementById('modalImage');
+    const modalImage = document.getElementById('modal-img'); // ID CORREGIDO
+    
     modalImage.src = foto.url;
     
     // LIMPIAR TEXTO - REMOVER SPOTTING
