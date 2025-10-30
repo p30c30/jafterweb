@@ -1,4 +1,4 @@
-// SCRIPT.JS - VERSIÓN COMPLETA CON CARRUSEL Y MEJORAS
+// SCRIPT.JS - VERSIÓN COMPLETA CON ZOOM Y CARRUSEL
 console.log('✅ script.js CARGADO');
 
 // Variables globales
@@ -11,17 +11,24 @@ let autoPlayInterval;
 let datosGlobales = null;
 let isModalOpen = false;
 
+// Variables de zoom
+let currentScale = 1;
+let currentImage = null;
+let isDragging = false;
+let startX, startY;
+let translateX = 0, translateY = 0;
+let lastX = 0, lastY = 0;
+let animationFrameId = null;
+
 // Función principal
 function iniciar() {
     console.log('🚀 INICIANDO...');
     
-    // Configurar logo para volver al inicio
     const logo = document.getElementById('logoHome');
     if (logo) {
         logo.addEventListener('click', volverAGaleria);
     }
     
-    // Crear botón scroll to top
     crearBotonScrollTop();
     
     setTimeout(() => {
@@ -356,7 +363,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// ================== MODAL MEJORADO ==================
+// ================== MODAL CON ZOOM COMPLETO ==================
 function mostrarModal(imageUrl, title, fotoIndex) {
     const modal = document.getElementById('modal');
     currentFotoIndex = fotoIndex;
@@ -383,6 +390,9 @@ function mostrarModal(imageUrl, title, fotoIndex) {
     img.onload = function() {
         modalImg.src = imageUrl;
         modalImg.alt = title;
+        currentImage = modalImg;
+        
+        resetZoom();
         
         modal.classList.add('active');
         document.body.classList.add('modal-open');
@@ -392,6 +402,8 @@ function mostrarModal(imageUrl, title, fotoIndex) {
     img.onerror = function() {
         modalImg.src = imageUrl;
         modalImg.alt = title;
+        currentImage = modalImg;
+        resetZoom();
         modal.classList.add('active');
         document.body.classList.add('modal-open');
         configurarEventosModal();
@@ -407,12 +419,56 @@ function mostrarModal(imageUrl, title, fotoIndex) {
         if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
         if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
         
+        // CLICK FUERA DEL MODAL = CERRAR
         modal.addEventListener('click', function(event) {
             if (event.target === modal) {
                 closeModal();
             }
         });
         
+        // CLICK EN IMAGEN = CERRAR (solo sin zoom)
+        let clickCount = 0;
+        let clickTimer = null;
+        
+        modalImg.addEventListener('click', function(event) {
+            clickCount++;
+            
+            if (clickCount === 1) {
+                clickTimer = setTimeout(() => {
+                    // Un solo clic - cerrar solo si no hay zoom
+                    if (currentScale <= 1) {
+                        closeModal();
+                    }
+                    clickCount = 0;
+                }, 300);
+            } else if (clickCount === 2) {
+                // Doble clic - toggle zoom 100% ↔ 200%
+                clearTimeout(clickTimer);
+                toggleZoomDobleClic();
+                clickCount = 0;
+            }
+            
+            event.stopPropagation();
+        });
+        
+        // ZOOM CON RUEDA DEL RATÓN
+        modal.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            
+            const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+            const newScale = currentScale * zoomFactor;
+            
+            if (newScale >= 0.5 && newScale <= 5) {
+                currentScale = newScale;
+                aplicarZoom();
+            }
+        }, { passive: false });
+        
+        // ARRASTRE CON ZOOM
+        modalImg.addEventListener('mousedown', startDrag);
+        modalImg.addEventListener('touchstart', startDragTouch);
+        
+        // TECLADO
         document.addEventListener('keydown', function manejarTeclado(event) {
             switch(event.key) {
                 case 'Escape': closeModal(); break;
@@ -422,13 +478,175 @@ function mostrarModal(imageUrl, title, fotoIndex) {
         });
     }
     
+    function toggleZoomDobleClic() {
+        if (currentScale === 1) {
+            // Si está en 100%, ir a 200%
+            currentScale = 2;
+            console.log('🔍 Zoom a 200% por doble clic');
+        } else {
+            // Si está en cualquier zoom, volver a 100%
+            currentScale = 1;
+            translateX = 0;
+            translateY = 0;
+            console.log('🔍 Volviendo a 100% por doble clic');
+        }
+        aplicarZoom();
+    }
+    
     function closeModal() {
         modal.classList.remove('active');
         document.body.classList.remove('modal-open');
         isModalOpen = false;
+        resetZoom();
     }
 }
 
+// ================== SISTEMA DE ZOOM Y ARRASTRE ==================
+function startDrag(e) {
+    if (currentScale <= 1) return;
+    
+    isDragging = true;
+    startX = e.clientX - translateX;
+    startY = e.clientY - translateY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    
+    if (currentImage) {
+        currentImage.style.cursor = 'grabbing';
+        currentImage.classList.add('grabbing');
+    }
+    
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDrag);
+    
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function startDragTouch(e) {
+    if (currentScale <= 1) return;
+    
+    isDragging = true;
+    const touch = e.touches[0];
+    startX = touch.clientX - translateX;
+    startY = touch.clientY - translateY;
+    lastX = touch.clientX;
+    lastY = touch.clientY;
+    
+    if (currentImage) {
+        currentImage.classList.add('grabbing');
+    }
+    
+    document.addEventListener('touchmove', dragTouch);
+    document.addEventListener('touchend', stopDrag);
+    
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function drag(e) {
+    if (!isDragging) return;
+    
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+    
+    animationFrameId = requestAnimationFrame(() => {
+        const deltaX = e.clientX - lastX;
+        const deltaY = e.clientY - lastY;
+        
+        translateX += deltaX * 1.2;
+        translateY += deltaY * 1.2;
+        
+        lastX = e.clientX;
+        lastY = e.clientY;
+        
+        aplicarZoom();
+    });
+}
+
+function dragTouch(e) {
+    if (!isDragging) return;
+    
+    const touch = e.touches[0];
+    
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+    }
+    
+    animationFrameId = requestAnimationFrame(() => {
+        const deltaX = touch.clientX - lastX;
+        const deltaY = touch.clientY - lastY;
+        
+        translateX += deltaX * 1.2;
+        translateY += deltaY * 1.2;
+        
+        lastX = touch.clientX;
+        lastY = touch.clientY;
+        
+        aplicarZoom();
+    });
+}
+
+function stopDrag() {
+    if (!isDragging) return;
+    
+    isDragging = false;
+    
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+    
+    if (currentImage && currentScale > 1) {
+        currentImage.style.cursor = 'move';
+        currentImage.classList.remove('grabbing');
+    }
+    
+    document.removeEventListener('mousemove', drag);
+    document.removeEventListener('touchmove', dragTouch);
+    document.removeEventListener('mouseup', stopDrag);
+    document.removeEventListener('touchend', stopDrag);
+}
+
+function aplicarZoom() {
+    if (currentImage) {
+        currentImage.style.transform = `scale(${currentScale}) translate(${translateX}px, ${translateY}px)`;
+        currentImage.style.transformOrigin = 'center center';
+        
+        if (currentScale > 1) {
+            currentImage.classList.add('zoomed');
+            currentImage.style.cursor = isDragging ? 'grabbing' : 'move';
+        } else {
+            currentImage.classList.remove('zoomed');
+            currentImage.style.cursor = 'default';
+            translateX = 0;
+            translateY = 0;
+        }
+    }
+}
+
+function resetZoom() {
+    currentScale = 1;
+    translateX = 0;
+    translateY = 0;
+    isDragging = false;
+    lastX = 0;
+    lastY = 0;
+    
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+    }
+    
+    if (currentImage) {
+        currentImage.style.transform = 'none';
+        currentImage.classList.remove('zoomed', 'grabbing');
+        currentImage.style.cursor = 'default';
+    }
+}
+
+// ================== NAVEGACIÓN ENTRE FOTOS ==================
 function navegarFoto(direccion) {
     if (!todasLasFotos.length) return;
     
@@ -448,10 +666,14 @@ function navegarFoto(direccion) {
     const fotoCounter = modal.querySelector('.foto-counter');
     const fotoTitle = modal.querySelector('.foto-title');
     
+    // Resetear zoom antes de cambiar imagen
+    resetZoom();
+    
     const img = new Image();
     img.onload = function() {
         modalImg.src = nuevaFoto.url;
         modalImg.alt = nuevaFoto.texto;
+        currentImage = modalImg;
         
         if (fotoCounter) {
             fotoCounter.textContent = `${currentFotoIndex + 1} / ${todasLasFotos.length}`;
@@ -463,6 +685,7 @@ function navegarFoto(direccion) {
     img.onerror = function() {
         modalImg.src = nuevaFoto.url;
         modalImg.alt = nuevaFoto.texto;
+        currentImage = modalImg;
         if (fotoCounter) {
             fotoCounter.textContent = `${currentFotoIndex + 1} / ${todasLasFotos.length}`;
         }
@@ -516,6 +739,7 @@ function volverAGaleria() {
     if (modal) {
         modal.classList.remove('active');
         document.body.classList.remove('modal-open');
+        resetZoom();
     }
     
     window.scrollTo({
