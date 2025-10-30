@@ -86,7 +86,7 @@ body {
     }
 }
 
-/* Tarjetas de secciones MÁS COMPACTAS */
+/* Tarjetas de secciones MÁS COMPACTAS - EFECTOS RESTAURADOS */
 .card {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -100,7 +100,7 @@ body {
     position: relative;
 }
 
-/* Efecto de luz que sale por debajo */
+/* Efecto de luz que sale por debajo - RESTAURADO */
 .card::after {
     content: '';
     position: absolute;
@@ -120,7 +120,7 @@ body {
     z-index: 0;
 }
 
-/* Efecto de brillo que se desliza por encima */
+/* Efecto de brillo que se desliza por encima - RESTAURADO */
 .card::before {
     content: '';
     position: absolute;
@@ -137,7 +137,7 @@ body {
     left: 100%;
 }
 
-/* Efecto principal al hover CON LUZ POR DEBAJO */
+/* Efecto principal al hover CON LUZ POR DEBAJO - RESTAURADO */
 .card:hover {
     transform: translateY(-12px) scale(1.03);
     box-shadow: 
@@ -148,7 +148,7 @@ body {
     filter: brightness(1.15);
 }
 
-/* Activar la luz por debajo al hover */
+/* Activar la luz por debajo al hover - RESTAURADO */
 .card:hover::after {
     opacity: 1;
     bottom: -25px;
@@ -207,8 +207,8 @@ body {
 /* ================== GRID MOSAICO MEJORADO ================== */
 .fotos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem; /* MUCHO MÁS COMPACTO */
     margin: 1.5rem 0;
     padding: 0 0.5rem;
     max-width: 100%;
@@ -217,16 +217,16 @@ body {
 
 .foto-item {
     background: rgba(255, 255, 255, 0.06);
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     border: 1px solid rgba(255, 255, 255, 0.12);
     position: relative;
     break-inside: avoid;
-    margin-bottom: 1rem;
 }
 
+/* Efecto hover para fotos - RESTAURADO */
 .foto-item::before {
     content: '';
     position: absolute;
@@ -247,18 +247,18 @@ body {
 .foto-item:hover {
     transform: scale(1.05);
     box-shadow: 
-        0 10px 20px rgba(0, 0, 0, 0.4),
-        0 0 15px rgba(253, 184, 19, 0.3);
+        0 12px 25px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(253, 184, 19, 0.3);
     border-color: rgba(253, 184, 19, 0.6);
 }
 
-/* IMÁGENES COMPLETAS - SIN CORTES */
+/* IMÁGENES COMPLETAS - SIN CORTES (CORREGIDO) */
 .foto-miniatura {
     width: 100%;
-    height: auto;
-    object-fit: contain;
+    height: auto; /* CRUCIAL: altura automática para mosaico */
+    object-fit: contain; /* CRUCIAL: contiene la imagen completa SIN CORTAR */
     display: block;
-    border-radius: 8px;
+    border-radius: 10px;
     transition: transform 0.3s ease;
     position: relative;
     z-index: 2;
@@ -424,14 +424,14 @@ body {
 /* ================== RESPONSIVE MEJORADO ================== */
 @media (max-width: 1200px) {
     .fotos-grid {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 0.8rem;
     }
 }
 
 @media (max-width: 768px) {
     .fotos-grid {
-        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 0.6rem;
         padding: 0 0.3rem;
     }
@@ -452,7 +452,7 @@ body {
 
 @media (max-width: 480px) {
     .fotos-grid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 0.5rem;
     }
     
