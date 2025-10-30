@@ -125,12 +125,15 @@
     opacity: 1;
 }
 
-/* Ocultar info cuando hay zoom */
+/* OCULTAR INFO CON ZOOM - SELECTOR UNIVERSAL */
+#modal img.zoomed ~ .modal-info,
 .modal-img.zoomed ~ .modal-info,
-.modal-img.grabbing ~ .modal-info {
-    opacity: 0;
-    transform: translateX(-50%) translateY(20px);
-    pointer-events: none;
+.modal-image.zoomed ~ .modal-info {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateX(-50%) translateY(20px) !important;
+    pointer-events: none !important;
+    transition: all 0.3s ease !important;
 }
 
 /* OCULTAR COMPLETAMENTE TÍTULO DE SECCIÓN */
