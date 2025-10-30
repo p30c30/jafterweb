@@ -21,6 +21,7 @@ function iniciar() {
             cargarDatos(container);
             initScrollToTop();
             initMobileRotationHandler();
+            configurarBotones();
         } else {
             console.error('❌ Contenedores NO EXISTEN');
             setTimeout(iniciar, 1000);
@@ -315,11 +316,9 @@ function configurarBotones() {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
         iniciar();
-        configurarBotones();
     });
 } else {
     iniciar();
-    configurarBotones();
 }
 
 console.log('✅ Script cargado - Esperando DOM...');
