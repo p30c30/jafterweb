@@ -172,29 +172,76 @@ function abrirModal(index) {
     }, 10);
 }
 
-// DETECTAR ZOOM AUTOMÁTICAMENTE (sin cambiar tu sistema actual)
+// DETECTAR ZOOM - VERSIÓN COMPATIBLE
 function configurarDeteccionZoom() {
-    const modalImage = document.getElementById('modalImage');
+    console.log('🎯 Configurando detección de zoom...');
     
-    if (!modalImage) return;
+    // Probar diferentes selectores de imagen
+    const modalImage = document.getElementById('modalImage') || 
+                      document.getElementById('modal-img') ||
+                      document.querySelector('.modal-img') ||
+                      document.querySelector('.modal-image') ||
+                      document.querySelector('#modal img') ||
+                      document.querySelector('.modal-content img');
     
-    // Observar cambios en el transform para detectar zoom
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                const transform = modalImage.style.transform;
-                const tieneZoom = transform && transform !== 'scale(1)' && transform !== '' && transform !== 'none';
-                
-                if (tieneZoom && !modalImage.classList.contains('zoomed')) {
-                    modalImage.classList.add('zoomed');
-                    console.log('🔍 Zoom detectado - info oculta');
-                } else if (!tieneZoom && modalImage.classList.contains('zoomed')) {
-                    modalImage.classList.remove('zoomed');
-                    console.log('🔍 Sin zoom - info visible');
-                }
-            }
-        });
+    if (!modalImage) {
+        console.log('❌ No se pudo encontrar la imagen del modal');
+        return;
+    }
+    
+    console.log('✅ Imagen del modal encontrada:', modalImage);
+    
+    // Agregar eventos de zoom
+    const modal = document.getElementById('modal');
+    
+    // Evento de rueda para zoom
+    modal.addEventListener('wheel', function(e) {
+        if (e.ctrlKey) {
+            e.preventDefault();
+            setTimeout(() => {
+                modalImage.classList.add('zoomed');
+                console.log('🔍 Zoom por rueda detectado');
+            }, 50);
+        }
+    }, { passive: false });
+    
+    // Doble click para alternar zoom
+    modalImage.ondblclick = function(e) {
+        e.stopPropagation();
+        if (modalImage.classList.contains('zoomed')) {
+            modalImage.classList.remove('zoomed');
+            console.log('🔍 Deszoom por doble click');
+        } else {
+            modalImage.classList.add('zoomed');
+            console.log('🔍 Zoom por doble click');
+        }
+    };
+    
+    // Click en el modal (fuera de la imagen) para deszoom
+    modal.onclick = function(e) {
+        if (e.target === modal && modalImage.classList.contains('zoomed')) {
+            modalImage.classList.remove('zoomed');
+            console.log('🔍 Deszoom por click fuera');
+        }
+    };
+    
+    // Tecla ESC para deszoom
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modalImage.classList.contains('zoomed') && isModalOpen) {
+            modalImage.classList.remove('zoomed');
+            console.log('🔍 Deszoom por ESC');
+        }
     });
+    
+    // También agregar clase zoomed cuando se navega entre fotos con zoom activo
+    const originalNavegarFotos = navegarFotos;
+    navegarFotos = function(direccion) {
+        if (modalImage.classList.contains('zoomed')) {
+            modalImage.classList.remove('zoomed');
+        }
+        originalNavegarFotos(direccion);
+    };
+}
     
     observer.observe(modalImage, {
         attributes: true,
