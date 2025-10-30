@@ -23,7 +23,7 @@
     align-items: center;
     min-height: 100vh;
     padding: 25px;
-    padding-bottom: 120px; /* Más espacio para la info fija */
+    padding-bottom: 120px;
     cursor: default;
 }
 
@@ -48,13 +48,15 @@
     border-radius: 8px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     cursor: default;
-    transition: transform 0.1s ease-out;
+    transition: all 0.3s ease;
     transform-origin: center center;
 }
 
-/* Solo cursor move cuando hay zoom */
+/* Zoom effect */
 .modal-img.zoomed {
     cursor: move;
+    transform: scale(1.5);
+    transition: transform 0.3s ease;
 }
 
 /* Cursor grabbing durante el arrastre */
@@ -101,7 +103,7 @@
     right: 25px;
 }
 
-/* ================== MODAL INFO MEJORADA ================== */
+/* ================== MODAL INFO QUE DESAPARECE AL ZOOM ================== */
 .modal-info {
     text-align: center;
     padding: 1.2rem;
@@ -119,9 +121,19 @@
     width: auto;
     min-width: 300px;
     max-width: 90%;
+    transition: all 0.3s ease;
+    opacity: 1;
 }
 
-/* OCULTAR TÍTULO DE SECCIÓN */
+/* Ocultar info cuando hay zoom */
+.modal-img.zoomed ~ .modal-info,
+.modal-img.grabbing ~ .modal-info {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+    pointer-events: none;
+}
+
+/* OCULTAR COMPLETAMENTE TÍTULO DE SECCIÓN */
 .modal-title {
     display: none !important;
 }
@@ -134,7 +146,7 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-/* SOLO TEXTO DE LA FOTO */
+/* SOLO TEXTO DE LA FOTO - SIN PALABRA SPOTTING */
 .foto-title {
     color: #ffffff;
     font-size: 1.1rem;
@@ -258,7 +270,7 @@ body.modal-open {
     }
 }
 
-/* Para pantallas grandes - asegurar modal */
+/* Para pantallas grandes */
 @media (min-width: 1600px) {
     .modal-info {
         max-width: 70%;
