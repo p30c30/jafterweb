@@ -459,3 +459,24 @@
         gap: 1.2rem;
     }
 }
+/* ========== OCULTAR TÍTULO DE SECCIÓN EN MODAL ========== */
+.modal-title {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* AJUSTAR ESPACIOS SIN EL TÍTULO */
+.modal-info {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+}
+
+.foto-counter {
+    margin-bottom: 0.5rem !important;
+}
