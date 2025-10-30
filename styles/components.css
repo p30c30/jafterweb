@@ -124,45 +124,12 @@
 .card:hover .card-content p {
     color: #ffffff;
 }
-/* Imagen de tarjeta - MÁS PEQUEÑA */
-.card-image {
-    width: 100%;
-    height: 240px;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.4s ease;
-    position: relative;
-    z-index: 2;
-}
-
-/* Contenido de tarjeta - MÁS COMPACTO */
-.card-content {
-    padding: 1.8rem;
-    position: relative;
-    z-index: 2;
-    background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.9) 100%);
-}
-
-.card-content h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.8rem;
-    color: #FDB813;
-    transition: color 0.3s ease;
-    font-weight: 600;
-}
-
-.card-content p {
-    color: #e0e0e0;
-    font-size: 1rem;
-    line-height: 1.6;
-    transition: color 0.3s ease;
-}
 
 /* ================== GRID MODERNO CON FOTOS COMPLETAS ================== */
 .fotos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1rem; /* MUCHO MÁS COMPACTO */
+    gap: 1rem;
     margin: 1.5rem 0;
     padding: 0 0.5rem;
 }
@@ -172,7 +139,7 @@
     border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
-    height: auto; /* ALTURA NATURAL */
+    height: auto;
     transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     box-shadow: 
         0 8px 25px rgba(0, 0, 0, 0.3),
@@ -184,8 +151,8 @@
 /* IMÁGENES COMPLETAS - SIN CORTES */
 .foto-miniatura {
     width: 100%;
-    height: auto; /* ALTURA AUTOMÁTICA */
-    object-fit: contain; /* IMAGEN COMPLETA */
+    height: auto;
+    object-fit: contain;
     transition: all 0.5s ease;
     filter: brightness(0.95);
     display: block;
@@ -459,6 +426,7 @@
         gap: 1.2rem;
     }
 }
+
 /* ========== OCULTAR TÍTULO DE SECCIÓN EN MODAL ========== */
 .modal-title {
     display: none !important;
@@ -479,4 +447,16 @@
 
 .foto-counter {
     margin-bottom: 0.5rem !important;
+}
+
+/* ========== FIX BORDE DORADO PERMANENTE ========== */
+.card::after {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.card:hover::after {
+    opacity: 1 !important;
+    visibility: visible !important;
 }
