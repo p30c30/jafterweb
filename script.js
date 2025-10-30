@@ -110,8 +110,10 @@ async function crearMiniatura(foto, index) {
     try {
         const ratio = await calcularRatio(foto.miniatura);
         item.style.aspectRatio = ratio;
+        console.log(`📐 Ratio calculado para ${foto.texto}: ${ratio}`);
     } catch (error) {
         item.style.aspectRatio = '4/3'; // Ratio por defecto
+        console.log(`📐 Ratio por defecto para ${foto.texto}`);
     }
     
     const img = document.createElement('img');
@@ -119,6 +121,11 @@ async function crearMiniatura(foto, index) {
     img.alt = foto.texto || 'Foto de galería';
     img.className = 'foto-miniatura';
     img.loading = 'lazy';
+    
+    // Precargar para verificar
+    img.onload = function() {
+        console.log(`🖼️ Imagen cargada: ${this.naturalWidth}x${this.naturalHeight}, Ratio: ${this.naturalWidth/this.naturalHeight}`);
+    };
     
     item.appendChild(img);
     
@@ -161,15 +168,16 @@ function abrirModal(index) {
     const foto = currentPhotos[currentIndex];
     if (!foto) return;
     
-    // Actualizar contenido del modal - SOLO TEXTO, NO TÍTULO
+    // Actualizar contenido del modal
     document.getElementById('modalImage').src = foto.url;
     document.getElementById('photoText').textContent = foto.texto || '';
     document.getElementById('photoCounter').textContent = `${currentIndex + 1} / ${currentPhotos.length}`;
     
-    // OCULTAR el título de sección en el modal
-    const modalTitle = document.getElementById('modalTitle');
+    // OCULTAR COMPLETAMENTE el título de sección en el modal
+    const modalTitle = document.querySelector('.modal-title');
     if (modalTitle) {
         modalTitle.style.display = 'none';
+        modalTitle.textContent = ''; // Limpiar también el texto
     }
     
     // Mostrar modal
