@@ -449,13 +449,19 @@
     margin-bottom: 0.5rem !important;
 }
 
-/* ========== FIX BORDE EN IMAGEN ORIGINAL ========== */
-.card-image {
-    object-position: center top !important;
+/* ========== OCULTAR BORDE INFERIOR IMAGEN ========== */
+.card-image-container {
+    position: relative;
+    overflow: hidden;
 }
 
-/* O más específico para recortar */
-.card-image {
-    object-fit: cover !important;
-    object-position: center 30% !important; /* Ajusta este valor */
+.card-image-container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: #000000;
+    z-index: 3;
 }
