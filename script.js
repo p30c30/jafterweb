@@ -173,97 +173,137 @@ function abrirModal(index) {
     }, 10);
 }
 
-// DETECTAR ZOOM - VERSIÓN CORRECTA
+// SISTEMA DEFINITIVO DE ZOOM CON ARRASTRE
 function configurarDeteccionZoom() {
-    console.log('🎯 Configurando detección de zoom...');
+    console.log('🎯 Configurando sistema definitivo de zoom con arrastre...');
     
-    const modalImage = document.getElementById('modal-img'); // ID CORREGIDO
-    
-    if (!modalImage) {
-        console.log('❌ No se pudo encontrar la imagen del modal');
-        return;
-    }
-    
-    console.log('✅ Imagen del modal encontrada:', modalImage);
+    const modalImage = document.getElementById('modal-img');
+    if (!modalImage) return;
     
     const modal = document.getElementById('modal');
+    let escala = 1;
+    let posX = 0;
+    let posY = 0;
+    let arrastrando = false;
+    let ultimoX, ultimoY;
     
-    // Observar cambios en el transform para detectar zoom automáticamente
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                const transform = modalImage.style.transform;
-                const tieneZoom = transform && transform !== 'none' && transform !== 'scale(1)';
-                
-                if (tieneZoom && !modalImage.classList.contains('zoomed')) {
-                    modalImage.classList.add('zoomed');
-                    console.log('🔍 Zoom detectado:', transform);
-                } else if (!tieneZoom && modalImage.classList.contains('zoomed')) {
-                    modalImage.classList.remove('zoomed');
-                    console.log('🔍 Sin zoom');
-                }
-            }
-        });
-    });
+    // FUNCIÓN PARA APLICAR TRANSFORM Y CONTROLAR INFO
+    function aplicarTransform() {
+        modalImage.style.transform = `scale(${escala}) translate(${posX}px, ${posY}px)`;
+        
+        // Mostrar/ocultar info basado en zoom
+        if (escala > 1.1) {
+            modalImage.classList.add('zoomed');
+            modalImage.style.cursor = 'grab';
+        } else {
+            modalImage.classList.remove('zoomed');
+            modalImage.style.cursor = 'default';
+            // Reset posición cuando no hay zoom
+            posX = 0;
+            posY = 0;
+        }
+        
+        console.log('🔍 Escala actual:', escala.toFixed(2));
+    }
     
-    observer.observe(modalImage, {
-        attributes: true,
-        attributeFilter: ['style']
-    });
-    
-    // También agregar eventos manuales por si acaso
+    // RUEDA DEL MOUSE PARA ZOOM (sin Ctrl)
     modal.addEventListener('wheel', function(e) {
-        if (e.ctrlKey) {
-            setTimeout(() => {
-                if (!modalImage.classList.contains('zoomed')) {
-                    modalImage.classList.add('zoomed');
-                }
-            }, 100);
+        e.preventDefault();
+        
+        // Zoom in/out con rueda DIRECTAMENTE (sin Ctrl)
+        const factor = e.deltaY > 0 ? 0.9 : 1.1;
+        const nuevaEscala = escala * factor;
+        
+        // Límites de zoom (0.5x a 3x)
+        if (nuevaEscala >= 0.5 && nuevaEscala <= 3) {
+            escala = nuevaEscala;
+            aplicarTransform();
         }
     }, { passive: false });
     
-    // Doble click para alternar zoom
+    // DOBLE CLIC: 100% → 200%, cualquier zoom → 100%
     modalImage.ondblclick = function(e) {
         e.stopPropagation();
-        modalImage.classList.toggle('zoomed');
-        console.log('🔍 Zoom toggled:', modalImage.classList.contains('zoomed'));
+        
+        if (escala === 1) {
+            // Si está en 100%, ir a 200%
+            escala = 2;
+            console.log('🔍 Zoom a 200% por doble clic');
+        } else {
+            // Si está en cualquier otro zoom, volver a 100%
+            escala = 1;
+            console.log('🔍 Volviendo a 100% por doble clic');
+        }
+        
+        aplicarTransform();
     };
-}
-
-function cerrarModal() {
-    console.log('❌ Cerrando modal');
     
-    isModalOpen = false;
-    const modal = document.getElementById('modal');
-    modal.classList.remove('active');
+    // SISTEMA DE ARRASTRE CON ZOOM
+    modalImage.onmousedown = function(e) {
+        if (escala > 1.1) {
+            arrastrando = true;
+            ultimoX = e.clientX;
+            ultimoY = e.clientY;
+            modalImage.style.cursor = 'grabbing';
+        }
+    };
     
-    setTimeout(() => {
-        modal.style.display = 'none';
-        document.body.classList.remove('modal-open');
-    }, 300);
-}
-
-function navegarFotos(direccion) {
-    if (direccion === 'prev') {
-        currentIndex = currentIndex > 0 ? currentIndex - 1 : currentPhotos.length - 1;
-    } else {
-        currentIndex = currentIndex < currentPhotos.length - 1 ? currentIndex + 1 : 0;
-    }
+    modal.addEventListener('mousemove', function(e) {
+        if (arrastrando) {
+            const deltaX = e.clientX - ultimoX;
+            const deltaY = e.clientY - ultimoY;
+            
+            posX += deltaX / escala;
+            posY += deltaY / escala;
+            
+            ultimoX = e.clientX;
+            ultimoY = e.clientY;
+            
+            aplicarTransform();
+        }
+    });
     
-    const foto = currentPhotos[currentIndex];
-    const modalImage = document.getElementById('modal-img'); // ID CORREGIDO
+    modal.addEventListener('mouseup', function() {
+        arrastrando = false;
+        if (escala > 1.1) {
+            modalImage.style.cursor = 'grab';
+        }
+    });
     
-    modalImage.src = foto.url;
+    // CLICK SIMPLE MANTIENE COMPORTAMIENTO ORIGINAL (CERRAR MODAL)
+    modalImage.onclick = function(e) {
+        e.stopPropagation();
+        if (escala <= 1.1 && !arrastrando) { // Solo cerrar si no hay zoom y no se estaba arrastrando
+            cerrarModal();
+        }
+    };
     
-    // LIMPIAR TEXTO - REMOVER SPOTTING
-    let textoLimpio = foto.texto || '';
-    textoLimpio = textoLimpio.replace(/spotting/gi, '').trim();
-    document.getElementById('photoText').textContent = textoLimpio;
+    // CLICK FUERA DEL MODAL MANTIENE COMPORTAMIENTO ORIGINAL (CERRAR MODAL)
+    modal.onclick = function(e) {
+        if (e.target === modal) {
+            cerrarModal();
+        }
+    };
     
-    document.getElementById('photoCounter').textContent = `${currentIndex + 1} / ${currentPhotos.length}`;
+    // TECLA ESC MANTIENE COMPORTAMIENTO ORIGINAL (CERRAR MODAL)
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && isModalOpen) {
+            cerrarModal();
+        }
+    });
     
-    // Reset zoom al cambiar foto
-    modalImage.classList.remove('zoomed');
+    // RESET AL CAMBIAR FOTO
+    const originalNavegarFotos = navegarFotos;
+    navegarFotos = function(direccion) {
+        escala = 1; // Reset a escala normal
+        posX = 0;   // Reset posición
+        posY = 0;   // Reset posición
+        aplicarTransform();
+        originalNavegarFotos(direccion);
+    };
+    
+    // Aplicar transform inicial
+    aplicarTransform();
 }
 
 // BOTÓN SCROLL TO TOP
