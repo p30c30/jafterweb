@@ -86,7 +86,7 @@ body {
     }
 }
 
-/* Tarjetas de secciones MÁS COMPACTAS - EFECTOS RESTAURADOS */
+/* ================== TARJETAS CON EFECTOS COMPLETOS ================== */
 .card {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -100,7 +100,7 @@ body {
     position: relative;
 }
 
-/* Efecto de luz que sale por debajo - RESTAURADO */
+/* Efecto de luz que sale por debajo */
 .card::after {
     content: '';
     position: absolute;
@@ -120,7 +120,7 @@ body {
     z-index: 0;
 }
 
-/* Efecto de brillo que se desliza por encima - RESTAURADO */
+/* Efecto de brillo que se desliza por encima */
 .card::before {
     content: '';
     position: absolute;
@@ -137,7 +137,7 @@ body {
     left: 100%;
 }
 
-/* Efecto principal al hover CON LUZ POR DEBAJO - RESTAURADO */
+/* Efecto principal al hover CON LUZ POR DEBAJO */
 .card:hover {
     transform: translateY(-12px) scale(1.03);
     box-shadow: 
@@ -148,7 +148,7 @@ body {
     filter: brightness(1.15);
 }
 
-/* Activar la luz por debajo al hover - RESTAURADO */
+/* Activar la luz por debajo al hover */
 .card:hover::after {
     opacity: 1;
     bottom: -25px;
@@ -204,20 +204,20 @@ body {
     color: #ffffff;
 }
 
-/* ================== GRID MOSAICO MEJORADO ================== */
+/* ================== GRID ULTRA COMPACTO - SPOTTING ================== */
 .fotos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem; /* MUCHO MÁS COMPACTO */
-    margin: 1.5rem 0;
-    padding: 0 0.5rem;
+    gap: 0.8rem !important; /* ULTRA COMPACTO */
+    margin: 1rem 0 !important;
+    padding: 0 0.5rem !important;
     max-width: 100%;
     align-items: start;
 }
 
 .foto-item {
     background: rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
+    border-radius: 10px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -226,7 +226,7 @@ body {
     break-inside: avoid;
 }
 
-/* Efecto hover para fotos - RESTAURADO */
+/* Efecto hover para fotos */
 .foto-item::before {
     content: '';
     position: absolute;
@@ -247,18 +247,18 @@ body {
 .foto-item:hover {
     transform: scale(1.05);
     box-shadow: 
-        0 12px 25px rgba(0, 0, 0, 0.4),
-        0 0 20px rgba(253, 184, 19, 0.3);
+        0 10px 20px rgba(0, 0, 0, 0.4),
+        0 0 15px rgba(253, 184, 19, 0.3);
     border-color: rgba(253, 184, 19, 0.6);
 }
 
-/* IMÁGENES COMPLETAS - SIN CORTES (CORREGIDO) */
+/* IMÁGENES COMPLETAS - AVIONES SIN CORTES */
 .foto-miniatura {
-    width: 100%;
-    height: auto; /* CRUCIAL: altura automática para mosaico */
-    object-fit: contain; /* CRUCIAL: contiene la imagen completa SIN CORTAR */
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
     display: block;
-    border-radius: 10px;
+    border-radius: 8px;
     transition: transform 0.3s ease;
     position: relative;
     z-index: 2;
@@ -269,14 +269,14 @@ body {
 }
 
 .foto-texto {
-    padding: 1rem 0.8rem;
+    padding: 0.8rem 0.6rem !important;
     text-align: center;
     color: #f0f0f0;
-    font-size: 0.9rem;
+    font-size: 0.85rem !important;
     font-weight: 500;
     background: rgba(0, 0, 0, 0.8);
     margin: 0;
-    line-height: 1.3;
+    line-height: 1.2;
 }
 
 /* Botón de volver más grande */
@@ -424,21 +424,21 @@ body {
 /* ================== RESPONSIVE MEJORADO ================== */
 @media (max-width: 1200px) {
     .fotos-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 0.8rem;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+        gap: 0.6rem !important;
     }
 }
 
 @media (max-width: 768px) {
     .fotos-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 0.6rem;
-        padding: 0 0.3rem;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+        gap: 0.5rem !important;
+        padding: 0 0.3rem !important;
     }
     
     .foto-texto {
-        padding: 0.8rem 0.6rem;
-        font-size: 0.8rem;
+        padding: 0.6rem 0.4rem !important;
+        font-size: 0.8rem !important;
     }
     
     .scroll-to-top {
@@ -452,13 +452,13 @@ body {
 
 @media (max-width: 480px) {
     .fotos-grid {
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 0.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important;
+        gap: 0.4rem !important;
     }
     
     .foto-texto {
-        padding: 0.6rem 0.4rem;
-        font-size: 0.75rem;
+        padding: 0.5rem 0.3rem !important;
+        font-size: 0.75rem !important;
     }
     
     .scroll-to-top {
