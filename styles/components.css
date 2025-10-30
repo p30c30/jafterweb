@@ -449,14 +449,22 @@
     margin-bottom: 0.5rem !important;
 }
 
-/* ========== FIX BORDE DORADO PERMANENTE ========== */
+/* ========== FIX BORDE GRIS PERMANENTE ========== */
 .card::after {
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
+    filter: blur(0) !important; /* ← ESTO ES CLAVE */
+    background: transparent !important; /* ← Y ESTO */
 }
 
 .card:hover::after {
     opacity: 1 !important;
     visibility: visible !important;
+    filter: blur(20px) !important;
+    background: radial-gradient(ellipse at center, 
+        rgba(253, 184, 19, 0.5) 0%, 
+        rgba(253, 184, 19, 0.3) 30%, 
+        rgba(253, 184, 19, 0.2) 60%, 
+        transparent 100%) !important;
 }
