@@ -160,10 +160,16 @@ function abrirModal(index) {
     const foto = currentPhotos[currentIndex];
     if (!foto) return;
     
-    // Actualizar contenido del modal
+    // Actualizar contenido del modal - SOLO TEXTO, NO TÍTULO
     document.getElementById('modalImage').src = foto.url;
     document.getElementById('photoText').textContent = foto.texto || '';
     document.getElementById('photoCounter').textContent = `${currentIndex + 1} / ${currentPhotos.length}`;
+    
+    // OCULTAR el título de sección en el modal
+    const modalTitle = document.getElementById('modalTitle');
+    if (modalTitle) {
+        modalTitle.style.display = 'none';
+    }
     
     // Mostrar modal
     const modal = document.getElementById('modal');
