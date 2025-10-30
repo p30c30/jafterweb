@@ -430,16 +430,55 @@ body {
 }
 
 @media (max-width: 768px) {
-    .fotos-grid {
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
-        gap: 0.5rem !important;
-        padding: 0 0.3rem !important;
-    }
-    
-    .foto-texto {
-        padding: 0.6rem 0.4rem !important;
-        font-size: 0.8rem !important;
-    }
+    /* ================== FOTOS COMPLETAS EN MINIATURAS ================== */
+.fotos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+    padding: 0 0.5rem;
+    max-width: 100%;
+    align-items: start;
+}
+
+.foto-item {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    position: relative;
+    break-inside: avoid;
+    /* ELIMINAR aspect-ratio fijo para permitir altura natural */
+    aspect-ratio: unset;
+    height: auto;
+}
+
+/* IMÁGENES COMPLETAS - SIN CORTES */
+.foto-miniatura {
+    width: 100%;
+    height: auto; /* Altura automática según proporción */
+    object-fit: contain; /* Muestra la imagen COMPLETA sin recortar */
+    display: block;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.foto-item:hover .foto-miniatura {
+    transform: scale(1.05);
+}
+
+.foto-texto {
+    padding: 0.8rem 0.6rem;
+    text-align: center;
+    color: #f0f0f0;
+    font-size: 0.85rem;
+    font-weight: 500;
+    background: rgba(0, 0, 0, 0.8);
+    margin: 0;
+    line-height: 1.2;
+}
     
     .scroll-to-top {
         bottom: 20px;
