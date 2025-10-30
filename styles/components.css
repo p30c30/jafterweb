@@ -6,38 +6,6 @@
     margin: 3rem 0;
     justify-content: center;
 }
-/* ========== RESET NUCLEAR PARA ::after ========== */
-div.card::after {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    width: 0 !important;
-    background: none !important;
-    filter: none !important;
-    content: none !important;
-}
-
-div.card:hover::after {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    content: '' !important;
-    position: absolute;
-    bottom: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    height: 50px;
-    background: radial-gradient(ellipse at center, 
-        rgba(253, 184, 19, 0.5) 0%, 
-        rgba(253, 184, 19, 0.3) 30%, 
-        rgba(253, 184, 19, 0.2) 60%, 
-        transparent 100%);
-    filter: blur(20px);
-    z-index: 0;
-    pointer-events: none;
-}
 
 
 /* ================== TARJETAS CON EFECTOS DE LUZ COMPLETOS ================== */
@@ -54,7 +22,7 @@ div.card:hover::after {
     position: relative;
 }
 
-/* Efecto de luz que sale por debajo */
+/* Efecto de luz que sale por debajo - CORREGIDO */
 .card::after {
     content: '';
     position: absolute;
@@ -67,11 +35,22 @@ div.card:hover::after {
         rgba(253, 184, 19, 0.5) 0%, 
         rgba(253, 184, 19, 0.3) 30%, 
         rgba(253, 184, 19, 0.2) 60%, 
-        transparent 100%);
+        transparent 80%  /* ← CAMBIO CLAVE: transparent empieza antes */
+    );
     opacity: 0;
     transition: all 0.4s ease;
-    filter: blur(15px);
+    filter: blur(12px);  /* ← MENOS BLUR */
     z-index: 0;
+    pointer-events: none;
+}
+
+/* Activar la luz por debajo al hover */
+.card:hover::after {
+    opacity: 1;
+    bottom: -25px;
+    width: 90%;
+    height: 50px;
+    filter: blur(20px);
 }
 
 /* Efecto de brillo que se desliza por encima */
