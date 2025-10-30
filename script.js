@@ -1,21 +1,19 @@
-// SCRIPT MEJORADO - MANTIENE SIMPLICIDAD PERO CON NUEVAS FUNCIONALIDADES
+// SCRIPT MEJORADO - CON ZOOM Y SIN TÍTULO SPOTTING
 let currentSection = '';
 let currentPhotos = [];
 let currentIndex = 0;
 let isModalOpen = false;
+let isZoomed = false;
+let startX, startY, scrollLeft, scrollTop;
 
 function iniciar() {
     console.log('🚀 INICIANDO GALERÍA...');
 
-    // Esperar a que el DOM esté listo
     setTimeout(() => {
         console.log('🔍 Buscando contenedores...');
         const container = document.getElementById('secciones-container');
         const galleryContainer = document.getElementById('gallery');
         
-        console.log('Contenedor principal:', container);
-        console.log('Contenedor galería:', galleryContainer);
-
         if (container && galleryContainer) {
             console.log('✅ Contenedores EXISTEN, cargando datos...');
             cargarDatos(container);
@@ -69,23 +67,19 @@ async function mostrarSeccion(seccion, todasSecciones) {
     currentSection = seccion.id;
     currentPhotos = seccion.fotos;
     
-    // Ocultar home y mostrar vista de sección
     document.getElementById('home-view').style.display = 'none';
     document.getElementById('seccion-view').style.display = 'block';
     
-    // Actualizar header de sección
     document.querySelector('.seccion-header h1').textContent = seccion.titulo;
     document.querySelector('.seccion-header p').textContent = seccion.descripcion;
     
     const galleryContainer = document.getElementById('gallery');
     galleryContainer.innerHTML = '<div class="loading">Cargando fotos...</div>';
     
-    // Crear grid de fotos con ratios reales
     setTimeout(async () => {
         const grid = document.createElement('div');
         grid.className = 'fotos-grid';
         
-        // Crear miniaturas para cada foto
         for (let i = 0; i < seccion.fotos.length; i++) {
             const thumb = await crearMiniatura(seccion.fotos[i], i);
             grid.appendChild(thumb);
@@ -94,26 +88,21 @@ async function mostrarSeccion(seccion, todasSecciones) {
         galleryContainer.innerHTML = '';
         galleryContainer.appendChild(grid);
         
-        // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
         console.log('✅ Galería cargada:', seccion.fotos.length, 'fotos');
     }, 100);
 }
 
-// Crear miniatura con ratio real
 async function crearMiniatura(foto, index) {
     const item = document.createElement('div');
     item.className = 'foto-item';
     
-    // Calcular ratio real de la imagen
     try {
         const ratio = await calcularRatio(foto.miniatura);
         item.style.aspectRatio = ratio;
-        console.log(`📐 Ratio calculado para ${foto.texto}: ${ratio}`);
     } catch (error) {
-        item.style.aspectRatio = '4/3'; // Ratio por defecto
-        console.log(`📐 Ratio por defecto para ${foto.texto}`);
+        item.style.aspectRatio = '4/3';
     }
     
     const img = document.createElement('img');
@@ -122,22 +111,17 @@ async function crearMiniatura(foto, index) {
     img.className = 'foto-miniatura';
     img.loading = 'lazy';
     
-    // Precargar para verificar
-    img.onload = function() {
-        console.log(`🖼️ Imagen cargada: ${this.naturalWidth}x${this.naturalHeight}, Ratio: ${this.naturalWidth/this.naturalHeight}`);
-    };
-    
     item.appendChild(img);
     
-    // Agregar texto si existe
     if (foto.texto) {
         const textoDiv = document.createElement('div');
         textoDiv.className = 'foto-texto';
-        textoDiv.textContent = foto.texto;
+        // LIMPIAR TEXTO - REMOVER PALABRA SPOTTING SI EXISTE
+        let textoLimpio = foto.texto.replace(/spotting/gi, '').trim();
+        textoDiv.textContent = textoLimpio;
         item.appendChild(textoDiv);
     }
     
-    // Al hacer click, abrir modal
     item.onclick = () => {
         abrirModal(index);
     };
@@ -145,7 +129,6 @@ async function crearMiniatura(foto, index) {
     return item;
 }
 
-// Calcular ratio de aspecto real
 function calcularRatio(url) {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -158,43 +141,97 @@ function calcularRatio(url) {
     });
 }
 
-// MODAL - Funciones simples
+// MODAL CON ZOOM
 function abrirModal(index) {
     console.log('🖼️ Abriendo modal para foto:', index);
     
     currentIndex = index;
     isModalOpen = true;
+    isZoomed = false;
     
     const foto = currentPhotos[currentIndex];
     if (!foto) return;
     
-    // Actualizar contenido del modal
-    document.getElementById('modalImage').src = foto.url;
-    document.getElementById('photoText').textContent = foto.texto || '';
+    const modalImage = document.getElementById('modalImage');
+    modalImage.src = foto.url;
+    
+    // LIMPIAR TEXTO - REMOVER SPOTTING
+    let textoLimpio = foto.texto || '';
+    textoLimpio = textoLimpio.replace(/spotting/gi, '').trim();
+    document.getElementById('photoText').textContent = textoLimpio;
+    
     document.getElementById('photoCounter').textContent = `${currentIndex + 1} / ${currentPhotos.length}`;
     
-    // OCULTAR COMPLETAMENTE el título de sección en el modal
+    // OCULTAR TÍTULO DE SECCIÓN
     const modalTitle = document.querySelector('.modal-title');
     if (modalTitle) {
         modalTitle.style.display = 'none';
-        modalTitle.textContent = ''; // Limpiar también el texto
+        modalTitle.textContent = '';
     }
     
-    // Mostrar modal
+    // Reset zoom y eventos
+    modalImage.classList.remove('zoomed', 'grabbing');
+    modalImage.style.transform = 'scale(1)';
+    modalImage.style.cursor = 'zoom-in';
+    
     const modal = document.getElementById('modal');
     modal.style.display = 'flex';
     document.body.classList.add('modal-open');
     
-    // Animación de entrada
     setTimeout(() => {
         modal.classList.add('active');
     }, 10);
+    
+    // Configurar eventos de zoom
+    configurarZoom(modalImage);
+}
+
+function configurarZoom(modalImage) {
+    // Doble click para zoom
+    modalImage.ondblclick = function(e) {
+        e.stopPropagation();
+        toggleZoom(this);
+    };
+    
+    // Click para alternar zoom
+    modalImage.onclick = function(e) {
+        e.stopPropagation();
+        if (!isZoomed) {
+            toggleZoom(this);
+        }
+    };
+    
+    // Wheel para zoom
+    modalImage.onwheel = function(e) {
+        e.preventDefault();
+        if (e.ctrlKey) {
+            if (e.deltaY < 0 && !isZoomed) {
+                toggleZoom(this);
+            } else if (e.deltaY > 0 && isZoomed) {
+                toggleZoom(this);
+            }
+        }
+    };
+}
+
+function toggleZoom(imgElement) {
+    isZoomed = !isZoomed;
+    
+    if (isZoomed) {
+        imgElement.classList.add('zoomed');
+        imgElement.style.cursor = 'move';
+    } else {
+        imgElement.classList.remove('zoomed', 'grabbing');
+        imgElement.style.transform = 'scale(1)';
+        imgElement.style.cursor = 'zoom-in';
+    }
 }
 
 function cerrarModal() {
     console.log('❌ Cerrando modal');
     
     isModalOpen = false;
+    isZoomed = false;
     const modal = document.getElementById('modal');
     modal.classList.remove('active');
     
@@ -212,19 +249,30 @@ function navegarFotos(direccion) {
     }
     
     const foto = currentPhotos[currentIndex];
-    document.getElementById('modalImage').src = foto.url;
-    document.getElementById('photoText').textContent = foto.texto || '';
+    const modalImage = document.getElementById('modalImage');
+    modalImage.src = foto.url;
+    
+    // LIMPIAR TEXTO - REMOVER SPOTTING
+    let textoLimpio = foto.texto || '';
+    textoLimpio = textoLimpio.replace(/spotting/gi, '').trim();
+    document.getElementById('photoText').textContent = textoLimpio;
+    
     document.getElementById('photoCounter').textContent = `${currentIndex + 1} / ${currentPhotos.length}`;
+    
+    // Reset zoom al cambiar foto
+    modalImage.classList.remove('zoomed', 'grabbing');
+    modalImage.style.transform = 'scale(1)';
+    modalImage.style.cursor = 'zoom-in';
+    isZoomed = false;
 }
 
-// BOTÓN SCROLL TO TOP - Simple
+// BOTÓN SCROLL TO TOP
 function initScrollToTop() {
     const scrollBtn = document.createElement('button');
     scrollBtn.innerHTML = '↑';
     scrollBtn.className = 'scroll-to-top';
     scrollBtn.title = 'Volver al inicio';
     
-    // Mostrar/ocultar al hacer scroll
     window.addEventListener('scroll', () => {
         if (window.pageYOffset > 300) {
             scrollBtn.classList.add('visible');
@@ -233,7 +281,6 @@ function initScrollToTop() {
         }
     });
     
-    // Scroll suave al hacer click
     scrollBtn.onclick = () => {
         window.scrollTo({
             top: 0,
@@ -244,16 +291,14 @@ function initScrollToTop() {
     document.body.appendChild(scrollBtn);
 }
 
-// MANEJO DE ROTACIÓN EN MÓVILES - Simple
+// MANEJO DE ROTACIÓN EN MÓVILES
 function initMobileRotationHandler() {
     let esVertical = window.innerHeight > window.innerWidth;
     
     window.addEventListener('resize', () => {
         const nuevaOrientacion = window.innerHeight > window.innerWidth;
         
-        // Si cambió la orientación y el modal está abierto
         if (esVertical !== nuevaOrientacion && isModalOpen) {
-            // Scroll automático para ver el contador
             setTimeout(() => {
                 const contador = document.querySelector('.foto-counter');
                 if (contador) {
@@ -269,9 +314,8 @@ function initMobileRotationHandler() {
     });
 }
 
-// BOTÓN VOLVER - Simple
+// BOTÓN VOLVER
 function configurarBotones() {
-    // Botón volver
     const backBtn = document.querySelector('.back-button');
     if (backBtn) {
         backBtn.onclick = () => {
@@ -281,7 +325,6 @@ function configurarBotones() {
         };
     }
     
-    // Logo click para ir al home
     const logo = document.querySelector('.logo');
     if (logo) {
         logo.onclick = () => {
@@ -291,7 +334,6 @@ function configurarBotones() {
         };
     }
     
-    // Configurar eventos del modal
     const modalCerrar = document.querySelector('.modal-close');
     const modalPrev = document.querySelector('.modal-prev');
     const modalNext = document.querySelector('.modal-next');
@@ -301,7 +343,6 @@ function configurarBotones() {
     if (modalPrev) modalPrev.onclick = () => navegarFotos('prev');
     if (modalNext) modalNext.onclick = () => navegarFotos('next');
     
-    // Cerrar modal al hacer click fuera
     if (modal) {
         modal.onclick = (e) => {
             if (e.target === modal) {
@@ -310,17 +351,20 @@ function configurarBotones() {
         };
     }
     
-    // Navegación con teclado
     document.addEventListener('keydown', (e) => {
         if (isModalOpen) {
             if (e.key === 'Escape') cerrarModal();
             if (e.key === 'ArrowLeft') navegarFotos('prev');
             if (e.key === 'ArrowRight') navegarFotos('next');
+            if (e.key === ' ' || e.key === 'z') {
+                const modalImage = document.getElementById('modalImage');
+                toggleZoom(modalImage);
+            }
         }
     });
 }
 
-// INICIAR CUANDO EL DOM ESTÉ LISTO
+// INICIAR
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
         iniciar();
