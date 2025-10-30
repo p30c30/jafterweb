@@ -1,416 +1,319 @@
-document.addEventListener('DOMContentLoaded', function() {
-    let currentSection = '';
-    let currentPhotos = [];
-    let currentIndex = 0;
-    let isModalOpen = false;
+// SCRIPT MEJORADO - MANTIENE SIMPLICIDAD PERO CON NUEVAS FUNCIONALIDADES
+let currentSection = '';
+let currentPhotos = [];
+let currentIndex = 0;
+let isModalOpen = false;
+
+function iniciar() {
+    console.log('🚀 INICIANDO GALERÍA...');
+
+    // Esperar a que el DOM esté listo
+    setTimeout(() => {
+        console.log('🔍 Buscando contenedores...');
+        const container = document.getElementById('secciones-container');
+        const galleryContainer = document.getElementById('gallery');
+        
+        console.log('Contenedor principal:', container);
+        console.log('Contenedor galería:', galleryContainer);
+
+        if (container && galleryContainer) {
+            console.log('✅ Contenedores EXISTEN, cargando datos...');
+            cargarDatos(container);
+            initScrollToTop();
+            initMobileRotationHandler();
+        } else {
+            console.error('❌ Contenedores NO EXISTEN');
+            setTimeout(iniciar, 1000);
+        }
+    }, 1000);
+}
+
+async function cargarDatos(container) {
+    try {
+        console.log('📥 Cargando data.json...');
+        const response = await fetch('data.json');
+        const data = await response.json();
+
+        console.log('🎨 Creando tarjetas de secciones...');
+        container.innerHTML = '';
+
+        data.secciones.forEach(seccion => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <img src="${seccion.preview}" alt="${seccion.titulo}" class="card-image">
+                <div class="card-content">
+                    <h3>${seccion.titulo}</h3>
+                    <p>${seccion.descripcion}</p>
+                </div>
+            `;
+            
+            card.onclick = () => {
+                mostrarSeccion(seccion, data.secciones);
+            };
+            
+            container.appendChild(card);
+        });
+
+        console.log('🎉 ÉXITO: Secciones cargadas');
+
+    } catch (error) {
+        console.error('❌ Error cargando datos:', error);
+    }
+}
+
+async function mostrarSeccion(seccion, todasSecciones) {
+    console.log('📂 Mostrando sección:', seccion.titulo);
+    
+    currentSection = seccion.id;
+    currentPhotos = seccion.fotos;
+    
+    // Ocultar home y mostrar vista de sección
+    document.getElementById('home-view').style.display = 'none';
+    document.getElementById('seccion-view').style.display = 'block';
+    
+    // Actualizar header de sección
+    document.querySelector('.seccion-header h1').textContent = seccion.titulo;
+    document.querySelector('.seccion-header p').textContent = seccion.descripcion;
     
     const galleryContainer = document.getElementById('gallery');
-    const modal = document.getElementById('modal');
-    const modalImage = document.getElementById('modalImage');
-    const modalTitle = document.getElementById('modalTitle');
-    const photoText = document.getElementById('photoText');
-    const photoCounter = document.getElementById('photoCounter');
-    const modalClose = document.querySelector('.modal-close');
-    const modalPrev = document.querySelector('.modal-prev');
-    const modalNext = document.querySelector('.modal-next');
+    galleryContainer.innerHTML = '<div class="loading">Cargando fotos...</div>';
     
-    // Inicializar todas las funciones
-    initScrollToTop();
-    initMobileRotationHandler();
-    
-    // Cargar y mostrar secciones
-    fetch('data.json')
-        .then(response => response.json())
-        .then(data => {
-            displaySections(data.secciones);
-            initUltimasFotosCarousel(data.secciones);
-        })
-        .catch(error => console.error('Error loading JSON:', error));
-    
-    // Mostrar secciones en la navegación
-    function displaySections(secciones) {
-        const nav = document.querySelector('nav ul');
-        nav.innerHTML = '';
-        
-        secciones.forEach(seccion => {
-            const li = document.createElement('li');
-            const a = document.createElement('a');
-            a.href = '#';
-            a.textContent = seccion.titulo;
-            a.setAttribute('data-section', seccion.id);
-            
-            a.addEventListener('click', (e) => {
-                e.preventDefault();
-                showSection(seccion.id, secciones);
-                // Actualizar navegación activa
-                document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
-                a.classList.add('active');
-            });
-            
-            li.appendChild(a);
-            nav.appendChild(li);
-        });
-        
-        // Mostrar primera sección por defecto
-        if (secciones.length > 0) {
-            showSection(secciones[0].id, secciones);
-            document.querySelector('nav a').classList.add('active');
-        }
-    }
-    
-    // Mostrar sección específica
-    async function showSection(sectionId, secciones) {
-        currentSection = sectionId;
-        const seccion = secciones.find(s => s.id === sectionId);
-        
-        if (!seccion) return;
-        
-        // Mostrar vista de sección y ocultar home
-        document.getElementById('home-view').style.display = 'none';
-        document.getElementById('seccion-view').style.display = 'block';
-        
-        // Actualizar header de sección
-        document.querySelector('.seccion-header h1').textContent = seccion.titulo;
-        document.querySelector('.seccion-header p').textContent = seccion.descripcion;
-        
-        galleryContainer.innerHTML = '<div class="loading">Cargando...</div>';
-        currentPhotos = seccion.fotos;
-        
-        // Crear grid de miniaturas
+    // Crear grid de fotos con ratios reales
+    setTimeout(async () => {
         const grid = document.createElement('div');
         grid.className = 'fotos-grid';
         
-        // Crear miniaturas con ratios reales
-        const thumbnailsPromises = seccion.fotos.map(async (photo, index) => {
-            return await createThumbnail(photo, index, sectionId);
-        });
-        
-        const thumbnails = await Promise.all(thumbnailsPromises);
-        thumbnails.forEach(thumb => grid.appendChild(thumb));
+        // Crear miniaturas para cada foto
+        for (let i = 0; i < seccion.fotos.length; i++) {
+            const thumb = await crearMiniatura(seccion.fotos[i], i);
+            grid.appendChild(thumb);
+        }
         
         galleryContainer.innerHTML = '';
         galleryContainer.appendChild(grid);
         
-        // Scroll to top al cambiar sección
+        // Scroll to top
         window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        console.log('✅ Galería cargada:', seccion.fotos.length, 'fotos');
+    }, 100);
+}
+
+// Crear miniatura con ratio real
+async function crearMiniatura(foto, index) {
+    const item = document.createElement('div');
+    item.className = 'foto-item';
+    
+    // Calcular ratio real de la imagen
+    try {
+        const ratio = await calcularRatio(foto.miniatura);
+        item.style.aspectRatio = ratio;
+    } catch (error) {
+        item.style.aspectRatio = '4/3'; // Ratio por defecto
     }
     
-    // Crear miniatura con ratio real
-    async function createThumbnail(photo, index, sectionId) {
-        const thumb = document.createElement('div');
-        thumb.className = 'foto-item';
-        
-        try {
-            const ratio = await calculateAspectRatio(photo.miniatura);
-            thumb.style.aspectRatio = ratio;
-        } catch (error) {
-            thumb.style.aspectRatio = '4/3'; // Ratio por defecto
-        }
-        
-        const img = document.createElement('img');
-        img.src = photo.miniatura;
-        img.alt = photo.texto || 'Foto de galería';
-        img.className = 'foto-miniatura';
-        img.loading = 'lazy';
-        
-        // Precargar imagen para mejor experiencia
-        img.onload = () => {
-            thumb.classList.add('loaded');
+    const img = document.createElement('img');
+    img.src = foto.miniatura;
+    img.alt = foto.texto || 'Foto de galería';
+    img.className = 'foto-miniatura';
+    img.loading = 'lazy';
+    
+    item.appendChild(img);
+    
+    // Agregar texto si existe
+    if (foto.texto) {
+        const textoDiv = document.createElement('div');
+        textoDiv.className = 'foto-texto';
+        textoDiv.textContent = foto.texto;
+        item.appendChild(textoDiv);
+    }
+    
+    // Al hacer click, abrir modal
+    item.onclick = () => {
+        abrirModal(index);
+    };
+    
+    return item;
+}
+
+// Calcular ratio de aspecto real
+function calcularRatio(url) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = function() {
+            const ratio = this.naturalWidth / this.naturalHeight;
+            resolve(ratio);
         };
-        
-        thumb.appendChild(img);
-        
-        // Agregar texto si existe
-        if (photo.texto) {
-            const textDiv = document.createElement('div');
-            textDiv.className = 'foto-texto';
-            textDiv.textContent = photo.texto;
-            thumb.appendChild(textDiv);
-        }
-        
-        thumb.addEventListener('click', () => openModal(sectionId, index));
-        
-        return thumb;
+        img.onerror = () => reject('Error cargando imagen');
+        img.src = url;
+    });
+}
+
+// MODAL - Funciones simples
+function abrirModal(index) {
+    console.log('🖼️ Abriendo modal para foto:', index);
+    
+    currentIndex = index;
+    isModalOpen = true;
+    
+    const foto = currentPhotos[currentIndex];
+    if (!foto) return;
+    
+    // Actualizar contenido del modal
+    document.getElementById('modalImage').src = foto.url;
+    document.getElementById('photoText').textContent = foto.texto || '';
+    document.getElementById('photoCounter').textContent = `${currentIndex + 1} / ${currentPhotos.length}`;
+    
+    // Mostrar modal
+    const modal = document.getElementById('modal');
+    modal.style.display = 'flex';
+    document.body.classList.add('modal-open');
+    
+    // Animación de entrada
+    setTimeout(() => {
+        modal.classList.add('active');
+    }, 10);
+}
+
+function cerrarModal() {
+    console.log('❌ Cerrando modal');
+    
+    isModalOpen = false;
+    const modal = document.getElementById('modal');
+    modal.classList.remove('active');
+    
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+    }, 300);
+}
+
+function navegarFotos(direccion) {
+    if (direccion === 'prev') {
+        currentIndex = currentIndex > 0 ? currentIndex - 1 : currentPhotos.length - 1;
+    } else {
+        currentIndex = currentIndex < currentPhotos.length - 1 ? currentIndex + 1 : 0;
     }
     
-    // Calcular ratio de aspecto real
-    function calculateAspectRatio(url) {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = function() {
-                const ratio = this.naturalWidth / this.naturalHeight;
-                resolve(ratio);
-            };
-            img.onerror = () => reject(new Error('No se pudo cargar la imagen'));
-            img.src = url;
-        });
-    }
+    const foto = currentPhotos[currentIndex];
+    document.getElementById('modalImage').src = foto.url;
+    document.getElementById('photoText').textContent = foto.texto || '';
+    document.getElementById('photoCounter').textContent = `${currentIndex + 1} / ${currentPhotos.length}`;
+}
+
+// BOTÓN SCROLL TO TOP - Simple
+function initScrollToTop() {
+    const scrollBtn = document.createElement('button');
+    scrollBtn.innerHTML = '↑';
+    scrollBtn.className = 'scroll-to-top';
+    scrollBtn.title = 'Volver al inicio';
     
-    // Abrir modal
-    function openModal(sectionId, index) {
-        currentSection = sectionId;
-        currentIndex = index;
-        isModalOpen = true;
-        
-        const photo = currentPhotos[currentIndex];
-        if (!photo) return;
-        
-        // Mostrar modal
-        modal.style.display = 'flex';
-        document.body.classList.add('modal-open');
-        
-        // Cargar imagen
-        modalImage.src = photo.url;
-        modalImage.alt = photo.texto || '';
-        photoText.textContent = photo.texto || '';
-        photoCounter.textContent = `${currentIndex + 1} / ${currentPhotos.length}`;
-        
-        // Añadir clase active después de un delay para la animación
-        setTimeout(() => {
-            modal.classList.add('active');
-        }, 10);
-        
-        // Enfocar el modal para navegación por teclado
-        modal.focus();
-    }
-    
-    // Cerrar modal
-    function closeModal() {
-        isModalOpen = false;
-        modal.classList.remove('active');
-        
-        setTimeout(() => {
-            modal.style.display = 'none';
-            document.body.classList.remove('modal-open');
-        }, 300);
-    }
-    
-    // Navegación entre fotos
-    function navigatePhotos(direction) {
-        if (direction === 'prev') {
-            currentIndex = currentIndex > 0 ? currentIndex - 1 : currentPhotos.length - 1;
+    // Mostrar/ocultar al hacer scroll
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+            scrollBtn.classList.add('visible');
         } else {
-            currentIndex = currentIndex < currentPhotos.length - 1 ? currentIndex + 1 : 0;
+            scrollBtn.classList.remove('visible');
+        }
+    });
+    
+    // Scroll suave al hacer click
+    scrollBtn.onclick = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    };
+    
+    document.body.appendChild(scrollBtn);
+}
+
+// MANEJO DE ROTACIÓN EN MÓVILES - Simple
+function initMobileRotationHandler() {
+    let esVertical = window.innerHeight > window.innerWidth;
+    
+    window.addEventListener('resize', () => {
+        const nuevaOrientacion = window.innerHeight > window.innerWidth;
+        
+        // Si cambió la orientación y el modal está abierto
+        if (esVertical !== nuevaOrientacion && isModalOpen) {
+            // Scroll automático para ver el contador
+            setTimeout(() => {
+                const contador = document.querySelector('.foto-counter');
+                if (contador) {
+                    contador.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            }, 200);
         }
         
-        const photo = currentPhotos[currentIndex];
-        modalImage.src = photo.url;
-        modalImage.alt = photo.texto || '';
-        photoText.textContent = photo.texto || '';
-        photoCounter.textContent = `${currentIndex + 1} / ${currentPhotos.length}`;
+        esVertical = nuevaOrientacion;
+    });
+}
+
+// BOTÓN VOLVER - Simple
+function configurarBotones() {
+    // Botón volver
+    const backBtn = document.querySelector('.back-button');
+    if (backBtn) {
+        backBtn.onclick = () => {
+            document.getElementById('seccion-view').style.display = 'none';
+            document.getElementById('home-view').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
     }
     
-    // Event listeners para controles del modal
-    modalClose.addEventListener('click', closeModal);
-    modalPrev.addEventListener('click', (e) => {
-        e.stopPropagation();
-        navigatePhotos('prev');
-    });
-    modalNext.addEventListener('click', (e) => {
-        e.stopPropagation();
-        navigatePhotos('next');
-    });
+    // Logo click para ir al home
+    const logo = document.querySelector('.logo');
+    if (logo) {
+        logo.onclick = () => {
+            document.getElementById('seccion-view').style.display = 'none';
+            document.getElementById('home-view').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+    }
+    
+    // Configurar eventos del modal
+    const modalCerrar = document.querySelector('.modal-close');
+    const modalPrev = document.querySelector('.modal-prev');
+    const modalNext = document.querySelector('.modal-next');
+    const modal = document.getElementById('modal');
+    
+    if (modalCerrar) modalCerrar.onclick = cerrarModal;
+    if (modalPrev) modalPrev.onclick = () => navegarFotos('prev');
+    if (modalNext) modalNext.onclick = () => navegarFotos('next');
+    
+    // Cerrar modal al hacer click fuera
+    if (modal) {
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                cerrarModal();
+            }
+        };
+    }
     
     // Navegación con teclado
     document.addEventListener('keydown', (e) => {
         if (isModalOpen) {
-            switch(e.key) {
-                case 'Escape':
-                    closeModal();
-                    break;
-                case 'ArrowLeft':
-                    navigatePhotos('prev');
-                    break;
-                case 'ArrowRight':
-                    navigatePhotos('next');
-                    break;
-            }
+            if (e.key === 'Escape') cerrarModal();
+            if (e.key === 'ArrowLeft') navegarFotos('prev');
+            if (e.key === 'ArrowRight') navegarFotos('next');
         }
     });
-    
-    // Cerrar modal al hacer click fuera de la imagen
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            closeModal();
-        }
+}
+
+// INICIAR CUANDO EL DOM ESTÉ LISTO
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        iniciar();
+        configurarBotones();
     });
-    
-    // Botón scroll to top
-    function initScrollToTop() {
-        const scrollBtn = document.createElement('button');
-        scrollBtn.innerHTML = '↑';
-        scrollBtn.className = 'scroll-to-top';
-        scrollBtn.setAttribute('aria-label', 'Volver al inicio');
-        scrollBtn.setAttribute('title', 'Volver al inicio');
-        document.body.appendChild(scrollBtn);
-        
-        // Mostrar/ocultar botón al hacer scroll
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                scrollBtn.classList.add('visible');
-            } else {
-                scrollBtn.classList.remove('visible');
-            }
-        });
-        
-        // Scroll suave al hacer click
-        scrollBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        });
-    }
-    
-    // Manejar rotación en móviles
-    function initMobileRotationHandler() {
-        let portrait = window.innerHeight > window.innerWidth;
-        
-        window.addEventListener('resize', () => {
-            const newPortrait = window.innerHeight > window.innerWidth;
-            
-            // Si hay cambio de orientación y el modal está abierto
-            if (portrait !== newPortrait && isModalOpen) {
-                // Pequeño scroll hacia arriba para posicionar sobre el contador
-                setTimeout(() => {
-                    const counterElement = document.querySelector('.foto-counter');
-                    if (counterElement) {
-                        counterElement.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center'
-                        });
-                    }
-                }, 200);
-            }
-            
-            portrait = newPortrait;
-        });
-    }
-    
-    // Carrusel de últimas fotos
-    function initUltimasFotosCarousel(secciones) {
-        const carruselInner = document.querySelector('.carrusel-inner');
-        const prevBtn = document.querySelector('.prev-btn');
-        const nextBtn = document.querySelector('.next-btn');
-        const dotsContainer = document.querySelector('.carrusel-dots');
-        
-        if (!carruselInner) return;
-        
-        // Obtener todas las fotos de todas las secciones
-        let allPhotos = [];
-        secciones.forEach(seccion => {
-            seccion.fotos.forEach(foto => {
-                allPhotos.push({
-                    ...foto,
-                    section: seccion.id
-                });
-            });
-        });
-        
-        // Tomar las últimas 5 fotos
-        const ultimasFotos = allPhotos.slice(-5);
-        
-        // Crear items del carrusel
-        carruselInner.innerHTML = '';
-        ultimasFotos.forEach((foto, index) => {
-            const item = document.createElement('div');
-            item.className = 'carrusel-item';
-            item.innerHTML = `
-                <img src="${foto.miniatura}" alt="${foto.texto}" class="carrusel-img">
-                <div class="carrusel-info">
-                    <div class="carrusel-desc">${foto.texto}</div>
-                </div>
-            `;
-            
-            item.addEventListener('click', () => {
-                // Encontrar la sección y índice de esta foto
-                const seccion = secciones.find(s => s.id === foto.section);
-                if (seccion) {
-                    const fotoIndex = seccion.fotos.findIndex(f => f.miniatura === foto.miniatura);
-                    showSection(foto.section, secciones);
-                    setTimeout(() => openModal(foto.section, fotoIndex), 500);
-                }
-            });
-            
-            carruselInner.appendChild(item);
-        });
-        
-        // Configurar navegación del carrusel
-        let currentSlide = 0;
-        
-        function updateCarousel() {
-            carruselInner.style.transform = `translateX(-${currentSlide * 100}%)`;
-            updateDots();
-        }
-        
-        function updateDots() {
-            const dots = document.querySelectorAll('.carrusel-dot');
-            dots.forEach((dot, index) => {
-                dot.classList.toggle('active', index === currentSlide);
-            });
-        }
-        
-        // Crear dots
-        dotsContainer.innerHTML = '';
-        ultimasFotos.forEach((_, index) => {
-            const dot = document.createElement('button');
-            dot.className = `carrusel-dot ${index === 0 ? 'active' : ''}`;
-            dot.addEventListener('click', () => {
-                currentSlide = index;
-                updateCarousel();
-            });
-            dotsContainer.appendChild(dot);
-        });
-        
-        // Event listeners para botones
-        prevBtn.addEventListener('click', () => {
-            currentSlide = currentSlide > 0 ? currentSlide - 1 : ultimasFotos.length - 1;
-            updateCarousel();
-        });
-        
-        nextBtn.addEventListener('click', () => {
-            currentSlide = currentSlide < ultimasFotos.length - 1 ? currentSlide + 1 : 0;
-            updateCarousel();
-        });
-        
-        // Auto-avance cada 5 segundos
-        setInterval(() => {
-            currentSlide = currentSlide < ultimasFotos.length - 1 ? currentSlide + 1 : 0;
-            updateCarousel();
-        }, 5000);
-    }
-    
-    // Botón de volver
-    document.querySelector('.back-button').addEventListener('click', function() {
-        document.getElementById('seccion-view').style.display = 'none';
-        document.getElementById('home-view').style.display = 'block';
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-    
-    // Logo click para ir al home
-    document.querySelector('.logo').addEventListener('click', function() {
-        document.getElementById('seccion-view').style.display = 'none';
-        document.getElementById('home-view').style.display = 'block';
-        
-        // Remover clase active de navegación
-        document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-    
-    // Manejar errores de carga de imágenes
-    function handleImageErrors() {
-        document.addEventListener('error', function(e) {
-            if (e.target.tagName === 'IMG') {
-                console.warn('Error cargando imagen:', e.target.src);
-                e.target.style.opacity = '0.3';
-            }
-        }, true);
-    }
-    
-    // Inicializar funciones adicionales
-    handleImageErrors();
-});
+} else {
+    iniciar();
+    configurarBotones();
+}
+
+console.log('✅ Script cargado - Esperando DOM...');
