@@ -554,3 +554,20 @@ body {
         grid-template-columns: repeat(3, minmax(450px, 1fr));
     }
 }
+/* ========== SOLUCIÓN FORZADA PARA FOTOS COMPLETAS ========== */
+.foto-miniatura {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    max-height: 400px !important;
+    display: block !important;
+}
+
+.foto-item {
+    height: auto !important;
+    aspect-ratio: unset !important;
+}
+
+.fotos-grid {
+    gap: 1rem !important;
+}
