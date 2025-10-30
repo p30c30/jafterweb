@@ -449,31 +449,13 @@
     margin-bottom: 0.5rem !important;
 }
 
-/* ========== FIX FONDO UNIFORME ========== */
-.card {
-    background: #000000 !important;
-    position: relative;
-    overflow: hidden;
-}
-
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #000000;
-    z-index: 0;
-}
-
+/* ========== FIX BORDE EN IMAGEN ORIGINAL ========== */
 .card-image {
-    position: relative;
-    z-index: 1;
+    object-position: center top !important;
 }
 
-.card-content {
-    position: relative;
-    z-index: 1;
-    background: #000000 !important;
+/* O más específico para recortar */
+.card-image {
+    object-fit: cover !important;
+    object-position: center 30% !important; /* Ajusta este valor */
 }
