@@ -277,3 +277,19 @@ body.modal-open {
         max-width: 70%;
     }
 }
+/* ========== SOLUCIÓN NUCLEAR - OCULTAR TÍTULO ========== */
+.modal-info .modal-title,
+#modal .modal-title,
+.modal-content .modal-title,
+.modal-title {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    opacity: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
+}
