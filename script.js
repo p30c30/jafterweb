@@ -492,13 +492,7 @@ function mostrarModal(imageUrl, title, fotoIndex) {
         }
         aplicarZoom();
     }
-    
-    function closeModal() {
-        modal.classList.remove('active');
-        document.body.classList.remove('modal-open');
-        isModalOpen = false;
-        resetZoom();
-    }
+        
 }
 
 // ================== SISTEMA DE ZOOM Y ARRASTRE ==================
@@ -696,25 +690,42 @@ function navegarFoto(direccion) {
     img.src = nuevaFoto.url;
 }
 
-// ================== MANEJO DE ROTACIÓN EN MÓVILES ==================
+// ================== MANEJO DE ROTACIÓN EN MÓVILES - MEJORADO ==================
 function initMobileRotationHandler() {
     let esVertical = window.innerHeight > window.innerWidth;
+    let ultimaOrientacion = esVertical;
     
     window.addEventListener('resize', () => {
         const nuevaOrientacion = window.innerHeight > window.innerWidth;
         
-        if (esVertical !== nuevaOrientacion && isModalOpen) {
-            console.log('📱 Cambio de orientación detectado');
+        // Si cambió la orientación Y el modal está abierto
+        if (ultimaOrientacion !== nuevaOrientacion && isModalOpen) {
+            console.log('📱 Cambio de orientación detectado con modal abierto');
             
-            if (!nuevaOrientacion) {
-                console.log('🔄 Modo landscape - info oculta automáticamente');
-            } else {
-                console.log('🔄 Modo portrait - info visible automáticamente');
-            }
+            // CERRAR MODAL automáticamente al girar pantalla
+            setTimeout(() => {
+                const modal = document.getElementById('modal');
+                if (modal && modal.classList.contains('active')) {
+                    console.log('🔄 Cerrando modal por cambio de orientación');
+                    closeModal();
+                }
+            }, 100);
         }
         
-        esVertical = nuevaOrientacion;
+        ultimaOrientacion = nuevaOrientacion;
     });
+}
+
+// Y actualizar la función closeModal para que sea global:
+function closeModal() {
+    const modal = document.getElementById('modal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+        isModalOpen = false;
+        resetZoom();
+        console.log('✅ Modal cerrado');
+    }
 }
 
 // ================== FUNCIÓN VOLVER A GALERÍA ==================
