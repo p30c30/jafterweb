@@ -554,3 +554,8 @@ body {
         grid-template-columns: repeat(3, minmax(450px, 1fr));
     }
 }
+/* ========== SOLUCIÓN NUCLEAR - OCULTAR TÍTULO MODAL ========== */
+.modal-title {
+    display: none !important;
+    visibility: hidden !important;
+}
