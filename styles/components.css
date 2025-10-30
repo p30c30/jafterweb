@@ -449,20 +449,31 @@
     margin-bottom: 0.5rem !important;
 }
 
-/* ========== FIX ALTURA IMÁGENES TARJETAS ========== */
-.card-image {
-    height: 240px !important;
-    object-fit: cover !important;
-    width: 100% !important;
+/* ========== FIX FONDO UNIFORME ========== */
+.card {
+    background: #000000 !important;
+    position: relative;
+    overflow: hidden;
 }
 
-/* Asegurar que todas las tarjetas tengan misma altura */
-.card {
-    min-height: 400px !important;
-    display: flex !important;
-    flex-direction: column !important;
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000000;
+    z-index: 0;
+}
+
+.card-image {
+    position: relative;
+    z-index: 1;
 }
 
 .card-content {
-    flex-grow: 1 !important;
+    position: relative;
+    z-index: 1;
+    background: #000000 !important;
 }
