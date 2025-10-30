@@ -449,19 +449,18 @@
     margin-bottom: 0.5rem !important;
 }
 
-/* ========== FIX BORDE GRIS PERMANENTE ========== */
+/* ========== FIX NUCLEAR BORDE GRIS ========== */
 .card::after {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    filter: blur(0) !important; /* ← ESTO ES CLAVE */
-    background: transparent !important; /* ← Y ESTO */
+    display: none !important;
 }
 
 .card:hover::after {
+    display: block !important;
     opacity: 1 !important;
-    visibility: visible !important;
-    filter: blur(20px) !important;
+    bottom: -25px;
+    width: 90%;
+    height: 50px;
+    filter: blur(20px);
     background: radial-gradient(ellipse at center, 
         rgba(253, 184, 19, 0.5) 0%, 
         rgba(253, 184, 19, 0.3) 30%, 
