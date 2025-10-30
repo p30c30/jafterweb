@@ -449,21 +449,20 @@
     margin-bottom: 0.5rem !important;
 }
 
-/* ========== FIX NUCLEAR BORDE GRIS ========== */
-.card::after {
-    display: none !important;
+/* ========== FIX ALTURA IMÁGENES TARJETAS ========== */
+.card-image {
+    height: 240px !important;
+    object-fit: cover !important;
+    width: 100% !important;
 }
 
-.card:hover::after {
-    display: block !important;
-    opacity: 1 !important;
-    bottom: -25px;
-    width: 90%;
-    height: 50px;
-    filter: blur(20px);
-    background: radial-gradient(ellipse at center, 
-        rgba(253, 184, 19, 0.5) 0%, 
-        rgba(253, 184, 19, 0.3) 30%, 
-        rgba(253, 184, 19, 0.2) 60%, 
-        transparent 100%) !important;
+/* Asegurar que todas las tarjetas tengan misma altura */
+.card {
+    min-height: 400px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.card-content {
+    flex-grow: 1 !important;
 }
