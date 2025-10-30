@@ -94,16 +94,10 @@ async function mostrarSeccion(seccion, todasSecciones) {
     }, 100);
 }
 
+// Crear miniatura con altura natural
 async function crearMiniatura(foto, index) {
     const item = document.createElement('div');
     item.className = 'foto-item';
-    
-    try {
-        const ratio = await calcularRatio(foto.miniatura);
-        item.style.aspectRatio = ratio;
-    } catch (error) {
-        item.style.aspectRatio = '4/3';
-    }
     
     const img = document.createElement('img');
     img.src = foto.miniatura;
@@ -111,17 +105,26 @@ async function crearMiniatura(foto, index) {
     img.className = 'foto-miniatura';
     img.loading = 'lazy';
     
+    // ESPERAR a que la imagen cargue para saber sus dimensiones reales
+    await new Promise((resolve) => {
+        img.onload = function() {
+            console.log(`🖼️ Imagen cargada: ${this.naturalWidth}x${this.naturalHeight}`);
+            resolve();
+        };
+        img.onerror = resolve; // Si hay error, continuar igual
+    });
+    
     item.appendChild(img);
     
+    // Agregar texto si existe
     if (foto.texto) {
         const textoDiv = document.createElement('div');
         textoDiv.className = 'foto-texto';
-        // LIMPIAR TEXTO - REMOVER PALABRA SPOTTING SI EXISTE
-        let textoLimpio = foto.texto.replace(/spotting/gi, '').trim();
-        textoDiv.textContent = textoLimpio;
+        textoDiv.textContent = foto.texto;
         item.appendChild(textoDiv);
     }
     
+    // Al hacer click, abrir modal
     item.onclick = () => {
         abrirModal(index);
     };
@@ -129,17 +132,6 @@ async function crearMiniatura(foto, index) {
     return item;
 }
 
-function calcularRatio(url) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = function() {
-            const ratio = this.naturalWidth / this.naturalHeight;
-            resolve(ratio);
-        };
-        img.onerror = () => reject('Error cargando imagen');
-        img.src = url;
-    });
-}
 
 // MODAL CON ZOOM
 function abrirModal(index) {
