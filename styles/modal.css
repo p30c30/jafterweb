@@ -113,7 +113,6 @@
     border: 1px solid rgba(253, 184, 19, 0.4);
     position: relative;
     z-index: 1002;
-    /* FIJO EN TODAS LAS PANTALLAS */
     position: fixed;
     bottom: 20px;
     left: 50%;
@@ -125,7 +124,7 @@
     opacity: 1;
 }
 
-/* OCULTAR INFO CON ZOOM - ID CORRECTO */
+/* OCULTAR INFO CON ZOOM */
 #modal-img.zoomed ~ .modal-info {
     opacity: 0 !important;
     visibility: hidden !important;
@@ -192,6 +191,57 @@
 /* Scroll cuando modal está abierto */
 body.modal-open {
     overflow: hidden;
+}
+
+/* ========== MEJORAS PARA LANDSCAPE EN MÓVILES ========== */
+@media (max-width: 768px) and (orientation: landscape) {
+    .modal-info {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transform: translateX(-50%) translateY(20px) !important;
+        pointer-events: none !important;
+    }
+    
+    .modal-img-container {
+        max-height: 95vh !important;
+        margin-top: 10px !important;
+    }
+    
+    .modal-img {
+        max-height: 95vh !important;
+    }
+    
+    .modal-content {
+        padding-bottom: 20px !important;
+        justify-content: flex-start !important;
+    }
+}
+
+/* Para móviles más pequeños en horizontal */
+@media (max-width: 480px) and (orientation: landscape) {
+    .modal-info {
+        display: none !important;
+    }
+    
+    .modal-img-container {
+        max-height: 98vh !important;
+    }
+    
+    .modal-img {
+        max-height: 98vh !important;
+    }
+    
+    .nav-button {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.3rem !important;
+    }
+    
+    .close-modal {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 16px !important;
+    }
 }
 
 /* Para móviles */
@@ -276,20 +326,4 @@ body.modal-open {
     .modal-info {
         max-width: 70%;
     }
-}
-/* ========== SOLUCIÓN NUCLEAR - OCULTAR TÍTULO ========== */
-.modal-info .modal-title,
-#modal .modal-title,
-.modal-content .modal-title,
-.modal-title {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    width: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    font-size: 0 !important;
-    opacity: 0 !important;
-    position: absolute !important;
-    left: -9999px !important;
 }
