@@ -1,4 +1,4 @@
-/* Modal */
+/* === MODAL MEJORADO CON NAVEGACIÓN === */
 .modal {
     display: none;
     position: fixed;
@@ -22,8 +22,8 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 30px;
-    padding-bottom: 80px; /* Espacio extra para la barra de tareas */
+    padding: 25px;
+    padding-bottom: 120px; /* Más espacio para la info fija */
     cursor: default;
 }
 
@@ -46,27 +46,29 @@
     object-fit: contain;
     display: block;
     border-radius: 8px;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
     cursor: default;
     transition: transform 0.1s ease-out;
     transform-origin: center center;
 }
 
+/* Solo cursor move cuando hay zoom */
 .modal-img.zoomed {
     cursor: move;
 }
 
+/* Cursor grabbing durante el arrastre */
 .modal-img.grabbing {
     cursor: grabbing !important;
 }
 
-/* Botones de navegación del modal */
+/* Botones de navegación más grandes */
 .nav-button {
     position: fixed;
     top: 50%;
     transform: translateY(-50%);
-    width: 70px;
-    height: 70px;
+    width: 65px;
+    height: 65px;
     background: rgba(0, 0, 0, 0.7);
     color: #FDB813;
     border: 3px solid rgba(253, 184, 19, 0.7);
@@ -74,7 +76,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     font-weight: bold;
     cursor: pointer;
     z-index: 1002;
@@ -87,68 +89,77 @@
     background: rgba(253, 184, 19, 0.95);
     color: #000;
     opacity: 1;
-    transform: translateY(-50%) scale(1.15);
-    box-shadow: 0 0 25px rgba(253, 184, 19, 0.6);
+    transform: translateY(-50%) scale(1.12);
+    box-shadow: 0 0 20px rgba(253, 184, 19, 0.5);
 }
 
 .prev-button {
-    left: 30px;
+    left: 25px;
 }
 
 .next-button {
-    right: 30px;
+    right: 25px;
 }
 
-/* Mejorar la información del modal */
+/* ================== MODAL INFO MEJORADA ================== */
 .modal-info {
     text-align: center;
-    padding: 2rem;
-    background: rgba(0, 0, 0, 0.9);
-    border-radius: 16px;
-    margin-top: 1.5rem;
-    margin-bottom: 20px; /* Separación del fondo */
-    max-width: 85%;
+    padding: 1.2rem;
+    background: rgba(0, 0, 0, 0.95);
+    border-radius: 10px;
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(253, 184, 19, 0.4);
+    position: relative;
+    z-index: 1002;
+    /* FIJO EN TODAS LAS PANTALLAS */
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    min-width: 300px;
+    max-width: 90%;
+}
+
+/* OCULTAR TÍTULO DE SECCIÓN */
+.modal-title {
+    display: none !important;
 }
 
 .foto-counter {
     color: #FDB813;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    letter-spacing: 1px;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
+/* SOLO TEXTO DE LA FOTO */
 .foto-title {
     color: #ffffff;
-    font-size: 1.4rem;
+    font-size: 1.1rem;
     line-height: 1.4;
     font-weight: 500;
-    margin-bottom: 0.5rem;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    max-width: 100%;
+    word-wrap: break-word;
+    margin: 0;
 }
 
-.foto-seccion {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1rem;
-    font-style: italic;
-}
-
-/* Botón cerrar */
+/* Botón cerrar más grande */
 .close-modal {
     position: fixed;
-    top: 25px;
-    right: 25px;
+    top: 20px;
+    right: 20px;
     color: rgba(253, 184, 19, 0.8);
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     cursor: pointer;
     background: rgba(0, 0, 0, 0.5);
     border: 2px solid rgba(253, 184, 19, 0.5);
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -160,59 +171,96 @@
 .close-modal:hover {
     background: rgba(253, 184, 19, 0.9);
     color: #000;
-    transform: scale(1.2);
+    transform: scale(1.15);
     opacity: 1;
-    box-shadow: 0 0 15px rgba(253, 184, 19, 0.5);
+    box-shadow: 0 0 12px rgba(253, 184, 19, 0.4);
 }
 
+/* Scroll cuando modal está abierto */
 body.modal-open {
     overflow: hidden;
 }
 
-/* Para pantallas más pequeñas */
-@media (max-height: 800px) {
-    .modal-img-container {
-        max-height: 70vh; /* Más espacio para la info */
-    }
-    
-    .modal-content {
-        padding-bottom: 100px; /* Más espacio en pantallas cortas */
-    }
-    
-    .modal-info {
-        padding: 1.5rem;
-        margin-top: 1rem;
-    }
-}
-
 /* Para móviles */
 @media (max-width: 768px) {
-    .modal-info {
-        max-width: 95%;
-        padding: 1.2rem;
-        margin-bottom: 30px; /* Extra seguro en móvil */
-    }
-    
-    .foto-title {
-        font-size: 1.2rem; /* Un poco más pequeño en móvil */
-    }
-    
     .modal-content {
         padding: 20px;
-        padding-bottom: 90px;
+        padding-bottom: 140px;
     }
     
+    .modal-img {
+        max-width: 98vw;
+        max-height: 75vh;
+    }
+
+    .modal-img-container {
+        max-height: 75vh;
+    }
+
     .nav-button {
         width: 50px;
         height: 50px;
         font-size: 1.8rem;
     }
-    
+
     .prev-button {
         left: 15px;
     }
-    
+
     .next-button {
         right: 15px;
+    }
+
+    .modal-info {
+        max-width: 95%;
+        padding: 1rem;
+        bottom: 15px;
+        min-width: 250px;
+    }
+
+    .foto-title {
+        font-size: 1rem;
+    }
+
+    .close-modal {
+        top: 15px;
+        right: 15px;
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-button {
+        width: 45px;
+        height: 45px;
+        font-size: 1.5rem;
+    }
+
+    .modal-img {
+        max-height: 65vh;
+    }
+
+    .modal-img-container {
+        max-height: 65vh;
+    }
+    
+    .modal-info {
+        max-width: 98%;
+        padding: 0.8rem;
+        bottom: 10px;
+        min-width: 200px;
+    }
+    
+    .foto-title {
+        font-size: 0.9rem;
+    }
+}
+
+/* Para pantallas grandes - asegurar modal */
+@media (min-width: 1600px) {
+    .modal-info {
+        max-width: 70%;
     }
 }
