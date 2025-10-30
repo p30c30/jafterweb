@@ -1,39 +1,91 @@
-// SCRIPT MEJORADO - CON ZOOM ORIGINAL Y INFO QUE DESAPARECE
-let currentSection = '';
-let currentPhotos = [];
-let currentIndex = 0;
+// SCRIPT.JS - VERSIÓN COMPLETA CON CARRUSEL Y MEJORAS
+console.log('✅ script.js CARGADO');
+
+// Variables globales
+let currentSeccion = null;
+let currentFotoIndex = 0;
+let todasLasFotos = [];
+let carruselActualIndex = 0;
+let carruselFotos = [];
+let autoPlayInterval;
+let datosGlobales = null;
 let isModalOpen = false;
 
+// Función principal
 function iniciar() {
-    console.log('🚀 INICIANDO GALERÍA...');
-
+    console.log('🚀 INICIANDO...');
+    
+    // Configurar logo para volver al inicio
+    const logo = document.getElementById('logoHome');
+    if (logo) {
+        logo.addEventListener('click', volverAGaleria);
+    }
+    
+    // Crear botón scroll to top
+    crearBotonScrollTop();
+    
     setTimeout(() => {
-        console.log('🔍 Buscando contenedores...');
+        console.log('🔍 Buscando contenedor...');
         const container = document.getElementById('secciones-container');
-        const galleryContainer = document.getElementById('gallery');
         
-        if (container && galleryContainer) {
-            console.log('✅ Contenedores EXISTEN, cargando datos...');
+        if (container) {
+            console.log('✅ Contenedor EXISTE, cargando datos...');
             cargarDatos(container);
-            initScrollToTop();
-            initMobileRotationHandler();
-            configurarBotones();
         } else {
-            console.error('❌ Contenedores NO EXISTEN');
+            console.error('❌ Contenedor NO EXISTE');
             setTimeout(iniciar, 1000);
         }
     }, 1000);
 }
 
+// ================== SCROLL TO TOP ==================
+function crearBotonScrollTop() {
+    const scrollToTopBtn = document.createElement('button');
+    scrollToTopBtn.className = 'scroll-to-top';
+    scrollToTopBtn.innerHTML = '↑';
+    scrollToTopBtn.setAttribute('aria-label', 'Volver arriba');
+    scrollToTopBtn.setAttribute('title', 'Volver arriba');
+    
+    scrollToTopBtn.addEventListener('click', scrollToTop);
+    document.body.appendChild(scrollToTopBtn);
+    
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY;
+        if (scrollY > 300) {
+            scrollToTopBtn.classList.add('visible');
+        } else {
+            scrollToTopBtn.classList.remove('visible');
+        }
+    });
+}
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+// Cargar datos y crear tarjetas
 async function cargarDatos(container) {
     try {
         console.log('📥 Cargando data.json...');
-        const response = await fetch('data.json');
+        const response = await fetch('data.json?v=' + Date.now());
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
         const data = await response.json();
-
-        console.log('🎨 Creando tarjetas de secciones...');
+        datosGlobales = data;
+        
+        if (!data || !data.secciones || !Array.isArray(data.secciones)) {
+            throw new Error('Estructura de datos inválida en data.json');
+        }
+        
+        console.log('🎨 Creando', data.secciones.length, 'tarjetas...');
         container.innerHTML = '';
-
+        
         data.secciones.forEach(seccion => {
             const card = document.createElement('div');
             card.className = 'card';
@@ -45,293 +97,383 @@ async function cargarDatos(container) {
                 </div>
             `;
             
-            card.onclick = () => {
-                mostrarSeccion(seccion, data.secciones);
-            };
+            card.addEventListener('click', () => {
+                console.log('🔄 Navegando a sección:', seccion.id);
+                mostrarSeccion(seccion);
+            });
             
             container.appendChild(card);
         });
-
+        
         console.log('🎉 ÉXITO: Secciones cargadas');
-
+        cargarCarrusel(data);
+        
     } catch (error) {
         console.error('❌ Error cargando datos:', error);
+        container.innerHTML = `
+            <div class="error-message">
+                <h3>Error al cargar los datos</h3>
+                <p>${error.message}</p>
+                <button onclick="location.reload()">Reintentar</button>
+            </div>
+        `;
     }
 }
 
-async function mostrarSeccion(seccion, todasSecciones) {
-    console.log('📂 Mostrando sección:', seccion.titulo);
+// ================== CARRUSEL ÚLTIMAS FOTOS ==================
+function cargarCarrusel(data) {
+    const container = document.getElementById('ultimas-fotos-carrusel');
+    const dotsContainer = document.getElementById('carrusel-dots');
     
-    currentSection = seccion.id;
-    currentPhotos = seccion.fotos;
+    if (!container) {
+        console.log('❌ Contenedor del carrusel no encontrado');
+        return;
+    }
     
-    document.getElementById('home-view').style.display = 'none';
-    document.getElementById('seccion-view').style.display = 'block';
-    
-    document.querySelector('.seccion-header h1').textContent = seccion.titulo;
-    document.querySelector('.seccion-header p').textContent = seccion.descripcion;
-    
-    const galleryContainer = document.getElementById('gallery');
-    galleryContainer.innerHTML = '<div class="loading">Cargando fotos...</div>';
-    
-    setTimeout(async () => {
-        const grid = document.createElement('div');
-        grid.className = 'fotos-grid';
-        
-        for (let i = 0; i < seccion.fotos.length; i++) {
-            const thumb = await crearMiniatura(seccion.fotos[i], i);
-            grid.appendChild(thumb);
-        }
-        
-        galleryContainer.innerHTML = '';
-        galleryContainer.appendChild(grid);
-        
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-        console.log('✅ Galería cargada:', seccion.fotos.length, 'fotos');
-    }, 100);
+    console.log('🔄 Cargando carrusel de últimas fotos...');
+    carruselFotos = obtenerFotosParaCarrusel(data);
+    mostrarCarruselFotos(carruselFotos, container, dotsContainer);
+    iniciarAutoPlay();
+    configurarInteraccionCarrusel();
 }
 
-// Crear miniatura con altura natural
-async function crearMiniatura(foto, index) {
-    const item = document.createElement('div');
-    item.className = 'foto-item';
+function obtenerFotosParaCarrusel(data) {
+    const todasLasFotos = [];
     
-    const img = document.createElement('img');
-    img.src = foto.miniatura;
-    img.alt = foto.texto || 'Foto de galería';
-    img.className = 'foto-miniatura';
-    img.loading = 'lazy';
-    
-    // ESPERAR a que la imagen cargue para saber sus dimensiones reales
-    await new Promise((resolve) => {
-        img.onload = function() {
-            console.log(`🖼️ Imagen cargada: ${this.naturalWidth}x${this.naturalHeight}`);
-            resolve();
-        };
-        img.onerror = resolve; // Si hay error, continuar igual
+    data.secciones.forEach(seccion => {
+        if (seccion.fotos && Array.isArray(seccion.fotos)) {
+            seccion.fotos.forEach((foto, index) => {
+                todasLasFotos.push({
+                    ...foto,
+                    seccionId: seccion.id,
+                    seccionTitulo: seccion.titulo,
+                    indiceEnSeccion: index
+                });
+            });
+        }
     });
     
-    item.appendChild(img);
+    console.log(`📸 Encontradas ${todasLasFotos.length} fotos en total`);
+    const ultimas = todasLasFotos.slice(-6).reverse();
+    console.log(`🎠 Mostrando ${ultimas.length} fotos en el carrusel`);
     
-    // Agregar texto si existe
-    if (foto.texto) {
-        const textoDiv = document.createElement('div');
-        textoDiv.className = 'foto-texto';
-        textoDiv.textContent = foto.texto;
-        item.appendChild(textoDiv);
-    }
-    
-    // Al hacer click, abrir modal
-    item.onclick = () => {
-        abrirModal(index);
-    };
-    
-    return item;
+    return ultimas;
 }
 
-// MODAL - MANTIENE ZOOM ORIGINAL
-function abrirModal(index) {
-    console.log('🖼️ Abriendo modal para foto:', index);
+function mostrarCarruselFotos(fotos, container, dotsContainer) {
+    container.innerHTML = '';
+    dotsContainer.innerHTML = '';
     
-    currentIndex = index;
+    if (fotos.length === 0) {
+        container.innerHTML = '<div class="carrusel-item"><p class="no-fotos">No hay fotos recientes</p></div>';
+        return;
+    }
+    
+    fotos.forEach((foto, index) => {
+        const carruselItem = document.createElement('div');
+        carruselItem.className = `carrusel-item ${index === 0 ? 'active' : ''}`;
+        carruselItem.innerHTML = `
+            <img src="${foto.url}" alt="${foto.texto}" class="carrusel-img">
+            <div class="carrusel-info">
+                <div class="carrusel-desc">${foto.texto}</div>
+            </div>
+        `;
+        
+        carruselItem.addEventListener('click', () => {
+            irAFotoEnSeccion(foto.seccionId, foto.indiceEnSeccion);
+        });
+        
+        container.appendChild(carruselItem);
+    });
+    
+    fotos.forEach((_, index) => {
+        const dot = document.createElement('button');
+        dot.className = `carrusel-dot ${index === 0 ? 'active' : ''}`;
+        dot.addEventListener('click', () => {
+            pausarCarrusel();
+            moverCarruselA(index);
+        });
+        dotsContainer.appendChild(dot);
+    });
+    
+    configurarBotonesCarrusel();
+    actualizarCarrusel();
+}
+
+function configurarBotonesCarrusel() {
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => {
+            pausarCarrusel();
+            moverCarruselA(carruselActualIndex - 1);
+        });
+    }
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+            pausarCarrusel();
+            moverCarruselA(carruselActualIndex + 1);
+        });
+    }
+}
+
+function pausarCarrusel() {
+    clearInterval(autoPlayInterval);
+    setTimeout(() => {
+        iniciarAutoPlay();
+    }, 30000);
+}
+
+function moverCarruselA(nuevoIndex) {
+    if (nuevoIndex < 0) {
+        nuevoIndex = carruselFotos.length - 1;
+    } else if (nuevoIndex >= carruselFotos.length) {
+        nuevoIndex = 0;
+    }
+    
+    carruselActualIndex = nuevoIndex;
+    actualizarCarrusel();
+}
+
+function actualizarCarrusel() {
+    const carruselInner = document.querySelector('.carrusel-inner');
+    const dots = document.querySelectorAll('.carrusel-dot');
+    
+    if (carruselInner) {
+        carruselInner.style.transform = `translateX(-${carruselActualIndex * 100}%)`;
+    }
+    
+    dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === carruselActualIndex);
+    });
+}
+
+function iniciarAutoPlay() {
+    autoPlayInterval = setInterval(() => {
+        moverCarruselA(carruselActualIndex + 1);
+    }, 20000);
+}
+
+function configurarInteraccionCarrusel() {
+    const carrusel = document.querySelector('.carrusel');
+    if (carrusel) {
+        carrusel.addEventListener('mouseenter', () => {
+            clearInterval(autoPlayInterval);
+        });
+        
+        carrusel.addEventListener('mouseleave', () => {
+            iniciarAutoPlay();
+        });
+    }
+}
+
+function irAFotoEnSeccion(seccionId, fotoIndex) {
+    if (!datosGlobales) return;
+    
+    const seccion = datosGlobales.secciones.find(s => s.id === seccionId);
+    if (seccion) {
+        mostrarSeccion(seccion);
+        setTimeout(() => {
+            const foto = seccion.fotos[fotoIndex];
+            if (foto) {
+                mostrarModal(foto.url, foto.texto, fotoIndex);
+            }
+        }, 400);
+    }
+}
+
+// ================== MOSTRAR SECCIÓN ==================
+function mostrarSeccion(seccion) {
+    console.log('🖼️ Mostrando sección:', seccion.titulo);
+    
+    currentSeccion = seccion;
+    
+    if (!seccion.fotos || !Array.isArray(seccion.fotos)) {
+        console.error('❌ No hay fotos en esta sección:', seccion);
+        return;
+    }
+    
+    todasLasFotos = seccion.fotos;
+    
+    const homeView = document.getElementById('home-view');
+    if (homeView) homeView.style.display = 'none';
+    
+    const inspirationSection = document.getElementById('inspiration-section');
+    if (inspirationSection) inspirationSection.style.display = 'none';
+    
+    let seccionView = document.getElementById('seccion-view');
+    if (!seccionView) {
+        seccionView = document.createElement('div');
+        seccionView.id = 'seccion-view';
+        seccionView.className = 'seccion-view';
+        document.getElementById('content').appendChild(seccionView);
+    }
+    
+    seccionView.innerHTML = `
+        <header class="seccion-header">
+            <button class="back-button" title="Volver">←</button>
+            <h1>${seccion.titulo}</h1>
+            <p>${seccion.descripcion}</p>
+        </header>
+        <div class="fotos-grid" id="fotos-container"></div>
+    `;
+    
+    seccionView.style.display = 'block';
+    
+    const backButton = seccionView.querySelector('.back-button');
+    if (backButton) {
+        backButton.addEventListener('click', volverAGaleria);
+    }
+    
+    const container = document.getElementById('fotos-container');
+    if (container) {
+        container.innerHTML = '';
+        
+        seccion.fotos.forEach((foto, index) => {
+            if (!foto.miniatura || !foto.texto || !foto.url) {
+                console.warn('Foto incompleta:', foto);
+                return;
+            }
+            
+            const fotoElement = document.createElement('div');
+            fotoElement.className = 'foto-item';
+            fotoElement.style.animationDelay = `${index * 0.1}s`;
+            
+            fotoElement.innerHTML = `
+                <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">
+            `;
+            
+            fotoElement.addEventListener('click', () => {
+                mostrarModal(foto.url, foto.texto, index);
+            });
+            
+            container.appendChild(fotoElement);
+        });
+        
+        console.log(`🎨 Cargadas ${seccion.fotos.length} fotos`);
+    }
+}
+
+// ================== MODAL MEJORADO ==================
+function mostrarModal(imageUrl, title, fotoIndex) {
+    const modal = document.getElementById('modal');
+    currentFotoIndex = fotoIndex;
     isModalOpen = true;
     
-    const foto = currentPhotos[currentIndex];
-    if (!foto) return;
+    modal.innerHTML = `
+        <div class="close-modal">×</div>
+        <div class="nav-button prev-button">‹</div>
+        <div class="nav-button next-button">›</div>
+        <div class="modal-content">
+            <div class="modal-img-container">
+                <img src="" alt="${title}" class="modal-img" id="modal-img">
+            </div>
+            <div class="modal-info">
+                <div class="foto-counter">${currentFotoIndex + 1} / ${todasLasFotos.length}</div>
+                <div class="foto-title">${title}</div>
+            </div>
+        </div>
+    `;
     
-    const modalImage = document.getElementById('modal-img'); // ID CORREGIDO
+    const modalImg = document.getElementById('modal-img');
     
-    modalImage.src = foto.url;
-    
-    // LIMPIAR TEXTO - REMOVER SPOTTING
-    let textoLimpio = foto.texto || '';
-    textoLimpio = textoLimpio.replace(/spotting/gi, '').trim();
-    document.getElementById('photoText').textContent = textoLimpio;
-    
-    document.getElementById('photoCounter').textContent = `${currentIndex + 1} / ${currentPhotos.length}`;
-    
-    // OCULTAR TÍTULO DE SECCIÓN
-    const modalTitle = document.querySelector('.modal-title');
-    if (modalTitle) {
-        modalTitle.style.display = 'none';
-        modalTitle.textContent = '';
-    }
-    
-    // Reset clase zoomed
-    modalImage.classList.remove('zoomed');
-    
-    // Configurar detección de zoom automática
-    configurarDeteccionZoom();
-    
-    const modal = document.getElementById('modal');
-    modal.style.display = 'flex';
-    document.body.classList.add('modal-open');
-    
-    setTimeout(() => {
+    const img = new Image();
+    img.onload = function() {
+        modalImg.src = imageUrl;
+        modalImg.alt = title;
+        
         modal.classList.add('active');
-    }, 10);
-}
-
-// SISTEMA DEFINITIVO DE ZOOM CON ARRASTRE
-function configurarDeteccionZoom() {
-    console.log('🎯 Configurando sistema definitivo de zoom con arrastre...');
-    
-    const modalImage = document.getElementById('modal-img');
-    if (!modalImage) return;
-    
-    const modal = document.getElementById('modal');
-    let escala = 1;
-    let posX = 0;
-    let posY = 0;
-    let arrastrando = false;
-    let ultimoX, ultimoY;
-    
-    // FUNCIÓN PARA APLICAR TRANSFORM Y CONTROLAR INFO
-    function aplicarTransform() {
-        modalImage.style.transform = `scale(${escala}) translate(${posX}px, ${posY}px)`;
+        document.body.classList.add('modal-open');
         
-        // Mostrar/ocultar info basado en zoom
-        if (escala > 1.1) {
-            modalImage.classList.add('zoomed');
-            modalImage.style.cursor = 'grab';
-        } else {
-            modalImage.classList.remove('zoomed');
-            modalImage.style.cursor = 'default';
-            // Reset posición cuando no hay zoom
-            posX = 0;
-            posY = 0;
-        }
+        configurarEventosModal();
+    };
+    img.onerror = function() {
+        modalImg.src = imageUrl;
+        modalImg.alt = title;
+        modal.classList.add('active');
+        document.body.classList.add('modal-open');
+        configurarEventosModal();
+    };
+    img.src = imageUrl;
+    
+    function configurarEventosModal() {
+        const closeBtn = modal.querySelector('.close-modal');
+        const prevBtn = modal.querySelector('.prev-button');
+        const nextBtn = modal.querySelector('.next-button');
         
-        console.log('🔍 Escala actual:', escala.toFixed(2));
+        if (closeBtn) closeBtn.onclick = closeModal;
+        if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
+        if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
+        
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+        
+        document.addEventListener('keydown', function manejarTeclado(event) {
+            switch(event.key) {
+                case 'Escape': closeModal(); break;
+                case 'ArrowLeft': navegarFoto(-1); break;
+                case 'ArrowRight': navegarFoto(1); break;
+            }
+        });
     }
     
-    // RUEDA DEL MOUSE PARA ZOOM (sin Ctrl)
-    modal.addEventListener('wheel', function(e) {
-        e.preventDefault();
-        
-        // Zoom in/out con rueda DIRECTAMENTE (sin Ctrl)
-        const factor = e.deltaY > 0 ? 0.9 : 1.1;
-        const nuevaEscala = escala * factor;
-        
-        // Límites de zoom (0.5x a 3x)
-        if (nuevaEscala >= 0.5 && nuevaEscala <= 3) {
-            escala = nuevaEscala;
-            aplicarTransform();
-        }
-    }, { passive: false });
-    
-    // DOBLE CLIC: 100% → 200%, cualquier zoom → 100%
-    modalImage.ondblclick = function(e) {
-        e.stopPropagation();
-        
-        if (escala === 1) {
-            // Si está en 100%, ir a 200%
-            escala = 2;
-            console.log('🔍 Zoom a 200% por doble clic');
-        } else {
-            // Si está en cualquier otro zoom, volver a 100%
-            escala = 1;
-            console.log('🔍 Volviendo a 100% por doble clic');
-        }
-        
-        aplicarTransform();
-    };
-    
-    // SISTEMA DE ARRASTRE CON ZOOM
-    modalImage.onmousedown = function(e) {
-        if (escala > 1.1) {
-            arrastrando = true;
-            ultimoX = e.clientX;
-            ultimoY = e.clientY;
-            modalImage.style.cursor = 'grabbing';
-        }
-    };
-    
-    modal.addEventListener('mousemove', function(e) {
-        if (arrastrando) {
-            const deltaX = e.clientX - ultimoX;
-            const deltaY = e.clientY - ultimoY;
-            
-            posX += deltaX / escala;
-            posY += deltaY / escala;
-            
-            ultimoX = e.clientX;
-            ultimoY = e.clientY;
-            
-            aplicarTransform();
-        }
-    });
-    
-    modal.addEventListener('mouseup', function() {
-        arrastrando = false;
-        if (escala > 1.1) {
-            modalImage.style.cursor = 'grab';
-        }
-    });
-    
-    // CLICK SIMPLE MANTIENE COMPORTAMIENTO ORIGINAL (CERRAR MODAL)
-    modalImage.onclick = function(e) {
-        e.stopPropagation();
-        if (escala <= 1.1 && !arrastrando) { // Solo cerrar si no hay zoom y no se estaba arrastrando
-            cerrarModal();
-        }
-    };
-    
-    // CLICK FUERA DEL MODAL MANTIENE COMPORTAMIENTO ORIGINAL (CERRAR MODAL)
-    modal.onclick = function(e) {
-        if (e.target === modal) {
-            cerrarModal();
-        }
-    };
-    
-    // TECLA ESC MANTIENE COMPORTAMIENTO ORIGINAL (CERRAR MODAL)
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && isModalOpen) {
-            cerrarModal();
-        }
-    });
-    
-    // RESET AL CAMBIAR FOTO
-    const originalNavegarFotos = navegarFotos;
-    navegarFotos = function(direccion) {
-        escala = 1; // Reset a escala normal
-        posX = 0;   // Reset posición
-        posY = 0;   // Reset posición
-        aplicarTransform();
-        originalNavegarFotos(direccion);
-    };
-    
-    // Aplicar transform inicial
-    aplicarTransform();
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+        isModalOpen = false;
+    }
 }
 
-// BOTÓN SCROLL TO TOP
-function initScrollToTop() {
-    const scrollBtn = document.createElement('button');
-    scrollBtn.innerHTML = '↑';
-    scrollBtn.className = 'scroll-to-top';
-    scrollBtn.title = 'Volver al inicio';
+function navegarFoto(direccion) {
+    if (!todasLasFotos.length) return;
     
-    window.addEventListener('scroll', () => {
-        if (window.pageYOffset > 300) {
-            scrollBtn.classList.add('visible');
-        } else {
-            scrollBtn.classList.remove('visible');
+    let nuevoIndex = currentFotoIndex + direccion;
+    
+    if (nuevoIndex < 0) {
+        nuevoIndex = todasLasFotos.length - 1;
+    } else if (nuevoIndex >= todasLasFotos.length) {
+        nuevoIndex = 0;
+    }
+    
+    currentFotoIndex = nuevoIndex;
+    const nuevaFoto = todasLasFotos[currentFotoIndex];
+    
+    const modal = document.getElementById('modal');
+    const modalImg = document.getElementById('modal-img');
+    const fotoCounter = modal.querySelector('.foto-counter');
+    const fotoTitle = modal.querySelector('.foto-title');
+    
+    const img = new Image();
+    img.onload = function() {
+        modalImg.src = nuevaFoto.url;
+        modalImg.alt = nuevaFoto.texto;
+        
+        if (fotoCounter) {
+            fotoCounter.textContent = `${currentFotoIndex + 1} / ${todasLasFotos.length}`;
         }
-    });
-    
-    scrollBtn.onclick = () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+        if (fotoTitle) {
+            fotoTitle.textContent = nuevaFoto.texto;
+        }
     };
-    
-    document.body.appendChild(scrollBtn);
+    img.onerror = function() {
+        modalImg.src = nuevaFoto.url;
+        modalImg.alt = nuevaFoto.texto;
+        if (fotoCounter) {
+            fotoCounter.textContent = `${currentFotoIndex + 1} / ${todasLasFotos.length}`;
+        }
+        if (fotoTitle) {
+            fotoTitle.textContent = nuevaFoto.texto;
+        }
+    };
+    img.src = nuevaFoto.url;
 }
 
-// MANEJO DE ROTACIÓN EN MÓVILES
+// ================== MANEJO DE ROTACIÓN EN MÓVILES ==================
 function initMobileRotationHandler() {
     let esVertical = window.innerHeight > window.innerWidth;
     
@@ -339,74 +481,52 @@ function initMobileRotationHandler() {
         const nuevaOrientacion = window.innerHeight > window.innerWidth;
         
         if (esVertical !== nuevaOrientacion && isModalOpen) {
-            setTimeout(() => {
-                const contador = document.querySelector('.foto-counter');
-                if (contador) {
-                    contador.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                }
-            }, 200);
+            console.log('📱 Cambio de orientación detectado');
+            
+            if (!nuevaOrientacion) {
+                console.log('🔄 Modo landscape - info oculta automáticamente');
+            } else {
+                console.log('🔄 Modo portrait - info visible automáticamente');
+            }
         }
         
         esVertical = nuevaOrientacion;
     });
 }
 
-// BOTÓN VOLVER
-function configurarBotones() {
-    const backBtn = document.querySelector('.back-button');
-    if (backBtn) {
-        backBtn.onclick = () => {
-            document.getElementById('seccion-view').style.display = 'none';
-            document.getElementById('home-view').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-    }
+// ================== FUNCIÓN VOLVER A GALERÍA ==================
+function volverAGaleria() {
+    console.log('🏠 Volviendo a galería...');
     
-    const logo = document.querySelector('.logo');
-    if (logo) {
-        logo.onclick = () => {
-            document.getElementById('seccion-view').style.display = 'none';
-            document.getElementById('home-view').style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-    }
+    currentSeccion = null;
+    currentFotoIndex = 0;
+    todasLasFotos = [];
+    isModalOpen = false;
     
-    const modalCerrar = document.querySelector('.modal-close');
-    const modalPrev = document.querySelector('.modal-prev');
-    const modalNext = document.querySelector('.modal-next');
+    const homeView = document.getElementById('home-view');
+    if (homeView) homeView.style.display = 'block';
+    
+    const inspirationSection = document.getElementById('inspiration-section');
+    if (inspirationSection) inspirationSection.style.display = 'block';
+    
+    const seccionView = document.getElementById('seccion-view');
+    if (seccionView) seccionView.style.display = 'none';
+    
     const modal = document.getElementById('modal');
-    
-    if (modalCerrar) modalCerrar.onclick = cerrarModal;
-    if (modalPrev) modalPrev.onclick = () => navegarFotos('prev');
-    if (modalNext) modalNext.onclick = () => navegarFotos('next');
-    
     if (modal) {
-        modal.onclick = (e) => {
-            if (e.target === modal) {
-                cerrarModal();
-            }
-        };
+        modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
     }
     
-    document.addEventListener('keydown', (e) => {
-        if (isModalOpen) {
-            if (e.key === 'Escape') cerrarModal();
-            if (e.key === 'ArrowLeft') navegarFotos('prev');
-            if (e.key === 'ArrowRight') navegarFotos('next');
-        }
+    window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
     });
 }
 
-// INICIAR
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-        iniciar();
-    });
-} else {
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
     iniciar();
-}
-
-console.log('✅ Script cargado - Esperando DOM...');
+    initMobileRotationHandler();
+});
