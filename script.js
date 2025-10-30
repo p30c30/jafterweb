@@ -1,4 +1,4 @@
-// SCRIPT.JS - VERSIÓN COMPLETA CON ZOOM, CARRUSEL Y CIERRE AUTOMÁTICO EN ROTACIÓN
+// SCRIPT.JS - VERSIÓN COMPLETA CON ZOOM Y CARRUSEL
 console.log('✅ script.js CARGADO');
 
 // Variables globales
@@ -492,6 +492,7 @@ function mostrarModal(imageUrl, title, fotoIndex) {
         }
         aplicarZoom();
     }
+        
 }
 
 // ================== SISTEMA DE ZOOM Y ARRASTRE ==================
@@ -689,63 +690,41 @@ function navegarFoto(direccion) {
     img.src = nuevaFoto.url;
 }
 
-// ================== MANEJO DE ROTACIÓN EN MÓVILES - VERSIÓN MEJORADA ==================
+// ================== MANEJO DE ROTACIÓN EN MÓVILES - MEJORADO ==================
 function initMobileRotationHandler() {
-    let ultimaAnchura = window.innerWidth;
-    let timeoutId = null;
-
-    function verificarCambioRotacion() {
-        const cambioSignificativo = Math.abs(window.innerWidth - ultimaAnchura) > 50;
+    let esVertical = window.innerHeight > window.innerWidth;
+    let ultimaOrientacion = esVertical;
+    
+    window.addEventListener('resize', () => {
+        const nuevaOrientacion = window.innerHeight > window.innerWidth;
         
-        console.log('📱 Verificando rotación:', {
-            anterior: ultimaAnchura,
-            actual: window.innerWidth,
-            cambio: cambioSignificativo,
-            modalAbierto: isModalOpen
-        });
-
-        if (cambioSignificativo && isModalOpen) {
-            console.log('🔄 Cambio significativo detectado - CERRANDO MODAL');
+        // Si cambió la orientación Y el modal está abierto
+        if (ultimaOrientacion !== nuevaOrientacion && isModalOpen) {
+            console.log('📱 Cambio de orientación detectado con modal abierto');
             
-            // Cerrar modal inmediatamente
-            if (timeoutId) clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => {
-                closeModal();
-                console.log('✅ Modal cerrado por rotación de pantalla');
-            }, 50);
+            // CERRAR MODAL automáticamente al girar pantalla
+            setTimeout(() => {
+                const modal = document.getElementById('modal');
+                if (modal && modal.classList.contains('active')) {
+                    console.log('🔄 Cerrando modal por cambio de orientación');
+                    closeModal();
+                }
+            }, 100);
         }
         
-        ultimaAnchura = window.innerWidth;
-    }
-
-    // Detectar resize con debounce
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(verificarCambioRotacion, 150);
-    });
-
-    // Detectar específicamente orientationchange (móviles)
-    window.addEventListener('orientationchange', () => {
-        console.log('📱 orientationchange detectado - Forzando cierre modal');
-        setTimeout(() => {
-            if (isModalOpen) {
-                closeModal();
-            }
-        }, 100);
+        ultimaOrientacion = nuevaOrientacion;
     });
 }
 
-// ================== FUNCIÓN GLOBAL CERRAR MODAL ==================
+// Y actualizar la función closeModal para que sea global:
 function closeModal() {
-    console.log('🔒 Ejecutando closeModal global');
     const modal = document.getElementById('modal');
     if (modal) {
         modal.classList.remove('active');
         document.body.classList.remove('modal-open');
         isModalOpen = false;
         resetZoom();
-        console.log('✅ Modal cerrado correctamente');
+        console.log('✅ Modal cerrado');
     }
 }
 
