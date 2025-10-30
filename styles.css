@@ -571,3 +571,20 @@ body {
 .fotos-grid {
     gap: 1rem !important;
 }
+/* ========== SOBREESCRIBIR ESTILOS CONFLICTIVOS ========== */
+.foto-miniatura {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    max-height: none !important;
+}
+
+.foto-item {
+    height: auto !important;
+    aspect-ratio: unset !important;
+}
+
+.fotos-grid {
+    gap: 1rem !important;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+}
