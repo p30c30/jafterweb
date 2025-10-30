@@ -1,10 +1,8 @@
-// SCRIPT MEJORADO - CON ZOOM Y SIN TÍTULO SPOTTING
+// SCRIPT MEJORADO - CON ZOOM ORIGINAL Y INFO QUE DESAPARECE
 let currentSection = '';
 let currentPhotos = [];
 let currentIndex = 0;
 let isModalOpen = false;
-let isZoomed = false;
-let startX, startY, scrollLeft, scrollTop;
 
 function iniciar() {
     console.log('🚀 INICIANDO GALERÍA...');
@@ -132,14 +130,12 @@ async function crearMiniatura(foto, index) {
     return item;
 }
 
-
-// MODAL CON ZOOM
+// MODAL - MANTIENE ZOOM ORIGINAL
 function abrirModal(index) {
     console.log('🖼️ Abriendo modal para foto:', index);
     
     currentIndex = index;
     isModalOpen = true;
-    isZoomed = false;
     
     const foto = currentPhotos[currentIndex];
     if (!foto) return;
@@ -161,10 +157,11 @@ function abrirModal(index) {
         modalTitle.textContent = '';
     }
     
-    // Reset zoom y eventos
-    modalImage.classList.remove('zoomed', 'grabbing');
-    modalImage.style.transform = 'scale(1)';
-    modalImage.style.cursor = 'zoom-in';
+    // Reset clase zoomed
+    modalImage.classList.remove('zoomed');
+    
+    // Configurar detección de zoom automática
+    configurarDeteccionZoom();
     
     const modal = document.getElementById('modal');
     modal.style.display = 'flex';
@@ -173,57 +170,42 @@ function abrirModal(index) {
     setTimeout(() => {
         modal.classList.add('active');
     }, 10);
-    
-    // Configurar eventos de zoom
-    configurarZoom(modalImage);
 }
 
-function configurarZoom(modalImage) {
-    // Doble click para zoom
-    modalImage.ondblclick = function(e) {
-        e.stopPropagation();
-        toggleZoom(this);
-    };
+// DETECTAR ZOOM AUTOMÁTICAMENTE (sin cambiar tu sistema actual)
+function configurarDeteccionZoom() {
+    const modalImage = document.getElementById('modalImage');
     
-    // Click para alternar zoom
-    modalImage.onclick = function(e) {
-        e.stopPropagation();
-        if (!isZoomed) {
-            toggleZoom(this);
-        }
-    };
+    if (!modalImage) return;
     
-    // Wheel para zoom
-    modalImage.onwheel = function(e) {
-        e.preventDefault();
-        if (e.ctrlKey) {
-            if (e.deltaY < 0 && !isZoomed) {
-                toggleZoom(this);
-            } else if (e.deltaY > 0 && isZoomed) {
-                toggleZoom(this);
+    // Observar cambios en el transform para detectar zoom
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                const transform = modalImage.style.transform;
+                const tieneZoom = transform && transform !== 'scale(1)' && transform !== '' && transform !== 'none';
+                
+                if (tieneZoom && !modalImage.classList.contains('zoomed')) {
+                    modalImage.classList.add('zoomed');
+                    console.log('🔍 Zoom detectado - info oculta');
+                } else if (!tieneZoom && modalImage.classList.contains('zoomed')) {
+                    modalImage.classList.remove('zoomed');
+                    console.log('🔍 Sin zoom - info visible');
+                }
             }
-        }
-    };
-}
-
-function toggleZoom(imgElement) {
-    isZoomed = !isZoomed;
+        });
+    });
     
-    if (isZoomed) {
-        imgElement.classList.add('zoomed');
-        imgElement.style.cursor = 'move';
-    } else {
-        imgElement.classList.remove('zoomed', 'grabbing');
-        imgElement.style.transform = 'scale(1)';
-        imgElement.style.cursor = 'zoom-in';
-    }
+    observer.observe(modalImage, {
+        attributes: true,
+        attributeFilter: ['style']
+    });
 }
 
 function cerrarModal() {
     console.log('❌ Cerrando modal');
     
     isModalOpen = false;
-    isZoomed = false;
     const modal = document.getElementById('modal');
     modal.classList.remove('active');
     
@@ -252,10 +234,7 @@ function navegarFotos(direccion) {
     document.getElementById('photoCounter').textContent = `${currentIndex + 1} / ${currentPhotos.length}`;
     
     // Reset zoom al cambiar foto
-    modalImage.classList.remove('zoomed', 'grabbing');
-    modalImage.style.transform = 'scale(1)';
-    modalImage.style.cursor = 'zoom-in';
-    isZoomed = false;
+    modalImage.classList.remove('zoomed');
 }
 
 // BOTÓN SCROLL TO TOP
@@ -348,10 +327,6 @@ function configurarBotones() {
             if (e.key === 'Escape') cerrarModal();
             if (e.key === 'ArrowLeft') navegarFotos('prev');
             if (e.key === 'ArrowRight') navegarFotos('next');
-            if (e.key === ' ' || e.key === 'z') {
-                const modalImage = document.getElementById('modalImage');
-                toggleZoom(modalImage);
-            }
         }
     });
 }
