@@ -629,10 +629,246 @@ body.modal-open {
     }
 }
 
+/* ================== BOTÓN SCROLL TO TOP ================== */
+.scroll-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: rgba(253, 184, 19, 0.9);
+    color: #000;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.5rem;
+    font-weight: bold;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scroll-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.scroll-to-top:hover {
+    background: #FDB813;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 25px rgba(253, 184, 19, 0.4);
+}
+
+/* ================== MEJORAS PARA GRID DE FOTOS ================== */
+/* Grid más compacto con ratios originales */
+.fotos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem; /* Más compacto */
+    margin: 2rem 0;
+    padding: 0 1rem;
+    max-width: 100%;
+}
+
+/* Miniaturas con ratio original preservado */
+.foto-item {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    position: relative;
+    aspect-ratio: 4/3; /* Ratio por defecto, se sobreescribe con JS */
+}
+
+.foto-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(253, 184, 19, 0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+}
+
+.foto-item:hover::before {
+    opacity: 1;
+}
+
+.foto-item:hover {
+    transform: scale(1.05);
+    box-shadow: 
+        0 12px 25px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(253, 184, 19, 0.3);
+    border-color: rgba(253, 184, 19, 0.6);
+}
+
+/* Miniaturas que mantienen ratio original */
+.foto-miniatura {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 2;
+}
+
+.foto-item:hover .foto-miniatura {
+    transform: scale(1.08);
+}
+
+.foto-texto {
+    padding: 1.2rem;
+    text-align: center;
+    color: #f0f0f0;
+    font-size: 1rem;
+    font-weight: 500;
+    background: rgba(0, 0, 0, 0.7);
+    margin: 0;
+}
+
+/* ================== MEJORAS PARA MODAL ================== */
+/* Asegurar que el texto sea visible */
+.modal-info {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.85);
+    border-radius: 12px;
+    margin-top: 1.5rem;
+    max-width: 80%;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(253, 184, 19, 0.3);
+    position: relative;
+    z-index: 1002;
+}
+
+.foto-counter {
+    color: #FDB813;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 0.8rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.foto-title {
+    color: #ffffff;
+    font-size: 1.3rem;
+    line-height: 1.5;
+    font-weight: 500;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    max-width: 100%;
+    word-wrap: break-word;
+}
+
+/* Mejorar contenedor de imagen modal */
+.modal-img-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 95%;
+    max-height: 75vh;
+    cursor: default;
+    position: relative;
+    flex: 1;
+    margin: 0 auto;
+}
+
+.modal-img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+    cursor: default;
+}
+
+/* ================== RESPONSIVE MEJORADO ================== */
+@media (max-width: 1200px) {
+    .fotos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .fotos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    .modal-info {
+        max-width: 90%;
+        padding: 1.2rem;
+        margin-top: 1rem;
+    }
+    
+    .foto-title {
+        font-size: 1.1rem;
+    }
+    
+    .scroll-to-top {
+        bottom: 20px;
+        right: 20px;
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+    }
+    
+    /* Mejorar experiencia en móviles al rotar */
+    .modal-content {
+        padding-bottom: 100px; /* Más espacio para info */
+    }
+}
+
+@media (max-width: 480px) {
+    .fotos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.8rem;
+    }
+    
+    .foto-texto {
+        padding: 1rem 0.8rem;
+        font-size: 0.9rem;
+    }
+    
+    .modal-info {
+        max-width: 95%;
+        padding: 1rem;
+    }
+    
+    .foto-title {
+        font-size: 1rem;
+    }
+    
+    .scroll-to-top {
+        bottom: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+    }
+}
+
 /* ================== CARRUSEL ÚLTIMAS FOTOS ================== */
+/* (MANTENER TODO EL CÓDIGO DEL CARRUSEL QUE YA TIENES) */
 .ultimas-fotos-section {
     max-width: 95vw;
-    margin: 5rem auto; /* Reducido: 6rem → 5rem */
+    margin: 5rem auto;
     padding: 0 2rem;
     position: relative;
 }
@@ -640,8 +876,8 @@ body.modal-open {
 .ultimas-fotos-section h2 {
     text-align: center;
     color: #FDB813;
-    font-size: 2.4rem; /* Reducido: 2.8rem → 2.4rem */
-    margin-bottom: 3rem; /* Reducido: 4rem → 3rem */
+    font-size: 2.4rem;
+    margin-bottom: 3rem;
     font-weight: 300;
     letter-spacing: 1px;
     text-shadow: 0 0 15px rgba(253, 184, 19, 0.3);
@@ -659,14 +895,14 @@ body.modal-open {
     width: 100%;
     max-width: 1200px;
     overflow: hidden;
-    border-radius: 18px; /* Reducido: 20px → 18px */
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5); /* Reducido: 15px 40px → 12px 35px */
+    border-radius: 18px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5);
 }
 
 .carrusel-inner {
     display: flex;
     transition: transform 0.5s ease-in-out;
-    height: 450px; /* Reducido: 500px → 450px */
+    height: 450px;
 }
 
 .carrusel-item {
@@ -678,7 +914,7 @@ body.modal-open {
 }
 
 .carrusel-item:hover {
-    transform: scale(1.02); /* Reducido: 1.03 → 1.02 */
+    transform: scale(1.02);
 }
 
 .carrusel-img {
@@ -694,7 +930,7 @@ body.modal-open {
     left: 0;
     right: 0;
     background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
-    padding: 1.5rem 1.5rem 1.2rem; /* Reducido: 2rem 1.5rem 1.5rem → 1.5rem 1.5rem 1.2rem */
+    padding: 1.5rem 1.5rem 1.2rem;
     color: white;
     text-align: center;
     backdrop-filter: blur(5px);
@@ -702,20 +938,19 @@ body.modal-open {
 
 .carrusel-desc {
     color: #ffffff;
-    font-size: 1.3rem; /* Reducido: 1.5rem → 1.3rem */
+    font-size: 1.3rem;
     font-weight: 600;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* Botones del carrusel más grandes */
 .carrusel-btn {
     background: rgba(0, 0, 0, 0.8);
     color: #FDB813;
     border: 3px solid rgba(253, 184, 19, 0.7);
     border-radius: 50%;
-    width: 55px; /* Reducido: 60px → 55px */
-    height: 55px; /* Reducido: 60px → 55px */
-    font-size: 1.6rem; /* Reducido: 1.8rem → 1.6rem */
+    width: 55px;
+    height: 55px;
+    font-size: 1.6rem;
     cursor: pointer;
     transition: all 0.3s ease;
     display: flex;
@@ -727,21 +962,20 @@ body.modal-open {
 .carrusel-btn:hover {
     background: rgba(253, 184, 19, 0.95);
     color: #000;
-    transform: scale(1.12); /* Reducido: 1.15 → 1.12 */
-    box-shadow: 0 0 15px rgba(253, 184, 19, 0.5); /* Reducido: 20px → 15px */
+    transform: scale(1.12);
+    box-shadow: 0 0 15px rgba(253, 184, 19, 0.5);
 }
 
-/* Dots de navegación */
 .carrusel-dots {
     display: flex;
     justify-content: center;
     gap: 0.8rem;
-    margin-top: 1.5rem; /* Reducido: 2rem → 1.5rem */
+    margin-top: 1.5rem;
 }
 
 .carrusel-dot {
-    width: 12px; /* Reducido: 14px → 12px */
-    height: 12px; /* Reducido: 14px → 12px */
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.4);
     cursor: pointer;
@@ -751,88 +985,27 @@ body.modal-open {
 
 .carrusel-dot.active {
     background: #FDB813;
-    transform: scale(1.2); /* Reducido: 1.3 → 1.2 */
-    box-shadow: 0 0 8px rgba(253, 184, 19, 0.4); /* Reducido: 10px → 8px */
+    transform: scale(1.2);
+    box-shadow: 0 0 8px rgba(253, 184, 19, 0.4);
 }
 
 .carrusel-dot:hover {
     background: rgba(253, 184, 19, 0.8);
-    transform: scale(1.1); /* Reducido: 1.2 → 1.1 */
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .ultimas-fotos-section {
-        padding: 0 1.5rem;
-        margin: 4rem auto; /* Reducido: 5rem → 4rem */
-    }
-    
-    .carrusel {
-        max-width: 100%;
-    }
-    
-    .carrusel-inner {
-        height: 350px; /* Reducido: 400px → 350px */
-    }
-    
-    .carrusel-btn {
-        width: 45px; /* Reducido: 50px → 45px */
-        height: 45px; /* Reducido: 50px → 45px */
-        font-size: 1.3rem; /* Reducido: 1.5rem → 1.3rem */
-    }
-    
-    .carrusel-info {
-        padding: 1.2rem 1rem 1rem; /* Reducido */
-    }
-    
-    .carrusel-desc {
-        font-size: 1.1rem; /* Reducido: 1.3rem → 1.1rem */
-    }
-}
-
-@media (max-width: 480px) {
-    .carrusel-inner {
-        height: 280px; /* Reducido: 320px → 280px */
-    }
-    
-    .carrusel-btn {
-        width: 40px; /* Reducido: 45px → 40px */
-        height: 40px; /* Reducido: 45px → 40px */
-        font-size: 1.1rem; /* Reducido: 1.3rem → 1.1rem */
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-    
-    .prev-btn {
-        left: 10px; /* Reducido: 15px → 10px */
-    }
-    
-    .next-btn {
-        right: 10px; /* Reducido: 15px → 10px */
-    }
-    
-    .carrusel-container {
-        gap: 0;
-    }
-    
-    .carrusel-desc {
-        font-size: 1rem; /* Reducido: 1.1rem → 1rem */
-    }
+    transform: scale(1.1);
 }
 
 /* Footer */
 .site-footer {
     background: rgba(0, 0, 0, 0.92);
-    padding: 2.5rem; /* Reducido: 3rem → 2.5rem */
+    padding: 2.5rem;
     text-align: center;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
-    margin-top: 5rem; /* Reducido: 6rem → 5rem */
+    margin-top: 5rem;
 }
 
 .contact-info {
     color: #d0d0d0;
-    font-size: 1.1rem; /* Reducido: 1.2rem → 1.1rem */
+    font-size: 1.1rem;
 }
 
 .contact-info a {
@@ -845,113 +1018,66 @@ body.modal-open {
 .contact-info a:hover {
     text-decoration: underline;
     opacity: 0.9;
-    text-shadow: 0 0 8px rgba(253, 184, 19, 0.3); /* Reducido: 10px → 8px */
+    text-shadow: 0 0 8px rgba(253, 184, 19, 0.3);
 }
 
-/* Responsive general */
+/* Responsive para carrusel */
 @media (max-width: 768px) {
-    .container {
-        padding: 2rem 1.5rem;
-    }
-
-    .logo {
-        font-size: 2.5rem; /* Reducido: 3rem → 2.5rem */
-    }
-
-    .home-view h1 {
-        font-size: 1.8rem; /* Reducido: 2rem → 1.8rem */
-        margin-bottom: 2.5rem; /* Reducido: 3rem → 2.5rem */
-    }
-
-    .seccion-header {
-        padding: 5rem 2rem 2rem 2rem; /* Reducido */
-    }
-
-    .seccion-header h1 {
-        font-size: 2rem; /* Reducido: 2.5rem → 2rem */
-    }
-
-    .seccion-header p {
-        font-size: 1.1rem; /* Reducido: 1.3rem → 1.1rem */
-    }
-
-    .back-button {
-        top: 20px;
-        left: 20px;
-        width: 50px;
-        height: 50px;
-        font-size: 1.5rem;
+    .ultimas-fotos-section {
+        padding: 0 1.5rem;
+        margin: 4rem auto;
     }
     
-    .card-content h3 {
-        font-size: 1.3rem; /* Reducido: 1.5rem → 1.3rem */
+    .carrusel {
+        max-width: 100%;
     }
-
-    .card-content p {
-        font-size: 0.95rem; /* Reducido: 1.1rem → 0.95rem */
+    
+    .carrusel-inner {
+        height: 350px;
+    }
+    
+    .carrusel-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+    }
+    
+    .carrusel-info {
+        padding: 1.2rem 1rem 1rem;
+    }
+    
+    .carrusel-desc {
+        font-size: 1.1rem;
     }
 }
 
 @media (max-width: 480px) {
-    .container {
-        padding: 1.5rem 1rem;
-    }
-
-    .logo {
-        font-size: 2.2rem; /* Reducido: 2.5rem → 2.2rem */
-    }
-
-    .home-view h1 {
-        font-size: 1.6rem; /* Reducido: 1.8rem → 1.6rem */
-    }
-
-    .card-content {
-        padding: 1.5rem;
-    }
-    
-    .section-cards {
-        gap: 2rem; /* Reducido: 2.5rem → 2rem */
-    }
-}
-
-/* Para pantallas muy grandes */
-@media (min-width: 1600px) {
-    .container {
-        max-width: 1600px;
-    }
-    
-    .section-cards {
-        grid-template-columns: repeat(3, minmax(400px, 1fr)); /* Reducido: 450px → 400px */
-        gap: 3rem; /* Reducido: 4rem → 3rem */
-    }
-    
-    .carrusel {
-        max-width: 1400px;
-    }
-    
     .carrusel-inner {
-        height: 500px; /* Reducido: 550px → 500px */
+        height: 280px;
     }
     
-    .card-image {
-        height: 280px; /* Reducido: 320px → 280px */
-    }
-}
-
-@media (min-width: 2000px) {
-    .container {
-        max-width: 1800px;
-    }
-    
-    .section-cards {
-        grid-template-columns: repeat(3, minmax(450px, 1fr)); /* Reducido: 500px → 450px */
+    .carrusel-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
     }
     
-    .carrusel {
-        max-width: 1600px;
+    .prev-btn {
+        left: 10px;
     }
     
-    .carrusel-inner {
-        height: 550px; /* Reducido: 600px → 550px */
+    .next-btn {
+        right: 10px;
+    }
+    
+    .carrusel-container {
+        gap: 0;
+    }
+    
+    .carrusel-desc {
+        font-size: 1rem;
     }
 }
