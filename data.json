@@ -95,10 +95,11 @@
                "texto":"Helicóptero Boeing CH-47F Chinook"
             },
             {
-               "miniatura":"https://live.staticflickr.com/65535/54283722602_de1b6d854e_b.jpg",
-               "url":"https://i.ibb.co/2YnjVxr3/Helicoptero-ceuta-1.jpg",
-               "texto":"Leonardo AW139 Helity Copter Airlines"
+               "miniatura":"https://live.staticflickr.com/65535/54859040981_e0086a85ce_b.jpg",
+               "url":"https://i.ibb.co/f7QTs0x/Boeing-CH-47-F-Chinook.jpg",
+               "texto":"Boeing CH-47F Chinook"
             },
+            
             {
                "miniatura":"https://live.staticflickr.com/65535/54865907210_9ce2d14ec6_b.jpg",
                "url":"https://i.ibb.co/Kp6nsTzJ/korean-1-web.jpg",
@@ -159,6 +160,11 @@
                "miniatura":"https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
                "url":"https://i.ibb.co/1GsTWVd0/Guardia-Civil-Eurocopter-AS365-Dauphin.jpg",
                "texto":"Eurocopter AS365 Dauphin de la Guardia Civil: patrulla aérea, vigilancia desde las alturas, mirada de seguridad."
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54283722602_de1b6d854e_b.jpg",
+               "url":"https://i.ibb.co/2YnjVxr3/Helicoptero-ceuta-1.jpg",
+               "texto":"Leonardo AW139 Helity Copter Airlines"
             }
          ]
       },
