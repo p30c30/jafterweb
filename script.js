@@ -1,4 +1,4 @@
-// SCRIPT.JS - Móvil con pinch zoom, back nativo (History API) y bottom sheet + Carrusel infinito
+// SCRIPT.JS - Móvil con pinch zoom, back nativo (History API) y bottom sheet + Carrusel infinito + Modal desde carrusel
 console.log('✅ script.js CARGADO');
 
 // Variables globales
@@ -7,9 +7,11 @@ let currentFotoIndex = 0;
 let todasLasFotos = [];
 let carruselActualIndex = 0;
 let carruselFotos = [];
-let autoPlayInterval; // obsoleta (mantenida por compatibilidad)
 let datosGlobales = null;
 let isModalOpen = false;
+
+// Modal: fuente de datos ('seccion' | 'carrusel')
+let modalSource = 'seccion';
 
 // Estado de navegación (History API)
 let currentView = 'home'; // 'home' | 'seccion' | 'modal'
@@ -135,19 +137,36 @@ function aplicarEstado(state) {
       volverAGaleriaInternal();
     }
   } else if (state.view === 'modal') {
-    if (datosGlobales) {
-      const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
-      if (sec) {
-        mostrarSeccion(sec, { push: false });
-        const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
-        if (foto) {
-          mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false });
-        }
+    if (state.source === 'carrusel') {
+      // Modal de carrusel
+      if (!carruselFotos || carruselFotos.length === 0) {
+        // reconstruir desde datos
+        if (datosGlobales) carruselFotos = obtenerFotosParaCarrusel(datosGlobales);
+      }
+      if (carruselFotos[state.fotoIndex]) {
+        modalSource = 'carrusel';
+        const f = carruselFotos[state.fotoIndex];
+        mostrarModal(f.url, f.texto, state.fotoIndex, { push: false });
       } else {
         volverAGaleriaInternal();
       }
     } else {
-      volverAGaleriaInternal();
+      // Modal de sección
+      if (datosGlobales) {
+        const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
+        if (sec) {
+          mostrarSeccion(sec, { push: false });
+          const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
+          if (foto) {
+            modalSource = 'seccion';
+            mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false });
+          }
+        } else {
+          volverAGaleriaInternal();
+        }
+      } else {
+        volverAGaleriaInternal();
+      }
     }
   }
 
@@ -273,9 +292,6 @@ function mostrarCarruselFotos(fotos, container, dotsContainer) {
         <div class="carrusel-desc">${foto.texto}</div>
       </div>
     `;
-    item.addEventListener('click', () => {
-      irAFotoEnSeccion(foto.seccionId, foto.indiceEnSeccion);
-    });
     container.appendChild(item);
   });
 
@@ -297,6 +313,13 @@ function mostrarCarruselFotos(fotos, container, dotsContainer) {
 
   // Activa botones (prev/next)
   configurarBotonesCarrusel();
+
+  // Click en slide: abrir modal desde carrusel (usamos el índice actual visible)
+  container.addEventListener('click', (e) => {
+    const slide = e.target.closest('.carrusel-item');
+    if (!slide) return;
+    abrirModalDesdeCarrusel(carruselActualIndex);
+  });
 
   // Marca los dots
   actualizarCarrusel();
@@ -498,11 +521,21 @@ function configurarInteraccionCarrusel() {
   window.addEventListener('mouseup', onEnd);
 }
 
+// Abrir modal desde carrusel (usa carruselFotos)
+function abrirModalDesdeCarrusel(index = carruselActualIndex) {
+  if (!carruselFotos || !carruselFotos.length) return;
+  modalSource = 'carrusel';
+  const f = carruselFotos[index];
+  // Abrir modal con estado de historial "modal de carrusel"
+  mostrarModal(f.url, f.texto, index, { push: true, source: 'carrusel' });
+}
+
 // ================== MOSTRAR SECCIÓN ==================
 function mostrarSeccion(seccion, opts = { push: true }) {
   console.log('🖼️ Mostrando sección:', seccion.titulo);
   
   currentSeccion = seccion;
+  modalSource = 'seccion';
   
   if (!seccion.fotos || !Array.isArray(seccion.fotos)) {
     console.error('❌ No hay fotos en esta sección:', seccion);
@@ -564,6 +597,7 @@ function mostrarSeccion(seccion, opts = { push: true }) {
       `;
       
       fotoElement.addEventListener('click', () => {
+        modalSource = 'seccion';
         mostrarModal(foto.url, foto.texto, index);
       });
       
@@ -580,10 +614,16 @@ function mostrarSeccion(seccion, opts = { push: true }) {
 }
 
 // ================== MODAL CON ZOOM + SWIPE + BOTTOM SHEET ==================
-function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true }) {
+function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
   const modal = document.getElementById('modal');
   currentFotoIndex = fotoIndex;
   isModalOpen = true;
+
+  // Determina lista y sección para el chip
+  const list = modalSource === 'carrusel' ? carruselFotos : todasLasFotos;
+  const item = list[currentFotoIndex] || { url: imageUrl, texto: title };
+  const sectionId = modalSource === 'carrusel' ? item.seccionId : (currentSeccion ? currentSeccion.id : '');
+  const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
   
   modal.innerHTML = `
     <div class="close-modal">×</div>
@@ -595,8 +635,13 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true }) {
       </div>
       <div class="modal-info">
         <div class="info-handle" aria-hidden="true"></div>
-        <div class="foto-counter">${currentFotoIndex + 1} / ${todasLasFotos.length}</div>
+        <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div>
         <div class="foto-title">${title}</div>
+        <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'}>
+          <span class="chip-label">Ver sección:</span>
+          <span class="chip-name">${sectionTitle || ''}</span>
+          <span class="chip-arrow">→</span>
+        </button>
       </div>
     </div>
   `;
@@ -628,8 +673,14 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true }) {
   img.src = imageUrl;
 
   currentView = 'modal';
-  if (opts.push && !isHandlingPopstate && currentSeccion) {
-    history.pushState({ view: 'modal', seccionId: currentSeccion.id, fotoIndex: currentFotoIndex }, '');
+  if (opts.push && !isHandlingPopstate) {
+    const state = {
+      view: 'modal',
+      source: modalSource,
+      fotoIndex: currentFotoIndex
+    };
+    if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
+    history.pushState(state, '');
   }
 
   function configurarEventosModal() {
@@ -640,6 +691,21 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true }) {
     if (closeBtn) closeBtn.onclick = goBackOneStep;
     if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
     if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
+
+    // Botón/Chip de sección
+    const chip = modal.querySelector('.section-chip');
+    if (chip && chip.dataset.seccionId) {
+      chip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sid = chip.dataset.seccionId;
+        const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+        if (sec) {
+          // Cierra modal y navega a la sección
+          closeModal();
+          mostrarSeccion(sec); // pushState dentro
+        }
+      });
+    }
 
     // CLICK EN OVERLAY = CERRAR (no dentro de contenido)
     modal.addEventListener('click', function(event) {
@@ -936,25 +1002,32 @@ function resetZoom() {
   }
 }
 
-// ================== NAVEGACIÓN ENTRE FOTOS ==================
+// ================== Lista modal helper ==================
+function getModalList() {
+  return modalSource === 'carrusel' ? carruselFotos : todasLasFotos;
+}
+
+// ================== NAVEGACIÓN ENTRE FOTOS (MODAL) ==================
 function navegarFoto(direccion) {
-  if (!todasLasFotos.length) return;
+  const list = getModalList();
+  if (!list || !list.length) return;
   
   let nuevoIndex = currentFotoIndex + direccion;
   
   if (nuevoIndex < 0) {
-    nuevoIndex = todasLasFotos.length - 1;
-  } else if (nuevoIndex >= todasLasFotos.length) {
+    nuevoIndex = list.length - 1;
+  } else if (nuevoIndex >= list.length) {
     nuevoIndex = 0;
   }
   
   currentFotoIndex = nuevoIndex;
-  const nuevaFoto = todasLasFotos[currentFotoIndex];
+  const nuevaFoto = list[currentFotoIndex];
   
   const modal = document.getElementById('modal');
   const modalImg = document.getElementById('modal-img');
   const fotoCounter = modal.querySelector('.foto-counter');
   const fotoTitle = modal.querySelector('.foto-title');
+  const sectionChip = modal.querySelector('.section-chip');
   
   resetZoom();
   
@@ -965,27 +1038,39 @@ function navegarFoto(direccion) {
     currentImage = modalImg;
     
     if (fotoCounter) {
-      fotoCounter.textContent = `${currentFotoIndex + 1} / ${todasLasFotos.length}`;
+      fotoCounter.textContent = `${currentFotoIndex + 1} / ${list.length}`;
     }
     if (fotoTitle) {
       fotoTitle.textContent = nuevaFoto.texto;
     }
 
-    // Actualiza estado del modal en historial sin añadir paso
-    if (!isHandlingPopstate && history.state && history.state.view === 'modal' && currentSeccion) {
-      history.replaceState({ view: 'modal', seccionId: currentSeccion.id, fotoIndex: currentFotoIndex }, '');
+    // Actualiza chip de sección
+    if (sectionChip) {
+      if (modalSource === 'carrusel') {
+        sectionChip.dataset.seccionId = nuevaFoto.seccionId || '';
+        sectionChip.querySelector('.chip-name').textContent = nuevaFoto.seccionTitulo || 'Ver sección';
+        sectionChip.disabled = !nuevaFoto.seccionId;
+      } else {
+        // modo sección: mantiene la sección actual
+        if (currentSeccion) {
+          sectionChip.dataset.seccionId = currentSeccion.id;
+          sectionChip.querySelector('.chip-name').textContent = currentSeccion.titulo;
+          sectionChip.disabled = false;
+        }
+      }
+    }
+
+    // Actualiza estado modal en el historial (sin añadir más pasos)
+    if (!isHandlingPopstate && history.state && history.state.view === 'modal') {
+      const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
+      if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
+      history.replaceState(state, '');
     }
   };
   img.onerror = function() {
     modalImg.src = nuevaFoto.url;
     modalImg.alt = nuevaFoto.texto;
     currentImage = modalImg;
-    if (fotoCounter) {
-      fotoCounter.textContent = `${currentFotoIndex + 1} / ${todasLasFotos.length}`;
-    }
-    if (fotoTitle) {
-      fotoTitle.textContent = nuevaFoto.texto;
-    }
   };
   img.src = nuevaFoto.url;
 }
@@ -1184,6 +1269,10 @@ function closeModal() {
     if (keydownHandler) {
       document.removeEventListener('keydown', keydownHandler);
       keydownHandler = null;
+    }
+    // Reanuda autoplay del carrusel al cerrar el modal (si existe carrusel)
+    if (carruselInnerRef) {
+      startCarouselAutoplay(carouselAutoDelay);
     }
     console.log('✅ Modal cerrado');
   }
