@@ -5,63 +5,107 @@
   <title>Galería Jafter - Fotografía Inspiradora</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- Archivos CSS en carpeta styles -->
-  <link rel="stylesheet" href="styles/main.css?v=3">
-  <link rel="stylesheet" href="styles/layout.css?v=3" />
-  <link rel="stylesheet" href="styles/components.css?v=3" />
-  <link rel="stylesheet" href="styles/modal.css?v=3" />
-  <link rel="stylesheet" href="styles/carrusel.css?v=3" />
-  <link rel="stylesheet" href="styles/responsive.css?v=3" />
+  <link rel="stylesheet" href="styles/main.css?v=4">
+  <link rel="stylesheet" href="styles/layout.css?v=4" />
+  <link rel="stylesheet" href="styles/components.css?v=4" />
+  <link rel="stylesheet" href="styles/modal.css?v=4" />
+  <link rel="stylesheet" href="styles/carrusel.css?v=4" />
+  <link rel="stylesheet" href="styles/responsive.css?v=4" />
+  <!-- Fuentes modernas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Header mejorado -->
   <header class="site-header">
-    <div class="logo" id="logoHome" role="button" aria-label="Ir a inicio">Galería Jafter</div>
+    <div class="header-container">
+      <div class="logo" id="logoHome" role="button" aria-label="Ir a inicio">
+        <span class="logo-text">Galería Jafter</span>
+        <span class="logo-subtitle">Fotografía Artística</span>
+      </div>
+      <nav class="main-nav" id="mainNav">
+        <ul class="nav-list">
+          <li><a href="#home-view" class="nav-link active">Inicio</a></li>
+          <li><a href="#colecciones" class="nav-link">Colecciones</a></li>
+          <li><a href="#ultimas-fotos" class="nav-link">Últimas Fotos</a></li>
+          <li><a href="#inspiracion" class="nav-link">Inspiración</a></li>
+        </ul>
+      </nav>
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
   </header>
   
   <main id="content" class="container">
     <!-- Vista principal -->
     <div id="home-view" class="home-view">
-      <h1>Explora mis colecciones fotográficas</h1>
+      <!-- Hero Section mejorada -->
+      <section class="hero-section">
+        <div class="hero-content">
+          <h1 class="hero-title">Explora mis colecciones fotográficas</h1>
+          <p class="hero-subtitle">Donde cada imagen cuenta una historia única</p>
+          <button class="cta-button" id="exploreCollections">Descubrir Colecciones</button>
+        </div>
+      </section>
       
       <!-- Secciones/tarjetas se cargarán aquí -->
-      <div id="secciones-container" class="section-cards"></div>
+      <section id="colecciones" class="colecciones-section">
+        <h2 class="section-title">Mis Colecciones</h2>
+        <div id="secciones-container" class="section-cards"></div>
+      </section>
 
       <!-- Sección Últimas Fotos CON CARRUSEL -->
-      <section class="ultimas-fotos-section">
-        <h2>Centro de Contenido</h2>
+      <section id="ultimas-fotos" class="ultimas-fotos-section">
+        <h2 class="section-title">Centro de Contenido</h2>
         <div class="carrusel-container">
-          <button class="carrusel-btn prev-btn">‹</button>
+          <button class="carrusel-btn prev-btn" aria-label="Foto anterior">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
           <div class="carrusel">
             <div id="ultimas-fotos-carrusel" class="carrusel-inner">
               <!-- Las fotos se cargan aquí -->
             </div>
           </div>
-          <button class="carrusel-btn next-btn">›</button>
+          <button class="carrusel-btn next-btn" aria-label="Foto siguiente">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
         <div class="carrusel-dots" id="carrusel-dots">
           <!-- Los dots de navegación se generan aquí -->
         </div>
       </section>
       
-      <!-- Sección inspiradora -->
-      <div id="inspiration-section">
-        <div>
-          <div>
+      <!-- Sección inspiradora mejorada -->
+      <section id="inspiracion" class="inspiration-section">
+        <div class="inspiration-container">
+          <div class="inspiration-text">
             <h2>El Arte de Capturar el Momento</h2>
-            <p>
-              En la fotografía, cada instante es único e irrepetible. Un mismo momento, contemplado a través de diferentes miradas, revela infinitas perspectivas y emociones...
-            </p>
-            <p>
-              Cada fotografía es un diálogo silencioso entre el observador y el instante congelado en el tiempo...
-            </p>
-            <p>
-              Porque al final, fotografiar es mucho más que presionar un botón. Es el arte de ver lo invisible...
-            </p>
+            <div class="inspiration-quote">
+              <p>
+                En la fotografía, cada instante es único e irrepetible. Un mismo momento, contemplado a través de diferentes miradas, revela infinitas perspectivas y emociones...
+              </p>
+              <p>
+                Cada fotografía es un diálogo silencioso entre el observador y el instante congelado en el tiempo...
+              </p>
+              <p>
+                Porque al final, fotografiar es mucho más que presionar un botón. Es el arte de ver lo invisible...
+              </p>
+            </div>
+            <div class="signature">- Jafter</div>
           </div>
-          <div>
-            <img src="https://images2.imgbox.com/a7/ae/imIfzK4c_o.jpg" alt="Retrato artístico" />
+          <div class="inspiration-image">
+            <img src="https://images2.imgbox.com/a7/ae/imIfzK4c_o.jpg" alt="Retrato artístico" loading="lazy" />
           </div>
         </div>
-      </div>
+      </section>
     </div>
   </main>
 
@@ -70,13 +114,36 @@
     <!-- Contenido dinámico -->
   </div>
   
+  <!-- Footer mejorado -->
   <footer class="site-footer">
-    <div class="contact-info">
-      Contacto: <a href="mailto:jafterphoto@gmail.com">jafterphoto@gmail.com</a> / 
-      <a href="https://www.facebook.com/profile.php?id=61571917450059&locale=es_ES">Facebook</a> / © 2025 Galería Jafter
+    <div class="footer-container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>Galería Jafter</h3>
+          <p>Fotografía artística que captura la esencia del momento.</p>
+        </div>
+        <div class="footer-section">
+          <h4>Conecta</h4>
+          <div class="social-links">
+            <a href="https://www.facebook.com/profile.php?id=61571917450059&locale=es_ES" aria-label="Facebook">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+              Facebook
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>Contacto</h4>
+          <a href="mailto:jafterphoto@gmail.com">jafterphoto@gmail.com</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Galería Jafter. Todos los derechos reservados.</p>
+      </div>
     </div>
   </footer>
 
-  <script src="script.js?v=3" defer></script>
+  <script src="script.js?v=4" defer></script>
 </body>
 </html>
