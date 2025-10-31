@@ -284,20 +284,29 @@
         aspect-ratio: 3/2;
     }
 }
-/* ========== FIX NUCLEAR PORTADA =scroll solo vertical========= */
-@media (max-width: 768px) {
-    body #home-view .section-cards {
-        display: block !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        overflow-x: hidden !important;
+/* ========== FIX VERTICAL - ELIMINAR FRANJAS NEGRAS ========== */
+@media (max-width: 768px) and (orientation: portrait) {
+    .foto-item {
+        height: 280px !important; /* ← MÁS ALTO EN VERTICAL */
     }
     
-    body #home-view .card {
-        display: block !important;
-        width: 90% !important;
-        max-width: 400px !important;
-        margin: 0 auto 2rem auto !important;
-        float: none !important;
+    .foto-miniatura {
+        height: 100% !important;
+        object-fit: cover !important; /* ← FORZAR QUE LLENE */
+        object-position: center !important;
+        width: 100% !important;
+    }
+    
+    /* UNA SOLA COLUMNA EN VERTICAL */
+    .fotos-grid {
+        columns: 1 !important;
     }
 }
+
+/* PARA VERTICAL MÁS COMPACTO */
+@media (max-width: 480px) and (orientation: portrait) {
+    .foto-item {
+        height: 240px !important; /* ← UN POCO MÁS COMPACTO */
+    }
+}
+
