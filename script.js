@@ -350,9 +350,8 @@ function mostrarSeccion(seccion) {
             
             fotoElement.innerHTML = `
                 <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">
-                    onload="this.style.opacity='1'"
-                    style="opacity:0; transition: opacity 0.3s ease">
-            `;
+                    
+             `;
             
             fotoElement.addEventListener('click', () => {
                 mostrarModal(foto.url, foto.texto, index);
