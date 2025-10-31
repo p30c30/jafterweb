@@ -67,6 +67,21 @@
                "texto":"Juego de botellas"
             },
             {
+               "miniatura":"https://live.staticflickr.com/65535/54891540965_749d42e590_b.jpg",
+               "url":"https://i.ibb.co/WpqqLvy5/caballo-negro-sf.jpg",
+               "texto":"Caballo de ajedrez"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54891502399_df7f8f2e3d_b.jpg",
+               "url":"https://i.ibb.co/Q7z7RfXg/camara-vintage.jpg",
+               "texto":"Cámara vintage"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54890387042_ac53d77fa5_b.jpg",
+               "url":"https://i.ibb.co/1tgwhvkC/panteon-agripa.jpg",
+               "texto":"Panteón de Agripa"
+            },
+            {
                "miniatura":"https://live.staticflickr.com/65535/54888647464_8ed0bb9ee4_b.jpg",
                "url":"https://i.ibb.co/j9wqXMnQ/Mano-y-pie-de-beb-r.jpg",
                "texto":"Pequeñas huellas infinito amor"
@@ -215,6 +230,32 @@
                "texto":"Simetría entre peces"
             },
             {
+               "miniatura":"https://live.staticflickr.com/65535/54891442079_f9ab102acd_b.jpg",
+               "url":"https://i.ibb.co/WWnkL4x1/callejon-malvado.jpg",
+               "texto":"Callejón Malvado de los Borgia. Roma"
+            },
+            
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54890211123_567f84f9ba_b.jpg",
+               "url":"https://i.ibb.co/pv03MdyN/IMGL8206-Editar-Editar-Editar-Editar-2-3.jpg",
+               "texto":"Esencia en blanco y negro"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54891435043_d3900f744e_b.jpg",
+               "url":"https://i.ibb.co/BVcpsSwY/pasaje.jpg",
+               "texto":"Pasadizo romano"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54891517805_7098ebdf7b_b.jpg",
+               "url":"https://i.ibb.co/5gb6Pn3m/ciclista.jpg",
+               "texto":"Via Apia Antica Roma"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54891472674_c48816bcbd_b.jpg",
+               "url":"https://i.ibb.co/355zRNbf/lineas-de-metro.jpg",
+               "texto":"Líneas de metro. Roma"
+            },
+            {
                "miniatura":"https://live.staticflickr.com/65535/54889450480_f2f543caa3_b.jpg",
                "url":"https://i.ibb.co/d0d7wjR7/ni-o-con-sombreo.jpg",
                "texto":"Niño con sombreo"
@@ -223,11 +264,6 @@
                "miniatura":"https://live.staticflickr.com/65535/54888304712_697267d9f8_b.jpg",
                "url":"https://i.ibb.co/4ZvjYd2G/coliseo.jpg",
                "texto":"El Coliseo"
-            },
-            {
-               "miniatura":"https://live.staticflickr.com/65535/54890211123_567f84f9ba_b.jpg",
-               "url":"https://i.ibb.co/pv03MdyN/IMGL8206-Editar-Editar-Editar-Editar-2-3.jpg",
-               "texto":"Esencia en blanco y negro"
             }
          ]
       },
@@ -332,6 +368,11 @@
                "miniatura":"https://live.staticflickr.com/65535/54888655935_96a388a5bf_b.jpg",
                "url":"https://i.ibb.co/ccQj77m5/amanecer-en-el-metaverso.jpg",
                "texto":"Amanecer en el metaverso"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54891399743_d75f64a352_b.jpg",
+               "url":"https://i.ibb.co/V09cn8Fg/objetivos-web.jpg",
+               "texto":"objetivos"
             },
             {
                "miniatura":"https://live.staticflickr.com/65535/54888382266_2287e43a66_b.jpg",
