@@ -284,40 +284,20 @@
         aspect-ratio: 3/2;
     }
 }
-/* ========== FIX SCROLL HORIZONTAL SOLO EN PORTADA ========== */
+/* ========== FIX NUCLEAR PORTADA =scroll solo vertical========= */
 @media (max-width: 768px) {
-    /* CONTENEDOR DE TARJETAS EN PORTADA */
-    .section-cards {
-        display: grid;
-        grid-template-columns: 1fr !important; /* UNA SOLA COLUMNA */
-        gap: 2rem;
-        margin: 2rem auto !important;
-        padding: 0 1rem !important;
-        max-width: 100% !important;
-        overflow-x: hidden !important;
-        box-sizing: border-box !important;
-    }
-    
-    /* TARJETAS INDIVIDUALES */
-    .card {
+    body #home-view .section-cards {
+        display: block !important;
         width: 100% !important;
         max-width: 100% !important;
-        margin: 0 auto !important;
-        box-sizing: border-box !important;
+        overflow-x: hidden !important;
     }
     
-    /* ASEGURAR QUE EL CONTENEDOR PADRE NO DESBORDE */
-    #home-view {
-        overflow-x: hidden !important;
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-}
-
-/* PARA MÓVILES MÁS PEQUEÑOS */
-@media (max-width: 480px) {
-    .section-cards {
-        padding: 0 0.8rem !important;
-        gap: 1.8rem !important;
+    body #home-view .card {
+        display: block !important;
+        width: 90% !important;
+        max-width: 400px !important;
+        margin: 0 auto 2rem auto !important;
+        float: none !important;
     }
 }
