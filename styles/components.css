@@ -145,14 +145,20 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* IMÁGENES COMPLETAS - SIN CORTES */
+/* ================== IMÁGENES CON ALTURA FIJA Y RECORTE INTELIGENTE ================== */
 .foto-miniatura {
     width: 100%;
-    height: auto;
-    object-fit: contain;
-    transition: all 0.5s ease;
-    filter: brightness(0.95);
+    height: 250px; /* ALTURA FIJA PARA TODAS */
+    object-fit: cover; /* RECORTA MANTENIENDO PROPORCIÓN */
+    object-position: center; /* ENFOCA LA PARTE CENTRAL */
     display: block;
+    transition: transform 0.5s ease;
+    filter: brightness(0.95);
+}
+
+.foto-item:hover .foto-miniatura {
+    transform: scale(1.05);
+    filter: brightness(1.1);
 }
 
 /* Overlay elegante que se desliza */
