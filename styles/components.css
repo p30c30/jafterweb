@@ -125,7 +125,7 @@
     color: #ffffff;
 }
 
-/* ================== GRID MASONRY COMPACTO ================== */
+/* ================== TRUE MASONRY GRID ================== */
 .fotos-grid {
     columns: 4 280px;
     column-gap: 0.8rem;
@@ -145,17 +145,12 @@
     transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     border: 1px solid rgba(255, 255, 255, 0.12);
     position: relative;
-    height: 250px;
-    display: flex;
-    flex-direction: column;
 }
 
-/* IMÁGENES QUE LLENAN COMPLETAMENTE LA MINIATURA */
+/* IMÁGENES QUE MANTIENEN SU RATIO ORIGINAL */
 .foto-miniatura {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
+    height: auto;
     display: block;
     transition: transform 0.5s ease;
     filter: brightness(0.95);
@@ -166,19 +161,14 @@
     filter: brightness(1.1);
 }
 
-.foto-texto {
-    padding: 1rem 0.8rem;
-    text-align: center;
-    color: #f0f0f0;
-    font-size: 0.9rem;
-    font-weight: 500;
-    background: rgba(0, 0, 0, 0.9);
-    margin: 0;
-    line-height: 1.3;
-    margin-top: auto;
+/* Eliminar altura fija para que se adapte al ratio */
+.foto-item {
+    height: auto !important;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Efectos hover */
+/* Efectos hover mejorados */
 .foto-item:hover {
     transform: translateY(-5px) scale(1.02);
     box-shadow: 
