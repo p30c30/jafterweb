@@ -1,6 +1,6 @@
 /* === MODAL MEJORADO CON NAVEGACIÓN + BOTTOM SHEET (mobile) === */
 
-/* Recomendado: asegura que no haya márgenes por defecto */
+/* Reset básico */
 html, body {
   height: 100%;
   margin: 0;
@@ -16,7 +16,7 @@ html, body {
   height: 100dvh; /* Altura real en móviles */
   background: rgba(0, 0, 0, 0.98);
   z-index: 1000;
-  overflow: hidden; /* que el contenido gestione su overflow */
+  overflow: hidden; /* el contenido gestiona su propio overflow */
   cursor: pointer; /* Cerrar al hacer clic en overlay */
   overscroll-behavior: contain; /* Evitar rebote detrás */
 }
@@ -35,7 +35,7 @@ html, body {
   min-height: 100vh;
   min-height: 100dvh;
   padding: 25px;
-  padding-bottom: 120px; /* solo escritorio; en móvil lo anulamos */
+  padding-bottom: 120px; /* escritorio; en móvil lo anulamos */
   cursor: default; /* No cerrar al hacer clic dentro */
 }
 
@@ -63,7 +63,7 @@ html, body {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
   transition: transform 0.2s ease;
   transform-origin: center center;
-  touch-action: none; /* permite control fino de pinch/drag dentro de la imagen */
+  touch-action: none; /* habilitar control fino de pinch/drag */
   user-select: none;
   -webkit-user-drag: none;
 }
@@ -72,7 +72,7 @@ html, body {
 .modal-img.zoomed { cursor: move; }
 .modal-img.grabbing { cursor: grabbing !important; }
 
-/* Botones de navegación (Escritorio) */
+/* Botones de navegación (escritorio) */
 .nav-button {
   position: fixed;
   top: 50%;
@@ -94,7 +94,6 @@ html, body {
   opacity: 0.8;
   user-select: none;
 }
-
 .nav-button:hover {
   background: rgba(253, 184, 19, 0.95);
   color: #000;
@@ -102,7 +101,6 @@ html, body {
   transform: translateY(-50%) scale(1.12);
   box-shadow: 0 0 20px rgba(253, 184, 19, 0.5);
 }
-
 .prev-button { left: 25px; }
 .next-button { right: 25px; }
 
@@ -154,7 +152,6 @@ html, body {
   margin-bottom: 0.5rem;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
-
 .foto-title {
   color: #ffffff;
   font-size: 1.1rem;
@@ -187,7 +184,6 @@ html, body {
   transition: all 0.3s ease;
   opacity: 0.8;
 }
-
 .close-modal:hover {
   background: rgba(253, 184, 19, 0.9);
   color: #000;
@@ -196,7 +192,7 @@ html, body {
   box-shadow: 0 0 12px rgba(253, 184, 19, 0.4);
 }
 
-/* Scroll bloqueado cuando modal está abierto */
+/* Bloquear scroll del body con modal abierto */
 body.modal-open { overflow: hidden; }
 
 /* ================== MÓVIL: BOTTOM SHEET DEBAJO DE LA FOTO ================== */
@@ -294,10 +290,7 @@ body.modal-open { overflow: hidden; }
       height: calc(100dvh - var(--info-height)) !important;
       max-height: calc(100dvh - var(--info-height)) !important;
     }
-    .foto-title {
-      font-size: 0.95rem;
-      line-height: 1.35;
-    }
+    .foto-title { font-size: 0.95rem; line-height: 1.35; }
   }
 
   /* Ocultar botones de navegación en móvil para más espacio */
@@ -330,16 +323,16 @@ body.modal-open { overflow: hidden; }
   .modal-info { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
 }
 
-/* ================== MINIATURAS EN MÓVIL: ADAPTAR SIN RECORTAR ================== */
+/* ================== MINIATURAS EN MÓVIL: VER COMPLETAS ================== */
 @media (max-width: 1024px) {
   .fotos-grid {
-    /* si ya tienes grid definido, puedes omitir esta parte */
+    /* si ya tienes grid definido, puedes omitir esto si interfiere */
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
   }
   .foto-item {
-    aspect-ratio: 1 / 1; /* cuadradas; ajusta a tu gusto */
+    aspect-ratio: 1 / 1; /* cuadradas; quítalo si prefieres mantener la altura automática */
     background: #000;
     display: flex;
     align-items: center;
