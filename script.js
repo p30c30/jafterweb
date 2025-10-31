@@ -1,4 +1,4 @@
-// SCRIPT.JS - VERSIÓN COMPLETA (mobile: pinch zoom, back nativo, bottom sheet)
+// SCRIPT.JS - Móvil con pinch zoom, back nativo (History API) y bottom sheet
 console.log('✅ script.js CARGADO');
 
 // Variables globales
@@ -42,7 +42,6 @@ function iniciar() {
   const logo = document.getElementById('logoHome');
   if (logo) {
     logo.addEventListener('click', () => {
-      // Navega a home manteniendo el historial coherente
       if (currentView !== 'home') {
         history.pushState({ view: 'home' }, '');
         aplicarEstado({ view: 'home' });
@@ -89,7 +88,6 @@ function crearBotonScrollTop() {
     }
   });
 }
-
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -147,11 +145,9 @@ function aplicarEstado(state) {
 }
 
 function goBackOneStep() {
-  // Si estamos en modal o sección, retrocede; si ya estás en home, no salgas del sitio
   if (history.state && history.state.view !== 'home') {
     history.back();
   } else {
-    // Estado base: asegura home en UI
     aplicarEstado({ view: 'home' });
     history.replaceState({ view: 'home' }, '');
   }
@@ -840,7 +836,7 @@ function navegarFoto(direccion) {
       fotoTitle.textContent = nuevaFoto.texto;
     }
 
-    // Actualiza estado modal en el historial (sin añadir más pasos)
+    // Actualiza estado del modal en historial sin añadir paso
     if (!isHandlingPopstate && history.state && history.state.view === 'modal' && currentSeccion) {
       history.replaceState({ view: 'modal', seccionId: currentSeccion.id, fotoIndex: currentFotoIndex }, '');
     }
@@ -1012,7 +1008,7 @@ function attachBottomSheet(modal) {
     // Snap al estado más cercano
     const currentPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
     const midPx = (vhToPx(getCollapsed()) + vhToPx(getExpanded())) / 2;
-    if (currentPx >= midPx) { expand(); } else { collapse(); }
+    if (currentPx >= midPx) { setInfoHeight(getExpanded()); } else { setInfoHeight(getCollapsed()); }
     ignoreNextClick = true;
     setTimeout(() => { ignoreNextClick = false; }, 250);
   });
