@@ -319,13 +319,14 @@ function mostrarSeccion(seccion) {
     }
     
     seccionView.innerHTML = `
-        <header class="seccion-header">
-            <button class="back-button" title="Volver">←</button>
+    <header class="seccion-header">
+        <button class="back-button" title="Volver">←</button>
+        <div class="seccion-title-container">
             <h1>${seccion.titulo}</h1>
-            <p>${seccion.descripcion}</p>
-        </header>
-        <div class="fotos-grid" id="fotos-container"></div>
-    `;
+        </div>
+    </header>
+    <div class="fotos-grid" id="fotos-container"></div>
+`;
     
     seccionView.style.display = 'block';
     
