@@ -3,17 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <title>Galería Jafter - Fotografía Inspiradora</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Meta viewport actualizado para iOS safe areas y dvh -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <!-- Archivos CSS en carpeta styles -->
-  <link rel="stylesheet" href="styles/main.css?v=4">
-  <link rel="stylesheet" href="styles/layout.css?v=4" />
-  <link rel="stylesheet" href="styles/components.css?v=4" />
-  <link rel="stylesheet" href="styles/modal.css?v=4" />
-  <link rel="stylesheet" href="styles/carrusel.css?v=4" />
-  <link rel="stylesheet" href="styles/responsive.css?v=4" />
+  <link rel="stylesheet" href="styles/main.css?v=6">
+  <link rel="stylesheet" href="styles/layout.css?v=6" />
+  <link rel="stylesheet" href="styles/components.css?v=6" />
+  <link rel="stylesheet" href="styles/carrusel.css?v=6" />
+  <!-- Carga modal.css antes de responsive.css (responsive queda al final para posibles ajustes generales) -->
+  <link rel="stylesheet" href="styles/modal.css?v=6" />
+  <link rel="stylesheet" href="styles/responsive.css?v=6" />
 </head>
 <body>
-  <!-- Header CORREGIDO -->
+  <!-- Header -->
   <header class="site-header">
     <div class="logo" id="logoHome" role="button" aria-label="Ir a inicio">Galería Jafter</div>
   </header>
@@ -21,8 +23,6 @@
   <main id="content" class="container">
     <!-- Vista principal -->
     <div id="home-view" class="home-view">
-     
-      
       <!-- Secciones/tarjetas se cargarán aquí -->
       <div id="secciones-container" class="section-cards"></div>
 
@@ -78,6 +78,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=4" defer></script>
+  <script src="script.js?v=6" defer></script>
 </body>
 </html>
