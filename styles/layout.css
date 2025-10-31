@@ -221,6 +221,7 @@
 /* AQUÍ VA EL NUEVO CSS DEL RECUADRO FLEXIBLE */
 #inspiration-section .inspiration-image {
     width: 100%;
+    max-width: 500px; /* ← Tamaño máximo */
     height: auto;
     background: linear-gradient(135deg, rgba(253, 184, 19, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
     border-radius: 10px;
