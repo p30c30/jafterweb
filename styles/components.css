@@ -155,22 +155,31 @@
     flex-direction: column;
 }
 
-/* IMÁGENES CON ALTURA NATURAL */
+/* IMÁGENES QUE LLENAN COMPLETAMENTE LA MINIATURA */
 .foto-miniatura {
     width: 100%;
-    height: auto; /* ALTURA AUTOMÁTICA SEGÚN PROPORCIÓN */
-    object-fit: contain; /* IMAGEN COMPLETA SIN RECORTAR */
+    height: 100%; /* ← OCUPA TODO EL ESPACIO */
+    object-fit: cover; /* ← LLENA EL CONTENEDOR (distorsión mínima) */
+    object-position: center; /* ← ENFOCA EL CENTRO */
     display: block;
     transition: transform 0.5s ease;
     filter: brightness(0.95);
-    border-radius: 8px 8px 0 0; /* REDONDEAR SOLO ARRIBA */
 }
 
-.foto-item:hover .foto-miniatura {
-    transform: scale(1.05);
-    filter: brightness(1.1);
+.foto-item {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    position: relative;
+    break-inside: avoid;
+    /* ALTURA FIJA PARA CONSISTENCIA */
+    height: 250px; /* ← ALTURA UNIFORME */
+    display: flex;
+    flex-direction: column;
 }
-
 .foto-texto {
     padding: 1rem 0.8rem;
     text-align: center;
