@@ -221,9 +221,10 @@
 /* AQUÍ VA EL NUEVO CSS DEL RECUADRO FLEXIBLE */
 #inspiration-section .inspiration-image {
     width: 100%;
-    max-width: 500px; /* ← Tamaño máximo */
+    max-width: 400px; /* ← Tamaño máximo del recuadro */
     height: auto;
-    margin: 0 auto; /* ← Centrado */
+    max-height: 400px; /* ← Altura máxima también */
+    margin: 0 auto;
     background: linear-gradient(135deg, rgba(253, 184, 19, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
     border-radius: 10px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
@@ -232,17 +233,18 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: 0;
-    transition: all 0.3s ease;
+    padding: 20px; /* ← Espacio interno */
 }
 
 #inspiration-section img {
     width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 10px;
+    height: 100%;
+    max-height: 360px; /* ← 400px - 40px de padding */
+    object-fit: contain; /* ← Mantiene proporción sin recortar */
+    border-radius: 8px;
     transition: transform 0.3s ease;
 }
+
 
 #inspiration-section .inspiration-image:hover {
     transform: translateY(-5px);
