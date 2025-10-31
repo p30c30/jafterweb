@@ -125,24 +125,19 @@
     color: #ffffff;
 }
 
-/* ================== GRID MODERNO CON ALTURAS NATURALES ================== */
+/* ================== GRID MODERNO CON Mansory ================== */
 .fotos-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    grid-auto-flow: dense; /* ← CLAVE: RELLENA HUECOS */
-    gap: 0.8rem; /* ← MÁS COMPACTO */
+    columns: 4 280px; /* Máximo 4 columnas, mínimo 280px */
+    column-gap: 0.8rem;
     margin: 1.5rem 0;
     padding: 0 0.5rem;
-    align-items: start;
 }
 
-/* OPCIONAL: Para fotos que puedan ocupar más espacio */
-.foto-item:nth-child(3n) {
-    grid-row: span 1; /* Algunas pueden ser más altas */
-}
-
-.foto-item:nth-child(5n) {
-    grid-column: span 1; /* Algunas pueden ser más anchas */
+.foto-item {
+    break-inside: avoid; /* ← CLAVE: evita que se partan entre columnas */
+    margin-bottom: 0.8rem;
+    display: inline-block; /* ← NECESARIO para masonry */
+    width: 100%;
 }
 
 .foto-item {
