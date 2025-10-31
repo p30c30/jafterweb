@@ -334,30 +334,42 @@
     }
 }
 
-/* ========== MINIATURAS EN MÓVIL: MOSTRAR COMPLETAS (sin recortar) ========== */
-/* Reemplaza el antiguo “ELIMINAR FRANJAS NEGRAS” que imponía object-fit: cover y alturas fijas */
-@media (max-width: 768px) and (orientation: portrait) {
+/* ================== MINIATURAS EN MÓVIL: RELLENAR SIN RESPETAR RATIO ================== */
+/* Ocupan el 100% del contenedor (sin bandas), aunque se distorsionen un poco */
+@media (max-width: 768px) {
+    .fotos-grid {
+        /* Forzamos grid para ignorar masonry por columnas en mobile */
+        display: grid !important;
+        columns: auto !important; /* anula masonry */
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+        column-gap: unset !important;
+        padding: 0 10px;
+    }
     .foto-item {
-        height: auto !important;              /* sin altura fija */
+        display: block !important;
+        width: 100% !important;
+        aspect-ratio: 1 / 1; /* Cambia aquí si prefieres 4/3, 3/2, etc. */
+        overflow: hidden;
+        margin-bottom: 0 !important; /* anula separación de masonry */
     }
     .foto-miniatura {
         width: 100% !important;
-        height: auto !important;
-        object-fit: contain !important;       /* ver la foto entera */
+        height: 100% !important;
+        object-fit: fill !important; /* rellena sin bandas (puede distorsionar) */
         object-position: center !important;
-        background: #000;                     /* “barras” discretas si el ratio no llena */
-    }
-    /* Si prefieres 1 sola columna en vertical, déjalo;
-       si quieres 2 columnas, comenta la línea siguiente */
-    .fotos-grid {
-        columns: 1 !important;
+        display: block;
+        background: #000;
+        transform: none !important; /* evita zoom hover que altere el relleno */
     }
 }
 
-/* Móviles muy pequeños en vertical: también sin alturas fijas */
-@media (max-width: 480px) and (orientation: portrait) {
-    .foto-item {
-        height: auto !important;
+/* Móviles muy pequeños: 1 columna */
+@media (max-width: 480px) {
+    .fotos-grid {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        padding: 0 8px;
     }
 }
 
@@ -370,11 +382,6 @@
         height: 45px;
         font-size: 1.3rem;
     }
-    
-    .fotos-grid {
-        columns: 2 160px !important;
-        column-gap: 0.6rem !important;
-    }
 }
 
 @media (max-width: 480px) {
@@ -384,11 +391,6 @@
         width: 40px;
         height: 40px;
         font-size: 1.2rem;
-    }
-    
-    .fotos-grid {
-        columns: 1 !important;
-        padding: 0 0.8rem !important;
     }
 }
 
