@@ -1,4 +1,4 @@
-// SCRIPT.JS - Móvil con pinch zoom, back nativo (History API) y bottom sheet
+// SCRIPT.JS - Móvil con pinch zoom, back nativo (History API) y bottom sheet + Carrusel infinito
 console.log('✅ script.js CARGADO');
 
 // Variables globales
@@ -7,7 +7,7 @@ let currentFotoIndex = 0;
 let todasLasFotos = [];
 let carruselActualIndex = 0;
 let carruselFotos = [];
-let autoPlayInterval;
+let autoPlayInterval; // obsoleta (mantenida por compatibilidad)
 let datosGlobales = null;
 let isModalOpen = false;
 
@@ -34,6 +34,16 @@ let pinchStartScale = 1;
 
 // Keydown handler para poder limpiarlo al cerrar
 let keydownHandler = null;
+
+// === Carrusel: autoplay y bucle infinito ===
+let carouselTimer = null;
+const carouselAutoDelay = 20000;     // 20s
+const carouselUserPauseMs = 60000;   // 60s tras interacción
+let pendingAutoplayDelay = carouselAutoDelay;
+let carruselInnerRef = null;
+let carruselRealLength = 0;          // nº de ítems reales (sin clones)
+let carruselPosition = 1;            // posición con clones (1..n), 0 y n+1 = clones
+let carruselTransitionHandler = null;
 
 // Función principal
 function iniciar() {
@@ -207,7 +217,7 @@ async function cargarDatos(container) {
   }
 }
 
-// ================== CARRUSEL ÚLTIMAS FOTOS ==================
+// ================== CARRUSEL ÚLTIMAS FOTOS (infinito + autoplay estable) ==================
 function cargarCarrusel(data) {
   const container = document.getElementById('ultimas-fotos-carrusel');
   const dotsContainer = document.getElementById('carrusel-dots');
@@ -225,12 +235,11 @@ function cargarCarrusel(data) {
 }
 
 function obtenerFotosParaCarrusel(data) {
-  const todasLasFotosLocal = [];
-  
+  const fotosPlanas = [];
   data.secciones.forEach(seccion => {
-    if (seccion.fotos && Array.isArray(seccion.fotos)) {
+    if (Array.isArray(seccion.fotos)) {
       seccion.fotos.forEach((foto, index) => {
-        todasLasFotosLocal.push({
+        fotosPlanas.push({
           ...foto,
           seccionId: seccion.id,
           seccionTitulo: seccion.titulo,
@@ -239,159 +248,255 @@ function obtenerFotosParaCarrusel(data) {
       });
     }
   });
-  
-  console.log(`📸 Encontradas ${todasLasFotosLocal.length} fotos en total`);
-  const ultimas = todasLasFotosLocal.slice(-6).reverse();
-  console.log(`🎠 Mostrando ${ultimas.length} fotos en el carrusel`);
-  
+  // 20 últimas, mostrando la más reciente primero
+  const ultimas = fotosPlanas.slice(-20).reverse();
+  console.log(`🎠 Carrusel: usando ${ultimas.length} últimas fotos`);
   return ultimas;
 }
 
 function mostrarCarruselFotos(fotos, container, dotsContainer) {
   container.innerHTML = '';
-  dotsContainer.innerHTML = '';
+  if (dotsContainer) dotsContainer.innerHTML = '';
   
-  if (fotos.length === 0) {
+  if (!fotos.length) {
     container.innerHTML = '<div class="carrusel-item"><p class="no-fotos">No hay fotos recientes</p></div>';
     return;
   }
   
-  fotos.forEach((foto, index) => {
-    const carruselItem = document.createElement('div');
-    carruselItem.className = `carrusel-item ${index === 0 ? 'active' : ''}`;
-    carruselItem.innerHTML = `
+  // Crea ítems reales
+  fotos.forEach((foto) => {
+    const item = document.createElement('div');
+    item.className = `carrusel-item`;
+    item.innerHTML = `
       <img src="${foto.url}" alt="${foto.texto}" class="carrusel-img">
       <div class="carrusel-info">
         <div class="carrusel-desc">${foto.texto}</div>
       </div>
     `;
-    
-    carruselItem.addEventListener('click', () => {
+    item.addEventListener('click', () => {
       irAFotoEnSeccion(foto.seccionId, foto.indiceEnSeccion);
     });
-    
-    container.appendChild(carruselItem);
+    container.appendChild(item);
   });
-  
-  fotos.forEach((_, index) => {
-    const dot = document.createElement('button');
-    dot.className = `carrusel-dot ${index === 0 ? 'active' : ''}`;
-    dot.addEventListener('click', () => {
-      pausarCarrusel();
-      moverCarruselA(index);
+
+  // Dots (se ocultan en móvil por CSS)
+  if (dotsContainer) {
+    fotos.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.className = `carrusel-dot ${index === 0 ? 'active' : ''}`;
+      dot.addEventListener('click', () => {
+        pausarCarrusel(); // pausa 1 min
+        moverCarruselA(index, { delayAfterMs: carouselUserPauseMs });
+      });
+      dotsContainer.appendChild(dot);
     });
-    dotsContainer.appendChild(dot);
-  });
-  
+  }
+
+  // Preparar infinito con clones
+  setupCarruselInfinito(container);
+
+  // Activa botones (prev/next)
   configurarBotonesCarrusel();
+
+  // Marca los dots
   actualizarCarrusel();
 }
 
-function configurarBotonesCarrusel() {
-  const prevBtn = document.querySelector('.prev-btn');
-  const nextBtn = document.querySelector('.next-btn');
-  
-  if (prevBtn) {
-    prevBtn.addEventListener('click', () => {
-      pausarCarrusel();
-      moverCarruselA(carruselActualIndex - 1);
-    });
-  }
-  
-  if (nextBtn) {
-    nextBtn.addEventListener('click', () => {
-      pausarCarrusel();
-      moverCarruselA(carruselActualIndex + 1);
-    });
-  }
-}
+function setupCarruselInfinito(inner) {
+  carruselInnerRef = inner;
+  const slides = Array.from(inner.querySelectorAll('.carrusel-item'));
+  carruselRealLength = slides.length;
+  if (carruselRealLength === 0) return;
 
-function pausarCarrusel() {
-  clearInterval(autoPlayInterval);
-  setTimeout(() => { iniciarAutoPlay(); }, 30000);
-}
+  // Limpia clones previos si los hubiera
+  inner.querySelectorAll('.carrusel-item.clone').forEach(n => n.remove());
 
-function moverCarruselA(nuevoIndex) {
-  if (nuevoIndex < 0) {
-    nuevoIndex = carruselFotos.length - 1;
-  } else if (nuevoIndex >= carruselFotos.length) {
-    nuevoIndex = 0;
+  // Clonar primero y último
+  const firstClone = slides[0].cloneNode(true);
+  const lastClone  = slides[slides.length - 1].cloneNode(true);
+  firstClone.classList.add('clone');
+  lastClone.classList.add('clone');
+  inner.appendChild(firstClone);
+  inner.insertBefore(lastClone, inner.firstChild);
+
+  // Posición inicial en el primer real
+  carruselActualIndex = 0;
+  carruselPosition = 1;
+  inner.style.transition = 'none';
+  inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
+  void inner.offsetHeight; // reflow
+  inner.style.transition = 'transform 0.5s ease-in-out';
+
+  // Transition end para hacer el “wrap”
+  if (carruselTransitionHandler) {
+    inner.removeEventListener('transitionend', carruselTransitionHandler);
   }
-  carruselActualIndex = nuevoIndex;
-  actualizarCarrusel();
+  carruselTransitionHandler = function(e) {
+    if (e.target !== inner) return;
+
+    if (carruselPosition === 0) {
+      // Hemos ido al clon de la izquierda → saltar al último real
+      inner.style.transition = 'none';
+      carruselPosition = carruselRealLength;
+      inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
+      void inner.offsetHeight;
+      inner.style.transition = 'transform 0.5s ease-in-out';
+    } else if (carruselPosition === carruselRealLength + 1) {
+      // Hemos ido al clon de la derecha → saltar al primero real
+      inner.style.transition = 'none';
+      carruselPosition = 1;
+      inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
+      void inner.offsetHeight;
+      inner.style.transition = 'transform 0.5s ease-in-out';
+    }
+
+    // Reprograma autoplay con el delay pendiente
+    startCarouselAutoplay(pendingAutoplayDelay);
+  };
+  inner.addEventListener('transitionend', carruselTransitionHandler);
 }
 
 function actualizarCarrusel() {
-  const carruselInner = document.querySelector('.carrusel-inner');
   const dots = document.querySelectorAll('.carrusel-dot');
-  
-  if (carruselInner) {
-    carruselInner.style.transform = `translateX(-${carruselActualIndex * 100}%)`;
-  }
-  
   dots.forEach((dot, index) => {
     dot.classList.toggle('active', index === carruselActualIndex);
   });
 }
 
+function moverCarruselA(nuevoIndex, opts = {}) {
+  const inner = carruselInnerRef || document.querySelector('.carrusel-inner');
+  if (!inner || carruselRealLength === 0) return;
+
+  // Delay a programar tras completar esta animación
+  pendingAutoplayDelay = opts.delayAfterMs ?? carouselAutoDelay;
+
+  // Normaliza índice real
+  if (nuevoIndex < 0) nuevoIndex = carruselRealLength - 1;
+  if (nuevoIndex >= carruselRealLength) nuevoIndex = 0;
+
+  // Detecta paso +/-1 para usar clones y evitar “saltos” largos
+  const stepDir = opts.stepDirection; // -1, +1 o undefined
+  if (stepDir === -1 && carruselPosition === 1 && nuevoIndex === carruselRealLength - 1) {
+    // Desde el primero hacia la izquierda → al clon 0
+    carruselPosition = 0;
+  } else if (stepDir === 1 && carruselPosition === carruselRealLength && nuevoIndex === 0) {
+    // Desde el último hacia la derecha → al clon n+1
+    carruselPosition = carruselRealLength + 1;
+  } else {
+    // Normal: ir a la posición del índice real
+    carruselPosition = nuevoIndex + 1;
+  }
+
+  // Actualiza índice actual real (para dots)
+  carruselActualIndex = nuevoIndex;
+
+  inner.style.transition = 'transform 0.5s ease-in-out';
+  inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
+
+  actualizarCarrusel();
+}
+
+function startCarouselAutoplay(delay = carouselAutoDelay) {
+  clearTimeout(carouselTimer);
+  carouselTimer = setTimeout(() => {
+    moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselAutoDelay, stepDirection: 1 });
+  }, delay);
+}
+
+function stopCarouselAutoplay() {
+  clearTimeout(carouselTimer);
+  carouselTimer = null;
+}
+
 function iniciarAutoPlay() {
-  autoPlayInterval = setInterval(() => {
-    moverCarruselA(carruselActualIndex + 1);
-  }, 20000);
+  startCarouselAutoplay(carouselAutoDelay);
+}
+
+function pausarCarrusel() {
+  // Pausa 1 minuto y luego continúa
+  startCarouselAutoplay(carouselUserPauseMs);
+}
+
+function configurarBotonesCarrusel() {
+  const prevBtn = document.querySelector('.prev-btn');
+  const nextBtn = document.querySelector('.next-btn');
+
+  if (prevBtn) {
+    prevBtn.onclick = () => {
+      pausarCarrusel();
+      moverCarruselA(carruselActualIndex - 1, { delayAfterMs: carouselUserPauseMs, stepDirection: -1 });
+    };
+  }
+  if (nextBtn) {
+    nextBtn.onclick = () => {
+      pausarCarrusel();
+      moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselUserPauseMs, stepDirection: 1 });
+    };
+  }
 }
 
 function configurarInteraccionCarrusel() {
-    const carrusel = document.querySelector('.carrusel');
-    const inner = document.querySelector('.carrusel-inner');
-    if (!carrusel || !inner) return;
+  const carrusel = document.querySelector('.carrusel');
+  const inner = document.querySelector('.carrusel-inner');
+  if (!carrusel || !inner) return;
 
-    // Pausar autoplay al entrar con ratón (desktop)
-    carrusel.addEventListener('mouseenter', () => { clearInterval(autoPlayInterval); });
-    carrusel.addEventListener('mouseleave', () => { iniciarAutoPlay(); });
+  // Hover (desktop): pausa mientras esté encima
+  carrusel.addEventListener('mouseenter', () => { stopCarouselAutoplay(); });
+  carrusel.addEventListener('mouseleave', () => { startCarouselAutoplay(carouselAutoDelay); });
 
-    // Swipe horizontal (mobile)
-    let startX = 0;
-    let isDragging = false;
-    let dx = 0;
+  // Swipe (touch y también arrastre con ratón opcional)
+  let startX = 0;
+  let isDragging = false;
+  let dx = 0;
 
-    function onStart(e) {
-        isDragging = true;
-        dx = 0;
-        startX = (e.touches ? e.touches[0].clientX : e.clientX);
-        inner.style.transition = 'none';
+  function onStart(e) {
+    isDragging = true;
+    dx = 0;
+    startX = (e.touches ? e.touches[0].clientX : e.clientX);
+    inner.style.transition = 'none';
+    stopCarouselAutoplay();
+  }
+
+  function onMove(e) {
+    if (!isDragging) return;
+    const x = (e.touches ? e.touches[0].clientX : e.clientX);
+    dx = x - startX;
+    // Arrastra en píxeles tomando la slide actual como base
+    const base = -(carruselPosition * carrusel.offsetWidth);
+    inner.style.transform = `translateX(${base + dx}px)`;
+  }
+
+  function onEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    inner.style.transition = 'transform 0.35s ease';
+    const width = carrusel.offsetWidth;
+
+    if (Math.abs(dx) > width * 0.2) {
+      // Cambio de slide
+      if (dx < 0) {
+        moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselUserPauseMs, stepDirection: 1 });
+      } else {
+        moverCarruselA(carruselActualIndex - 1, { delayAfterMs: carouselUserPauseMs, stepDirection: -1 });
+      }
+      // Pausa 1 min tras swipe
+      startCarouselAutoplay(carouselUserPauseMs);
+    } else {
+      // Volver a su sitio
+      inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
+      startCarouselAutoplay(carouselAutoDelay);
     }
+    dx = 0;
+  }
 
-    function onMove(e) {
-        if (!isDragging) return;
-        const x = (e.touches ? e.touches[0].clientX : e.clientX);
-        dx = x - startX;
-        // Mueve con el dedo, partiendo del slide actual
-        inner.style.transform = `translateX(calc(-${carruselActualIndex * 100}% + ${dx}px))`;
-    }
+  inner.addEventListener('touchstart', onStart, { passive: true });
+  inner.addEventListener('touchmove', onMove, { passive: true });
+  inner.addEventListener('touchend', onEnd, { passive: true });
 
-    function onEnd() {
-        if (!isDragging) return;
-        isDragging = false;
-        inner.style.transition = 'transform 0.35s ease';
-        const width = carrusel.offsetWidth;
-        // Si arrastras más de 20% del ancho o rápido, cambia
-        if (Math.abs(dx) > width * 0.2) {
-            moverCarruselA(carruselActualIndex + (dx < 0 ? 1 : -1));
-        } else {
-            actualizarCarrusel();
-        }
-        dx = 0;
-    }
-
-    // Eventos touch y mouse (por si quieres arrastrar con ratón)
-    inner.addEventListener('touchstart', onStart, { passive: true });
-    inner.addEventListener('touchmove', onMove, { passive: true });
-    inner.addEventListener('touchend', onEnd, { passive: true });
-    inner.addEventListener('mousedown', onStart);
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onEnd);
+  inner.addEventListener('mousedown', onStart);
+  window.addEventListener('mousemove', onMove);
+  window.addEventListener('mouseup', onEnd);
 }
-
 
 // ================== MOSTRAR SECCIÓN ==================
 function mostrarSeccion(seccion, opts = { push: true }) {
@@ -885,7 +990,7 @@ function navegarFoto(direccion) {
   img.src = nuevaFoto.url;
 }
 
-// ================== SWIPE HORIZONTAL PARA NAVEGAR ==================
+// ================== SWIPE HORIZONTAL PARA NAVEGAR (MODAL) ==================
 function attachSwipeToModal(modal) {
   const container = modal.querySelector('.modal-img-container');
   if (!container) return;
