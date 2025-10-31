@@ -460,4 +460,36 @@
 .foto-counter {
     margin-bottom: 0.5rem !important;
 }
+/* ========== FIX ESPECÍFICO PARA TARJETAS CON IMÁGENES DIFERENTES ========== */
+.card .card-image {
+    height: 240px !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    width: 100% !important;
+}
 
+/* Reset completo del ::after */
+.card::after {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    bottom: 0 !important;
+    filter: blur(0) !important;
+    background: transparent !important;
+    transition: none !important;
+}
+
+/* Solo mostrar en hover */
+.card:hover::after {
+    opacity: 1 !important;
+    visibility: visible !important;
+    height: 50px !important;
+    bottom: -25px !important;
+    filter: blur(20px) !important;
+    background: radial-gradient(ellipse at center, 
+        rgba(253, 184, 19, 0.5) 0%, 
+        rgba(253, 184, 19, 0.3) 30%, 
+        rgba(253, 184, 19, 0.2) 60%, 
+        transparent 100%) !important;
+    transition: all 0.4s ease !important;
+}
