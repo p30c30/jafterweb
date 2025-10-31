@@ -1,393 +1,229 @@
 /* Grid de secciones/tarjetas - MÁS COMPACTO */
 .section-cards {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(350px, 1fr));
-    gap: 2rem;
-    margin: 3rem 0;
-    justify-content: center;
+display: grid;
+grid-template-columns: repeat(3, minmax(350px, 1fr));
+gap: 2rem;
+margin: 3rem 0;
+justify-content: center;
 }
 
 /* ================== TARJETAS CON EFECTOS DE LUZ COMPLETOS ================== */
 .card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 18px;
-    padding: 0;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    height: 100%;
-    position: relative;
+background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+border: 1px solid rgba(255, 255, 255, 0.08);
+border-radius: 18px;
+padding: 0;
+overflow: hidden;
+cursor: pointer;
+transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+height: 100%;
+position: relative;
 }
 
 /* Efecto de luz que sale por debajo */
 .card::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 85%;
-    height: 40px;
-    background: radial-gradient(ellipse at center, 
-        rgba(253, 184, 19, 0.5) 0%, 
-        rgba(253, 184, 19, 0.3) 30%, 
-        rgba(253, 184, 19, 0.2) 60%, 
-        transparent 100%);
-    opacity: 0;
-    transition: all 0.4s ease;
-    filter: blur(15px);
-    z-index: 0;
+content: '';
+position: absolute;
+bottom: -20px;
+left: 50%;
+transform: translateX(-50%);
+width: 85%;
+height: 40px;
+background: radial-gradient(ellipse at center, 
+rgba(253, 184, 19, 0.5) 0%, 
+rgba(253, 184, 19, 0.3) 30%, 
+rgba(253, 184, 19, 0.2) 60%, 
+transparent 100%);
+opacity: 0;
+transition: all 0.4s ease;
+filter: blur(15px);
+z-index: 0;
 }
 
 /* Efecto de brillo que se desliza por encima */
 .card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(253, 184, 19, 0.3), transparent);
-    transition: left 0.6s ease;
-    z-index: 1;
+content: '';
+position: absolute;
+top: 0;
+left: -100%;
+width: 100%;
+height: 100%;
+background: linear-gradient(90deg, transparent, rgba(253, 184, 19, 0.3), transparent);
+transition: left 0.6s ease;
+z-index: 1;
 }
 
 .card:hover::before {
-    left: 100%;
+left: 100%;
 }
 
 /* Efecto principal al hover CON LUZ POR DEBAJO */
 .card:hover {
-    transform: translateY(-12px) scale(1.03);
-    box-shadow: 
-        0 25px 45px rgba(0, 0, 0, 0.5),
-        0 0 40px rgba(253, 184, 19, 0.4),
-        0 0 80px rgba(253, 184, 19, 0.3);
-    border-color: rgba(253, 184, 19, 0.8);
-    filter: brightness(1.15);
+transform: translateY(-12px) scale(1.03);
+box-shadow: 
+0 25px 45px rgba(0, 0, 0, 0.5),
+0 0 40px rgba(253, 184, 19, 0.4),
+0 0 80px rgba(253, 184, 19, 0.3);
+border-color: rgba(253, 184, 19, 0.8);
+filter: brightness(1.15);
 }
 
 /* Activar la luz por debajo al hover */
 .card:hover::after {
-    opacity: 1;
-    bottom: -25px;
-    width: 90%;
-    height: 50px;
-    filter: blur(20px);
+opacity: 1;
+bottom: -25px;
+width: 90%;
+height: 50px;
+filter: blur(20px);
 }
 
 /* Imagen con zoom suave */
 .card-image {
-    width: 100%;
-    height: 240px;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.4s ease;
-    position: relative;
-    z-index: 2;
+width: 100%;
+height: 240px;
+object-fit: cover;
+display: block;
+transition: transform 0.4s ease;
+position: relative;
+z-index: 2;
 }
 
 .card:hover .card-image {
-    transform: scale(1.08);
+transform: scale(1.08);
 }
 
 /* Contenido de la tarjeta */
 .card-content {
-    padding: 1.8rem;
-    position: relative;
-    z-index: 2;
-    background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.9) 100%);
+padding: 1.8rem;
+position: relative;
+z-index: 2;
+background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.9) 100%);
 }
 
 .card-content h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.8rem;
-    color: #FDB813;
-    transition: color 0.3s ease;
-    font-weight: 600;
+font-size: 1.5rem;
+margin-bottom: 0.8rem;
+color: #FDB813;
+transition: color 0.3s ease;
+font-weight: 600;
 }
 
 .card:hover .card-content h3 {
-    color: #FFD700;
-    text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+color: #FFD700;
+text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
 }
 
 .card-content p {
-    color: #e0e0e0;
-    font-size: 1rem;
-    line-height: 1.6;
-    transition: color 0.3s ease;
+color: #e0e0e0;
+font-size: 1rem;
+line-height: 1.6;
+transition: color 0.3s ease;
 }
 
 .card:hover .card-content p {
-    color: #ffffff;
+color: #ffffff;
 }
 
-/* ================== GRID MASONRY COMPACTO ================== */
+/* ================== GRID MODERNO CON ALTURAS NATURALES ================== */
+/* ================== GRID MODERNO CON Mansory ================== */
 .fotos-grid {
-    columns: 4 280px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-auto-flow: dense; /* ← CLAVE: RELLENA HUECOS */
+    gap: 0.8rem; /* ← MÁS COMPACTO */
+    columns: 4 280px; /* Máximo 4 columnas, mínimo 280px */
     column-gap: 0.8rem;
-    margin: 1.5rem 0;
-    padding: 0 0.5rem;
+margin: 1.5rem 0;
+padding: 0 0.5rem;
+    align-items: start;
+}
+
+/* OPCIONAL: Para fotos que puedan ocupar más espacio */
+.foto-item:nth-child(3n) {
+    grid-row: span 1; /* Algunas pueden ser más altas */
+}
+
+.foto-item:nth-child(5n) {
+    grid-column: span 1; /* Algunas pueden ser más anchas */
+.foto-item {
+    break-inside: avoid; /* ← CLAVE: evita que se partan entre columnas */
+    margin-bottom: 0.8rem;
+    display: inline-block; /* ← NECESARIO para masonry */
+    width: 100%;
 }
 
 .foto-item {
-    break-inside: avoid;
-    margin-bottom: 0.8rem;
-    display: inline-block;
-    width: 100%;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    position: relative;
-    height: 250px;
-    display: flex;
-    flex-direction: column;
+background: rgba(255, 255, 255, 0.06);
+border-radius: 12px;
+overflow: hidden;
+cursor: pointer;
+transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+border: 1px solid rgba(255, 255, 255, 0.12);
+position: relative;
+break-inside: avoid;
+/* ALTURA AUTOMÁTICA SEGÚN CONTENIDO */
+height: auto;
+display: flex;
+flex-direction: column;
 }
 
-/* IMÁGENES QUE LLENAN COMPLETAMENTE LA MINIATURA */
+/* IMÁGENES CON ALTURA NATURAL */
 .foto-miniatura {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    display: block;
-    transition: transform 0.5s ease;
-    filter: brightness(0.95);
+width: 100%;
+height: auto; /* ALTURA AUTOMÁTICA SEGÚN PROPORCIÓN */
+object-fit: contain; /* IMAGEN COMPLETA SIN RECORTAR */
+display: block;
+transition: transform 0.5s ease;
+filter: brightness(0.95);
+border-radius: 8px 8px 0 0; /* REDONDEAR SOLO ARRIBA */
 }
 
 .foto-item:hover .foto-miniatura {
-    transform: scale(1.05);
-    filter: brightness(1.1);
+transform: scale(1.05);
+filter: brightness(1.1);
 }
 
 .foto-texto {
-    padding: 1rem 0.8rem;
-    text-align: center;
-    color: #f0f0f0;
-    font-size: 0.9rem;
-    font-weight: 500;
-    background: rgba(0, 0, 0, 0.9);
-    margin: 0;
-    line-height: 1.3;
-    margin-top: auto;
+padding: 1rem 0.8rem;
+text-align: center;
+color: #f0f0f0;
+font-size: 0.9rem;
+font-weight: 500;
+background: rgba(0, 0, 0, 0.9);
+margin: 0;
+line-height: 1.3;
+/* EL TEXTO SIEMPRE ABAJO */
+margin-top: auto;
 }
 
 /* Efectos hover */
 .foto-item:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 
-        0 15px 35px rgba(0, 0, 0, 0.4),
-        0 0 20px rgba(253, 184, 19, 0.3);
-    border-color: rgba(253, 184, 19, 0.3);
+transform: translateY(-5px) scale(1.02);
+box-shadow: 
+0 15px 35px rgba(0, 0, 0, 0.4),
+0 0 20px rgba(253, 184, 19, 0.3);
+border-color: rgba(253, 184, 19, 0.3);
 }
 
-/* ================== SECCIÓN INSPIRATION - TEXTO AJUSTADO ================== */
-#inspiration-section > div > div:first-child {
-    text-align: left;
-    max-width: 640px;
-    margin: 0 auto;
-}
-
-#inspiration-section h2 {
-    font-size: 2.2rem !important;
-    margin: 0 0 1.2rem !important;
-    color: #FDB813 !important;
-    font-weight: 600 !important;
-    line-height: 1.3 !important;
-    text-shadow: 0 0 20px rgba(253, 184, 19, 0.4) !important;
-    letter-spacing: 0.5px !important;
-}
-
-#inspiration-section p {
-    font-size: 1.2rem !important;
-    line-height: 1.6 !important;
-    margin: 0 0 1.2rem !important;
-    color: #f0f0f0 !important;
-    font-weight: 300 !important;
-}
-
-#inspiration-section p:last-child {
-    margin-bottom: 0 !important;
-}
-
-/* Para pantallas grandes */
-@media (min-width: 1200px) {
-    #inspiration-section > div {
-        padding: 45px !important;
-    }
-
-    #inspiration-section h2 {
-        font-size: 2.4rem !important;
-    }
-
-    #inspiration-section p {
-        font-size: 1.3rem !important;
-    }
-}
-
-/* Para tablets */
-@media (max-width: 900px) {
-    #inspiration-section > div {
-        grid-template-columns: 1fr !important;
-        gap: 25px !important;
-        padding: 35px !important;
-    }
-
-    #inspiration-section h2 {
-        font-size: 2.2rem !important;
-        text-align: center !important;
-    }
-
-    #inspiration-section p {
-        font-size: 1.3rem !important;
-        text-align: center !important;
-    }
-}
-
-/* Para móviles */
-@media (max-width: 480px) {
-    #inspiration-section {
-        padding: 0 15px !important;
-        margin: 50px auto !important;
-    }
-
-    #inspiration-section > div {
-        padding: 25px !important;
-    }
-
-    #inspiration-section h2 {
-        font-size: 1.9rem !important;
-    }
-
-    #inspiration-section p {
-        font-size: 1.1rem !important;
-    }
-}
-
-/* ================== BOTÓN SCROLL TO TOP ================== */
-.scroll-to-top {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 50px;
-    height: 50px;
-    background: rgba(253, 184, 19, 0.9);
-    color: #000;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    box-shadow: 0 4px 20px rgba(253, 184, 19, 0.4);
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    z-index: 999;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(20px);
-}
-
-.scroll-to-top.visible {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.scroll-to-top:hover {
-    background: #FDB813;
-    transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 6px 25px rgba(253, 184, 19, 0.6);
-}
-
-.scroll-to-top:active {
-    transform: translateY(-2px) scale(1.05);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .scroll-to-top {
-        bottom: 20px;
-        right: 20px;
-        width: 45px;
-        height: 45px;
-        font-size: 1.3rem;
-    }
-    
-    .fotos-grid {
-        columns: 2 160px !important;
-        column-gap: 0.6rem !important;
-    }
-}
-
-@media (max-width: 480px) {
-    .scroll-to-top {
-        bottom: 15px;
-        right: 15px;
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-    }
-    
-    .fotos-grid {
-        columns: 1 !important;
-        padding: 0 0.8rem !important;
-    }
-}
-
-/* Para pantallas muy grandes */
-@media (min-width: 1600px) {
-    .fotos-grid {
-        columns: 5 300px !important;
-        column-gap: 1rem !important;
-    }
-}
-
-/* ========== OCULTAR TÍTULO DE SECCIÓN EN MODAL ========== */
-.modal-title {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    font-size: 0 !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
-
-/* AJUSTAR ESPACIOS SIN EL TÍTULO */
-.modal-info {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-}
-
-.foto-counter {
-    margin-bottom: 0.5rem !important;
-}
+/* ... (el resto de tu CSS se mantiene igual) ... */
 
 /* ========== FIX BORDE GRIS PERMANENTE ========== */
 .card::after {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    filter: blur(0) !important;
-    background: transparent !important;
+opacity: 0 !important;
+visibility: hidden !important;
+pointer-events: none !important;
+filter: blur(0) !important;
+background: transparent !important;
 }
 
 .card:hover::after {
-    opacity: 1 !important;
-    visibility: visible !important;
-    filter: blur(20px) !important;
-    background: radial-gradient(ellipse at center, 
-        rgba(253, 184, 19, 0.5) 0%, 
-        rgba(253, 184, 19, 0.3) 30%, 
-        rgba(253, 184, 19, 0.2) 60%, 
-        transparent 100%) !important;
+opacity: 1 !important;
+visibility: visible !important;
+filter: blur(20px) !important;
+background: radial-gradient(ellipse at center, 
+rgba(253, 184, 19, 0.5) 0%, 
+rgba(253, 184, 19, 0.3) 30%, 
+rgba(253, 184, 19, 0.2) 60%, 
+transparent 100%) !important;
 }
