@@ -223,6 +223,7 @@
     width: 100%;
     max-width: 500px; /* ← Tamaño máximo */
     height: auto;
+    margin: 0 auto; /* ← Centrado */
     background: linear-gradient(135deg, rgba(253, 184, 19, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
     border-radius: 10px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
