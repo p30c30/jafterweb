@@ -110,7 +110,7 @@
 }
 .carrusel-dot:hover { background: rgba(253, 184, 19, 0.8); transform: scale(1.2); }
 
-/* ================== MÓVIL: ancho completo, sin flechas, altura responsive, swipe ================== */
+/* ================== MÓVIL: ancho completo, sin flechas, altura responsive ================== */
 @media (max-width: 767px) {
     .ultimas-fotos-section {
         width: 100vw; max-width: 100vw;
@@ -138,4 +138,33 @@
 /* Móviles pequeños: un poco menos de alto */
 @media (max-width: 480px) {
     .carrusel-inner { height: 55vh; }
+}
+
+/* ================== Chip de sección dentro del modal (estilo interactivo) ================== */
+.modal .section-chip {
+    margin-top: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: rgba(253, 184, 19, 0.15);
+    border: 1px solid rgba(253, 184, 19, 0.6);
+    color: #FDB813;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.modal .section-chip:hover {
+    background: rgba(253, 184, 19, 0.3);
+    box-shadow: 0 0 12px rgba(253, 184, 19, 0.3);
+    transform: translateY(-1px);
+}
+.modal .section-chip:active {
+    transform: translateY(0);
+    box-shadow: 0 0 0 rgba(0,0,0,0);
+}
+.modal .section-chip .chip-arrow {
+    font-weight: 700;
 }
