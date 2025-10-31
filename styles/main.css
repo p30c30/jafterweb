@@ -1,42 +1,5 @@
 /* Reset y base */
 
-/* ========== FIX NUCLEAR DEFINITIVO ========== */
-/* 1. NIVEL RAÍZ */
-html {
-    overflow-x: hidden !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    position: relative !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* 2. NIVEL BODY */
-body {
-    overflow-x: hidden !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    position: relative !important;
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* 3. TODOS LOS ELEMENTOS */
-* {
-    max-width: 100% !important;
-    box-sizing: border-box !important;
-}
-
-/* 4. CONTENEDORES PRINCIPALES */
-.container, #content, main {
-    width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-    margin: 0 auto !important;
-}
-
-
-
 * {
     margin: 0;
     padding: 0;
