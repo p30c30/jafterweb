@@ -15,9 +15,44 @@
 
 /* Para móviles */
 @media (max-width: 767px) {
-    .section-cards {
+    /* PORTADA: 2 tarjetas por fila */
+    .home-view .section-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        padding: 0 0.5rem;
+    }
+    
+    /* SECCIONES INTERNAS: 1 tarjeta por fila (mantener comportamiento original) */
+    .seccion-view .section-cards {
         grid-template-columns: minmax(320px, 500px);
         gap: 2rem;
+    }
+    
+    /* Ajustes específicos para las tarjetas en portada móvil */
+    .home-view .card {
+        min-height: 180px;
+    }
+    
+    .home-view .card-image {
+        height: 100px;
+    }
+    
+    .home-view .card-content {
+        padding: 0.8rem;
+    }
+    
+    .home-view .card-content h3 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .home-view .card-content p {
+        font-size: 0.85rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
     
     .fotos-grid {
@@ -59,11 +94,11 @@
         font-size: 1.5rem;
     }
     
-    .card-content h3 {
+    .seccion-view .card-content h3 {
         font-size: 1.5rem;
     }
 
-    .card-content p {
+    .seccion-view .card-content p {
         font-size: 1.1rem;
     }
     
@@ -151,12 +186,41 @@
         font-size: 1.8rem;
     }
 
-    .card-content {
+    /* PORTADA: Mantener 2 columnas pero más compactas */
+    .home-view .section-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+        padding: 0 0.5rem;
+    }
+    
+    .home-view .card-content {
+        padding: 0.7rem;
+    }
+    
+    .home-view .card-content h3 {
+        font-size: 1rem;
+    }
+    
+    .home-view .card-content p {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 2;
+    }
+    
+    /* SECCIONES INTERNAS: Comportamiento original */
+    .seccion-view .section-cards {
+        gap: 2.5rem;
+    }
+    
+    .seccion-view .card-content {
         padding: 1.5rem;
     }
     
-    .section-cards {
-        gap: 2.5rem;
+    .seccion-view .card-content h3 {
+        font-size: 1.4rem;
+    }
+    
+    .seccion-view .card-content p {
+        font-size: 1rem;
     }
     
     .nav-button {
@@ -244,6 +308,7 @@
         height: 600px;
     }
 }
+
 /* Grid responsive */
 @media (max-width: 1200px) {
     .fotos-grid {
@@ -284,15 +349,16 @@
         aspect-ratio: 3/2;
     }
 }
+
 /* ========== FIX VERTICAL - ELIMINAR FRANJAS NEGRAS ========== */
 @media (max-width: 768px) and (orientation: portrait) {
     .foto-item {
-        height: 280px !important; /* ← MÁS ALTO EN VERTICAL */
+        height: 280px !important;
     }
     
     .foto-miniatura {
         height: 100% !important;
-        object-fit: cover !important; /* ← FORZAR QUE LLENE */
+        object-fit: cover !important;
         object-position: center !important;
         width: 100% !important;
     }
@@ -306,7 +372,6 @@
 /* PARA VERTICAL MÁS COMPACTO */
 @media (max-width: 480px) and (orientation: portrait) {
     .foto-item {
-        height: 240px !important; /* ← UN POCO MÁS COMPACTO */
+        height: 240px !important;
     }
 }
-
