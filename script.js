@@ -20,6 +20,52 @@ let translateX = 0, translateY = 0;
 let lastX = 0, lastY = 0;
 let animationFrameId = null;
 
+// ================== FIX NUCLEAR SCROLL HORIZONTAL ==================
+(function fixScrollNuclear() {
+    console.log('🔧 Aplicando fix nuclear scroll horizontal...');
+    
+    // 1. BLOQUEAR A NIVEL DOCUMENTO
+    document.documentElement.style.overflowX = 'hidden';
+    document.documentElement.style.width = '100%';
+    document.documentElement.style.maxWidth = '100vw';
+    document.documentElement.style.position = 'relative';
+    
+    // 2. BLOQUEAR A NIVEL BODY
+    document.body.style.overflowX = 'hidden';
+    document.body.style.width = '100%';
+    document.body.style.maxWidth = '100vw';
+    document.body.style.position = 'relative';
+    document.body.style.margin = '0';
+    document.body.style.padding = '0';
+    
+    // 3. BLOQUEAR A NIVEL VIEWPORT
+    const metaViewport = document.querySelector('meta[name="viewport"]');
+    if (metaViewport) {
+        metaViewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    }
+    
+    // 4. FORZAR EN TODOS LOS ELEMENTOS
+    setTimeout(() => {
+        const allElements = document.querySelectorAll('*');
+        allElements.forEach(el => {
+            el.style.maxWidth = '100vw';
+            el.style.boxSizing = 'border-box';
+        });
+    }, 100);
+    
+    console.log('✅ Fix nuclear aplicado');
+})();
+
+// EJECUTAR TAMBIÉN EN RESIZE
+window.addEventListener('resize', function() {
+    document.documentElement.style.overflowX = 'hidden';
+    document.body.style.overflowX = 'hidden';
+});
+
+
+
+
+
 // Función principal
 function iniciar() {
     console.log('🚀 INICIANDO...');
