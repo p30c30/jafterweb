@@ -413,11 +413,57 @@ body.modal-open {
         min-width: 200px;
     }
 }
-
-/* ========== CERRAR MODAL AL GIRAR PANTALLA ========== */
+/* ========== MODAL DESLIZABLE PARA MÓVILES ========== */
 @media (max-width: 768px) {
-    .modal.active {
-        /* Forzar cierre modal en cambios de orientación */
-        transition: opacity 0.3s ease;
+    .modal-content {
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 0;
+        height: 100vh;
+    }
+    
+    .modal-img-container {
+        max-height: 70vh;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .modal-img {
+        max-width: 100%;
+        max-height: 70vh;
+        width: auto;
+        height: auto;
+    }
+    
+    .modal-info {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        transform: none;
+        width: 100%;
+        max-width: 100%;
+        max-height: 30vh;
+        border-radius: 0;
+        border: none;
+        border-top: 1px solid rgba(253, 184, 19, 0.3);
+        margin-top: auto;
+        flex-shrink: 0;
+    }
+    
+    /* Ocultar botones de navegación en móvil para más espacio */
+    .nav-button {
+        display: none;
+    }
+    
+    /* Botón cerrar más accesible */
+    .close-modal {
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
     }
 }
+
+
