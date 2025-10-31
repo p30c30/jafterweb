@@ -238,3 +238,26 @@
         rgba(253, 184, 19, 0.2) 60%, 
         transparent 100%) !important;
 }
+/* === FIX cards que muestran franja inferior por estirado del grid === */
+
+/* 1) No estirar los ítems del grid (cada card a su propia altura) */
+.section-cards {
+  align-items: start;           /* clave: no stretch */
+}
+
+/* 2) La card a altura de contenido (no forzar 100%) */
+.section-cards .card {
+  height: auto !important;      /* anula height: 100% */
+  display: flex;                /* que el contenido se apile */
+  flex-direction: column;
+}
+
+/* 3) Asegurar que la imagen no “mete” espacio raro */
+.section-cards .card-image {
+  display: block;               /* elimina gaps por baseline */
+}
+
+/* 4) El contenido simplemente debajo (sin estirar) */
+.section-cards .card-content {
+  flex: 0 0 auto;
+}
