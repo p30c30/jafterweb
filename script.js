@@ -323,6 +323,7 @@ function mostrarSeccion(seccion) {
         <button class="back-button" title="Volver">←</button>
         <div class="seccion-title-container">
             <h1>${seccion.titulo}</h1>
+            <p class="seccion-descripcion">${seccion.descripcion}</p>
         </div>
     </header>
     <div class="fotos-grid" id="fotos-container"></div>
