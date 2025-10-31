@@ -3,16 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <title>Galería Jafter - Fotografía Inspiradora</title>
-  <!-- Meta viewport actualizado para iOS safe areas y dvh -->
+  <!-- Meta viewport correcto -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <!-- Archivos CSS en carpeta styles -->
-  <link rel="stylesheet" href="styles/main.css?v=6">
-  <link rel="stylesheet" href="styles/layout.css?v=6" />
-  <link rel="stylesheet" href="styles/components.css?v=6" />
-  <link rel="stylesheet" href="styles/carrusel.css?v=6" />
-  <!-- Carga modal.css antes de responsive.css (responsive queda al final para posibles ajustes generales) -->
-  <link rel="stylesheet" href="styles/modal.css?v=6" />
-  <link rel="stylesheet" href="styles/responsive.css?v=6" />
+  <!-- Archivos CSS -->
+  <link rel="stylesheet" href="styles/main.css?v=7">
+  <link rel="stylesheet" href="styles/layout.css?v=7" />
+  <link rel="stylesheet" href="styles/components.css?v=7" />
+  <link rel="stylesheet" href="styles/carrusel.css?v=7" />
+  <link rel="stylesheet" href="styles/modal.css?v=7" />
+  <link rel="stylesheet" href="styles/responsive.css?v=7" />
 </head>
 <body>
   <!-- Header -->
@@ -23,24 +22,20 @@
   <main id="content" class="container">
     <!-- Vista principal -->
     <div id="home-view" class="home-view">
-      <!-- Secciones/tarjetas se cargarán aquí -->
+      <!-- Secciones/tarjetas -->
       <div id="secciones-container" class="section-cards"></div>
 
-      <!-- Sección Últimas Fotos CON CARRUSEL -->
+      <!-- Últimas fotos con carrusel -->
       <section class="ultimas-fotos-section">
         <h2>Centro de Contenido</h2>
         <div class="carrusel-container">
           <button class="carrusel-btn prev-btn">‹</button>
           <div class="carrusel">
-            <div id="ultimas-fotos-carrusel" class="carrusel-inner">
-              <!-- Las fotos se cargan aquí -->
-            </div>
+            <div id="ultimas-fotos-carrusel" class="carrusel-inner"></div>
           </div>
           <button class="carrusel-btn next-btn">›</button>
         </div>
-        <div class="carrusel-dots" id="carrusel-dots">
-          <!-- Los dots de navegación se generan aquí -->
-        </div>
+        <div class="carrusel-dots" id="carrusel-dots"></div>
       </section>
       
       <!-- Sección inspiradora -->
@@ -48,15 +43,9 @@
         <div>
           <div>
             <h2>El Arte de Capturar el Momento</h2>
-            <p>
-              En la fotografía, cada instante es único e irrepetible. Un mismo momento, contemplado a través de diferentes miradas, revela infinitas perspectivas y emociones...
-            </p>
-            <p>
-              Cada fotografía es un diálogo silencioso entre el observador y el instante congelado en el tiempo...
-            </p>
-            <p>
-              Porque al final, fotografiar es mucho más que presionar un botón. Es el arte de ver lo invisible...
-            </p>
+            <p>En la fotografía, cada instante es único e irrepetible...</p>
+            <p>Cada fotografía es un diálogo silencioso...</p>
+            <p>Porque al final, fotografiar es mucho más que presionar un botón...</p>
           </div>
           <div>
             <img src="https://images2.imgbox.com/a7/ae/imIfzK4c_o.jpg" alt="Retrato artístico" />
@@ -66,10 +55,8 @@
     </div>
   </main>
 
-  <!-- Modal para fotos -->
-  <div id="modal" class="modal">
-    <!-- Contenido dinámico -->
-  </div>
+  <!-- Modal -->
+  <div id="modal" class="modal"></div>
   
   <footer class="site-footer">
     <div class="contact-info">
@@ -78,6 +65,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=6" defer></script>
+  <script src="script.js?v=7" defer></script>
 </body>
 </html>
