@@ -445,3 +445,13 @@
 .foto-counter {
     margin-bottom: 0.5rem !important;
 }
+/* ========== FIX VISUAL INMEDIATO ========== */
+.card:nth-child(4)::after,
+.card:nth-child(5)::after {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    background: transparent !important;
+    filter: none !important;
+}
