@@ -7,7 +7,6 @@
     justify-content: center;
 }
 
-
 /* ================== TARJETAS CON EFECTOS DE LUZ COMPLETOS ================== */
 .card {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
@@ -22,20 +21,24 @@
     position: relative;
 }
 
-/* ========== NUEVO EFECTO DE LUZ SIMPLIFICADO ========== */
-.card {
-    position: relative;
-    overflow: hidden;
-}
-
-.card:hover {
-    transform: translateY(-12px) scale(1.03);
-    box-shadow: 
-        0 25px 45px rgba(0, 0, 0, 0.5),
-        0 0 40px rgba(253, 184, 19, 0.4),
-        0 0 80px rgba(253, 184, 19, 0.3) !important;
-    border-color: rgba(253, 184, 19, 0.8);
-    filter: brightness(1.15);
+/* Efecto de luz que sale por debajo */
+.card::after {
+    content: '';
+    position: absolute;
+    bottom: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 85%;
+    height: 40px;
+    background: radial-gradient(ellipse at center, 
+        rgba(253, 184, 19, 0.5) 0%, 
+        rgba(253, 184, 19, 0.3) 30%, 
+        rgba(253, 184, 19, 0.2) 60%, 
+        transparent 100%);
+    opacity: 0;
+    transition: all 0.4s ease;
+    filter: blur(15px);
+    z-index: 0;
 }
 
 /* Efecto de brillo que se desliza por encima */
@@ -122,38 +125,40 @@
     color: #ffffff;
 }
 
-/* ================== GRID MODERNO CON FOTOS COMPLETAS ================== */
+/* ================== GRID MODERNO CON ALTURAS NATURALES ================== */
 .fotos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1rem;
     margin: 1.5rem 0;
     padding: 0 0.5rem;
+    align-items: start;
 }
 
 .foto-item {
-    position: relative;
+    background: rgba(255, 255, 255, 0.06);
     border-radius: 12px;
     overflow: hidden;
     cursor: pointer;
-    height: auto;
     transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    box-shadow: 
-        0 8px 25px rgba(0, 0, 0, 0.3),
-        0 2px 10px rgba(0, 0, 0, 0.2);
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    position: relative;
+    break-inside: avoid;
+    /* ALTURA AUTOMÁTICA SEGÚN CONTENIDO */
+    height: auto;
+    display: flex;
+    flex-direction: column;
 }
 
-/* ================== IMÁGENES CON ALTURA FIJA Y RECORTE INTELIGENTE ================== */
+/* IMÁGENES CON ALTURA NATURAL */
 .foto-miniatura {
     width: 100%;
-    height: 250px; /* ALTURA FIJA PARA TODAS */
-    object-fit: cover; /* RECORTA MANTENIENDO PROPORCIÓN */
-    object-position: center; /* ENFOCA LA PARTE CENTRAL */
+    height: auto; /* ALTURA AUTOMÁTICA SEGÚN PROPORCIÓN */
+    object-fit: contain; /* IMAGEN COMPLETA SIN RECORTAR */
     display: block;
     transition: transform 0.5s ease;
     filter: brightness(0.95);
+    border-radius: 8px 8px 0 0; /* REDONDEAR SOLO ARRIBA */
 }
 
 .foto-item:hover .foto-miniatura {
@@ -161,55 +166,17 @@
     filter: brightness(1.1);
 }
 
-/* Overlay elegante que se desliza */
-.foto-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(
-        to top, 
-        rgba(0, 0, 0, 0.9) 0%, 
-        rgba(0, 0, 0, 0.7) 50%, 
-        rgba(0, 0, 0, 0) 100%
-    );
-    padding: 2rem 1rem 1rem;
-    color: white;
-    transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    backdrop-filter: blur(5px);
-}
-
-/* Efecto de brillo dorado en el borde superior del overlay */
-.foto-overlay::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, 
-        transparent, 
-        #FDB813, 
-        transparent
-    );
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.foto-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #FDB813;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    line-height: 1.3;
+.foto-texto {
+    padding: 1rem 0.8rem;
     text-align: center;
+    color: #f0f0f0;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: rgba(0, 0, 0, 0.9);
     margin: 0;
-}
-
-/* Oculta completamente el texto descriptivo */
-.foto-desc {
-    display: none;
+    line-height: 1.3;
+    /* EL TEXTO SIEMPRE ABAJO */
+    margin-top: auto;
 }
 
 /* Efectos hover */
@@ -221,243 +188,24 @@
     border-color: rgba(253, 184, 19, 0.3);
 }
 
-.foto-item:hover .foto-miniatura {
-    transform: scale(1.05);
-    filter: brightness(1.1);
-}
+/* ... (el resto de tu CSS se mantiene igual) ... */
 
-.foto-item:hover .foto-overlay {
-    transform: translateY(0);
-}
-
-.foto-item:hover .foto-overlay::before {
-    opacity: 1;
-}
-
-/* Efecto de carga progresiva */
-.foto-item {
-    opacity: 0;
-    animation: fadeInUp 0.6s ease forwards;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Retraso escalonado para la animación */
-.foto-item:nth-child(2) { animation-delay: 0.1s; }
-.foto-item:nth-child(3) { animation-delay: 0.2s; }
-.foto-item:nth-child(4) { animation-delay: 0.3s; }
-.foto-item:nth-child(5) { animation-delay: 0.4s; }
-.foto-item:nth-child(6) { animation-delay: 0.5s; }
-
-/* ================== SECCIÓN INSPIRATION - TEXTO AJUSTADO ================== */
-#inspiration-section > div > div:first-child {
-    text-align: left;
-    max-width: 640px;
-    margin: 0 auto;
-}
-
-#inspiration-section h2 {
-    font-size: 2.2rem !important;
-    margin: 0 0 1.2rem !important;
-    color: #FDB813 !important;
-    font-weight: 600 !important;
-    line-height: 1.3 !important;
-    text-shadow: 0 0 20px rgba(253, 184, 19, 0.4) !important;
-    letter-spacing: 0.5px !important;
-}
-
-#inspiration-section p {
-    font-size: 1.2rem !important;
-    line-height: 1.6 !important;
-    margin: 0 0 1.2rem !important;
-    color: #f0f0f0 !important;
-    font-weight: 300 !important;
-}
-
-#inspiration-section p:last-child {
-    margin-bottom: 0 !important;
-}
-
-/* Para pantallas grandes */
-@media (min-width: 1200px) {
-    #inspiration-section > div {
-        padding: 45px !important;
-    }
-
-    #inspiration-section h2 {
-        font-size: 2.4rem !important;
-    }
-
-    #inspiration-section p {
-        font-size: 1.3rem !important;
-    }
-}
-
-/* Para tablets */
-@media (max-width: 900px) {
-    #inspiration-section > div {
-        grid-template-columns: 1fr !important;
-        gap: 25px !important;
-        padding: 35px !important;
-    }
-
-    #inspiration-section h2 {
-        font-size: 2.2rem !important;
-        text-align: center !important;
-    }
-
-    #inspiration-section p {
-        font-size: 1.3rem !important;
-        text-align: center !important;
-    }
-}
-
-/* Para móviles */
-@media (max-width: 480px) {
-    #inspiration-section {
-        padding: 0 15px !important;
-        margin: 50px auto !important;
-    }
-
-    #inspiration-section > div {
-        padding: 25px !important;
-    }
-
-    #inspiration-section h2 {
-        font-size: 1.9rem !important;
-    }
-
-    #inspiration-section p {
-        font-size: 1.1rem !important;
-    }
-}
-
-/* ================== BOTÓN SCROLL TO TOP ================== */
-.scroll-to-top {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    width: 50px;
-    height: 50px;
-    background: rgba(253, 184, 19, 0.9);
-    color: #000;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    box-shadow: 0 4px 20px rgba(253, 184, 19, 0.4);
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    z-index: 999;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(20px);
-}
-
-.scroll-to-top.visible {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.scroll-to-top:hover {
-    background: #FDB813;
-    transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 6px 25px rgba(253, 184, 19, 0.6);
-}
-
-.scroll-to-top:active {
-    transform: translateY(-2px) scale(1.05);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .scroll-to-top {
-        bottom: 20px;
-        right: 20px;
-        width: 45px;
-        height: 45px;
-        font-size: 1.3rem;
-    }
-    
-    .fotos-grid {
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 0.8rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .scroll-to-top {
-        bottom: 15px;
-        right: 15px;
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-    }
-    
-    .fotos-grid {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 0.6rem;
-        padding: 0 0.3rem;
-    }
-    
-    .foto-overlay {
-        padding: 1.5rem 0.8rem 0.8rem;
-    }
-    
-    .foto-title {
-        font-size: 1rem;
-    }
-}
-
-/* Para pantallas muy grandes */
-@media (min-width: 1600px) {
-    .fotos-grid {
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.2rem;
-    }
-}
-
-/* ========== OCULTAR TÍTULO DE SECCIÓN EN MODAL ========== */
-.modal-title {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    font-size: 0 !important;
+/* ========== FIX BORDE GRIS PERMANENTE ========== */
+.card::after {
     opacity: 0 !important;
+    visibility: hidden !important;
     pointer-events: none !important;
-}
-
-/* AJUSTAR ESPACIOS SIN EL TÍTULO */
-.modal-info {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-}
-
-.foto-counter {
-    margin-bottom: 0.5rem !important;
-}
-/* ========== FIX VISUAL INMEDIATO ========== */
-.card:nth-child(4)::after,
-.card:nth-child(5)::after {
-    display: none !important;
-    opacity: 0 !important;
-    visibility: hidden !important;
-    height: 0 !important;
+    filter: blur(0) !important;
     background: transparent !important;
-    filter: none !important;
+}
+
+.card:hover::after {
+    opacity: 1 !important;
+    visibility: visible !important;
+    filter: blur(20px) !important;
+    background: radial-gradient(ellipse at center, 
+        rgba(253, 184, 19, 0.5) 0%, 
+        rgba(253, 184, 19, 0.3) 30%, 
+        rgba(253, 184, 19, 0.2) 60%, 
+        transparent 100%) !important;
 }
