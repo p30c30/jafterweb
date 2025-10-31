@@ -341,27 +341,57 @@ function iniciarAutoPlay() {
 }
 
 function configurarInteraccionCarrusel() {
-  const carrusel = document.querySelector('.carrusel');
-  if (carrusel) {
+    const carrusel = document.querySelector('.carrusel');
+    const inner = document.querySelector('.carrusel-inner');
+    if (!carrusel || !inner) return;
+
+    // Pausar autoplay al entrar con ratón (desktop)
     carrusel.addEventListener('mouseenter', () => { clearInterval(autoPlayInterval); });
     carrusel.addEventListener('mouseleave', () => { iniciarAutoPlay(); });
-  }
+
+    // Swipe horizontal (mobile)
+    let startX = 0;
+    let isDragging = false;
+    let dx = 0;
+
+    function onStart(e) {
+        isDragging = true;
+        dx = 0;
+        startX = (e.touches ? e.touches[0].clientX : e.clientX);
+        inner.style.transition = 'none';
+    }
+
+    function onMove(e) {
+        if (!isDragging) return;
+        const x = (e.touches ? e.touches[0].clientX : e.clientX);
+        dx = x - startX;
+        // Mueve con el dedo, partiendo del slide actual
+        inner.style.transform = `translateX(calc(-${carruselActualIndex * 100}% + ${dx}px))`;
+    }
+
+    function onEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        inner.style.transition = 'transform 0.35s ease';
+        const width = carrusel.offsetWidth;
+        // Si arrastras más de 20% del ancho o rápido, cambia
+        if (Math.abs(dx) > width * 0.2) {
+            moverCarruselA(carruselActualIndex + (dx < 0 ? 1 : -1));
+        } else {
+            actualizarCarrusel();
+        }
+        dx = 0;
+    }
+
+    // Eventos touch y mouse (por si quieres arrastrar con ratón)
+    inner.addEventListener('touchstart', onStart, { passive: true });
+    inner.addEventListener('touchmove', onMove, { passive: true });
+    inner.addEventListener('touchend', onEnd, { passive: true });
+    inner.addEventListener('mousedown', onStart);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onEnd);
 }
 
-function irAFotoEnSeccion(seccionId, fotoIndex) {
-  if (!datosGlobales) return;
-  
-  const seccion = datosGlobales.secciones.find(s => s.id === seccionId);
-  if (seccion) {
-    mostrarSeccion(seccion);
-    setTimeout(() => {
-      const foto = seccion.fotos[fotoIndex];
-      if (foto) {
-        mostrarModal(foto.url, foto.texto, fotoIndex);
-      }
-    }, 400);
-  }
-}
 
 // ================== MOSTRAR SECCIÓN ==================
 function mostrarSeccion(seccion, opts = { push: true }) {
