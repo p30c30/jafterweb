@@ -199,30 +199,49 @@
     margin-bottom: 1.5rem;
 }
 
+/* ... todo tu CSS existente ... */
+
+/* Sección inspiradora mejorada */
+#inspiration-section {
+    background: linear-gradient(135deg, rgba(253, 184, 19, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%);
+    padding: 6rem 2rem;
+    margin-top: 4rem;
+    border-top: 1px solid rgba(253, 184, 19, 0.2);
+}
+
+#inspiration-section > div {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+/* AQUÍ VA EL NUEVO CSS DEL RECUADRO FLEXIBLE */
 #inspiration-section .inspiration-image {
     width: 100%;
-    height: auto; /* ← Se ajusta a la altura de la imagen */
+    height: auto;
     background: linear-gradient(135deg, rgba(253, 184, 19, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
     border-radius: 10px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
-                0 0 0 1px rgba(253, 184, 19, 0.2); /* ← Borde sutil dorado */
+                0 0 0 1px rgba(253, 184, 19, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: 0; /* ← Sin padding interno */
-    transition: all 0.3s ease; /* ← Transición suave */
+    padding: 0;
+    transition: all 0.3s ease;
 }
 
 #inspiration-section img {
     width: 100%;
     height: auto;
     display: block;
-    border-radius: 10px; /* ← Mismo radio que el contenedor */
+    border-radius: 10px;
     transition: transform 0.3s ease;
 }
 
-/* Efecto hover en todo el recuadro */
 #inspiration-section .inspiration-image:hover {
     transform: translateY(-5px);
     box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4),
@@ -231,6 +250,22 @@
 
 #inspiration-section .inspiration-image:hover img {
     transform: scale(1.02);
+}
+
+/* Y LUEGO el responsive de esta sección */
+@media (max-width: 768px) {
+    #inspiration-section > div {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    #inspiration-section .inspiration-image {
+        margin: 0 1rem;
+    }
+    
+    #inspiration-section h2 {
+        font-size: 2rem;
+    }
 }
 
 /* Responsive para navegación */
