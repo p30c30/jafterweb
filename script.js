@@ -1,4 +1,4 @@
-// SCRIPT.JS - VERSIÓN COMPLETA Y CORREGIDA
+// SCRIPT.JS - VERSIÓN COMPLETA Y CORREGIDA (con bottom sheet + swipe + no cierre por rotación)
 console.log('✅ script.js CARGADO');
 
 // Variables globales
@@ -11,6 +11,9 @@ let autoPlayInterval;
 let datosGlobales = null;
 let isModalOpen = false;
 
+// Para clicks fantasma tras gestos
+let ignoreNextClick = false;
+
 // Variables de zoom
 let currentScale = 1;
 let currentImage = null;
@@ -19,6 +22,9 @@ let startX, startY;
 let translateX = 0, translateY = 0;
 let lastX = 0, lastY = 0;
 let animationFrameId = null;
+
+// Keydown handler para poder limpiarlo al cerrar
+let keydownHandler = null;
 
 // Función principal
 function iniciar() {
@@ -145,12 +151,12 @@ function cargarCarrusel(data) {
 }
 
 function obtenerFotosParaCarrusel(data) {
-    const todasLasFotos = [];
+    const todasLasFotosLocal = [];
     
     data.secciones.forEach(seccion => {
         if (seccion.fotos && Array.isArray(seccion.fotos)) {
             seccion.fotos.forEach((foto, index) => {
-                todasLasFotos.push({
+                todasLasFotosLocal.push({
                     ...foto,
                     seccionId: seccion.id,
                     seccionTitulo: seccion.titulo,
@@ -160,8 +166,8 @@ function obtenerFotosParaCarrusel(data) {
         }
     });
     
-    console.log(`📸 Encontradas ${todasLasFotos.length} fotos en total`);
-    const ultimas = todasLasFotos.slice(-6).reverse();
+    console.log(`📸 Encontradas ${todasLasFotosLocal.length} fotos en total`);
+    const ultimas = todasLasFotosLocal.slice(-6).reverse();
     console.log(`🎠 Mostrando ${ultimas.length} fotos en el carrusel`);
     
     return ultimas;
@@ -352,7 +358,6 @@ function mostrarSeccion(seccion) {
             
             fotoElement.innerHTML = `
                 <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">
-                    
              `;
             
             fotoElement.addEventListener('click', () => {
@@ -366,7 +371,7 @@ function mostrarSeccion(seccion) {
     }
 }
 
-// ================== MODAL CON ZOOM COMPLETO ==================
+// ================== MODAL CON ZOOM + SWIPE + BOTTOM SHEET ==================
 function mostrarModal(imageUrl, title, fotoIndex) {
     const modal = document.getElementById('modal');
     currentFotoIndex = fotoIndex;
@@ -381,6 +386,7 @@ function mostrarModal(imageUrl, title, fotoIndex) {
                 <img src="" alt="${title}" class="modal-img" id="modal-img">
             </div>
             <div class="modal-info">
+                <div class="info-handle" aria-hidden="true"></div>
                 <div class="foto-counter">${currentFotoIndex + 1} / ${todasLasFotos.length}</div>
                 <div class="foto-title">${title}</div>
             </div>
@@ -399,7 +405,7 @@ function mostrarModal(imageUrl, title, fotoIndex) {
         
         modal.classList.add('active');
         document.body.classList.add('modal-open');
-        
+
         configurarEventosModal();
     };
     img.onerror = function() {
@@ -412,82 +418,90 @@ function mostrarModal(imageUrl, title, fotoIndex) {
         configurarEventosModal();
     };
     img.src = imageUrl;
-    
+
     function configurarEventosModal() {
         const closeBtn = modal.querySelector('.close-modal');
         const prevBtn = modal.querySelector('.prev-button');
         const nextBtn = modal.querySelector('.next-button');
-        
+
         if (closeBtn) closeBtn.onclick = closeModal;
         if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
         if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
-        
-        // CLICK FUERA DEL MODAL = CERRAR
+
+        // CLICK EN OVERLAY = CERRAR (no dentro de contenido)
         modal.addEventListener('click', function(event) {
             if (event.target === modal) {
+                if (ignoreNextClick) {
+                    ignoreNextClick = false;
+                    return;
+                }
                 closeModal();
             }
         });
-        
-        // CLICK EN IMAGEN = CERRAR (solo sin zoom)
+
+        // CLICK EN IMAGEN = cerrar si no hay zoom; doble click = toggle zoom
         let clickCount = 0;
         let clickTimer = null;
-        
+
         modalImg.addEventListener('click', function(event) {
+            if (ignoreNextClick) {
+                ignoreNextClick = false;
+                event.stopPropagation();
+                return;
+            }
             clickCount++;
-            
             if (clickCount === 1) {
                 clickTimer = setTimeout(() => {
-                    // Un solo clic - cerrar solo si no hay zoom
                     if (currentScale <= 1) {
                         closeModal();
                     }
                     clickCount = 0;
                 }, 300);
             } else if (clickCount === 2) {
-                // Doble clic - toggle zoom 100% ↔ 200%
                 clearTimeout(clickTimer);
                 toggleZoomDobleClic();
                 clickCount = 0;
             }
-            
             event.stopPropagation();
         });
-        
-        // ZOOM CON RUEDA DEL RATÓN
+
+        // Zoom con rueda del ratón (desktop)
         modal.addEventListener('wheel', function(e) {
             e.preventDefault();
-            
             const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
             const newScale = currentScale * zoomFactor;
-            
             if (newScale >= 0.5 && newScale <= 5) {
                 currentScale = newScale;
                 aplicarZoom();
             }
         }, { passive: false });
-        
-        // ARRASTRE CON ZOOM
+
+        // Arrastre con zoom (desktop + touch)
         modalImg.addEventListener('mousedown', startDrag);
-        modalImg.addEventListener('touchstart', startDragTouch);
-        
-        // TECLADO
-        document.addEventListener('keydown', function manejarTeclado(event) {
+        modalImg.addEventListener('touchstart', startDragTouch, { passive: false });
+
+        // Swipe horizontal para navegar
+        attachSwipeToModal(modal);
+
+        // Bottom sheet (gesto vertical para subir/bajar el panel)
+        attachBottomSheet(modal);
+
+        // Teclado (Escape, flechas)
+        keydownHandler = function(event) {
             switch(event.key) {
                 case 'Escape': closeModal(); break;
                 case 'ArrowLeft': navegarFoto(-1); break;
                 case 'ArrowRight': navegarFoto(1); break;
             }
-        });
+        };
+        document.addEventListener('keydown', keydownHandler);
     }
-    
+
     function toggleZoomDobleClic() {
         if (currentScale === 1) {
-            // Si está en 100%, ir a 200%
             currentScale = 2;
             console.log('🔍 Zoom a 200% por doble clic');
         } else {
-            // Si está en cualquier zoom, volver a 100%
             currentScale = 1;
             translateX = 0;
             translateY = 0;
@@ -495,7 +509,6 @@ function mostrarModal(imageUrl, title, fotoIndex) {
         }
         aplicarZoom();
     }
-        
 }
 
 // ================== SISTEMA DE ZOOM Y ARRASTRE ==================
@@ -534,7 +547,7 @@ function startDragTouch(e) {
         currentImage.classList.add('grabbing');
     }
     
-    document.addEventListener('touchmove', dragTouch);
+    document.addEventListener('touchmove', dragTouch, { passive: false });
     document.addEventListener('touchend', stopDrag);
     
     e.preventDefault();
@@ -611,14 +624,18 @@ function aplicarZoom() {
         currentImage.style.transform = `scale(${currentScale}) translate(${translateX}px, ${translateY}px)`;
         currentImage.style.transformOrigin = 'center center';
         
+        const modalEl = document.getElementById('modal');
+
         if (currentScale > 1) {
             currentImage.classList.add('zoomed');
             currentImage.style.cursor = isDragging ? 'grabbing' : 'move';
+            if (modalEl) modalEl.classList.add('is-zoomed');
         } else {
             currentImage.classList.remove('zoomed');
             currentImage.style.cursor = 'default';
             translateX = 0;
             translateY = 0;
+            if (modalEl) modalEl.classList.remove('is-zoomed');
         }
     }
 }
@@ -640,6 +657,11 @@ function resetZoom() {
         currentImage.style.transform = 'none';
         currentImage.classList.remove('zoomed', 'grabbing');
         currentImage.style.cursor = 'default';
+    }
+
+    const modalEl = document.getElementById('modal');
+    if (modalEl) {
+        modalEl.classList.remove('is-zoomed');
     }
 }
 
@@ -663,7 +685,6 @@ function navegarFoto(direccion) {
     const fotoCounter = modal.querySelector('.foto-counter');
     const fotoTitle = modal.querySelector('.foto-title');
     
-    // Resetear zoom antes de cambiar imagen
     resetZoom();
     
     const img = new Image();
@@ -693,40 +714,220 @@ function navegarFoto(direccion) {
     img.src = nuevaFoto.url;
 }
 
-// ================== MANEJO DE ROTACIÓN EN MÓVILES - MEJORADO ==================
+// ================== SWIPE HORIZONTAL PARA NAVEGAR ==================
+function attachSwipeToModal(modal) {
+    const container = modal.querySelector('.modal-img-container');
+    if (!container) return;
+
+    let startX = 0, startY = 0, startT = 0;
+    let bloqueaPorVertical = false;
+
+    function onStart(e) {
+        if (currentScale > 1) return; // con zoom activo no navegamos
+        const t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+        startT = Date.now();
+        bloqueaPorVertical = false;
+        modal.classList.add('is-gesturing');
+    }
+
+    function onMove(e) {
+        if (currentScale > 1) return;
+        const t = e.touches[0];
+        const dx = t.clientX - startX;
+        const dy = t.clientY - startY;
+
+        // si el gesto es más vertical, no interceptar
+        if (!bloqueaPorVertical && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) {
+            bloqueaPorVertical = true;
+            modal.classList.remove('is-gesturing');
+        }
+    }
+
+    function onEnd(e) {
+        modal.classList.remove('is-gesturing');
+        if (currentScale > 1 || bloqueaPorVertical) return;
+
+        const t = e.changedTouches[0];
+        const dx = t.clientX - startX;
+        const dt = Date.now() - startT;
+
+        const threshold = 60; // píxeles
+        const esRapido = Math.abs(dx) / dt > 0.5; // velocidad px/ms
+
+        if (Math.abs(dx) > threshold || esRapido) {
+            ignoreNextClick = true; // evita click fantasma
+            if (dx < 0) {
+                navegarFoto(1);
+            } else {
+                navegarFoto(-1);
+            }
+            setTimeout(() => { ignoreNextClick = false; }, 300);
+        }
+    }
+
+    container.addEventListener('touchstart', onStart, { passive: true });
+    container.addEventListener('touchmove', onMove, { passive: true });
+    container.addEventListener('touchend', onEnd, { passive: true });
+}
+
+// ================== BOTTOM SHEET (subir/bajar panel con gesto vertical) ==================
+function attachBottomSheet(modal) {
+    const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+    if (!isMobile) return; // sólo en móvil/tablet
+
+    const imgContainer = modal.querySelector('.modal-img-container');
+    const info = modal.querySelector('.modal-info');
+    const handle = modal.querySelector('.info-handle');
+    if (!imgContainer || !info || !handle) return;
+
+    // Alturas del sheet
+    function getCollapsed() { return window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh'; }
+    function getExpanded() { return '60dvh'; } // límite alto útil
+
+    function setInfoHeight(val) {
+        modal.style.setProperty('--info-height', val);
+    }
+
+    // Estado inicial
+    setInfoHeight(getCollapsed());
+
+    function expand() { setInfoHeight(getExpanded()); }
+    function collapse() { setInfoHeight(getCollapsed()); }
+
+    // Gestos sobre la imagen: swipe UP -> expand, DOWN -> collapse
+    let startY = 0;
+    let deltaY = 0;
+
+    imgContainer.addEventListener('touchstart', (e) => {
+        if (currentScale > 1) return; // con zoom no tocamos el sheet
+        const t = e.touches[0];
+        startY = t.clientY;
+        deltaY = 0;
+        modal.classList.add('is-gesturing');
+    }, { passive: true });
+
+    imgContainer.addEventListener('touchmove', (e) => {
+        if (currentScale > 1) return;
+        const t = e.touches[0];
+        deltaY = t.clientY - startY;
+        // No hacemos nada continuo para no pelear con scroll; solo snap en touchend
+    }, { passive: true });
+
+    imgContainer.addEventListener('touchend', () => {
+        modal.classList.remove('is-gesturing');
+        if (currentScale > 1) return;
+
+        if (Math.abs(deltaY) > 40) {
+            ignoreNextClick = true;
+            if (deltaY < 0) {
+                expand();
+            } else {
+                collapse();
+            }
+            setTimeout(() => { ignoreNextClick = false; }, 250);
+        }
+    }, { passive: true });
+
+    // Drag directo del asa del sheet (interactivo)
+    let dragging = false;
+    let dragStartY = 0;
+    let startHeightPx = 0;
+
+    function vhToPx(v) {
+        // Convierte "60dvh" a px
+        const match = String(v).match(/([\d.]+)d?vh/);
+        const num = match ? parseFloat(match[1]) : 0;
+        return (num / 100) * window.innerHeight;
+    }
+
+    function pxToVh(px) {
+        return (px / window.innerHeight) * 100;
+    }
+
+    handle.addEventListener('touchstart', (e) => {
+        const t = e.touches[0];
+        dragging = true;
+        dragStartY = t.clientY;
+        startHeightPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
+        modal.classList.add('is-gesturing');
+        e.preventDefault();
+    }, { passive: false });
+
+    handle.addEventListener('touchmove', (e) => {
+        if (!dragging) return;
+        const t = e.touches[0];
+        const dy = t.clientY - dragStartY;
+        let newHeightPx = startHeightPx - dy; // arrastrar hacia arriba aumenta altura
+        const minPx = vhToPx(getCollapsed());
+        const maxPx = vhToPx(getExpanded());
+        newHeightPx = Math.max(minPx, Math.min(maxPx, newHeightPx));
+        const newVh = pxToVh(newHeightPx).toFixed(2) + 'dvh';
+        setInfoHeight(newVh);
+        e.preventDefault();
+    }, { passive: false });
+
+    handle.addEventListener('touchend', () => {
+        if (!dragging) return;
+        dragging = false;
+        modal.classList.remove('is-gesturing');
+
+        // Snap al estado más cercano
+        const currentPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
+        const midPx = (vhToPx(getCollapsed()) + vhToPx(getExpanded())) / 2;
+        if (currentPx >= midPx) {
+            expand();
+        } else {
+            collapse();
+        }
+        ignoreNextClick = true;
+        setTimeout(() => { ignoreNextClick = false; }, 250);
+    });
+
+    // Ajustar altura al rotar o cambiar viewport
+    const onResize = () => {
+        if (!isModalOpen) return;
+        // Mantener estado actual (expandido o colapsado) en nuevas proporciones
+        const currentPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
+        const collapsedPx = vhToPx(getCollapsed());
+        const expandedPx = vhToPx(getExpanded());
+        const target = Math.abs(currentPx - expandedPx) < Math.abs(currentPx - collapsedPx) ? getExpanded() : getCollapsed();
+        setInfoHeight(target);
+    };
+    window.addEventListener('resize', onResize);
+}
+
+// ================== MANEJO DE ROTACIÓN EN MÓVILES - NO CERRAR ==================
 function initMobileRotationHandler() {
-    let esVertical = window.innerHeight > window.innerWidth;
-    let ultimaOrientacion = esVertical;
+    let ultimaOrientacion = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
     
     window.addEventListener('resize', () => {
-        const nuevaOrientacion = window.innerHeight > window.innerWidth;
+        const nuevaOrientacion = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
         
-        // Si cambió la orientación Y el modal está abierto
         if (ultimaOrientacion !== nuevaOrientacion && isModalOpen) {
-            console.log('📱 Cambio de orientación detectado con modal abierto');
-            
-            // CERRAR MODAL automáticamente al girar pantalla
-            setTimeout(() => {
-                const modal = document.getElementById('modal');
-                if (modal && modal.classList.contains('active')) {
-                    console.log('🔄 Cerrando modal por cambio de orientación');
-                    closeModal();
-                }
-            }, 100);
+            console.log('📱 Cambio de orientación con modal abierto (no se cierra)');
+            // Con dvh el layout se reajusta solo.
+            // Si quisieras centrar sin arrastre previo:
+            // resetZoom(); // opcional
         }
         
         ultimaOrientacion = nuevaOrientacion;
     });
 }
 
-// Y actualizar la función closeModal para que sea global:
+// ================== CERRAR MODAL ==================
 function closeModal() {
     const modal = document.getElementById('modal');
     if (modal) {
-        modal.classList.remove('active');
+        modal.classList.remove('active', 'is-zoomed', 'is-gesturing');
         document.body.classList.remove('modal-open');
         isModalOpen = false;
         resetZoom();
+        if (keydownHandler) {
+            document.removeEventListener('keydown', keydownHandler);
+            keydownHandler = null;
+        }
         console.log('✅ Modal cerrado');
     }
 }
@@ -751,7 +952,7 @@ function volverAGaleria() {
     
     const modal = document.getElementById('modal');
     if (modal) {
-        modal.classList.remove('active');
+        modal.classList.remove('active', 'is-zoomed', 'is-gesturing');
         document.body.classList.remove('modal-open');
         resetZoom();
     }
