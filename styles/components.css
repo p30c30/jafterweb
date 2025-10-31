@@ -22,35 +22,20 @@
     position: relative;
 }
 
-/* Efecto de luz que sale por debajo - CORREGIDO */
-.card::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 85%;
-    height: 40px;
-    background: radial-gradient(ellipse at center, 
-        rgba(253, 184, 19, 0.5) 0%, 
-        rgba(253, 184, 19, 0.3) 30%, 
-        rgba(253, 184, 19, 0.2) 60%, 
-        transparent 80%  /* ← CAMBIO CLAVE: transparent empieza antes */
-    );
-    opacity: 0;
-    transition: all 0.4s ease;
-    filter: blur(12px);  /* ← MENOS BLUR */
-    z-index: 0;
-    pointer-events: none;
+/* ========== NUEVO EFECTO DE LUZ SIMPLIFICADO ========== */
+.card {
+    position: relative;
+    overflow: hidden;
 }
 
-/* Activar la luz por debajo al hover */
-.card:hover::after {
-    opacity: 1;
-    bottom: -25px;
-    width: 90%;
-    height: 50px;
-    filter: blur(20px);
+.card:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 
+        0 25px 45px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(253, 184, 19, 0.4),
+        0 0 80px rgba(253, 184, 19, 0.3) !important;
+    border-color: rgba(253, 184, 19, 0.8);
+    filter: brightness(1.15);
 }
 
 /* Efecto de brillo que se desliza por encima */
@@ -459,30 +444,4 @@
 
 .foto-counter {
     margin-bottom: 0.5rem !important;
-}
-/* ========== FIX GLOBAL PARA ::after EN TODOS LOS TAMAÑOS ========== */
-@media (min-width: 1px) {
-    .card::after {
-        opacity: 0 !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        bottom: 0 !important;
-        filter: blur(0) !important;
-        background: transparent !important;
-        pointer-events: none !important;
-    }
-    
-    .card:hover::after {
-        opacity: 1 !important;
-        visibility: visible !important;
-        height: 50px !important;
-        bottom: -25px !important;
-        filter: blur(20px) !important;
-        background: radial-gradient(ellipse at center, 
-            rgba(253, 184, 19, 0.5) 0%, 
-            rgba(253, 184, 19, 0.3) 30%, 
-            rgba(253, 184, 19, 0.2) 60%, 
-            transparent 100%) !important;
-        pointer-events: none !important;
-    }
 }
