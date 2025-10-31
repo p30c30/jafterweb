@@ -43,13 +43,13 @@
         padding: 0 0.5rem;
     }
     
-    /* SECCIONES INTERNAS: 1 tarjeta por fila (mantener comportamiento original) */
+    /* SECCIONES INTERNAS: 1 tarjeta por fila */
     .seccion-view .section-cards {
         grid-template-columns: minmax(320px, 500px);
         gap: 2rem;
     }
     
-    /* Ajustes específicos para las tarjetas en portada móvil */
+    /* Ajustes para tarjetas en portada móvil */
     .home-view .card {
         min-height: 180px;
     }
@@ -90,51 +90,21 @@
         font-size: 3rem;
     }
 
-    /* HEADER DE SECCIÓN PARA MÓVIL - DISEÑO VERTICAL MEJORADO */
-.seccion-header {
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(15px);
-    padding: 1rem 1rem 1rem 4rem; /* ← Más padding izquierdo para la flecha */
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    position: relative;
-    min-height: 80px; /* ← Altura fija para alineación */
-    justify-content: center; /* ← Centrar verticalmente el contenido */
-}
-
-.seccion-title-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    width: 100%;
-    margin-left: 0; /* ← Sin margen extra */
-}
-
-.back-button {
-    background: rgba(253, 184, 19, 0.25);
-    color: #FDB813;
-    border: 2px solid rgba(253, 184, 19, 0.4);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1.1rem;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 50%; /* ← Centrado vertical */
-    left: 1rem;
-    transform: translateY(-50%); /* ← Ajuste fino del centrado */
-    z-index: 101;
-}
-    
+    /* HEADER DE SECCIÓN - DISEÑO VERTICAL MEJORADO */
+    .seccion-header {
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(15px);
+        padding: 1rem 1rem 1rem 4rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        position: relative;
+        min-height: 80px;
+        justify-content: center;
+    }
     
     .seccion-title-container {
         display: flex;
@@ -177,14 +147,15 @@
         align-items: center;
         justify-content: center;
         position: absolute;
-        top: 0.8rem;
+        top: 50%;
         left: 1rem;
+        transform: translateY(-50%);
         z-index: 101;
     }
     
     .back-button:hover {
         background: rgba(253, 184, 19, 0.4);
-        transform: scale(1.1);
+        transform: translateY(-50%) scale(1.1);
         box-shadow: 0 0 15px rgba(253, 184, 19, 0.4);
     }
     
@@ -226,11 +197,15 @@
 
     .modal-info {
         max-width: 95%;
-        padding: 1.2rem;
+        padding: 1rem;
+        max-height: 100px;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .foto-title {
-        font-size: 1.2rem;
+        font-size: 1rem;
+        line-height: 1.3;
     }
 
     .close-modal {
@@ -276,7 +251,7 @@
         font-size: 2.5rem;
     }
 
-    /* PORTADA: Mantener 2 columnas pero más compactas */
+    /* PORTADA: 2 columnas compactas */
     .home-view .section-cards {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.8rem;
@@ -296,24 +271,29 @@
         -webkit-line-clamp: 2;
     }
     
-   /* HEADER DE SECCIÓN - MÁS COMPACTO EN MÓVILES PEQUEÑOS */
-.seccion-header {
-    padding: 0.8rem 0.8rem 0.8rem 3.5rem; /* ← Padding izquierdo para flecha */
-    gap: 0.3rem;
-    min-height: 70px; /* ← Un poco más compacto */
-}
-
-.back-button {
-    width: 35px;
-    height: 35px;
-    font-size: 1rem;
-    left: 0.8rem;
-    top: 50%;
-    transform: translateY(-50%);
-}
+    /* HEADER DE SECCIÓN - MÁS COMPACTO */
+    .seccion-header {
+        padding: 0.8rem 0.8rem 0.8rem 3.5rem;
+        gap: 0.3rem;
+        min-height: 70px;
+    }
     
+    .seccion-header h1 {
+        font-size: 1.3rem;
+    }
     
-    /* SECCIONES INTERNAS: Comportamiento original */
+    .seccion-descripcion {
+        font-size: 0.8rem;
+    }
+    
+    .back-button {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+        left: 0.8rem;
+    }
+    
+    /* SECCIONES INTERNAS */
     .seccion-view .section-cards {
         gap: 2.5rem;
     }
@@ -352,21 +332,6 @@
         width: 45px;
         height: 45px;
         font-size: 1.3rem;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-    }
-    
-    .prev-btn {
-        left: 15px;
-    }
-    
-    .next-btn {
-        right: 15px;
-    }
-    
-    .carrusel-container {
-        gap: 0;
     }
     
     .carrusel-desc {
@@ -430,31 +395,6 @@
         gap: 1.5rem;
         padding: 0 1rem;
     }
-    
-    .foto-overlay {
-        padding: 2rem 1.5rem 1.5rem;
-    }
-    
-    .foto-title {
-        font-size: 1.2rem;
-    }
-    
-    .foto-desc {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .fotos-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-        max-width: 400px;
-        margin: 2rem auto;
-    }
-    
-    .foto-item {
-        aspect-ratio: 3/2;
-    }
 }
 
 /* ========== FIX VERTICAL - ELIMINAR FRANJAS NEGRAS ========== */
@@ -470,7 +410,6 @@
         width: 100% !important;
     }
     
-    /* UNA SOLA COLUMNA EN VERTICAL */
     .fotos-grid {
         columns: 1 !important;
     }
