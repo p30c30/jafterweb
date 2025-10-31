@@ -1,25 +1,4 @@
 // SCRIPT.JS - VERSIÓN COMPLETA CON ZOOM Y CARRUSEL
-
-// ================== FIX NUCLEAR Y DETECCIÓN DE ERRORES ==================
-console.log('🚨 INICIANDO CON DETECCIÓN DE ERRORES...');
-
-// BLOQUEAR SCROLL HORIZONTAL
-document.documentElement.style.overflowX = 'hidden';
-document.documentElement.style.width = '100%';
-document.body.style.overflowX = 'hidden'; 
-document.body.style.width = '100%';
-
-// CAPTURAR ERRORES GLOBALES
-window.addEventListener('error', function(e) {
-    console.log('❌ ERROR CAPTURADO:', e.message, 'en', e.filename, 'línea', e.lineno);
-});
-
-console.log('✅ Fix aplicado - buscando errores...');
-
-// ================== TU SCRIPT ORIGINAL A CONTINUACIÓN ==================
-// [Aquí pegas todo tu script original completo]
-
-
 console.log('✅ script.js CARGADO');
 
 // Variables globales
