@@ -132,8 +132,7 @@
     .carrusel-btn { display: none !important; } /* sin flechas en móvil */
     .carrusel-info { padding: 1.2rem 1rem 0.8rem; }
     .carrusel-desc { font-size: 1.1rem; }
-    .carrusel-dots { margin: 1rem 0 0; gap: 0.5rem; }
-    .carrusel-dot { width: 10px; height: 10px; }
+    .carrusel-dots { display: none !important; } /* ocultar dots en móvil */
 }
 
 /* Móviles pequeños: un poco menos de alto */
