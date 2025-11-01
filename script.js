@@ -10,6 +10,24 @@ let carruselFotos = [];
 let datosGlobales = null;
 let isModalOpen = false;
 
+// Evitar que el navegador restaure el scroll anterior
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
+// Helper para subir arriba con seguridad tras pintar la vista
+function scrollToTopHard() {
+  // doble rAF para esperar a layout/paint
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+  });
+}
+
+
 // Modal: fuente de datos ('seccion' | 'carrusel')
 let modalSource = 'seccion';
 
@@ -396,6 +414,9 @@ view.innerHTML = `
 
 view.style.display = 'block';
 
+// Subir SIEMPRE arriba al entrar en la sección
+scrollToTopHard();
+
 // Asegurar entrar arriba de la página al abrir una sección
 document.documentElement.scrollTop = 0;
 document.body.scrollTop = 0;
@@ -491,20 +512,30 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     if (nextBtn)  nextBtn.onclick  = () => navegarFoto(1);
     if (fsBtn)    fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-    // CHIP: sustituye el estado 'modal' por la sección (Atrás → portada a la primera)
-    if (chip && chip.dataset.seccionId) {
-      chip.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const sid = chip.dataset.seccionId;
-        const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-        if (!sec) return;
-        history.replaceState({ view: 'seccion', seccionId: sid }, '');
-        closeModal();                       // no toca historial
-        mostrarSeccion(sec, { push: false });
-        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-      });
+    /// CHIP: sustituye el estado 'modal' por la sección (atrás → portada a la primera)
+if (chip && chip.dataset.seccionId) {
+  chip.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const sid = chip.dataset.seccionId;
+
+    if (modalSource === 'seccion') {
+      // El modal se abrió desde la propia sección:
+      // Volvemos en el historial (pop a {view:'seccion'}). aplicarEstado cerrará el modal.
+      history.back();
+      return;
     }
+
+    // El modal se abrió desde carrusel (home) → reemplaza el estado 'modal' por 'seccion'
+    const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+    if (!sec) return;
+
+    history.replaceState({ view: 'seccion', seccionId: sid }, '');
+    closeModal();                       // no toca historial
+    mostrarSeccion(sec, { push: false });
+    scrollToTopHard();
+  });
+}
 
     // Overlay = cerrar
     modal.addEventListener('click', function (event) {
