@@ -1,5 +1,5 @@
-// SCRIPT.JS v16 — Carrusel infinito + Modal (pinch/zoom click toggle + drag suave + fullscreen móvil)
-console.log('✅ script.js v16 CARGADO');
+// SCRIPT.JS v19 — Carrusel infinito + Modal (pinch/zoom, click toggle, drag suave, fullscreen móvil)
+console.log('✅ script.js v19 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null;
@@ -230,6 +230,7 @@ function setupCarruselInfinito(inner) {
   carruselRealLength = slides.length; if (!carruselRealLength) return;
 
   inner.querySelectorAll('.carrusel-item.clone').forEach(n => n.remove());
+
   const firstClone = slides[0].cloneNode(true);
   const lastClone  = slides[slides.length - 1].cloneNode(true);
   firstClone.classList.add('clone'); lastClone.classList.add('clone');
@@ -455,15 +456,29 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     if (closeBtn) closeBtn.onclick = goBackOneStep;
     if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
     if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
-    if (fsBtn) {
-      fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
-    }
+    if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
+
+    // CHIP: reemplazar estado del modal por la sección (no volver al modal al pulsar atrás)
     if (chip && chip.dataset.seccionId) {
       chip.addEventListener('click', (e) => {
+        e.preventDefault();
         e.stopPropagation();
         const sid = chip.dataset.seccionId;
         const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-        if (sec) { closeModal(); mostrarSeccion(sec); }
+        if (!sec) return;
+
+        if (modalSource === 'carrusel') {
+          history.replaceState({ view: 'seccion', seccionId: sid }, '');
+          closeModal();                          // no toca historial
+          mostrarSeccion(sec, { push: false });  // pinta sin push
+        } else {
+          // Venías de una sección
+          closeModal();
+          if (!currentSeccion || currentSeccion.id !== sid) {
+            history.replaceState({ view: 'seccion', seccionId: sid }, '');
+            mostrarSeccion(sec, { push: false });
+          }
+        }
       });
     }
 
@@ -475,25 +490,20 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       }
     });
 
-    // CLIC ÚNICO: toggle zoom (100% ↔ defaultClickZoom). DOBLE CLIC: tu toggle previo
-    let clickCount = 0, clickTimer = null;
+    // CLICK ÚNICO: toggle zoom 100% ↔ defaultClickZoom (sin ambigüedad)
     modalImg.addEventListener('click', function (event) {
       if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
-      clickCount++;
-      if (clickCount === 1) {
-        clickTimer = setTimeout(() => {
-          if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; }
-          else { currentScale = defaultClickZoom; }
-          aplicarZoom();
-          clickCount = 0;
-        }, 220);
-      } else if (clickCount === 2) {
-        clearTimeout(clickTimer);
-        toggleZoomDobleClic();
-        clickCount = 0;
+      if (currentScale > 1) {
+        currentScale = 1;
+        translateX = 0; translateY = 0;
+      } else {
+        currentScale = defaultClickZoom; // 2x
       }
+      aplicarZoom();
       event.stopPropagation();
     });
+    // Doble clic: evita efecto secundario (el toggle ya lo hace el click)
+    modalImg.addEventListener('dblclick', (e) => e.preventDefault());
 
     // Rueda (desktop)
     modal.addEventListener('wheel', function (e) {
@@ -507,19 +517,20 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     modalImg.addEventListener('mousedown', startDrag);
     modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
 
-    // Swipe horizontal para cambiar foto
+    // Swipe horizontal para cambiar foto (con candado anti-doble disparo)
     attachSwipeToModal(modal);
 
     // Bottom sheet
     attachBottomSheet(modal);
 
-    // Fullscreen state (cambiar icono)
-    document.addEventListener('fullscreenchange', () => {
+    // Fullscreen state (cambiar icono) — una sola vez por apertura
+    const fsChange = () => {
       const active = !!document.fullscreenElement;
       modal.classList.toggle('fs-active', active);
       const b = modal.querySelector('.fullscreen-toggle');
       if (b) b.classList.toggle('is-active', active);
-    });
+    };
+    document.addEventListener('fullscreenchange', fsChange, { once: true });
 
     // Teclado
     keydownHandler = function (ev) {
@@ -530,12 +541,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       }
     };
     document.addEventListener('keydown', keydownHandler);
-  }
-
-  function toggleZoomDobleClic() {
-    if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; }
-    else { currentScale = 2; }
-    aplicarZoom();
   }
 }
 
@@ -759,16 +764,16 @@ function navegarFoto(direccion) {
   im.src = nueva.url;
 }
 
-// Swipe horizontal en modal
+// Swipe horizontal en modal (candado anti-doble disparo)
 function attachSwipeToModal(modal) {
   const container = modal.querySelector('.modal-img-container'); if (!container) return;
-  let sx = 0, sy = 0, st = 0, blockVertical = false;
+  let sx = 0, sy = 0, st = 0, blockVertical = false, swipeLock = false;
 
   function onStart(e) {
     if (currentScale > 1) return;
     const t = e.touches[0];
-    sx = t.clientX; sy = t.clientY; st = Date.now(); blockVertical = false;
-    modal.classList.add('is-gesturing');
+    sx = t.clientX; sy = t.clientY; st = Date.now();
+    blockVertical = false; modal.classList.add('is-gesturing');
   }
   function onMove(e) {
     if (currentScale > 1) return;
@@ -777,11 +782,13 @@ function attachSwipeToModal(modal) {
   }
   function onEnd(e) {
     modal.classList.remove('is-gesturing');
-    if (currentScale > 1 || blockVertical) return;
+    if (currentScale > 1 || blockVertical || swipeLock) return;
     const t = e.changedTouches[0]; const dx = t.clientX - sx; const dt = Date.now() - st;
     const threshold = 60; const fast = Math.abs(dx) / dt > 0.5;
     if (Math.abs(dx) > threshold || fast) {
-      ignoreNextClick = true; dx < 0 ? navegarFoto(1) : navegarFoto(-1);
+      swipeLock = true; ignoreNextClick = true;
+      dx < 0 ? navegarFoto(1) : navegarFoto(-1);
+      setTimeout(() => { swipeLock = false; }, 300);
       setTimeout(() => { ignoreNextClick = false; }, 300);
     }
   }
