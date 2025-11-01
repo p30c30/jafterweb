@@ -464,21 +464,23 @@ function mostrarSeccion(seccion, opts = { push: true }) {
 const back = view.querySelector('.back-button');
 if (back) back.addEventListener('click', () => goBackOneStep());
 
-const container = document.getElementById('fotos-container');
-if (container) {
-  container.innerHTML = '';
+const fotosContainer = document.getElementById('fotos-container');
+if (fotosContainer) {
+  fotosContainer.innerHTML = '';
   seccion.fotos.forEach((foto, i) => {
     if (!foto.miniatura || !foto.texto || !foto.url) return;
     const el = document.createElement('div');
     el.className = 'foto-item';
     el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`;
-    el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); });
-    container.appendChild(el);
+    el.addEventListener('click', () => {
+      modalSource = 'seccion';
+      mostrarModal(foto.url, foto.texto, i);
+    });
+    fotosContainer.appendChild(el);
   });
 
-  // Subir SIEMPRE arriba y reforzar tras cargar miniaturas (sin duplicar scrolls)
-  forceSectionTop(container);
-  // Re-sincroniza visibilidad del botón scroll-top si lo usas
+  // Subir SIEMPRE arriba al entrar y reforzar tras cargar miniaturas
+  if (typeof forceSectionTop === 'function') forceSectionTop(fotosContainer);
   if (typeof refreshScrollTop === 'function') refreshScrollTop();
 }
   currentView = 'seccion';
