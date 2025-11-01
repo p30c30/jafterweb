@@ -363,7 +363,12 @@ function mostrarSeccion(seccion, opts = { push: true }) {
   const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none';
 
   let view = document.getElementById('seccion-view');
-  if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); }
+  if (!view) {
+    view = document.createElement('div');
+    view.id = 'seccion-view';
+    view.className = 'seccion-view';
+    document.getElementById('content').appendChild(view);
+  }
 
   view.innerHTML = `
     <header class="seccion-header">
@@ -377,12 +382,16 @@ function mostrarSeccion(seccion, opts = { push: true }) {
 
   view.style.display = 'block';
 
-  // Asegurar entrar arriba de la página al abrir una sección
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
-  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  // Entrar SIEMPRE arriba de la página
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  });
 
-  const back = view.querySelector('.back-button'); if (back) back.addEventListener('click', () => goBackOneStep());
+  const back = view.querySelector('.back-button');
+  if (back) back.addEventListener('click', () => goBackOneStep());
+
   const container = document.getElementById('fotos-container');
   if (container) {
     container.innerHTML = '';
@@ -391,11 +400,19 @@ function mostrarSeccion(seccion, opts = { push: true }) {
       const el = document.createElement('div');
       el.className = 'foto-item';
       el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`;
-      el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); });
+      el.addEventListener('click', () => {
+        modalSource = 'seccion';
+        mostrarModal(foto.url, foto.texto, i);
+      });
       container.appendChild(el);
     });
   }
 
+  currentView = 'seccion';
+  if (opts.push && !isHandlingPopstate) {
+    history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
+  }
+}
   currentView = 'seccion';
   if (opts.push && !isHandlingPopstate) history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
 }
@@ -472,7 +489,8 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
     if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-    /// CHIP: volver a la sección SIN dejar el estado 'modal' en el historial
+   // CHIP: volver a la sección SIN dejar el estado 'modal' en el historial
+const chip = modal.querySelector('.section-chip');
 if (chip && chip.dataset.seccionId) {
   chip.addEventListener('click', (e) => {
     e.preventDefault();
@@ -482,15 +500,15 @@ if (chip && chip.dataset.seccionId) {
     const sec = datosGlobales?.secciones?.find(s => s.id === sid);
     if (!sec) return;
 
-    // 1) Sustituimos SIEMPRE el estado actual (modal) por la sección
+    // Sustituye SIEMPRE el estado actual (modal) por la sección
     history.replaceState({ view: 'seccion', seccionId: sid }, '');
 
-    // 2) Cerramos el modal (no toca el historial)
+    // Cierra el modal (no toca historial) y pinta la sección sin push
     closeModal();
-
-    // 3) Pintamos la sección sin push (y subimos al inicio de la página)
     mostrarSeccion(sec, { push: false });
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+
+    // Garantiza que quedas arriba
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   });
 }
 
