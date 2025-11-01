@@ -1,263 +1,50 @@
-/* ================== COMPONENTS (limpio, masonry por columnas) ================== */
-
 /* Grid de secciones/tarjetas */
 .section-cards {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(350px, 1fr));
-    gap: 2rem;
-    margin: 3rem 0;
-    justify-content: center;
+  display: grid; grid-template-columns: repeat(3, minmax(350px, 1fr)); gap: 2rem; margin: 3rem 0; justify-content: center;
 }
 
-/* ================== TARJETAS CON EFECTOS DE LUZ COMPLETOS ================== */
-.card {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 18px;
-    padding: 0;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    height: 100%;
-    position: relative;
+/* Tarjetas con efectos */
+.card{
+  background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px; padding: 0; overflow: hidden; cursor: pointer;
+  transition: all .4s cubic-bezier(.25,.46,.45,.94);
+  box-shadow: 0 10px 25px rgba(0,0,0,.3); height: auto; position: relative; display:flex; flex-direction:column;
 }
-
-/* Efecto de luz que sale por debajo */
-.card::after {
-    content: '';
-    position: absolute;
-    bottom: -20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 85%;
-    height: 40px;
-    background: radial-gradient(ellipse at center, 
-        rgba(253, 184, 19, 0.5) 0%, 
-        rgba(253, 184, 19, 0.3) 30%, 
-        rgba(253, 184, 19, 0.2) 60%, 
-        transparent 100%);
-    opacity: 0;
-    transition: all 0.4s ease;
-    filter: blur(15px);
-    z-index: 0;
+.card::after{ content:''; position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); width:85%; height:40px;
+  background: radial-gradient(ellipse at center, rgba(253,184,19,.5) 0%, rgba(253,184,19,.3) 30%, rgba(253,184,19,.2) 60%, transparent 100%);
+  opacity:0; transition:.4s; filter:blur(15px); z-index:0;
 }
-
-/* Efecto de brillo que se desliza por encima */
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(253, 184, 19, 0.3), transparent);
-    transition: left 0.6s ease;
-    z-index: 1;
+.card::before{ content:''; position:absolute; top:0; left:-100%; width:100%; height:100%;
+  background: linear-gradient(90deg, transparent, rgba(253,184,19,.3), transparent);
+  transition:left .6s; z-index:1;
 }
-
-.card:hover::before { left: 100%; }
-
-/* Efecto principal al hover CON LUZ POR DEBAJO */
-.card:hover {
-    transform: translateY(-12px) scale(1.03);
-    box-shadow: 
-        0 25px 45px rgba(0, 0, 0, 0.5),
-        0 0 40px rgba(253, 184, 19, 0.4),
-        0 0 80px rgba(253, 184, 19, 0.3);
-    border-color: rgba(253, 184, 19, 0.8);
-    filter: brightness(1.15);
+.card:hover{ transform: translateY(-12px) scale(1.03); box-shadow: 0 25px 45px rgba(0,0,0,.5), 0 0 40px rgba(253,184,19,.4), 0 0 80px rgba(253,184,19,.3);
+  border-color: rgba(253,184,19,.8); filter: brightness(1.15);
 }
+.card:hover::before{ left:100%; }
+.card:hover::after{ opacity:1; bottom:-25px; width:90%; height:50px; filter: blur(20px); }
 
-/* Activar la luz por debajo al hover */
-.card:hover::after {
-    opacity: 1;
-    bottom: -25px;
-    width: 90%;
-    height: 50px;
-    filter: blur(20px);
+.card-image{ width:100%; height:240px; object-fit:cover; display:block; transition: transform .4s; position: relative; z-index:2; }
+.card:hover .card-image{ transform: scale(1.08); }
+.card-content{ padding:1.8rem; position:relative; z-index:2; background: linear-gradient(transparent 0%, rgba(0,0,0,.9) 100%); }
+.card-content h3{ font-size:1.5rem; margin-bottom:.8rem; color:#FDB813; transition: color .3s; font-weight:600; }
+.card:hover .card-content h3{ color:#FFD700; text-shadow:0 0 8px rgba(255,215,0,.4); }
+.card-content p{ color:#e0e0e0; font-size:1rem; line-height:1.6; transition: color .3s; }
+.card:hover .card-content p{ color:#fff; }
+
+/* Masonry por columnas (desktop base) */
+.fotos-grid{ columns: 4 280px; column-gap:.8rem; margin:1.5rem 0; padding:0 .5rem; }
+.foto-item{
+  break-inside: avoid; display:inline-block; width:100%; margin-bottom:.8rem;
+  background: rgba(255,255,255,.06); border-radius:12px; overflow:hidden; cursor:pointer;
+  transition: all .5s cubic-bezier(.25,.46,.45,.94); border:1px solid rgba(255,255,255,.12); position:relative;
 }
+.foto-miniatura{ width:100%; height:auto; object-fit:contain; display:block; transition:transform .5s, filter .3s; filter: brightness(.95); will-change: transform; }
+.foto-item:hover .foto-miniatura{ transform: scale(1.05); filter: brightness(1.1); }
+.foto-item:hover{ transform: translateY(-5px) scale(1.02); box-shadow:0 15px 35px rgba(0,0,0,.4), 0 0 20px rgba(253,184,19,.3); border-color: rgba(253,184,19,.3); }
 
-/* Imagen con zoom suave */
-.card-image {
-    width: 100%;
-    height: 240px;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.4s ease;
-    position: relative;
-    z-index: 2;
-}
-
-.card:hover .card-image { transform: scale(1.08); }
-
-/* Contenido de la tarjeta */
-.card-content {
-    padding: 1.8rem;
-    position: relative;
-    z-index: 2;
-    background: linear-gradient(transparent 0%, rgba(0, 0, 0, 0.9) 100%);
-}
-
-.card-content h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.8rem;
-    color: #FDB813;
-    transition: color 0.3s ease;
-    font-weight: 600;
-}
-
-.card:hover .card-content h3 {
-    color: #FFD700;
-    text-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
-}
-
-.card-content p {
-    color: #e0e0e0;
-    font-size: 1rem;
-    line-height: 1.6;
-    transition: color 0.3s ease;
-}
-
-.card:hover .card-content p { color: #ffffff; }
-
-/* ================== MASONRY POR COLUMNAS (BASE DESKTOP) ================== */
-.fotos-grid {
-    /* Masonry real por columnas: el navegador coloca automáticamente los bloques */
-    columns: 4 280px;        /* número y ancho mínimo de columnas en desktop */
-    column-gap: 0.8rem;
-    margin: 1.5rem 0;
-    padding: 0 0.5rem;
-}
-
-.foto-item {
-    break-inside: avoid;     /* evita que un ítem se corte entre columnas */
-    display: inline-block;   /* necesario para masonry por columnas */
-    width: 100%;
-    margin-bottom: 0.8rem;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 12px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    position: relative;
-}
-
-.foto-miniatura {
-    width: 100%;
-    height: auto;            /* respeta el ratio de cada foto */
-    object-fit: contain;     /* ver completa sin recortar */
-    display: block;
-    transition: transform 0.5s ease, filter 0.3s ease;
-    filter: brightness(0.95);
-    will-change: transform;
-}
-
-.foto-item:hover .foto-miniatura {
-    transform: scale(1.05);
-    filter: brightness(1.1);
-}
-
-/* Efectos hover mejorados */
-.foto-item:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 
-        0 15px 35px rgba(0, 0, 0, 0.4),
-        0 0 20px rgba(253, 184, 19, 0.3);
-    border-color: rgba(253, 184, 19, 0.3);
-}
-
-/* ================== SECCIÓN INSPIRATION - TEXTO AJUSTADO ================== */
-#inspiration-section > div > div:first-child {
-    text-align: left;
-    max-width: 640px;
-    margin: 0 auto;
-}
-
-#inspiration-section h2 {
-    font-size: 2.2rem !important;
-    margin: 0 0 1.2rem !important;
-    color: #FDB813 !important;
-    font-weight: 600 !important;
-    line-height: 1.3 !important;
-    text-shadow: 0 0 20px rgba(253, 184, 19, 0.4) !important;
-    letter-spacing: 0.5px !important;
-}
-
-#inspiration-section p {
-    font-size: 1.2rem !important;
-    line-height: 1.6 !important;
-    margin: 0 0 1.2rem !important;
-    color: #f0f0f0 !important;
-    font-weight: 300 !important;
-}
-
-#inspiration-section p:last-child { margin-bottom: 0 !important; }
-
-/* ================== BOTÓN SCROLL TO TOP ================== */
-.scroll-to-top {
-    position: fixed;
-    bottom: 30px; right: 30px;
-    width: 50px; height: 50px;
-    background: rgba(253, 184, 19, 0.9);
-    color: #000;
-    border: none; border-radius: 50%;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.5rem; font-weight: bold;
-    box-shadow: 0 4px 20px rgba(253, 184, 19, 0.4);
-    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    z-index: 999;
-    opacity: 0; visibility: hidden; transform: translateY(20px);
-}
-
-.scroll-to-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
-.scroll-to-top:hover {
-    background: #FDB813;
-    transform: translateY(-5px) scale(1.1);
-    box-shadow: 0 6px 25px rgba(253, 184, 19, 0.6);
-}
-.scroll-to-top:active { transform: translateY(-2px) scale(1.05); }
-
-/* ========== FIX BORDE GRIS PERMANENTE EN TARJETAS ========== */
-.card::after {
-    opacity: 0 !important;
-    visibility: hidden !important;
-    pointer-events: none !important;
-    filter: blur(0) !important;
-    background: transparent !important;
-}
-.card:hover::after {
-    opacity: 1 !important;
-    visibility: visible !important;
-    filter: blur(20px) !important;
-    background: radial-gradient(ellipse at center, 
-        rgba(253, 184, 19, 0.5) 0%, 
-        rgba(253, 184, 19, 0.3) 30%, 
-        rgba(253, 184, 19, 0.2) 60%, 
-        transparent 100%) !important;
-}
-/* === FIX cards que muestran franja inferior por estirado del grid === */
-
-/* 1) No estirar los ítems del grid (cada card a su propia altura) */
-.section-cards {
-  align-items: start;           /* clave: no stretch */
-}
-
-/* 2) La card a altura de contenido (no forzar 100%) */
-.section-cards .card {
-  height: auto !important;      /* anula height: 100% */
-  display: flex;                /* que el contenido se apile */
-  flex-direction: column;
-}
-
-/* 3) Asegurar que la imagen no “mete” espacio raro */
-.section-cards .card-image {
-  display: block;               /* elimina gaps por baseline */
-}
-
-/* 4) El contenido simplemente debajo (sin estirar) */
-.section-cards .card-content {
-  flex: 0 0 auto;
-}
+/* Fix cards que estiraban altura de fila */
+.section-cards { align-items: start; }
+.section-cards .card-image { display:block; }
+.section-cards .card-content { flex: 0 0 auto; }
