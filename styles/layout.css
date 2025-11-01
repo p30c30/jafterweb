@@ -8,12 +8,105 @@
 
 /* Título principal */
 .home-view h1 {
-    font-size: 2.5rem;
+    font-size: 3.5rem;
     text-align: center;
-    margin-bottom: 4rem;
-    color: #ffffff;
+    margin-bottom: 2rem;
+    color: #FDB813;
+    font-weight: 600;
+    text-shadow: 0 0 20px rgba(253, 184, 19, 0.3);
+    letter-spacing: 2px;
+}
+
+.hero-subtitle {
+    font-size: 1.3rem;
+    text-align: center;
+    color: #e0e0e0;
+    margin-bottom: 3rem;
     font-weight: 300;
-    letter-spacing: 1px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+/* Header mejorado */
+.site-header {
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(15px);
+    padding: 1rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(253, 184, 19, 0.2);
+}
+
+.logo {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #FDB813;
+    text-align: center;
+    padding: 1rem;
+    cursor: pointer;
+    text-shadow: 0 0 20px rgba(253, 184, 19, 0.4);
+    transition: all 0.3s ease;
+    margin: 0;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+    text-shadow: 0 0 30px rgba(253, 184, 19, 0.6);
+}
+
+/* Navegación */
+.main-nav {
+    margin-top: 1rem;
+}
+
+.nav-list {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    color: #e0e0e0;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    font-weight: 300;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: #FDB813;
+    background: rgba(253, 184, 19, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Menú móvil */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.menu-toggle span {
+    width: 25px;
+    height: 2px;
+    background: #FDB813;
+    margin: 3px 0;
+    transition: 0.3s;
 }
 
 /* Vista de sección */
@@ -21,32 +114,48 @@
     display: none;
 }
 
-/* Header de sección */
+
+/* Header de sección - DISEÑO JERÁRQUICO */
 .seccion-header {
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(15px);
-    padding: 8rem 3rem 4rem 3rem;
-    text-align: center;
+    padding: 1rem 2rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-    margin-bottom: 3rem;
-    position: relative;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 80px;
 }
 
+.seccion-title-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+}
+
+/* Nombre de sección - GRANDE como la flecha */
 .seccion-header h1 {
-    font-size: 3.5rem;
-    margin: 0 0 1.5rem;
+    font-size: 2.2rem; /* ← MÁS GRANDE como el círculo */
+    margin: 0;
     color: #FDB813;
     font-weight: 600;
     text-shadow: 0 0 20px rgba(253, 184, 19, 0.3);
+    line-height: 1.2;
+    flex-shrink: 0;
+    letter-spacing: 0.5px; /* ← Mejor legibilidad */
 }
 
-.seccion-header p {
-    font-size: 1.5rem;
-    color: #e0e0e0;
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.7;
+
+/* Descripción - MÁS PEQUEÑA y en blanco */
+.seccion-descripcion {
+    font-size: 1.1rem;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.4;
     font-weight: 300;
+    opacity: 0.9;
 }
 
 /* Botón de volver */
@@ -54,24 +163,185 @@
     background: rgba(253, 184, 19, 0.25);
     color: #FDB813;
     border: 2px solid rgba(253, 184, 19, 0.4);
-    padding: 1rem;
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.3s ease;
-    font-size: 1.8rem;
-    width: 60px;
-    height: 60px;
+    font-size: 1.3rem;
+    width: 45px;
+    height: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: absolute;
-    top: 25px;
-    left: 25px;
-    z-index: 101;
+    flex-shrink: 0;
 }
 
 .back-button:hover {
     background: rgba(253, 184, 19, 0.4);
-    transform: scale(1.15);
-    box-shadow: 0 0 20px rgba(253, 184, 19, 0.5);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(253, 184, 19, 0.4);
+}
+
+/* Mejora la sección inspiradora */
+#inspiration-section {
+    background: linear-gradient(135deg, rgba(253, 184, 19, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%);
+    padding: 6rem 2rem;
+    margin-top: 4rem;
+    border-top: 1px solid rgba(253, 184, 19, 0.2);
+}
+
+#inspiration-section > div {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+#inspiration-section h2 {
+    font-size: 2.5rem;
+    color: #FDB813;
+    margin-bottom: 2rem;
+    font-weight: 600;
+}
+
+#inspiration-section p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #e0e0e0;
+    margin-bottom: 1.5rem;
+}
+
+/* ... todo tu CSS existente ... */
+
+/* Sección inspiradora mejorada */
+#inspiration-section {
+    background: linear-gradient(135deg, rgba(253, 184, 19, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%);
+    padding: 6rem 2rem;
+    margin-top: 4rem;
+    border-top: 1px solid rgba(253, 184, 19, 0.2);
+}
+
+#inspiration-section > div {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+}
+
+/* AQUÍ VA EL NUEVO CSS DEL RECUADRO FLEXIBLE */
+#inspiration-section .inspiration-image {
+    width: 400px;
+    height: 400px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, rgba(253, 184, 19, 0.1) 0%, rgba(0, 0, 0, 0.8) 100%);
+    border-radius: 10px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(253, 184, 19, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 20px;
+}
+
+#inspiration-section img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+
+#inspiration-section .inspiration-image:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(253, 184, 19, 0.4);
+}
+
+#inspiration-section .inspiration-image:hover img {
+    transform: scale(1.02);
+}
+
+/* Y LUEGO el responsive de esta sección */
+@media (max-width: 768px) {
+    #inspiration-section > div {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    #inspiration-section .inspiration-image {
+        margin: 0 1rem;
+    }
+    
+    #inspiration-section h2 {
+        font-size: 2rem;
+    }
+}
+
+/* Responsive para navegación */
+@media (max-width: 768px) {
+    .main-nav {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(15px);
+    }
+    
+    .main-nav.active {
+        display: block;
+    }
+    
+    .nav-list {
+        flex-direction: column;
+        padding: 1rem;
+        gap: 0;
+    }
+    
+    .nav-link {
+        display: block;
+        padding: 1rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .menu-toggle {
+        display: flex;
+    }
+    
+    .menu-toggle.active span:nth-child(1) {
+        transform: rotate(-45deg) translate(-5px, 6px);
+    }
+    
+    .menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .menu-toggle.active span:nth-child(3) {
+        transform: rotate(45deg) translate(-5px, -6px);
+    }
+    
+    .home-view h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.1rem;
+        padding: 0 1rem;
+    }
+    
+    #inspiration-section > div {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    #inspiration-section h2 {
+        font-size: 2rem;
+    }
 }
