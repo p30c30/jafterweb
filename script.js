@@ -1,5 +1,5 @@
-// SCRIPT.JS v19 — Carrusel infinito + Modal (pinch/zoom, click toggle, drag suave, fullscreen móvil)
-console.log('✅ script.js v19 CARGADO');
+// SCRIPT.JS v20 — Carrusel infinito + Modal (pinch/zoom, click-toggle fiable, drag suave, fullscreen móvil)
+console.log('✅ script.js v20 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null;
@@ -37,6 +37,9 @@ const defaultClickZoom = 2;
 
 // Teclado
 let keydownHandler = null;
+
+// Fullscreen change handler (para limpiar al cerrar)
+let fullscreenChangeHandler = null;
 
 // Carrusel infinito/autoplay
 let carouselTimer = null;
@@ -88,8 +91,9 @@ function crearBotonScrollTop() {
   btn.className = 'scroll-to-top';
   btn.innerHTML = '↑';
   btn.setAttribute('aria-label', 'Volver arriba');
-  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   document.body.appendChild(btn);
+
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
   window.addEventListener('scroll', () => {
     const y = window.scrollY;
@@ -384,7 +388,6 @@ function mostrarSeccion(seccion, opts = { push: true }) {
   currentView = 'seccion';
   if (opts.push && !isHandlingPopstate) history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
 }
-
 // ===== Modal =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
   const modal = document.getElementById('modal');
@@ -458,7 +461,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
     if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-    // CHIP: reemplazar estado del modal por la sección (no volver al modal al pulsar atrás)
+    // CHIP: reemplazar estado del modal por la sección (atrás → portada)
     if (chip && chip.dataset.seccionId) {
       chip.addEventListener('click', (e) => {
         e.preventDefault();
@@ -469,10 +472,9 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
 
         if (modalSource === 'carrusel') {
           history.replaceState({ view: 'seccion', seccionId: sid }, '');
-          closeModal();                          // no toca historial
-          mostrarSeccion(sec, { push: false });  // pinta sin push
+          closeModal();                          // no modifica historial
+          mostrarSeccion(sec, { push: false });  // sin push extra
         } else {
-          // Venías de una sección
           closeModal();
           if (!currentSeccion || currentSeccion.id !== sid) {
             history.replaceState({ view: 'seccion', seccionId: sid }, '');
@@ -490,19 +492,35 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       }
     });
 
-    // CLICK ÚNICO: toggle zoom 100% ↔ defaultClickZoom (sin ambigüedad)
+    // TAP/Clic: toggle zoom 100% ↔ defaultClickZoom (fiable en móvil y PC)
+    let tapStartX = 0, tapStartY = 0, tapStartT = 0;
+    modalImg.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        tapStartX = e.touches[0].clientX;
+        tapStartY = e.touches[0].clientY;
+        tapStartT = Date.now();
+      }
+    }, { passive: true });
+    modalImg.addEventListener('touchend', (e) => {
+      if (ignoreNextClick) { ignoreNextClick = false; return; }
+      if (e.changedTouches.length === 1) {
+        const dx = e.changedTouches[0].clientX - tapStartX;
+        const dy = e.changedTouches[0].clientY - tapStartY;
+        const dt = Date.now() - tapStartT;
+        if (Math.hypot(dx, dy) < 12 && dt < 250) {
+          doClickToggle();
+          // Evita que el click “sombra” dispare otra vez
+          ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
+        }
+      }
+    }, { passive: true });
+
     modalImg.addEventListener('click', function (event) {
       if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
-      if (currentScale > 1) {
-        currentScale = 1;
-        translateX = 0; translateY = 0;
-      } else {
-        currentScale = defaultClickZoom; // 2x
-      }
-      aplicarZoom();
-      event.stopPropagation();
+      doClickToggle(); event.stopPropagation();
     });
-    // Doble clic: evita efecto secundario (el toggle ya lo hace el click)
+
+    // Evita doble comportamiento (ya usamos click/touch)
     modalImg.addEventListener('dblclick', (e) => e.preventDefault());
 
     // Rueda (desktop)
@@ -517,20 +535,24 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     modalImg.addEventListener('mousedown', startDrag);
     modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
 
-    // Swipe horizontal para cambiar foto (con candado anti-doble disparo)
+    // Swipe horizontal para cambiar foto (con candado)
     attachSwipeToModal(modal);
 
     // Bottom sheet
     attachBottomSheet(modal);
 
-    // Fullscreen state (cambiar icono) — una sola vez por apertura
-    const fsChange = () => {
+    // Fullscreen state (añade y limpia en closeModal)
+    if (fullscreenChangeHandler) {
+      document.removeEventListener('fullscreenchange', fullscreenChangeHandler);
+      fullscreenChangeHandler = null;
+    }
+    fullscreenChangeHandler = () => {
       const active = !!document.fullscreenElement;
       modal.classList.toggle('fs-active', active);
       const b = modal.querySelector('.fullscreen-toggle');
       if (b) b.classList.toggle('is-active', active);
     };
-    document.addEventListener('fullscreenchange', fsChange, { once: true });
+    document.addEventListener('fullscreenchange', fullscreenChangeHandler);
 
     // Teclado
     keydownHandler = function (ev) {
@@ -541,6 +563,15 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       }
     };
     document.addEventListener('keydown', keydownHandler);
+
+    function doClickToggle() {
+      if (currentScale > 1) {
+        currentScale = 1; translateX = 0; translateY = 0;
+      } else {
+        currentScale = defaultClickZoom; // 2x
+      }
+      aplicarZoom();
+    }
   }
 }
 
@@ -906,6 +937,7 @@ function closeModal() {
     isModalOpen = false;
     resetZoom();
     if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
+    if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
     if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
   }
 }
@@ -916,7 +948,12 @@ function volverAGaleriaInternal() {
   const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'block';
   const view = document.getElementById('seccion-view'); if (view) view.style.display = 'none';
   const modal = document.getElementById('modal');
-  if (modal) { modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active'); document.body.classList.remove('modal-open'); resetZoom(); }
+  if (modal) {
+    modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
+    document.body.classList.remove('modal-open');
+    resetZoom();
+    if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
+  }
   window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   currentView = 'home';
 }
