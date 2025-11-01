@@ -24,6 +24,19 @@
     overflow:hidden;
   }
   .container{ padding:2rem 1.5rem; }
+  
+  /* Inspiración móvil: texto debajo de la foto /
+     @media (max-width:767px){
+     #inspiration-section > div{
+     display: grid;
+     grid-template-columns: 1fr;
+     gap: 1.25rem;
+   }
+/ Coloca la foto primero y el texto después /
+#inspiration-section > div > div:first-child{ order: 2; } / texto /
+#inspiration-section > div > div:last-child{ order: 1; } / imagen */
+}
+
 
   /* ===== FIX: Header de sección en columna (título arriba, texto debajo) ===== */
   .seccion-header{
