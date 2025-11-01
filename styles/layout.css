@@ -40,9 +40,35 @@
   background: linear-gradient(135deg, rgba(253,184,19,0.05) 0%, rgba(0,0,0,0.8) 100%);
   padding: 6rem 2rem; margin-top: 4rem; border-top: 1px solid rgba(253,184,19,0.2);
 }
+#inspiration-section > div > div:first-child{ max-width: 56ch; }
 #inspiration-section>div { max-width:1200px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
 #inspiration-section h2 { font-size:2.5rem; color:#FDB813; margin-bottom:2rem; font-weight:600; }
 #inspiration-section p { font-size:1.1rem; line-height:1.8; color:#e0e0e0; margin-bottom:1.5rem; }
+#inspiration-section h2{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Inspiración: estilo cita con clases */
+#inspiration-section .insp-quote{
+position: relative;
+font-family: 'Bodoni Moda','Times New Roman',Georgia,serif;
+font-style: italic;
+font-size: clamp(18px, 2.2vw, 28px);
+line-height: 1.4;
+color: #f1f1f1;
+padding-left: 1.25em;
+margin: .25rem 0 .5rem;
+}
+#inspiration-section .insp-quote::before{
+content: "“";
+position: absolute; left: 0; top: -.15em;
+font-size: 2.2em; line-height: 1; color: #FDB813; opacity: .8;
+}
+#inspiration-section .insp-author{
+margin-top: .6rem;
+color: #FDB813;
+font-weight: 600;
+letter-spacing: .02em;
+}
+
 .inspiration-image{
   width: 400px; height: 400px; margin: 0 auto;
   background: linear-gradient(135deg, rgba(253,184,19,0.1) 0%, rgba(0,0,0,0.8) 100%);
