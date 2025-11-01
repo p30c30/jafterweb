@@ -1,23 +1,22 @@
-/* === MODAL MEJORADO + BOTTOM SHEET (v15) === */
+/* === MODAL MEJORADO + BOTTOM SHEET + FULLSCREEN BTN (v16) === */
 
-/* Overlay del modal */
+/* Overlay */
 .modal {
   display: none;
   position: fixed;
   inset: 0;
   width: 100%;
   height: 100vh;
-  height: 100dvh; /* Altura real en móviles */
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.98);
   z-index: 1000;
-  overflow: hidden; /* el contenido gestiona su overflow */
-  cursor: pointer; /* Cerrar al hacer clic en overlay */
-  overscroll-behavior: contain; /* Evitar rebote detrás */
+  overflow: hidden;
+  cursor: pointer;
+  overscroll-behavior: contain;
 }
-
 .modal.active { display: block; }
 
-/* Contenido del modal */
+/* Contenido */
 .modal-content {
   display: flex;
   flex-direction: column;
@@ -26,23 +25,22 @@
   min-height: 100vh;
   min-height: 100dvh;
   padding: 25px;
-  padding-bottom: 120px; /* escritorio; en móvil lo anulamos */
-  cursor: default; /* No cerrar al hacer clic dentro */
+  padding-bottom: 120px;
+  cursor: default;
 }
 
-/* Contenedor de la imagen */
+/* Imagen */
 .modal-img-container {
+  position: relative; /* para ubicar el botón [ ] dentro */
   display: flex;
   justify-content: center;
   align-items: center;
   max-width: 100%;
   max-height: 85vh;
-  position: relative;
   flex: 1;
   cursor: default;
 }
 
-/* Imagen */
 .modal-img {
   max-width: 96vw;
   max-height: 85vh;
@@ -51,49 +49,56 @@
   object-fit: contain;
   display: block;
   border-radius: 8px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
   transition: transform 0.2s ease;
   transform-origin: center center;
-  touch-action: none; /* permite pinch/drag finos */
+  touch-action: none;
   user-select: none;
   -webkit-user-drag: none;
+  will-change: transform; /* suavizado GPU */
 }
-
-/* Estados de zoom y drag */
 .modal-img.zoomed { cursor: move; }
 .modal-img.grabbing { cursor: grabbing !important; }
 
-/* Botones de navegación (escritorio) */
-.nav-button {
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 65px; height: 65px;
-  background: rgba(0, 0, 0, 0.7);
-  color: #FDB813;
-  border: 3px solid rgba(253, 184, 19, 0.7);
+/* Botón fullscreen [ ] dentro de la imagen (móvil) */
+.fullscreen-toggle {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  display: flex; justify-content: center; align-items: center;
-  font-size: 2.2rem; font-weight: bold;
-  cursor: pointer; z-index: 1002;
-  transition: all 0.3s ease; opacity: 0.8; user-select: none;
+  background: rgba(0,0,0,0.6);
+  border: 2px solid rgba(253,184,19,0.6);
+  color: #FDB813;
+  display: none; /* solo móvil */
+  align-items: center;
+  justify-content: center;
+  z-index: 1004;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  transition: transform .15s ease, background .2s ease, box-shadow .2s ease, opacity .2s ease;
 }
-.nav-button:hover {
-  background: rgba(253, 184, 19, 0.95); color: #000; opacity: 1;
-  transform: translateY(-50%) scale(1.12);
-  box-shadow: 0 0 20px rgba(253, 184, 19, 0.5);
-}
-.prev-button { left: 25px; }
-.next-button { right: 25px; }
+.fullscreen-toggle svg { width: 22px; height: 22px; pointer-events: none; }
+.fullscreen-toggle:hover { background: rgba(253,184,19,0.85); color: #000; box-shadow: 0 0 16px rgba(253,184,19,0.35); transform: scale(1.06); }
+.fullscreen-toggle:active { transform: scale(0.98); }
+@media (max-width: 1024px) { .fullscreen-toggle { display: flex; } }
+/* Icono alterna al entrar/salir de fullscreen */
+.fullscreen-toggle .ico-exit { display: none; }
+.fullscreen-toggle.is-active .ico-enter { display: none; }
+.fullscreen-toggle.is-active .ico-exit  { display: inline; }
 
-/* Panel de info (desktop: flotante centrado) */
+/* Fallback “pseudo-fullscreen” sin API */
+.modal.fs-active { --info-height: 0dvh; }
+.modal.fs-active .modal-info { display: none !important; }
+
+/* Panel de info (desktop: flotante) */
 .modal-info {
   text-align: center;
   padding: 1.2rem;
-  background: rgba(0, 0, 0, 0.95);
+  background: rgba(0,0,0,0.95);
   border-radius: 10px;
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(253, 184, 19, 0.4);
+  border: 1px solid rgba(253,184,19,0.4);
   z-index: 1002;
   position: fixed;
   bottom: 20px;
@@ -102,15 +107,11 @@
   width: auto;
   min-width: 300px;
   max-width: 90%;
-  transition: opacity 0.25s ease, transform 0.25s ease;
+  transition: opacity .25s ease, transform .25s ease;
   opacity: 1;
 }
 
-/* Ocultar info durante zoom y gestos */
-.modal.is-zoomed .modal-info,
-@supports(selector(.modal-content:has(.modal-img.zoomed))) {
-  /* Si el navegador soporta :has, también */
-}
+/* Ocultar info con zoom o gestos */
 .modal.is-zoomed .modal-info {
   opacity: 0 !important;
   visibility: hidden !important;
@@ -118,86 +119,79 @@
   transform: translateX(-50%) translateY(10px);
 }
 .modal.is-gesturing .modal-info {
-  opacity: 0.0 !important;
+  opacity: .0 !important;
   pointer-events: none !important;
 }
 
-/* Título oculto si existiera */
+/* Textos info */
 .modal-title { display: none !important; }
-
 .foto-counter {
-  color: #FDB813;
-  font-size: 1rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  color: #FDB813; font-size: 1rem; font-weight: bold; margin-bottom: .5rem;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8);
 }
 .foto-title {
-  color: #ffffff;
-  font-size: 1.1rem; line-height: 1.4; font-weight: 500;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
-  max-width: 100%;
-  word-wrap: break-word; margin: 0;
+  color: #fff; font-size: 1.1rem; line-height: 1.4; font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  max-width: 100%; word-wrap: break-word; margin: 0;
 }
 
-/* Chip/botón para ir a la sección */
+/* Chip para ir a la sección */
 .section-chip {
-  margin-top: 0.75rem;
-  display: inline-flex; align-items: center; gap: 0.5rem;
+  margin-top: .75rem;
+  display: inline-flex; align-items: center; gap: .5rem;
   padding: 8px 14px; border-radius: 999px;
-  background: rgba(253, 184, 19, 0.15);
-  border: 1px solid rgba(253, 184, 19, 0.6);
+  background: rgba(253,184,19,0.15);
+  border: 1px solid rgba(253,184,19,0.6);
   color: #FDB813; font-weight: 600;
   cursor: pointer; text-decoration: none;
-  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+  transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
 }
-.section-chip:hover {
-  background: rgba(253, 184, 19, 0.3);
-  box-shadow: 0 0 12px rgba(253, 184, 19, 0.3);
-  transform: translateY(-1px);
-}
+.section-chip:hover { background: rgba(253,184,19,0.3); box-shadow: 0 0 12px rgba(253,184,19,0.3); transform: translateY(-1px); }
 .section-chip:active { transform: translateY(0); box-shadow: none; }
-.section-chip:focus-visible {
-  outline: 2px solid #FDB813; outline-offset: 3px;
-  box-shadow: 0 0 0 4px rgba(253, 184, 19, 0.25);
-}
+.section-chip:focus-visible { outline: 2px solid #FDB813; outline-offset: 3px; box-shadow: 0 0 0 4px rgba(253,184,19,0.25); }
 .section-chip .chip-arrow { font-weight: 700; }
 
-/* Botón cerrar */
+/* Navegación (escritorio) */
+.nav-button {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 65px; height: 65px;
+  background: rgba(0,0,0,0.7);
+  color: #FDB813;
+  border: 3px solid rgba(253,184,19,0.7);
+  border-radius: 50%;
+  display: flex; justify-content: center; align-items: center;
+  font-size: 2.2rem; font-weight: bold; cursor: pointer; z-index: 1002;
+  transition: all .3s ease; opacity: .8; user-select: none;
+}
+.nav-button:hover { background: rgba(253,184,19,0.95); color: #000; opacity: 1; transform: translateY(-50%) scale(1.12); box-shadow: 0 0 20px rgba(253,184,19,0.5); }
+.prev-button { left: 25px; }
+.next-button { right: 25px; }
+
+/* Cerrar */
 .close-modal {
   position: fixed; top: 20px; right: 20px;
-  color: rgba(253, 184, 19, 0.8);
-  font-size: 22px; font-weight: bold;
-  cursor: pointer; background: rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(253, 184, 19, 0.5);
+  color: rgba(253,184,19,0.8);
+  font-size: 22px; font-weight: bold; cursor: pointer;
+  background: rgba(0,0,0,0.5);
+  border: 2px solid rgba(253,184,19,0.5);
   border-radius: 50%;
-  width: 38px; height: 38px;
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1003; transition: all 0.3s ease; opacity: 0.8;
+  width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+  z-index: 1003; transition: all .3s ease; opacity: .8;
 }
-.close-modal:hover {
-  background: rgba(253, 184, 19, 0.9);
-  color: #000; transform: scale(1.15); opacity: 1;
-  box-shadow: 0 0 12px rgba(253, 184, 19, 0.4);
-}
+.close-modal:hover { background: rgba(253,184,19,0.9); color: #000; transform: scale(1.15); opacity: 1; box-shadow: 0 0 12px rgba(253,184,19,0.4); }
 
-/* Bloquear scroll del body con modal abierto */
+/* Body sin scroll con modal */
 body.modal-open { overflow: hidden; }
 
-/* ================== MÓVIL: BOTTOM SHEET DEBAJO DE LA FOTO ================== */
+/* ===== Móvil: bottom sheet debajo de la foto ===== */
 @media (max-width: 1024px) {
-  .modal {
-    height: 100vh; height: 100dvh;
-    --info-height: 26dvh; /* altura del panel info */
-  }
+  .modal { height: 100vh; height: 100dvh; --info-height: 26dvh; }
 
   .modal-content {
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 0 !important;
-    height: 100vh; height: 100dvh;
-    overflow: hidden;
+    flex-direction: column; justify-content: flex-start; align-items: center;
+    padding: 0 !important; height: 100vh; height: 100dvh; overflow: hidden;
   }
 
   .modal-img-container {
@@ -205,68 +199,51 @@ body.modal-open { overflow: hidden; }
     height: calc(100dvh - var(--info-height));
     max-height: calc(100dvh - var(--info-height));
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    transition: height 0.2s ease;
+    transition: height .2s ease;
   }
 
   .modal-img { max-width: 100%; max-height: 100%; width: auto; height: auto; }
 
-  /* Bottom sheet */
   .modal-info {
     position: relative !important; bottom: auto !important; left: auto !important; transform: none !important;
     width: 100% !important; height: var(--info-height); max-height: 75dvh;
-    border-radius: 10px 10px 0 0 !important;
-    border: none !important; border-top: 1px solid rgba(253, 184, 19, 0.3) !important;
+    border-radius: 10px 10px 0 0 !important; border: none !important; border-top: 1px solid rgba(253,184,19,0.3) !important;
     margin: 0 !important; flex-shrink: 0;
     overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
-    transition: height 0.2s ease, opacity 0.2s ease, transform 0.2s ease;
-    padding-top: 0.6rem; padding-bottom: 1rem;
+    transition: height .2s ease, opacity .2s ease, transform .2s ease;
+    padding-top: .6rem; padding-bottom: 1rem;
   }
 
-  /* Ocultar botones de navegación en móvil para más espacio */
   .nav-button { display: none !important; }
 
-  /* Botón cerrar más accesible */
   .close-modal {
-    top: 10px; right: 10px; background: rgba(0, 0, 0, 0.7);
+    top: 10px; right: 10px; background: rgba(0,0,0,0.7);
     width: 35px; height: 35px; font-size: 18px;
   }
 
-  /* Con zoom: la foto ocupa todo y el panel colapsa */
   .modal.is-zoomed { --info-height: 0dvh; }
 }
 
-/* Móvil horizontal: mantener el texto debajo */
+/* Móvil horizontal */
 @media (max-width: 1024px) and (orientation: landscape) {
   .modal { --info-height: 20dvh; }
-  .modal-content {
-    flex-direction: column !important;
-    justify-content: flex-start; align-items: center;
-    padding: 0 !important; height: 100vh !important; height: 100dvh !important;
-  }
-  .modal-img-container {
-    height: calc(100dvh - var(--info-height)) !important;
-    max-height: calc(100dvh - var(--info-height)) !important;
-  }
-  .foto-title { font-size: 0.95rem; line-height: 1.35; }
+  .modal-content { flex-direction: column !important; justify-content: flex-start; align-items: center; padding: 0 !important; height: 100vh !important; height: 100dvh !important; }
+  .modal-img-container { height: calc(100dvh - var(--info-height)) !important; max-height: calc(100dvh - var(--info-height)) !important; }
+  .foto-title { font-size: .95rem; line-height: 1.35; }
 }
 
 /* Móviles muy pequeños */
 @media (max-width: 480px) {
   .modal { --info-height: 30dvh; }
-  .foto-title { font-size: 0.9rem; }
+  .foto-title { font-size: .9rem; }
 }
 
-/* Escritorio muy grande: panel algo más ancho si fuera flotante */
-@media (min-width: 1600px) {
-  .modal-info { max-width: 70%; }
-}
+/* Escritorio muy grande */
+@media (min-width: 1600px) { .modal-info { max-width: 70%; } }
 
-/* Safe areas en iOS */
+/* Safe areas iOS */
 @supports (padding: max(0px)) {
   .modal-info { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
 }
 
-/* IMPORTANTE:
-   Ya no hay reglas aquí para .fotos-grid / .foto-item / .foto-miniatura.
-   Las miniaturas se controlan solo desde components.css + responsive.css
-   para evitar conflictos con el modal. */
+/* Nota: aquí no hay reglas para .fotos-grid / miniaturas */
