@@ -615,6 +615,7 @@ function configurarEventosModal() {
     aplicarZoom();
   }
 }
+}  
 
 // Precarga vecinos en modal para paso instantáneo
 function precacheAround(index) {
