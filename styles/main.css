@@ -1,200 +1,55 @@
-/* ================== Reset y base ================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-:root {
-  /* Fondo base (casi negro) y acento dorado */
-  --bg-page: #0c0c0c; /* cambia a #121212 / #141414 / #161616 si quieres más contraste */
+/* Reset/base */
+* { margin:0; padding:0; box-sizing:border-box; }
+:root{
+  /* Fondo ligeramente más claro para más contraste */
+  --bg-page: #141414; /* cambia a #121212 o #161616 si quieres */
   --accent: #FDB813;
-  --accent-soft: rgba(253, 184, 19, 0.55);
-  --accent-glow: rgba(253, 184, 19, 0.25);
+  --accent-soft: rgba(253,184,19,0.55);
+  --accent-glow: rgba(253,184,19,0.25);
+}
+html,body{min-height:100%}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background-color:var(--bg-page); background-image:none;
+  color:#fff; min-height:100vh; font-size:1.05rem; line-height:1.75;
 }
 
-html, body {
-  min-height: 100%;
+/* Header negro puro + separador dorado */
+.site-header{
+  background:#000 !important; border:none; position:sticky; top:0; z-index:100; text-align:center; padding:1rem 0;
+}
+.site-header::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:2px; pointer-events:none; opacity:.75;
+  background:linear-gradient(90deg,transparent 0%,rgba(253,184,19,0) 10%, var(--accent-soft) 45%, var(--accent) 50%, var(--accent-soft) 55%, rgba(253,184,19,0) 90%, transparent 100%);
+  filter:drop-shadow(0 0 10px var(--accent-glow)) drop-shadow(0 0 20px rgba(253,184,19,0.12));
+  transition:opacity .25s ease;
 }
 
-body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-page); /* uniforme, sin franjas */
-  background-image: none;
-  color: #ffffff;
-  min-height: 100vh;
-  font-size: 1.05rem;
-  line-height: 1.75;
+/* Logo editorial premium + dorado degradado */
+.logo{
+  font-size:clamp(28px,2.2vw+12px,48px); line-height:1.1; text-rendering:optimizeLegibility;
+  transition:transform .25s ease, letter-spacing .25s ease, opacity .25s ease; cursor:pointer; color:var(--accent);
+}
+.logo:hover{ opacity:.9; transform:scale(1.03); letter-spacing:.02em; }
+.logo--editorial{ font-family:'Bodoni Moda','Times New Roman',Georgia,serif; font-weight:700; letter-spacing:.01em; font-variant-ligatures:common-ligatures discretionary-ligatures; }
+.brand-gold-text{
+  background:linear-gradient(180deg,#FFE29A 0%,#F6BE47 55%,#BD7F0E 100%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; text-fill-color:transparent;
+  text-shadow:0 0 10px rgba(253,184,19,.15);
 }
 
-/* ================== Header ================== */
-.site-header {
-  background: #000;                 /* negro puro */
-  background-image: none;
-  backdrop-filter: none;
-  padding: 1rem 0;
-  border: none;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  text-align: center;
+/* Footer negro puro + separador dorado arriba */
+.site-footer{ background:#000 !important; border:none; position:relative; z-index:100; padding:3rem; text-align:center; margin-top:6rem; }
+.site-footer::before{
+  content:""; position:absolute; left:0; right:0; top:0; height:2px; pointer-events:none; opacity:.75;
+  background:linear-gradient(90deg,transparent 0%,rgba(253,184,19,0) 10%, var(--accent-soft) 45%, var(--accent) 50%, var(--accent-soft) 55%, rgba(253,184,19,0) 90%, transparent 100%);
+  filter:drop-shadow(0 0 10px var(--accent-glow)) drop-shadow(0 0 20px rgba(253,184,19,0.12));
+  transition:opacity .25s ease;
 }
+.contact-info{ color:#d0d0d0; font-size:1.2rem; }
+.contact-info a{ color:var(--accent); text-decoration:none; transition:.3s; font-weight:500; }
+.contact-info a:hover{ text-decoration:underline; opacity:.9; text-shadow:0 0 10px rgba(253,184,19,.3); }
 
-/* Separador luminoso dorado bajo el header */
-.site-header::after {
-  content: "";
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 2px;
-  pointer-events: none;
-  opacity: .75;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(253,184,19,0.0) 10%,
-    var(--accent-soft) 45%,
-    var(--accent) 50%,
-    var(--accent-soft) 55%,
-    rgba(253,184,19,0.0) 90%,
-    transparent 100%
-  );
-  filter:
-    drop-shadow(0 0 10px var(--accent-glow))
-    drop-shadow(0 0 20px rgba(253,184,19,0.12));
-  transition: opacity .25s ease;
-}
-
-/* Logo base + estilo editorial premium + dorado degradado */
-.logo {
-  font-size: clamp(28px, 2.2vw + 12px, 48px);
-  line-height: 1.1;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-  transition: transform .25s ease, letter-spacing .25s ease, opacity .25s ease;
-  /* Fallback de color por si el gradiente no aplica */
-  color: var(--accent);
-  cursor: pointer;
-}
-
-.logo:hover {
-  opacity: .9;
-  transform: scale(1.03);
-  letter-spacing: 0.02em;
-}
-
-.logo--editorial {
-  font-family: 'Bodoni Moda', 'Times New Roman', Georgia, serif;
-  font-weight: 700;
-  letter-spacing: 0.01em;
-  font-variant-ligatures: common-ligatures discretionary-ligatures;
-}
-
-/* Dorado en degradado (texto) */
-.brand-gold-text {
-  background: linear-gradient(180deg, #FFE29A 0%, #F6BE47 55%, #BD7F0E 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent; /* Safari/Chrome */
-  text-fill-color: transparent;
-  text-shadow: 0 0 10px rgba(253,184,19,0.15);
-}
-
-/* Accesibilidad: reducir animación si user prefiere */
-@media (prefers-reduced-motion: reduce) {
-  .logo { transition: none; }
-  .logo:hover { transform: none; letter-spacing: 0.01em; }
-}
-
-/* ================== Footer ================== */
-.site-footer {
-  background: #000;                 /* negro puro */
-  background-image: none;
-  padding: 3rem;
-  text-align: center;
-  border: none;
-  margin-top: 6rem;
-  position: relative;
-  z-index: 100;
-}
-
-/* Separador luminoso dorado sobre el footer */
-.site-footer::before {
-  content: "";
-  position: absolute;
-  left: 0; right: 0; top: 0;
-  height: 2px;
-  pointer-events: none;
-  opacity: .75;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(253,184,19,0.0) 10%,
-    var(--accent-soft) 45%,
-    var(--accent) 50%,
-    var(--accent-soft) 55%,
-    rgba(253,184,19,0.0) 90%,
-    transparent 100%
-  );
-  filter:
-    drop-shadow(0 0 10px var(--accent-glow))
-    drop-shadow(0 0 20px rgba(253,184,19,0.12));
-  transition: opacity .25s ease;
-}
-
-.site-header:hover::after,
-.site-footer:hover::before {
-  opacity: .95;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .site-header::after,
-  .site-footer::before {
-    transition: none;
-  }
-}
-
-/* Footer textos/enlaces */
-.contact-info { color: #d0d0d0; font-size: 1.2rem; }
-.contact-info a {
-  color: var(--accent);
-  text-decoration: none;
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-.contact-info a:hover {
-  text-decoration: underline;
-  opacity: 0.9;
-  text-shadow: 0 0 10px rgba(253, 184, 19, 0.3);
-}
-
-/* Footer layout */
-.footer-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
-.footer-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-.footer-section h3, .footer-section h4 { margin-bottom: 1rem; color: #ecf0f1; }
-.social-links a {
-  display: flex; align-items: center; gap: 0.5rem;
-  color: #bdc3c7; text-decoration: none; margin-bottom: 0.5rem; transition: color 0.3s ease;
-}
-.social-links a:hover { color: #e74c3c; }
-.footer-bottom { border-top: none; padding-top: 1rem; text-align: center; color: #bdc3c7; }
-
-/* ================== Unificar fondo en todo el sitio ================== */
-main,
-#content,
-.container,
-.home-view,
-.seccion-view,
-#inspiration-section,
-.ultimas-fotos-section,
-.carrusel-container,
-.carrusel,
-.fotos-grid,
-#seccion-view,
-#content > section,
-#content > div {
-  background-color: var(--bg-page) !important;
-  background-image: none !important;
+/* Unificar fondo general */
+main,#content,.container,.home-view,.seccion-view,#inspiration-section,.ultimas-fotos-section,.carrusel-container,.carrusel,.fotos-grid,#seccion-view,#content>section,#content>div{
+  background-color:var(--bg-page)!important; background-image:none!important;
 }
