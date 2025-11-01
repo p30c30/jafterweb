@@ -459,36 +459,28 @@ function mostrarSeccion(seccion, opts = { push: true }) {
    </header>
    <div class="fotos-grid" id="fotos-container"></div>`;
 
-  view.style.display = 'block';
+ view.style.display = 'block';
 
-// Subir SIEMPRE arriba al entrar y reforzar tras cargar miniaturas
+const back = view.querySelector('.back-button');
+if (back) back.addEventListener('click', () => goBackOneStep());
+
 const container = document.getElementById('fotos-container');
 if (container) {
-  // (Se rellenará justo debajo, después de limpiar)
-  // Primero dejamos todo arriba y refrescamos el botón
+  container.innerHTML = '';
+  seccion.fotos.forEach((foto, i) => {
+    if (!foto.miniatura || !foto.texto || !foto.url) return;
+    const el = document.createElement('div');
+    el.className = 'foto-item';
+    el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`;
+    el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); });
+    container.appendChild(el);
+  });
+
+  // Subir SIEMPRE arriba y reforzar tras cargar miniaturas (sin duplicar scrolls)
   forceSectionTop(container);
-  refreshScrollTop();
+  // Re-sincroniza visibilidad del botón scroll-top si lo usas
+  if (typeof refreshScrollTop === 'function') refreshScrollTop();
 }
-
-  const back = view.querySelector('.back-button');
-  if (back) back.addEventListener('click', () => goBackOneStep());
-
-  const container = document.getElementById('fotos-container');
-  if (container) {
-    container.innerHTML = '';
-    seccion.fotos.forEach((foto, i) => {
-      if (!foto.miniatura || !foto.texto || !foto.url) return;
-      const el = document.createElement('div');
-      el.className = 'foto-item';
-      el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`;
-      el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); });
-      container.appendChild(el);
-    });
-
-    // Subir SIEMPRE arriba al entrar y reforzar tras cargar miniaturas
-    forceSectionTop(container);
-  }
-
   currentView = 'seccion';
   if (opts.push && !isHandlingPopstate) {
     history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
