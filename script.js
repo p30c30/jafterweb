@@ -10,6 +10,15 @@ let carruselFotos = [];
 let datosGlobales = null;
 let isModalOpen = false;
 
+// Scroll-to-top: referencia global y helper de visibilidad
+let scrollTopBtn = null;
+function refreshScrollTop() {
+  if (!scrollTopBtn) return;
+  const y = window.scrollY || document.documentElement.scrollTop || 0;
+  // Se muestra al pasar cierto scroll. El CSS lo oculta si hay modal (body.modal-open)
+  scrollTopBtn.classList.toggle('visible', y > 300);
+}
+
 // Evitar que el navegador restaure el scroll anterior
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
@@ -132,35 +141,29 @@ initMobileRotationHandler();
 initHistoryHandler();
 }
 
-// ===== Scroll to top =====
+
 // ===== Scroll to top =====
 function crearBotonScrollTop() {
-  // Evita duplicados
-  let btn = document.querySelector('.scroll-to-top');
-  if (!btn) {
-    btn = document.createElement('button');
-    btn.className = 'scroll-to-top';
-    btn.innerHTML = '↑';
-    btn.setAttribute('aria-label', 'Volver arriba');
-    document.body.appendChild(btn);
+  // Evita duplicados y guarda referencia global
+  scrollTopBtn = document.querySelector('.scroll-to-top');
+  if (!scrollTopBtn) {
+    scrollTopBtn = document.createElement('button');
+    scrollTopBtn.className = 'scroll-to-top';
+    scrollTopBtn.innerHTML = '↑';
+    scrollTopBtn.setAttribute('aria-label', 'Volver arriba');
+    document.body.appendChild(scrollTopBtn);
   }
 
   // Acción
-  btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
-  // Mostrar/ocultar según scroll y si el modal está abierto
-  const update = () => {
-    const y = window.scrollY || document.documentElement.scrollTop;
-    const modalOpen = document.body.classList.contains('modal-open');
-    btn.classList.toggle('visible', y > 300 && !modalOpen);
-  };
-
-  // Listeners
-  window.addEventListener('scroll', update, { passive: true });
-  window.addEventListener('resize', update, { passive: true });
+  // Listeners (siguen estando)
+  window.addEventListener('scroll',  refreshScrollTop, { passive: true });
+  window.addEventListener('resize',  refreshScrollTop, { passive: true });
+  window.addEventListener('load',    refreshScrollTop, { once: true });
 
   // Estado inicial
-  update();
+  refreshScrollTop();
 }
 
 // ===== History API =====
@@ -457,6 +460,15 @@ function mostrarSeccion(seccion, opts = { push: true }) {
    <div class="fotos-grid" id="fotos-container"></div>`;
 
   view.style.display = 'block';
+
+// Subir SIEMPRE arriba al entrar y reforzar tras cargar miniaturas
+const container = document.getElementById('fotos-container');
+if (container) {
+  // (Se rellenará justo debajo, después de limpiar)
+  // Primero dejamos todo arriba y refrescamos el botón
+  forceSectionTop(container);
+  refreshScrollTop();
+}
 
   const back = view.querySelector('.back-button');
   if (back) back.addEventListener('click', () => goBackOneStep());
@@ -1106,8 +1118,10 @@ function closeModal() {
   unlockBodyScroll();
 
   if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
-}
 
+  // Asegurar estado del botón scroll-top tras cerrar modal
+  refreshScrollTop();
+}
 function volverAGaleriaInternal() {
   currentSeccion = null;
   currentFotoIndex = 0;
@@ -1130,7 +1144,11 @@ function volverAGaleriaInternal() {
 
   window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   currentView = 'home';
+
+  // Refresca visibilidad del botón scroll-top al volver a portada
+  refreshScrollTop();
 }
+
 // ===== Init seguro =====
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', iniciar, { once: true });
