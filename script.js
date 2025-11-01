@@ -860,6 +860,48 @@ function attachBottomSheet(modal) {
   const handle = modal.querySelector('.info-handle');
   if (!imgContainer || !info || !handle) return;
 
+  // ===== Scroll lock (iOS/Android): fija el body mientras el modal está abierto =====
+  lockBodyScroll();
+
+  // Evita que el scroll “escape” del modal cuando tocas el overlay
+  modal.addEventListener('touchmove', (e) => {
+    if (e.target === modal) e.preventDefault();
+  }, { passive: false });
+  modal.addEventListener('wheel', (e) => {
+    if (e.target === modal) e.preventDefault();
+  }, { passive: false });
+
+  // Evita rebote dentro del panel de info (no propagar al body)
+  stopScrollBounce(info);
+
+  function stopScrollBounce(el) {
+    // Rueda (desktop)
+    el.addEventListener('wheel', (e) => {
+      const atTop = el.scrollTop <= 0;
+      const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight;
+      if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // Touch (móvil)
+    let tsY = 0;
+    el.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      tsY = e.touches[0].clientY;
+    }, { passive: true });
+
+    el.addEventListener('touchmove', (e) => {
+      if (e.touches.length !== 1) return;
+      const dy = e.touches[0].clientY - tsY;
+      const atTop = el.scrollTop <= 0;
+      const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight;
+      if ((dy > 0 && atTop) || (dy < 0 && atBottom)) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+  }
+
   function getCollapsed() {
     return window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh';
   }
@@ -948,23 +990,32 @@ function toggleFullscreen() {
   const modal = document.getElementById('modal');
   const btn = modal?.querySelector('.fullscreen-toggle');
 
+  const restorePanel = () => {
+    // Asegura que el panel vuelve visible al salir de FS
+    modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
+    currentScale = 1; translateX = 0; translateY = 0; // sin zoom
+    const info = modal.querySelector('.modal-info');
+    if (info) info.style.display = ''; // por si el navegador deja inline:none
+    modal.style.removeProperty('--info-height'); // vuelve al valor CSS (26dvh/20dvh)
+    aplicarZoom(true);
+  };
+
   if (!document.fullscreenElement) {
     if (modal?.requestFullscreen) {
       modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => {
-        modal.classList.toggle('fs-active');
-        if (btn) btn.classList.toggle('is-active', modal.classList.contains('fs-active'));
+        modal.classList.add('fs-active');
+        if (btn) btn.classList.add('is-active');
       });
     } else {
-      modal?.classList.toggle('fs-active');
-      if (btn) btn.classList.toggle('is-active', modal?.classList.contains('fs-active'));
+      modal.classList.add('fs-active');
+      if (btn) btn.classList.add('is-active');
     }
   } else {
     if (document.exitFullscreen) {
       document.exitFullscreen();
-    } else {
-      modal?.classList.remove('fs-active');
-      if (btn) btn.classList.remove('is-active');
     }
+    restorePanel();
+    if (btn) btn.classList.remove('is-active');
   }
 }
 
@@ -978,6 +1029,27 @@ function initMobileRotationHandler() {
     }
     last = now;
   });
+}
+
+// ===== Body scroll lock helpers =====
+let __scrollLockY = 0;
+function lockBodyScroll() {
+  __scrollLockY = window.scrollY || document.documentElement.scrollTop || 0;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${__scrollLockY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  document.body.classList.add('modal-open');
+}
+function unlockBodyScroll() {
+  document.body.classList.remove('modal-open');
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  window.scrollTo(0, __scrollLockY || 0);
 }
 
 // ===== Cerrar modal / volver =====
@@ -1002,6 +1074,8 @@ function closeModal() {
     document.removeEventListener('fullscreenchange', fullscreenChangeHandler);
     fullscreenChangeHandler = null;
   }
+
+  unlockBodyScroll();
 
   // Reanuda autoplay del carrusel
   if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
@@ -1028,7 +1102,9 @@ function volverAGaleriaInternal() {
     }
   }
 
-  // Asegurar que siempre quedas arriba al volver a portada
+  unlockBodyScroll();
+
+  // Asegura que al entrar en cualquier sección/portada se queda arriba
   window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   currentView = 'home';
 }
