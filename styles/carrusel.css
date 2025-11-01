@@ -1,171 +1,38 @@
-/* carrusel.css */
 /* Sección carrusel */
-.ultimas-fotos-section {
-    max-width: 95vw;
-    margin: 6rem auto;
-    padding: 0 2rem;
-    position: relative;
-}
-
+.ultimas-fotos-section { max-width:95vw; margin:6rem auto; padding:0 2rem; position:relative; }
 .ultimas-fotos-section h2 {
-    text-align: center;
-    color: #FDB813;
-    font-size: 2.8rem;
-    margin-bottom: 4rem;
-    font-weight: 300;
-    letter-spacing: 1px;
-    text-shadow: 0 0 15px rgba(253, 184, 19, 0.3);
+  text-align:center; color:#FDB813; font-size:2.8rem; margin-bottom:4rem; font-weight:300; letter-spacing:1px;
+  text-shadow:0 0 15px rgba(253,184,19,0.3);
 }
+.carrusel-container{ position:relative; display:flex; align-items:center; justify-content:center; gap:1.5rem; }
+.carrusel{ width:100%; max-width:1200px; overflow:hidden; border-radius:20px; box-shadow:0 15px 40px rgba(0,0,0,.6); }
+.carrusel-inner{ display:flex; transition: transform .5s ease-in-out; height:500px; will-change: transform; touch-action: pan-y; }
+.carrusel-item{ min-width:100%; height:100%; position:relative; cursor:pointer; transition: transform .3s; }
+.carrusel-item:hover{ transform: scale(1.03); }
+.carrusel-img{ width:100%; height:100%; object-fit:cover; display:block; }
+.carrusel-info{ position:absolute; bottom:0; left:0; right:0; background: linear-gradient(transparent, rgba(0,0,0,.85));
+  padding:2rem 1.5rem 1.5rem; color:#fff; text-align:center; backdrop-filter: blur(5px); }
+.carrusel-desc{ color:#fff; font-size:1.5rem; font-weight:600; text-shadow:0 2px 4px rgba(0,0,0,.5); }
 
-.carrusel-container {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1.5rem;
-}
+/* Botones/dots */
+.carrusel-btn{ background: rgba(0,0,0,.8); color:#FDB813; border:3px solid rgba(253,184,19,.7); border-radius:50%;
+  width:60px; height:60px; font-size:1.8rem; cursor:pointer; transition:.3s; display:flex; align-items:center; justify-content:center; z-index:10; }
+.carrusel-btn:hover{ background: rgba(253,184,19,.95); color:#000; transform: scale(1.15); box-shadow:0 0 20px rgba(253,184,19,.6); }
+.carrusel-dots{ display:flex; justify-content:center; gap:.8rem; margin-top:2rem; }
+.carrusel-dot{ width:14px; height:14px; border-radius:50%; background: rgba(255,255,255,.4); cursor:pointer; transition:.3s; border:none; }
+.carrusel-dot.active{ background:#FDB813; transform: scale(1.3); box-shadow:0 0 10px rgba(253,184,19,.5); }
+.carrusel-dot:hover{ background: rgba(253,184,19,.8); transform: scale(1.2); }
 
-.carrusel {
-    width: 100%;
-    max-width: 1200px;
-    overflow: hidden;
-    border-radius: 20px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+/* Móvil: ancho completo, sin flechas, sin dots */
+@media (max-width: 767px){
+  .ultimas-fotos-section{ width:100vw; max-width:100vw; margin:3rem 0; padding:0; position:relative; left:50%; right:50%; margin-left:-50vw; margin-right:-50vw; }
+  .ultimas-fotos-section h2{ font-size:2rem; margin:0 0 1rem; padding:0 1rem; }
+  .carrusel-container{ gap:0; }
+  .carrusel{ width:100vw; max-width:100vw; border-radius:0; box-shadow:none; }
+  .carrusel-inner{ height:60vh; }
+  .carrusel-btn{ display:none !important; }
+  .carrusel-info{ padding:1.2rem 1rem .8rem; }
+  .carrusel-desc{ font-size:1.1rem; }
+  .carrusel-dots{ display:none !important; }
 }
-
-.carrusel-inner {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-    height: 500px;
-    will-change: transform;
-    touch-action: pan-y; /* deja vertical al navegador y nosotros controlamos horizontal */
-}
-
-.carrusel-item {
-    min-width: 100%;
-    height: 100%;
-    position: relative;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-.carrusel-item:hover { transform: scale(1.03); }
-
-.carrusel-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.carrusel-info {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
-    padding: 2rem 1.5rem 1.5rem;
-    color: white;
-    text-align: center;
-    backdrop-filter: blur(5px);
-}
-
-.carrusel-desc {
-    color: #ffffff;
-    font-size: 1.5rem;
-    font-weight: 600;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-/* Botones del carrusel */
-.carrusel-btn {
-    background: rgba(0, 0, 0, 0.8);
-    color: #FDB813;
-    border: 3px solid rgba(253, 184, 19, 0.7);
-    border-radius: 50%;
-    width: 60px; height: 60px; font-size: 1.8rem;
-    cursor: pointer; transition: all 0.3s ease;
-    display: flex; align-items: center; justify-content: center;
-    z-index: 10;
-}
-.carrusel-btn:hover {
-    background: rgba(253, 184, 19, 0.95);
-    color: #000;
-    transform: scale(1.15);
-    box-shadow: 0 0 20px rgba(253, 184, 19, 0.6);
-}
-
-/* Dots de navegación */
-.carrusel-dots {
-    display: flex;
-    justify-content: center;
-    gap: 0.8rem;
-    margin-top: 2rem;
-}
-.carrusel-dot {
-    width: 14px; height: 14px; border-radius: 50%;
-    background: rgba(255, 255, 255, 0.4);
-    cursor: pointer; transition: all 0.3s ease; border: none;
-}
-.carrusel-dot.active {
-    background: #FDB813;
-    transform: scale(1.3);
-    box-shadow: 0 0 10px rgba(253, 184, 19, 0.5);
-}
-.carrusel-dot:hover { background: rgba(253, 184, 19, 0.8); transform: scale(1.2); }
-
-/* ================== MÓVIL: ancho completo, sin flechas, altura responsive ================== */
-@media (max-width: 767px) {
-    .ultimas-fotos-section {
-        width: 100vw; max-width: 100vw;
-        margin: 3rem 0; padding: 0;
-        /* Expandirse fuera del padding del contenedor */
-        position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw;
-    }
-    .ultimas-fotos-section h2 {
-        font-size: 2rem; margin: 0 0 1rem; padding: 0 1rem;
-    }
-    .carrusel-container { gap: 0; }
-    .carrusel {
-        width: 100vw; max-width: 100vw;
-        border-radius: 0; box-shadow: none;
-    }
-    .carrusel-inner {
-        height: 60vh; /* ocupa buena parte de la pantalla */
-    }
-    .carrusel-btn { display: none !important; } /* sin flechas en móvil */
-    .carrusel-info { padding: 1.2rem 1rem 0.8rem; }
-    .carrusel-desc { font-size: 1.1rem; }
-    .carrusel-dots { display: none !important; } /* ocultar dots en móvil */
-}
-
-/* Móviles pequeños: un poco menos de alto */
-@media (max-width: 480px) {
-    .carrusel-inner { height: 55vh; }
-}
-
-/* ================== Chip de sección dentro del modal (estilo interactivo) ================== */
-.modal .section-chip {
-    margin-top: 0.75rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 8px 14px;
-    border-radius: 999px;
-    background: rgba(253, 184, 19, 0.15);
-    border: 1px solid rgba(253, 184, 19, 0.6);
-    color: #FDB813;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-.modal .section-chip:hover {
-    background: rgba(253, 184, 19, 0.3);
-    box-shadow: 0 0 12px rgba(253, 184, 19, 0.3);
-    transform: translateY(-1px);
-}
-.modal .section-chip:active {
-    transform: translateY(0);
-    box-shadow: 0 0 0 rgba(0,0,0,0);
-}
-.modal .section-chip .chip-arrow {
-    font-weight: 700;
-}
+@media (max-width: 480px){ .carrusel-inner{ height:55vh; } }
