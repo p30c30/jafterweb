@@ -353,16 +353,17 @@ mostrarModal(f.url, f.texto, index, { push: true, source: 'carrusel' });
 
 // ===== Sección =====
 function mostrarSeccion(seccion, opts = { push: true }) {
-  currentSeccion = seccion;
-  modalSource = 'seccion';
-  if (!Array.isArray(seccion.fotos)) return;
+currentSeccion = seccion;
+modalSource = 'seccion';
+if (!Array.isArray(seccion.fotos)) return;
 
-  todasLasFotos = seccion.fotos;
+todasLasFotos = seccion.fotos;
 
-  const home = document.getElementById('home-view'); if (home) home.style.display = 'none';
-  const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none';
+const home = document.getElementById('home-view'); if (home) home.style.display = 'none';
+const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none';
 
-  let view = document.getElementById('seccion-view');
+let view = document.getElementById('seccion-view');
+  if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); }
   if (!view) {
     view = document.createElement('div');
     view.id = 'seccion-view';
@@ -370,18 +371,22 @@ function mostrarSeccion(seccion, opts = { push: true }) {
     document.getElementById('content').appendChild(view);
   }
 
-  view.innerHTML = `
-    <header class="seccion-header">
-      <button class="back-button" title="Volver">←</button>
-      <div class="seccion-title-container">
-        <h1>${seccion.titulo}</h1>
-        <p class="seccion-descripcion">${seccion.descripcion}</p>
-      </div>
-    </header>
-    <div class="fotos-grid" id="fotos-container"></div>`;
+view.innerHTML = `
+   <header class="seccion-header">
+     <button class="back-button" title="Volver">←</button>
+     <div class="seccion-title-container">
+       <h1>${seccion.titulo}</h1>
+       <p class="seccion-descripcion">${seccion.descripcion}</p>
+     </div>
+   </header>
+   <div class="fotos-grid" id="fotos-container"></div>`;
 
-  view.style.display = 'block';
+view.style.display = 'block';
 
+  // Asegurar entrar arriba de la página al abrir una sección
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   // Entrar SIEMPRE arriba de la página
   requestAnimationFrame(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -392,18 +397,23 @@ function mostrarSeccion(seccion, opts = { push: true }) {
   const back = view.querySelector('.back-button');
   if (back) back.addEventListener('click', () => goBackOneStep());
 
-  const container = document.getElementById('fotos-container');
-  if (container) {
-    container.innerHTML = '';
-    seccion.fotos.forEach((foto, i) => {
-      if (!foto.miniatura || !foto.texto || !foto.url) return;
-      const el = document.createElement('div');
-      el.className = 'foto-item';
-      el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`;
+  const back = view.querySelector('.back-button'); if (back) back.addEventListener('click', () => goBackOneStep());
+const container = document.getElementById('fotos-container');
+if (container) {
+container.innerHTML = '';
+seccion.fotos.forEach((foto, i) => {
+if (!foto.miniatura || !foto.texto || !foto.url) return;
+const el = document.createElement('div');
+el.className = 'foto-item';
+el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`;
       el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); });
-      container.appendChild(el);
-    });
-  }
+      el.addEventListener('click', () => {
+        modalSource = 'seccion';
+        mostrarModal(foto.url, foto.texto, i);
+      });
+container.appendChild(el);
+});
+}
 
   currentView = 'seccion';
   if (opts.push && !isHandlingPopstate) {
@@ -473,125 +483,154 @@ history.pushState(state, '');
 }
 
 function configurarEventosModal() {
-  const prevBtn = modal.querySelector('.prev-button');
-  const nextBtn = modal.querySelector('.next-button');
-  const closeBtn = modal.querySelector('.close-modal');
-  const fsBtn   = modal.querySelector('.fullscreen-toggle');
-  const chip    = modal.querySelector('.section-chip'); // ← solo una vez
+const prevBtn = modal.querySelector('.prev-button');
+const nextBtn = modal.querySelector('.next-button');
+const closeBtn = modal.querySelector('.close-modal');
+const fsBtn = modal.querySelector('.fullscreen-toggle');
+const chip = modal.querySelector('.section-chip');
 
-  if (closeBtn) closeBtn.onclick = goBackOneStep;
-  if (prevBtn)  prevBtn.onclick  = () => navegarFoto(-1);
-  if (nextBtn)  nextBtn.onclick  = () => navegarFoto(1);
-  if (fsBtn)    fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
+if (closeBtn) closeBtn.onclick = goBackOneStep;
+if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
+if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
+if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-  // CHIP: sustituye el estado 'modal' por la sección (atrás → portada a la primera)
-  if (chip && chip.dataset.seccionId) {
-    chip.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    /// CHIP: volver a la sección SIN dejar el estado 'modal' en el historial
+   // CHIP: volver a la sección SIN dejar el estado 'modal' en el historial
+const chip = modal.querySelector('.section-chip');
+if (chip && chip.dataset.seccionId) {
+chip.addEventListener('click', (e) => {
+e.preventDefault();
+e.stopPropagation();
 
-      const sid = chip.dataset.seccionId;
-      const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-      if (!sec) return;
+const sid = chip.dataset.seccionId;
+const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+if (!sec) return;
 
-      history.replaceState({ view: 'seccion', seccionId: sid }, '');
-      closeModal();                       // no toca historial
-      mostrarSeccion(sec, { push: false });
-      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-    });
-  }
+    // 1) Sustituimos SIEMPRE el estado actual (modal) por la sección
+    // Sustituye SIEMPRE el estado actual (modal) por la sección
+history.replaceState({ view: 'seccion', seccionId: sid }, '');
 
-  // Cerrar al pulsar overlay
-  modal.addEventListener('click', function (event) {
-    if (event.target === modal) {
-      if (ignoreNextClick) { ignoreNextClick = false; return; }
-      goBackOneStep();
-    }
-  });
+    // 2) Cerramos el modal (no toca el historial)
+    // Cierra el modal (no toca historial) y pinta la sección sin push
+closeModal();
 
-  // TAP/Clic: toggle zoom 100% ↔ defaultClickZoom (móvil y PC)
-  let tapStartX = 0, tapStartY = 0, tapStartT = 0;
-  modalImg.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      tapStartX = e.touches[0].clientX;
-      tapStartY = e.touches[0].clientY;
-      tapStartT = Date.now();
-    }
-  }, { passive: true });
+    // 3) Pintamos la sección sin push (y subimos al inicio de la página)
+mostrarSeccion(sec, { push: false });
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 
-  modalImg.addEventListener('touchend', (e) => {
-    if (ignoreNextClick) { ignoreNextClick = false; return; }
-    if (e.changedTouches.length === 1) {
-      const dx = e.changedTouches[0].clientX - tapStartX;
-      const dy = e.changedTouches[0].clientY - tapStartY;
-      const dt = Date.now() - tapStartT;
-      if (Math.hypot(dx, dy) < 12 && dt < 250) {
-        doClickToggle();
-        ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
-      }
-    }
-  }, { passive: true });
-
-  // Click (desktop)
-  modalImg.addEventListener('click', function (event) {
-    if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
-    doClickToggle(); event.stopPropagation();
-  });
-
-  // Doble click: prevenimos (el toggle lo hace el click)
-  modalImg.addEventListener('dblclick', (e) => e.preventDefault());
-
-  // Rueda (desktop)
-  modal.addEventListener('wheel', function (e) {
-    e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-    const newScale = currentScale * zoomFactor;
-    if (newScale >= 1 && newScale <= 5) { currentScale = newScale; aplicarZoom(); }
-  }, { passive: false });
-
-  // Drag con zoom y pinch
-  modalImg.addEventListener('mousedown', startDrag);
-  modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
-
-  // Swipe horizontal para cambiar foto (con candado)
-  attachSwipeToModal(modal);
-
-  // Bottom sheet
-  attachBottomSheet(modal);
-
-  // Fullscreen state (se limpia en closeModal)
-  if (fullscreenChangeHandler) {
-    document.removeEventListener('fullscreenchange', fullscreenChangeHandler);
-    fullscreenChangeHandler = null;
-  }
-  fullscreenChangeHandler = () => {
-    const active = !!document.fullscreenElement;
-    modal.classList.toggle('fs-active', active);
-    const b = modal.querySelector('.fullscreen-toggle');
-    if (b) b.classList.toggle('is-active', active);
-  };
-  document.addEventListener('fullscreenchange', fullscreenChangeHandler);
-
-  // Teclado
-  keydownHandler = function (ev) {
-    switch (ev.key) {
-      case 'Escape':     goBackOneStep(); break;
-      case 'ArrowLeft':  navegarFoto(-1); break;
-      case 'ArrowRight': navegarFoto(1);  break;
-    }
-  };
-  document.addEventListener('keydown', keydownHandler);
-
-  function doClickToggle() {
-    if (currentScale > 1) {
-      currentScale = 1; translateX = 0; translateY = 0;
-    } else {
-      currentScale = defaultClickZoom; // 2x
-    }
-    aplicarZoom();
-  }
+    // Garantiza que quedas arriba
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+});
 }
-  
+
+// Overlay = cerrar
+modal.addEventListener('click', function (event) {
+if (event.target === modal) {
+if (ignoreNextClick) { ignoreNextClick = false; return; }
+goBackOneStep();
+}
+});
+
+// TAP/Clic: toggle zoom 100% ↔ defaultClickZoom (fiable en móvil y PC)
+let tapStartX = 0, tapStartY = 0, tapStartT = 0;
+let dragCandidateActive = false, dragCandX = 0, dragCandY = 0;
+
+// Solo PINCH aquí (ya NO iniciamos drag en touchstart)
+modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
+
+// Detectar TAP (toggle) y candidato a DRAG cuando hay zoom
+modalImg.addEventListener('touchstart', (e) => {
+if (e.touches.length === 1) {
+tapStartX = e.touches[0].clientX;
+tapStartY = e.touches[0].clientY;
+tapStartT = Date.now();
+
+if (currentScale > 1) {
+dragCandidateActive = true;
+dragCandX = tapStartX; dragCandY = tapStartY;
+}
+}
+}, { passive: true });
+
+modalImg.addEventListener('touchmove', (e) => {
+// Si hay zoom y el dedo se mueve lo suficiente, convertimos en DRAG
+if (dragCandidateActive && currentScale > 1) {
+const x = e.touches[0].clientX, y = e.touches[0].clientY;
+if (Math.hypot(x - dragCandX, y - dragCandY) > 8) {
+dragCandidateActive = false;
+startDragTouch(e); // inicia el drag real
+}
+}
+}, { passive: false });
+
+modalImg.addEventListener('touchend', (e) => {
+// Si fue tap (poco movimiento y rápido), toggle zoom
+if (e.changedTouches.length === 1) {
+const dx = e.changedTouches[0].clientX - tapStartX;
+const dy = e.changedTouches[0].clientY - tapStartY;
+const dt = Date.now() - tapStartT;
+if (Math.hypot(dx, dy) < 12 && dt < 250) {
+if (ignoreNextClick) { ignoreNextClick = false; return; }
+doClickToggle();
+ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
+}
+}
+dragCandidateActive = false;
+}, { passive: true });
+
+// Click (desktop) = toggle
+modalImg.addEventListener('click', function (event) {
+if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
+doClickToggle(); event.stopPropagation();
+});
+
+// Doble click: prevenimos (el toggle lo hace el click)
+modalImg.addEventListener('dblclick', (e) => e.preventDefault());
+
+// Rueda (desktop)
+modal.addEventListener('wheel', function (e) {
+e.preventDefault();
+const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+const newScale = currentScale * zoomFactor;
+if (newScale >= 1 && newScale <= 5) { currentScale = newScale; aplicarZoom(); }
+}, { passive: false });
+
+// Swipe horizontal para cambiar foto (con candado)
+attachSwipeToModal(modal);
+
+// Bottom sheet
+attachBottomSheet(modal);
+
+// Fullscreen state (icono)
+const fsChange = () => {
+const active = !!document.fullscreenElement;
+modal.classList.toggle('fs-active', active);
+const b = modal.querySelector('.fullscreen-toggle');
+if (b) b.classList.toggle('is-active', active);
+};
+document.addEventListener('fullscreenchange', fsChange, { once: true });
+
+// Teclado
+keydownHandler = function (ev) {
+switch (ev.key) {
+case 'Escape': goBackOneStep(); break;
+case 'ArrowLeft': navegarFoto(-1); break;
+case 'ArrowRight': navegarFoto(1); break;
+}
+};
+document.addEventListener('keydown', keydownHandler);
+
+function doClickToggle() {
+if (currentScale > 1) {
+currentScale = 1; translateX = 0; translateY = 0;
+} else {
+currentScale = defaultClickZoom; // 2x
+}
+aplicarZoom();
+}
+}
+}
+
 // Precarga vecinos en modal para paso instantáneo
 function precacheAround(index) {
 const list = getModalList() || []; if (!list.length) return;
