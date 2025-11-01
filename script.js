@@ -27,6 +27,33 @@ function scrollToTopHard() {
   });
 }
 
+// Refuerzo: vuelve arriba ahora, tras unos ticks y al cargar miniaturas
+function forceSectionTop(containerEl) {
+  const toTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+
+  // ahora y en próximos frames
+  toTop();
+  requestAnimationFrame(() => toTop());
+  setTimeout(toTop, 50);
+  setTimeout(toTop, 200);
+  setTimeout(toTop, 500);
+
+  // cuando carguen las primeras imágenes
+  if (containerEl) {
+    const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12);
+    imgs.forEach(img => {
+      if (!img.complete) {
+        const bump = () => toTop();
+        img.addEventListener('load', bump, { once: true });
+        img.addEventListener('error', bump, { once: true });
+      }
+    });
+  }
+}
 
 // Modal: fuente de datos ('seccion' | 'carrusel')
 let modalSource = 'seccion';
@@ -390,19 +417,24 @@ mostrarModal(f.url, f.texto, index, { push: true, source: 'carrusel' });
 
 // ===== Sección =====
 function mostrarSeccion(seccion, opts = { push: true }) {
-currentSeccion = seccion;
-modalSource = 'seccion';
-if (!Array.isArray(seccion.fotos)) return;
+  currentSeccion = seccion;
+  modalSource = 'seccion';
+  if (!Array.isArray(seccion.fotos)) return;
 
-todasLasFotos = seccion.fotos;
+  todasLasFotos = seccion.fotos;
 
-const home = document.getElementById('home-view'); if (home) home.style.display = 'none';
-const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none';
+  const home = document.getElementById('home-view'); if (home) home.style.display = 'none';
+  const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none';
 
-let view = document.getElementById('seccion-view');
-if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); }
+  let view = document.getElementById('seccion-view');
+  if (!view) {
+    view = document.createElement('div');
+    view.id = 'seccion-view';
+    view.className = 'seccion-view';
+    document.getElementById('content').appendChild(view);
+  }
 
-view.innerHTML = `
+  view.innerHTML = `
    <header class="seccion-header">
      <button class="back-button" title="Volver">←</button>
      <div class="seccion-title-container">
@@ -412,32 +444,31 @@ view.innerHTML = `
    </header>
    <div class="fotos-grid" id="fotos-container"></div>`;
 
-view.style.display = 'block';
+  view.style.display = 'block';
 
-// Subir SIEMPRE arriba al entrar en la sección
-scrollToTopHard();
+  const back = view.querySelector('.back-button');
+  if (back) back.addEventListener('click', () => goBackOneStep());
 
-// Asegurar entrar arriba de la página al abrir una sección
-document.documentElement.scrollTop = 0;
-document.body.scrollTop = 0;
-window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  const container = document.getElementById('fotos-container');
+  if (container) {
+    container.innerHTML = '';
+    seccion.fotos.forEach((foto, i) => {
+      if (!foto.miniatura || !foto.texto || !foto.url) return;
+      const el = document.createElement('div');
+      el.className = 'foto-item';
+      el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`;
+      el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); });
+      container.appendChild(el);
+    });
 
-const back = view.querySelector('.back-button'); if (back) back.addEventListener('click', () => goBackOneStep());
-const container = document.getElementById('fotos-container');
-if (container) {
-container.innerHTML = '';
-seccion.fotos.forEach((foto, i) => {
-if (!foto.miniatura || !foto.texto || !foto.url) return;
-const el = document.createElement('div');
-el.className = 'foto-item';
-el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`;
-el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); });
-container.appendChild(el);
-});
-}
+    // Subir SIEMPRE arriba al entrar y reforzar tras cargar miniaturas
+    forceSectionTop(container);
+  }
 
-currentView = 'seccion';
-if (opts.push && !isHandlingPopstate) history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
+  currentView = 'seccion';
+  if (opts.push && !isHandlingPopstate) {
+    history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
+  }
 }
 // ===== Modal (Parte 2/2) =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
