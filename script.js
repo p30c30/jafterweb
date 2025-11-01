@@ -363,13 +363,7 @@ const home = document.getElementById('home-view'); if (home) home.style.display 
 const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none';
 
 let view = document.getElementById('seccion-view');
-  if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); }
-  if (!view) {
-    view = document.createElement('div');
-    view.id = 'seccion-view';
-    view.className = 'seccion-view';
-    document.getElementById('content').appendChild(view);
-  }
+if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); }
 
 view.innerHTML = `
    <header class="seccion-header">
@@ -383,21 +377,12 @@ view.innerHTML = `
 
 view.style.display = 'block';
 
-  // Asegurar entrar arriba de la página al abrir una sección
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
-  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-  // Entrar SIEMPRE arriba de la página
-  requestAnimationFrame(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  });
+// Asegurar entrar arriba de la página al abrir una sección
+document.documentElement.scrollTop = 0;
+document.body.scrollTop = 0;
+window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 
-  const back = view.querySelector('.back-button');
-  if (back) back.addEventListener('click', () => goBackOneStep());
-
-  const back = view.querySelector('.back-button'); if (back) back.addEventListener('click', () => goBackOneStep());
+const back = view.querySelector('.back-button'); if (back) back.addEventListener('click', () => goBackOneStep());
 const container = document.getElementById('fotos-container');
 if (container) {
 container.innerHTML = '';
@@ -406,21 +391,14 @@ if (!foto.miniatura || !foto.texto || !foto.url) return;
 const el = document.createElement('div');
 el.className = 'foto-item';
 el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`;
-      el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); });
-      el.addEventListener('click', () => {
-        modalSource = 'seccion';
-        mostrarModal(foto.url, foto.texto, i);
-      });
+el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); });
 container.appendChild(el);
 });
 }
 
-  currentView = 'seccion';
-  if (opts.push && !isHandlingPopstate) {
-    history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
-  }
+currentView = 'seccion';
+if (opts.push && !isHandlingPopstate) history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
 }
-
 // ===== Modal (Parte 2/2) =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
 const modal = document.getElementById('modal');
@@ -494,33 +472,41 @@ if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
 if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
 if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-    /// CHIP: volver a la sección SIN dejar el estado 'modal' en el historial
-   // CHIP: volver a la sección SIN dejar el estado 'modal' en el historial
-const chip = modal.querySelector('.section-chip');
-if (chip && chip.dataset.seccionId) {
-chip.addEventListener('click', (e) => {
-e.preventDefault();
-e.stopPropagation();
+    // CHIP: sustituye el estado del modal por la sección (atrás → portada) y sube al inicio
+    if (chip && chip.dataset.seccionId) {
+      chip.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const sid = chip.dataset.seccionId;
+        const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+        if (!sec) return;
 
-const sid = chip.dataset.seccionId;
-const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-if (!sec) return;
+        history.replaceState({ view: 'seccion', seccionId: sid }, ''); // sustituye modal
+        closeModal();                          // no toca historial
+        mostrarSeccion(sec, { push: false });  // pinta sin push extra
+        window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+      });
+    }
+    /// CHIP: volver a la sección SIN dejar el estado 'modal' en el historial
+if (chip && chip.dataset.seccionId) {
+  chip.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const sid = chip.dataset.seccionId;
+    const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+    if (!sec) return;
 
     // 1) Sustituimos SIEMPRE el estado actual (modal) por la sección
-    // Sustituye SIEMPRE el estado actual (modal) por la sección
-history.replaceState({ view: 'seccion', seccionId: sid }, '');
+    history.replaceState({ view: 'seccion', seccionId: sid }, '');
 
     // 2) Cerramos el modal (no toca el historial)
-    // Cierra el modal (no toca historial) y pinta la sección sin push
-closeModal();
+    closeModal();
 
     // 3) Pintamos la sección sin push (y subimos al inicio de la página)
-mostrarSeccion(sec, { push: false });
+    mostrarSeccion(sec, { push: false });
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
-
-    // Garantiza que quedas arriba
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-});
+  });
 }
 
 // Overlay = cerrar
