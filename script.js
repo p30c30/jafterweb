@@ -472,21 +472,27 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
     if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-    // CHIP: sustituye el estado del modal por la sección (atrás → portada) y sube al inicio
-    if (chip && chip.dataset.seccionId) {
-      chip.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const sid = chip.dataset.seccionId;
-        const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-        if (!sec) return;
+    /// CHIP: volver a la sección SIN dejar el estado 'modal' en el historial
+if (chip && chip.dataset.seccionId) {
+  chip.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-        history.replaceState({ view: 'seccion', seccionId: sid }, ''); // sustituye modal
-        closeModal();                          // no toca historial
-        mostrarSeccion(sec, { push: false });  // pinta sin push extra
-        window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
-      });
-    }
+    const sid = chip.dataset.seccionId;
+    const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+    if (!sec) return;
+
+    // 1) Sustituimos SIEMPRE el estado actual (modal) por la sección
+    history.replaceState({ view: 'seccion', seccionId: sid }, '');
+
+    // 2) Cerramos el modal (no toca el historial)
+    closeModal();
+
+    // 3) Pintamos la sección sin push (y subimos al inicio de la página)
+    mostrarSeccion(sec, { push: false });
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  });
+}
 
     // Overlay = cerrar
     modal.addEventListener('click', function (event) {
