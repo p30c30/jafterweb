@@ -400,10 +400,7 @@ function mostrarSeccion(seccion, opts = { push: true }) {
       const el = document.createElement('div');
       el.className = 'foto-item';
       el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`;
-      el.addEventListener('click', () => {
-        modalSource = 'seccion';
-        mostrarModal(foto.url, foto.texto, i);
-      });
+      el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); });
       container.appendChild(el);
     });
   }
@@ -413,9 +410,7 @@ function mostrarSeccion(seccion, opts = { push: true }) {
     history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
   }
 }
-  currentView = 'seccion';
-  if (opts.push && !isHandlingPopstate) history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
-}
+
 // ===== Modal (Parte 2/2) =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
   const modal = document.getElementById('modal');
@@ -477,146 +472,123 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     history.pushState(state, '');
   }
 
-  function configurarEventosModal() {
-    const prevBtn = modal.querySelector('.prev-button');
-    const nextBtn = modal.querySelector('.next-button');
-    const closeBtn = modal.querySelector('.close-modal');
-    const fsBtn = modal.querySelector('.fullscreen-toggle');
-    const chip = modal.querySelector('.section-chip');
+function configurarEventosModal() {
+  const prevBtn = modal.querySelector('.prev-button');
+  const nextBtn = modal.querySelector('.next-button');
+  const closeBtn = modal.querySelector('.close-modal');
+  const fsBtn   = modal.querySelector('.fullscreen-toggle');
+  const chip    = modal.querySelector('.section-chip'); // ← solo una vez
 
-    if (closeBtn) closeBtn.onclick = goBackOneStep;
-    if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
-    if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
-    if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
+  if (closeBtn) closeBtn.onclick = goBackOneStep;
+  if (prevBtn)  prevBtn.onclick  = () => navegarFoto(-1);
+  if (nextBtn)  nextBtn.onclick  = () => navegarFoto(1);
+  if (fsBtn)    fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-   // CHIP: volver a la sección SIN dejar el estado 'modal' en el historial
-const chip = modal.querySelector('.section-chip');
-if (chip && chip.dataset.seccionId) {
-  chip.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const sid = chip.dataset.seccionId;
-    const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-    if (!sec) return;
-
-    // Sustituye SIEMPRE el estado actual (modal) por la sección
-    history.replaceState({ view: 'seccion', seccionId: sid }, '');
-
-    // Cierra el modal (no toca historial) y pinta la sección sin push
-    closeModal();
-    mostrarSeccion(sec, { push: false });
-
-    // Garantiza que quedas arriba
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-  });
-}
-
-    // Overlay = cerrar
-    modal.addEventListener('click', function (event) {
-      if (event.target === modal) {
-        if (ignoreNextClick) { ignoreNextClick = false; return; }
-        goBackOneStep();
-      }
-    });
-
-    // TAP/Clic: toggle zoom 100% ↔ defaultClickZoom (fiable en móvil y PC)
-    let tapStartX = 0, tapStartY = 0, tapStartT = 0;
-    let dragCandidateActive = false, dragCandX = 0, dragCandY = 0;
-
-    // Solo PINCH aquí (ya NO iniciamos drag en touchstart)
-    modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
-
-    // Detectar TAP (toggle) y candidato a DRAG cuando hay zoom
-    modalImg.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) {
-        tapStartX = e.touches[0].clientX;
-        tapStartY = e.touches[0].clientY;
-        tapStartT = Date.now();
-
-        if (currentScale > 1) {
-          dragCandidateActive = true;
-          dragCandX = tapStartX; dragCandY = tapStartY;
-        }
-      }
-    }, { passive: true });
-
-    modalImg.addEventListener('touchmove', (e) => {
-      // Si hay zoom y el dedo se mueve lo suficiente, convertimos en DRAG
-      if (dragCandidateActive && currentScale > 1) {
-        const x = e.touches[0].clientX, y = e.touches[0].clientY;
-        if (Math.hypot(x - dragCandX, y - dragCandY) > 8) {
-          dragCandidateActive = false;
-          startDragTouch(e); // inicia el drag real
-        }
-      }
-    }, { passive: false });
-
-    modalImg.addEventListener('touchend', (e) => {
-      // Si fue tap (poco movimiento y rápido), toggle zoom
-      if (e.changedTouches.length === 1) {
-        const dx = e.changedTouches[0].clientX - tapStartX;
-        const dy = e.changedTouches[0].clientY - tapStartY;
-        const dt = Date.now() - tapStartT;
-        if (Math.hypot(dx, dy) < 12 && dt < 250) {
-          if (ignoreNextClick) { ignoreNextClick = false; return; }
-          doClickToggle();
-          ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
-        }
-      }
-      dragCandidateActive = false;
-    }, { passive: true });
-
-    // Click (desktop) = toggle
-    modalImg.addEventListener('click', function (event) {
-      if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
-      doClickToggle(); event.stopPropagation();
-    });
-
-    // Doble click: prevenimos (el toggle lo hace el click)
-    modalImg.addEventListener('dblclick', (e) => e.preventDefault());
-
-    // Rueda (desktop)
-    modal.addEventListener('wheel', function (e) {
+  // CHIP: sustituye el estado 'modal' por la sección (atrás → portada a la primera)
+  if (chip && chip.dataset.seccionId) {
+    chip.addEventListener('click', (e) => {
       e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-      const newScale = currentScale * zoomFactor;
-      if (newScale >= 1 && newScale <= 5) { currentScale = newScale; aplicarZoom(); }
-    }, { passive: false });
+      e.stopPropagation();
 
-    // Swipe horizontal para cambiar foto (con candado)
-    attachSwipeToModal(modal);
+      const sid = chip.dataset.seccionId;
+      const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+      if (!sec) return;
 
-    // Bottom sheet
-    attachBottomSheet(modal);
+      history.replaceState({ view: 'seccion', seccionId: sid }, '');
+      closeModal();                       // no toca historial
+      mostrarSeccion(sec, { push: false });
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    });
+  }
 
-    // Fullscreen state (icono)
-    const fsChange = () => {
-      const active = !!document.fullscreenElement;
-      modal.classList.toggle('fs-active', active);
-      const b = modal.querySelector('.fullscreen-toggle');
-      if (b) b.classList.toggle('is-active', active);
-    };
-    document.addEventListener('fullscreenchange', fsChange, { once: true });
-
-    // Teclado
-    keydownHandler = function (ev) {
-      switch (ev.key) {
-        case 'Escape': goBackOneStep(); break;
-        case 'ArrowLeft': navegarFoto(-1); break;
-        case 'ArrowRight': navegarFoto(1); break;
-      }
-    };
-    document.addEventListener('keydown', keydownHandler);
-
-    function doClickToggle() {
-      if (currentScale > 1) {
-        currentScale = 1; translateX = 0; translateY = 0;
-      } else {
-        currentScale = defaultClickZoom; // 2x
-      }
-      aplicarZoom();
+  // Cerrar al pulsar overlay
+  modal.addEventListener('click', function (event) {
+    if (event.target === modal) {
+      if (ignoreNextClick) { ignoreNextClick = false; return; }
+      goBackOneStep();
     }
+  });
+
+  // TAP/Clic: toggle zoom 100% ↔ defaultClickZoom (móvil y PC)
+  let tapStartX = 0, tapStartY = 0, tapStartT = 0;
+  modalImg.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      tapStartX = e.touches[0].clientX;
+      tapStartY = e.touches[0].clientY;
+      tapStartT = Date.now();
+    }
+  }, { passive: true });
+
+  modalImg.addEventListener('touchend', (e) => {
+    if (ignoreNextClick) { ignoreNextClick = false; return; }
+    if (e.changedTouches.length === 1) {
+      const dx = e.changedTouches[0].clientX - tapStartX;
+      const dy = e.changedTouches[0].clientY - tapStartY;
+      const dt = Date.now() - tapStartT;
+      if (Math.hypot(dx, dy) < 12 && dt < 250) {
+        doClickToggle();
+        ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
+      }
+    }
+  }, { passive: true });
+
+  // Click (desktop)
+  modalImg.addEventListener('click', function (event) {
+    if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
+    doClickToggle(); event.stopPropagation();
+  });
+
+  // Doble click: prevenimos (el toggle lo hace el click)
+  modalImg.addEventListener('dblclick', (e) => e.preventDefault());
+
+  // Rueda (desktop)
+  modal.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+    const newScale = currentScale * zoomFactor;
+    if (newScale >= 1 && newScale <= 5) { currentScale = newScale; aplicarZoom(); }
+  }, { passive: false });
+
+  // Drag con zoom y pinch
+  modalImg.addEventListener('mousedown', startDrag);
+  modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
+
+  // Swipe horizontal para cambiar foto (con candado)
+  attachSwipeToModal(modal);
+
+  // Bottom sheet
+  attachBottomSheet(modal);
+
+  // Fullscreen state (se limpia en closeModal)
+  if (fullscreenChangeHandler) {
+    document.removeEventListener('fullscreenchange', fullscreenChangeHandler);
+    fullscreenChangeHandler = null;
+  }
+  fullscreenChangeHandler = () => {
+    const active = !!document.fullscreenElement;
+    modal.classList.toggle('fs-active', active);
+    const b = modal.querySelector('.fullscreen-toggle');
+    if (b) b.classList.toggle('is-active', active);
+  };
+  document.addEventListener('fullscreenchange', fullscreenChangeHandler);
+
+  // Teclado
+  keydownHandler = function (ev) {
+    switch (ev.key) {
+      case 'Escape':     goBackOneStep(); break;
+      case 'ArrowLeft':  navegarFoto(-1); break;
+      case 'ArrowRight': navegarFoto(1);  break;
+    }
+  };
+  document.addEventListener('keydown', keydownHandler);
+
+  function doClickToggle() {
+    if (currentScale > 1) {
+      currentScale = 1; translateX = 0; translateY = 0;
+    } else {
+      currentScale = defaultClickZoom; // 2x
+    }
+    aplicarZoom();
   }
 }
 
