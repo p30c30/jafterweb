@@ -48,3 +48,44 @@
 .section-cards { align-items: start; }
 .section-cards .card-image { display:block; }
 .section-cards .card-content { flex: 0 0 auto; }
+
+/* ================== BOTÓN SCROLL TO TOP (base) ================== /
+.scroll-to-top {
+position: fixed;
+bottom: 30px; right: 30px;
+width: 50px; height: 50px;
+background: rgba(253, 184, 19, 0.9);
+color: #000;
+border: none; border-radius: 50%;
+cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+font-size: 1.5rem; font-weight: bold;
+box-shadow: 0 4px 20px rgba(253, 184, 19, 0.4);
+transition: all 0.25s ease;
+z-index: 3000; / por encima de header/modales */
+opacity: 0; visibility: hidden; transform: translateY(20px);
+pointer-events: none;
+}
+
+.scroll-to-top.visible {
+opacity: 1; visibility: visible; transform: translateY(0);
+pointer-events: auto;
+}
+
+.scroll-to-top:hover {
+background: #FDB813;
+transform: translateY(-5px) scale(1.1);
+box-shadow: 0 6px 25px rgba(253, 184, 19, 0.6);
+}
+
+.scroll-to-top:active {
+transform: translateY(-2px) scale(1.05);
+}
+
+/* Ocultar mientras el modal esté abierto /
+body.modal-open .scroll-to-top {
+opacity: 0 !important;
+visibility: hidden !important;
+pointer-events: none !important;
+}
+/ ================== FIN BOTÓN SCROLL TO TOP (base) ================== */
