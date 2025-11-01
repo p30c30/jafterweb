@@ -1,4 +1,4 @@
-/* Responsive general (v18) */
+/* Responsive general (v19) */
 
 /* Tablets */
 @media (max-width:1199px){
@@ -39,25 +39,51 @@
   body .home-view .fotos-grid,
   body .fotos-grid{
     display:block !important;
+    /* Forzamos 2 columnas con prefijos para Safari/Firefox */
+    -webkit-column-count:2 !important;
+    -moz-column-count:2 !important;
     column-count:2 !important;
+
+    -webkit-column-gap:.8rem !important;
+    -moz-column-gap:.8rem !important;
     column-gap:.8rem !important;
+
+    /* Evitar que un 'columns:' anterior nos anule el count */
+    -webkit-column-width:auto !important;
+    -moz-column-width:auto !important;
+    column-width:auto !important;
+
     padding:0 .8rem !important;
-    columns:auto !important;
   }
+
   body .fotos-grid .foto-item{
-    break-inside:avoid; display:inline-block; width:100%; margin:0 0 .8rem 0 !important;
+    break-inside:avoid; display:inline-block; width:100%;
+    margin:0 0 .8rem 0 !important;
     height:auto !important; aspect-ratio:auto !important; background:transparent !important;
   }
+
   body .fotos-grid .foto-miniatura{
     width:100% !important; height:auto !important; display:block !important; vertical-align:top !important;
     background:transparent !important; object-fit:contain !important;
   }
 }
+
 /* Si algún CSS antiguo forzara 1 columna <480px, lo anulamos: */
 @media (max-width:480px){
-  body .fotos-grid{ column-count:2 !important; columns:auto !important; }
+  body .fotos-grid{
+    -webkit-column-count:2 !important;
+    -moz-column-count:2 !important;
+    column-count:2 !important;
+    -webkit-column-width:auto !important;
+    -moz-column-width:auto !important;
+    column-width:auto !important;
+  }
 }
 
 /* Scroll-to-top */
-@media (max-width: 768px){ .scroll-to-top{ bottom:20px; right:20px; width:45px; height:45px; font-size:1.3rem; } }
-@media (max-width: 480px){ .scroll-to-top{ bottom:15px; right:15px; width:40px; height:40px; font-size:1.2rem; } }
+@media (max-width: 768px){
+  .scroll-to-top{ bottom:20px; right:20px; width:45px; height:45px; font-size:1.3rem; }
+}
+@media (max-width: 480px){
+  .scroll-to-top{ bottom:15px; right:15px; width:40px; height:40px; font-size:1.2rem; }
+}
