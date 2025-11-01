@@ -1057,3 +1057,9 @@ function volverAGaleriaInternal() {
   window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   currentView = 'home';
 }
+// ===== Init seguro =====
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', iniciar, { once: true });
+} else {
+  iniciar();
+}
