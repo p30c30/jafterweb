@@ -133,22 +133,34 @@ initHistoryHandler();
 }
 
 // ===== Scroll to top =====
+// ===== Scroll to top =====
 function crearBotonScrollTop() {
-// evita duplicados
-let btn = document.querySelector('.scroll-to-top');
-if (!btn) {
-btn = document.createElement('button');
-btn.className = 'scroll-to-top';
-btn.innerHTML = '↑';
-btn.setAttribute('aria-label', 'Volver arriba');
-document.body.appendChild(btn);
-}
-btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Evita duplicados
+  let btn = document.querySelector('.scroll-to-top');
+  if (!btn) {
+    btn = document.createElement('button');
+    btn.className = 'scroll-to-top';
+    btn.innerHTML = '↑';
+    btn.setAttribute('aria-label', 'Volver arriba');
+    document.body.appendChild(btn);
+  }
 
-window.addEventListener('scroll', () => {
-const y = window.scrollY;
-btn.classList.toggle('visible', y > 300);
-});
+  // Acción
+  btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Mostrar/ocultar según scroll y si el modal está abierto
+  const update = () => {
+    const y = window.scrollY || document.documentElement.scrollTop;
+    const modalOpen = document.body.classList.contains('modal-open');
+    btn.classList.toggle('visible', y > 300 && !modalOpen);
+  };
+
+  // Listeners
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update, { passive: true });
+
+  // Estado inicial
+  update();
 }
 
 // ===== History API =====
