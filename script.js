@@ -1113,20 +1113,3 @@ currentView = 'home';
 // ===== Init =====
 document.addEventListener('DOMContentLoaded', iniciar);
 
-
-// Navegar a una sección desde el chip del modal REEMPLAZANDO el estado 'modal'
-function navigateSectionFromChip(seccionId) {
-  if (!seccionId || !datosGlobales?.secciones) return;
-  const sec = datosGlobales.secciones.find(s => s.id === seccionId);
-  if (!sec) return;
-
-  // Sustituye el estado actual (modal) por la sección
-  history.replaceState({ view: 'seccion', seccionId }, '');
-
-  // Cierra el modal (no modifica historial) y pinta la sección sin push
-  closeModal();
-  mostrarSeccion(sec, { push: false });
-
-  // Garantiza que quedas arriba
-  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-}
