@@ -115,34 +115,53 @@ aplicarEstado(state);
 });
 }
 function aplicarEstado(state) {
-isHandlingPopstate = true;
-if (state.view !== 'modal' && isModalOpen) closeModal();
+  isHandlingPopstate = true;
 
-if (state.view === 'home') {
-volverAGaleriaInternal();
-} else if (state.view === 'seccion') {
-if (datosGlobales) {
-const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
-sec ? mostrarSeccion(sec, { push: false }) : volverAGaleriaInternal();
-} else { volverAGaleriaInternal(); }
-} else if (state.view === 'modal') {
-if (state.source === 'carrusel') {
-if (!carruselFotos?.length && datosGlobales) carruselFotos = obtenerFotosParaCarrusel(datosGlobales);
-const f = carruselFotos[state.fotoIndex];
-if (f) { modalSource = 'carrusel'; mostrarModal(f.url, f.texto, state.fotoIndex, { push: false }); }
-else { volverAGaleriaInternal(); }
-} else {
-if (datosGlobales) {
-const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
-if (sec) {
-mostrarSeccion(sec, { push: false });
-const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
-if (foto) { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false }); }
-} else { volverAGaleriaInternal(); }
-} else { volverAGaleriaInternal(); }
-}
-}
-isHandlingPopstate = false;
+  if (state.view !== 'modal' && isModalOpen) closeModal();
+
+  if (state.view === 'home') {
+    volverAGaleriaInternal();
+
+  } else if (state.view === 'seccion') {
+    if (datosGlobales) {
+      const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
+      sec ? mostrarSeccion(sec, { push: false }) : volverAGaleriaInternal();
+    } else {
+      volverAGaleriaInternal();
+    }
+
+  } else if (state.view === 'modal') {
+    if (state.source === 'carrusel') {
+      if (!carruselFotos?.length && datosGlobales) {
+        carruselFotos = obtenerFotosParaCarrusel(datosGlobales);
+      }
+      const f = carruselFotos[state.fotoIndex];
+      if (f) {
+        modalSource = 'carrusel';
+        mostrarModal(f.url, f.texto, state.fotoIndex, { push: false });
+      } else {
+        volverAGaleriaInternal();
+      }
+    } else {
+      if (datosGlobales) {
+        const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
+        if (sec) {
+          mostrarSeccion(sec, { push: false });
+          const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
+          if (foto) {
+            modalSource = 'seccion';
+            mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false });
+          }
+        } else {
+          volverAGaleriaInternal();
+        }
+      } else {
+        volverAGaleriaInternal();
+      }
+    }
+  }
+
+  isHandlingPopstate = false;
 }
 function goBackOneStep() {
 if (history.state && history.state.view !== 'home') history.back();
