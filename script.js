@@ -472,21 +472,15 @@ if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
 if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
 if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-    // CHIP: sustituye el estado del modal por la sección (atrás → portada) y sube al inicio
-    if (chip && chip.dataset.seccionId) {
-      chip.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const sid = chip.dataset.seccionId;
-        const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-        if (!sec) return;
-
-        history.replaceState({ view: 'seccion', seccionId: sid }, ''); // sustituye modal
-        closeModal();                          // no toca historial
-        mostrarSeccion(sec, { push: false });  // pinta sin push extra
-        window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
-      });
-    }
+    // CHIP minimo: sustituye el estado del modal por la sección (atrás → portada) y sube al inicio
+    iif (chip && chip.dataset.seccionId) {
+  chip.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigateSectionFromChip(chip.dataset.seccionId);
+  });
+}
+       
     /// CHIP: volver a la sección SIN dejar el estado 'modal' en el historial
 if (chip && chip.dataset.seccionId) {
   chip.addEventListener('click', (e) => {
@@ -1132,3 +1126,21 @@ currentView = 'home';
 
 // ===== Init =====
 document.addEventListener('DOMContentLoaded', iniciar);
+
+
+// Navegar a una sección desde el chip del modal REEMPLAZANDO el estado 'modal'
+function navigateSectionFromChip(seccionId) {
+  if (!seccionId || !datosGlobales?.secciones) return;
+  const sec = datosGlobales.secciones.find(s => s.id === seccionId);
+  if (!sec) return;
+
+  // Sustituye el estado actual (modal) por la sección
+  history.replaceState({ view: 'seccion', seccionId }, '');
+
+  // Cierra el modal (no modifica historial) y pinta la sección sin push
+  closeModal();
+  mostrarSeccion(sec, { push: false });
+
+  // Garantiza que quedas arriba
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+}
