@@ -80,3 +80,81 @@ font-size: 2.0em; line-height: 1; color: #FDB813; opacity: .8;
   #inspiration-section .inspiration-image{ margin: 0 1rem; width:auto; height:auto; }
   #inspiration-section h2 { font-size:2rem; }
 }
+/* ===================================================================== */
+/* ===  REDISEÑO ELEGANTE SECCIÓN INSPIRADORA (DESKTOP) - AÑADIR AL FINAL DE LAYOUT.CSS === */
+/* ===================================================================== */
+
+/* --- Contenedor General de la Sección --- */
+#inspiration-section {
+  /* Mantenemos un buen padding general para la sección completa */
+  padding: 6rem 2rem; 
+  margin-top: 4rem;
+  border-top: 1px solid rgba(253, 184, 19, 0.2);
+}
+
+/* --- El "Recuadro Unificado" (Contenedor del grid: texto + imagen) --- */
+#inspiration-section > div {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  
+  /* AJUSTES CLAVE */
+  gap: 3rem; /* Reducimos el espacio entre texto e imagen para más cohesión */
+  
+  /* AHORA ESTE ES NUESTRO RECUADRO PRINCIPAL */
+  background: linear-gradient(135deg, rgba(253, 184, 19, 0.03) 0%, rgba(0, 0, 0, 0.5) 100%);
+  border: 1px solid rgba(253, 184, 19, 0.15);
+  border-radius: 12px;
+  padding: 3rem; /* Padding interno para que el contenido no toque los bordes */
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  transition: all .3s ease;
+}
+
+#inspiration-section > div:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+  border-color: rgba(253, 184, 19, 0.25);
+}
+
+
+/* --- Contenedor de la Imagen (Ahora es solo un contenedor simple) --- */
+.inspiration-image {
+  /* ELIMINAMOS TAMAÑO FIJO Y ESTILOS DE MARCO */
+  width: 100%;  /* Que ocupe todo el ancho de su columna del grid */
+  height: auto; /* La altura será automática */
+  aspect-ratio: 1 / 1; /* Forzamos a que sea un cuadrado perfecto, se ve muy bien */
+  
+  /* Quitamos los estilos de marco que ya no necesitamos aquí */
+  background: none;
+  box-shadow: none;
+  padding: 0;
+  border-radius: 10px; /* Mantenemos el redondeo para la imagen */
+  overflow: hidden; /* Importante para que la imagen no se salga del radio */
+  margin: 0;
+}
+
+/* --- La Imagen/Retrato en sí --- */
+#inspiration-section img {
+  width: 100%;
+  height: 100%;
+  
+  /* ESTA ES LA MAGIA PARA QUE LLENE EL MARCO */
+  object-fit: cover; /* Recorta la imagen para llenar el espacio sin deformarla */
+  
+  border-radius: 8px;
+  transition: transform .4s ease-out; /* Una transición más suave */
+}
+
+/* El hover ahora lo aplicamos a todo el bloque, pero podemos añadir un efecto sutil a la imagen */
+#inspiration-section > div:hover img {
+  transform: scale(1.05);
+}
+
+/* Limpiamos la regla responsive que ya no es necesaria con este nuevo enfoque */
+@media (max-width: 768px){
+  #inspiration-section .inspiration-image {
+    aspect-ratio: unset; /* En móvil no forzamos el aspect-ratio */
+  }
+}
