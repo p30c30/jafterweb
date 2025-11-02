@@ -223,3 +223,53 @@ column-width:auto !important;
   }
 
 }
+
+/* =================================================================== */
+/* ==   SUGERENCIA: Centrar texto de sección inspiradora en móvil   == */
+/* =================================================================== */
+
+@media (max-width: 767px) {
+  #inspiration-section > div {
+    /* Centramos el texto cuando la vista es de una sola columna */
+    text-align: center;
+  }
+  
+  #inspiration-section .insp-quote {
+    /* Para la cita, ajustamos el padding para que se vea bien centrada */
+    padding-left: 0;
+    text-align: center;
+  }
+
+  #inspiration-section .insp-quote::before {
+    /* Reposicionamos las comillas en el centro */
+    position: static;
+    display: block;
+    margin: 0 auto;
+    line-height: 0.8;
+  }
+}
+/* =================================================================== */
+/* == AJUSTE FINAL: INVERTIR ORDEN DE INSPIRACIÓN EN MÓVIL (CORREGIDO) == */
+/* =================================================================== */
+
+@media (max-width: 767px) {
+  
+  /* --- 1. Cambiamos el grid a una sola columna --- */
+  #inspiration-section > div {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* --- 2. Forzamos el orden: TEXTO PRIMERO, IMAGEN DESPUÉS --- */
+  
+  /* El primer elemento (supongamos que es el texto) se queda en el orden 1 */
+  #inspiration-section > div > div:first-child {
+    order: 1;
+  }
+  
+  /* El segundo elemento (la imagen) lo mandamos al orden 2, para que vaya debajo */
+  #inspiration-section > div > .inspiration-image {
+    order: 2;
+  }
+
+}
+
