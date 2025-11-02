@@ -209,3 +209,16 @@ column-width:auto !important;
     font-size: 0.95rem !important;
   }
 }
+
+/* =================================================================== */
+/* ==       AJUSTE ADICIONAL: TÍTULO DE CABECERA MÁS PEQUEÑO      == */
+/* =================================================================== */
+
+@media (max-width: 767px) {
+
+  .seccion-header h1 {
+    /* Reducimos el tamaño de la fuente del título para que no domine tanto  1.4 mayor y 1.2 menor*/
+    font-size: 1.3rem !important; 
+  }
+
+}
