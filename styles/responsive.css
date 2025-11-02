@@ -18,7 +18,7 @@
 .home-view .card-content{ padding:.8rem; }
 .home-view .card-content h3{ font-size:1.1rem; margin-bottom:.5rem; }
 .home-view .card-content p{
-  .logo{ font-size: clamp(30px, calc(8vw + 2px), 48px) !important; }
+  .logo{ font-size: clamp(32px, calc(8vw + 3px), 52px) !important; }
 font-size:.85rem; line-height:1.4;
 display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
 overflow:hidden;
