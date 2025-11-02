@@ -303,3 +303,30 @@ column-width:auto !important;
   */
 
 }
+/* =================================================================== */
+/* == OPCIÓN 3: Eliminar el marco de la imagen en móvil (Limpio) == */
+/* =================================================================== */
+
+@media (max-width: 767px) {
+  #inspiration-section .inspiration-image {
+    /* Quitamos el padding que crea el espacio del marco */
+    padding: 0 !important;
+    
+    /* El fondo ya no se verá, pero lo quitamos por limpieza */
+    background: none !important;
+    
+    /* La sombra ahora se aplicará directamente al borde de la foto */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important;
+    
+    /* Importante: Mantenemos el overflow hidden para que la imagen se recorte en las esquinas */
+    overflow: hidden;
+  }
+
+  #inspiration-section img {
+    /* CAMBIO CLAVE: Hacemos que la imagen cubra todo el contenedor */
+    object-fit: cover !important; 
+    
+    /* Nos aseguramos de que el encuadre siga siendo bueno */
+    object-position: center 20% !important;
+  }
+}
