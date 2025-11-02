@@ -273,3 +273,46 @@ column-width:auto !important;
 
 }
 
+/* =================================================================== */
+/* ==   AJUSTE FINAL: CENTRAR CONTENIDO DE INSPIRACIÓN EN MÓVIL   == */
+/* =================================================================== */
+
+@media (max-width: 767px) {
+
+  /* 1. Ajustamos el "recuadro" principal para móvil */
+  #inspiration-section > div {
+    /* Reducimos el padding interno, que era muy grande para móviles */
+    padding: 2rem 1.5rem !important; 
+    
+    /* ¡ESTA ES LA CLAVE! Centra horizontalmente todos los elementos del grid */
+    justify-items: center !important; 
+  }
+
+  /* 2. Centramos el contenido del bloque de texto */
+  #inspiration-section > div > div:first-child {
+    /* Hacemos que el texto dentro del bloque esté centrado */
+    text-align: center;
+  }
+  
+  /* 3. Aseguramos que la cita también se vea bien centrada */
+  #inspiration-section .insp-quote {
+    padding-left: 0;
+    text-align: center; /* Hereda del padre, pero lo reforzamos */
+  }
+  
+  #inspiration-section .insp-quote::before {
+    /* Reposicionamos las comillas para el diseño centrado */
+    position: static; /* Quitamos el 'absolute' que lo anclaba a la izquierda */
+    display: block;   /* Lo hacemos un bloque para poder centrarlo */
+    margin: 0 auto 0.25rem; /* Centramos y damos un pequeño espacio inferior */
+    line-height: 0.8;
+  }
+
+  /* 4. Opcional: Si la imagen aún se ve muy grande, podemos controlarla */
+  #inspiration-section .inspiration-image {
+      /* Hacemos que la imagen ocupe el 90% del ancho disponible, por ejemplo */
+      width: 90%;
+      /* El margin:auto no es necesario gracias a 'justify-items:center' pero no hace daño */
+      margin: 0 auto; 
+  }
+}
