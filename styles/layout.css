@@ -60,14 +60,9 @@ margin: .25rem 0 .5rem;
 #inspiration-section .insp-quote::before{
 content: "“";
 position: absolute; left: 0; top: -.15em;
-font-size: 2.2em; line-height: 1; color: #FDB813; opacity: .8;
+font-size: 2.0em; line-height: 1; color: #FDB813; opacity: .8;
 }
-#inspiration-section .insp-author{
-margin-top: .6rem;
-color: #FDB813;
-font-weight: 600;
-letter-spacing: .02em;
-}
+
 
 .inspiration-image{
   width: 400px; height: 400px; margin: 0 auto;
