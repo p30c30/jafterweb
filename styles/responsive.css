@@ -224,95 +224,82 @@ column-width:auto !important;
 
 }
 
-/* =================================================================== */
-/* ==   SUGERENCIA: Centrar texto de sección inspiradora en móvil   == */
-/* =================================================================== */
+/* ======================================================================== */
+/* ==  DISEÑO ESPECÍFICO PARA INSPIRACIÓN EN MÓVIL (SEPARADO) - FINAL  == */
+/* ======================================================================== */
 
 @media (max-width: 767px) {
-  #inspiration-section > div {
-    /* Centramos el texto cuando la vista es de una sola columna */
-    text-align: center;
-  }
-  
-  #inspiration-section .insp-quote {
-    /* Para la cita, ajustamos el padding para que se vea bien centrada */
-    padding-left: 0;
-    text-align: center;
-  }
 
-  #inspiration-section .insp-quote::before {
-    /* Reposicionamos las comillas en el centro */
-    position: static;
-    display: block;
-    margin: 0 auto;
-    line-height: 0.8;
-  }
-}
-/* =================================================================== */
-/* == AJUSTE FINAL: INVERTIR ORDEN DE INSPIRACIÓN EN MÓVIL (CORREGIDO) == */
-/* =================================================================== */
-
-@media (max-width: 767px) {
-  
-  /* --- 1. Cambiamos el grid a una sola columna --- */
+  /* --- PASO 1: Desactivamos el "Recuadro Unificado" de escritorio --- */
   #inspiration-section > div {
+    /* Quitamos el fondo, borde, sombra y padding del contenedor grid */
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+
+    /* Lo configuramos a 1 columna y con un buen espacio entre texto e imagen */
     grid-template-columns: 1fr !important;
+    gap: 3rem !important;
+    
+    /* Quitamos cualquier centrado de items que pudiera interferir */
+    justify-items: initial !important; 
   }
 
-  /* --- 2. Forzamos el orden: TEXTO PRIMERO, IMAGEN DESPUÉS --- */
-  
-  /* El primer elemento (supongamos que es el texto) se queda en el orden 1 */
+  /* --- PASO 2: Ordenamos los elementos (Texto arriba, Imagen abajo) --- */
+  /* Asumimos que el div con el texto es el primer hijo */
   #inspiration-section > div > div:first-child {
     order: 1;
   }
-  
-  /* El segundo elemento (la imagen) lo mandamos al orden 2, para que vaya debajo */
   #inspiration-section > div > .inspiration-image {
     order: 2;
   }
 
-}
 
-/* =================================================================== */
-/* ==   AJUSTE FINAL: CENTRAR CONTENIDO DE INSPIRACIÓN EN MÓVIL   == */
-/* =================================================================== */
-
-@media (max-width: 767px) {
-
-  /* 1. Ajustamos el "recuadro" principal para móvil */
-  #inspiration-section > div {
-    /* Reducimos el padding interno, que era muy grande para móviles */
-    padding: 2rem 1.5rem !important; 
+  /* --- PASO 3: Devolvemos los estilos originales a la imagen --- */
+  #inspiration-section .inspiration-image {
+    /* Restablecemos el fondo y la sombra que tenía originalmente */
+    background: linear-gradient(135deg, rgba(253,184,19,0.1) 0%, rgba(0,0,0,0.8) 100%) !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px rgba(253,184,19,0.2) !important;
     
-    /* ¡ESTA ES LA CLAVE! Centra horizontalmente todos los elementos del grid */
-    justify-items: center !important; 
+    /* Le devolvemos el padding para crear el 'marco' */
+    padding: 20px !important;
+    border-radius: 10px !important;
+    
+    /* Dimensiones y centrado */
+    width: 95%;      /* Hacemos que ocupe casi todo el ancho para que se vea grande */
+    max-width: 400px;  /* Pero con un máximo para que no se estire demasiado */
+    margin: 0 auto !important; /* Centrado horizontal perfecto */
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important; /* Mantenemos el ratio cuadrado */
   }
 
-  /* 2. Centramos el contenido del bloque de texto */
+  /* La imagen dentro del marco debe ajustarse bien */
+  #inspiration-section img {
+    object-fit: contain !important; /* 'contain' para que se vea completa dentro del marco */
+    object-position: center !important; /* La centramos bien */
+  }
+
+  /* --- PASO 4: Ajustamos el texto para que se vea bien solo --- */
   #inspiration-section > div > div:first-child {
-    /* Hacemos que el texto dentro del bloque esté centrado */
-    text-align: center;
+    /* Podemos añadir un poco de padding si es necesario, o dejarlo así */
+    padding: 0 1rem; /* Pequeño padding lateral para que no toque los bordes */
+    max-width: 56ch; /* Mantenemos el ancho máximo para la legibilidad */
+    margin: 0 auto;  /* Centramos el bloque de texto */
+    text-align: left; /* Volvemos a alinear a la izquierda, que suele ser más legible */
   }
   
-  /* 3. Aseguramos que la cita también se vea bien centrada */
+  /* Si prefieres el texto centrado, descomenta esto */
+  /*
+  #inspiration-section > div > div:first-child {
+      text-align: center;
+  }
   #inspiration-section .insp-quote {
     padding-left: 0;
-    text-align: center; /* Hereda del padre, pero lo reforzamos */
   }
-  
   #inspiration-section .insp-quote::before {
-    /* Reposicionamos las comillas para el diseño centrado */
-    position: static; /* Quitamos el 'absolute' que lo anclaba a la izquierda */
-    display: block;   /* Lo hacemos un bloque para poder centrarlo */
-    margin: 0 auto 0.25rem; /* Centramos y damos un pequeño espacio inferior */
-    line-height: 0.8;
+    position: static; display: block; margin: 0 auto 0.25rem; line-height: 0.8;
   }
+  */
 
-  /* 4. Opcional: Si la imagen aún se ve muy grande, podemos controlarla */
-  #inspiration-section .inspiration-image {
-      /* Hacemos que la imagen ocupe el 90% del ancho disponible, por ejemplo */
-      width: 90%;
-      /* El margin:auto no es necesario gracias a 'justify-items:center' pero no hace daño */
-      margin: 0 auto; 
-  }
 }
