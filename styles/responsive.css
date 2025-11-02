@@ -211,13 +211,14 @@ column-width:auto !important;
 }
 
 /* =================================================================== */
-/* ==       AJUSTE ADICIONAL: TÍTULO DE CABECERA MÁS PEQUEÑO      == */
+/* ==       AJUSTE REFORZADO: TÍTULO DE CABECERA MÁS PEQUEÑO      == */
 /* =================================================================== */
 
 @media (max-width: 767px) {
 
-  .seccion-header h1 {
-    /* Reducimos el tamaño de la fuente del título para que no domine tanto  1.4 mayor y 1.2 menor*/
+  /* Hacemos el selector más específico para garantizar que se aplique */
+  body .seccion-header h1 {
+    /* Reducimos el tamaño de la fuente. Prueba con 1.3rem o 1.2rem mayor 1.4*/
     font-size: 1.3rem !important; 
   }
 
