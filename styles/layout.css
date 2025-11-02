@@ -72,7 +72,7 @@ font-size: 2.0em; line-height: 1; color: #FDB813; opacity: .8;
 }
 #inspiration-section img{ max-width:100%; max-height:100%; object-fit:contain; border-radius:8px; transition: transform .3s; }
  
-object-position: center 20%; /* Mueve la imagen verticalmente hacia arriba 15% o 25% para centrar mas*/
+object-position: center 25%; /* Mueve la imagen verticalmente hacia arriba 15% o 25% para centrar mas*/
  
 .inspiration-image:hover{ transform: translateY(-5px); box-shadow:0 25px 50px rgba(0,0,0,.4), 0 0 0 1px rgba(253,184,19,.4); }
 .inspiration-image:hover img{ transform: scale(1.02); }
