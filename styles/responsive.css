@@ -149,3 +149,63 @@ column-width:auto !important;
 @media (max-width: 480px){
 .scroll-to-top{ bottom:15px; right:15px; width:40px; height:40px; font-size:1.2rem; }
 }
+
+/* =================================================================== */
+/* == AJUSTES PARA MOVIL: SECCION INSPIRADORA Y CABECERA (AÑADIR AL FINAL) == */
+/* =================================================================== */
+
+@media (max-width: 767px) {
+
+  /* --- 1. AJUSTES PARA LA SECCIÓN INSPIRADORA --- */
+
+  #inspiration-section {
+    /* Reducimos drásticamente el espaciado vertical que era muy grande para móviles */
+    padding: 3rem 1.5rem !important;
+    margin-top: 2rem !important;
+  }
+
+  #inspiration-section > div {
+    /* Reducimos el espacio entre el bloque de texto y la imagen cuando se apilan */
+    gap: 2.5rem !important;
+  }
+
+  #inspiration-section .inspiration-image {
+    /* Eliminamos el margen lateral que causaba que la imagen no se centrara bien */
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  #inspiration-section h2 {
+    /* Hacemos el título un poco más pequeño en móviles */
+    font-size: 2rem !important;
+  }
+
+
+  /* --- 2. AJUSTES PARA HACER LA CABECERA MÁS PEQUEÑA --- */
+
+  .seccion-header {
+    /* Reducimos el padding superior e inferior para que sea menos alta */
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    /* Reducimos el espacio entre el título y la descripción */
+    gap: 0.4rem !important;
+  }
+
+}
+
+/* Opcional: Ajuste para pantallas muy pequeñas si es necesario */
+@media (max-width: 480px) {
+  #inspiration-section {
+    padding: 2.5rem 1rem !important;
+    margin-top: 1.5rem !important;
+  }
+
+  #inspiration-section h2 {
+    font-size: 1.8rem !important;
+  }
+  
+  #inspiration-section p, 
+  #inspiration-section .insp-quote {
+    font-size: 0.95rem !important;
+  }
+}
