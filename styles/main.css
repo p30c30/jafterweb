@@ -27,8 +27,7 @@ body{
 
 /* Logo editorial premium + dorado degradado */
 .logo {
-  /* Hemos reducido los valores para un tamaño más sutil */
-  font-size: clamp(36px, calc(3.2vw + 8px), 72px);
+  font-size: clamp(32px, calc(2.8vw + 8px), 64px);
   
   line-height: 1.1;
   text-rendering: optimizeLegibility;
