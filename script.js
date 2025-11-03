@@ -1,12 +1,12 @@
 // ===================================================================
-// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v34)           ==
+// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v35)           ==
 // ===================================================================
 
-console.log('✅ script.js v34 CARGADO');
+console.log('✅ script.js v35 CARGADO');
 
-// ===== Estado global =====
+// ===== ESTADO GLOBAL (SIN CAMBIOS) =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
-let scrollTopBtn = null, modalSource = 'seccion', currentView = 'home', isHandlingPopstate = false, ignoreNextClick = false, suppressNextClick = false;
+let scrollTopBtn = null, modalSource = 'seccion', currentView = 'home', isHandlingPopstate = false, ignoreNextClick = false;
 let currentScale = 1, currentImage = null, isDragging = false, startX, startY, translateX = 0, translateY = 0, lastX = 0, lastY = 0;
 let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
 const defaultClickZoom = 2;
@@ -17,35 +17,26 @@ let velX = 0, velY = 0, inertiaId = null;
 const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
 let __scrollLockY = 0;
 
-// ===== Funciones Helper =====
+// ===== FUNCIONES HELPER (SIN CAMBIOS) =====
 function refreshScrollTop() { if (!scrollTopBtn) return; const y = window.scrollY || document.documentElement.scrollTop || 0; scrollTopBtn.classList.toggle('visible', y > 300); }
 if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
 function scrollToTopHard() { requestAnimationFrame(() => { requestAnimationFrame(() => { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }); }); }
 function forceSectionTop(containerEl) { const toTop = () => { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }; toTop(); requestAnimationFrame(() => toTop()); setTimeout(toTop, 50); setTimeout(toTop, 200); setTimeout(toTop, 500); if (containerEl) { const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12); imgs.forEach(img => { if (!img.complete) { const bump = () => toTop(); img.addEventListener('load', bump, { once: true }); img.addEventListener('error', bump, { once: true }); } }); } }
 
-// ===== Inicio =====
-function iniciar() {
-  const logo = document.getElementById('logoHome');
-  if (logo) { logo.addEventListener('click', () => { if (currentView !== 'home') { history.pushState({ view: 'home' }, ''); aplicarEstado({ view: 'home' }); } }); }
-  crearBotonScrollTop();
-  setTimeout(() => { const container = document.getElementById('secciones-container'); if (container) { cargarDatos(container); } else { setTimeout(iniciar, 1000); } }, 600);
-  initMobileRotationHandler();
-  initHistoryHandler();
-}
-
-// ===== Scroll to top =====
+// ===== INICIO (SIN CAMBIOS) =====
+function iniciar() { const logo = document.getElementById('logoHome'); if (logo) { logo.addEventListener('click', () => { if (currentView !== 'home') { history.pushState({ view: 'home' }, ''); aplicarEstado({ view: 'home' }); } }); } crearBotonScrollTop(); setTimeout(() => { const container = document.getElementById('secciones-container'); if (container) { cargarDatos(container); } else { setTimeout(iniciar, 1000); } }, 600); initMobileRotationHandler(); initHistoryHandler(); }
 function crearBotonScrollTop() { scrollTopBtn = document.querySelector('.scroll-to-top'); if (!scrollTopBtn) { scrollTopBtn = document.createElement('button'); scrollTopBtn.className = 'scroll-to-top'; scrollTopBtn.innerHTML = '↑'; scrollTopBtn.setAttribute('aria-label', 'Volver arriba'); document.body.appendChild(scrollTopBtn); } scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' }); window.addEventListener('scroll', refreshScrollTop, { passive: true }); window.addEventListener('resize', refreshScrollTop, { passive: true }); window.addEventListener('load', refreshScrollTop, { once: true }); refreshScrollTop(); }
 
-// ===== History API =====
+// ===== HISTORY API (SIN CAMBIOS) =====
 function initHistoryHandler() { if (!history.state) history.replaceState({ view: 'home' }, ''); window.addEventListener('popstate', (e) => { const state = e.state || { view: 'home' }; aplicarEstado(state); }); }
 function aplicarEstado(state) { isHandlingPopstate = true; if (state.view !== 'modal' && isModalOpen) closeModal(); if (state.view === 'home') { volverAGaleriaInternal(); } else if (state.view === 'seccion') { if (datosGlobales) { const sec = datosGlobales.secciones.find(s => s.id === state.seccionId); sec ? mostrarSeccion(sec, { push: false }) : volverAGaleriaInternal(); } else { volverAGaleriaInternal(); } } else if (state.view === 'modal') { if (state.source === 'carrusel') { if (!carruselFotos?.length && datosGlobales) { carruselFotos = obtenerFotosParaCarrusel(datosGlobales); } const f = carruselFotos[state.fotoIndex]; if (f) { modalSource = 'carrusel'; mostrarModal(f.url, f.texto, state.fotoIndex, { push: false }); } else { volverAGaleriaInternal(); } } else { if (datosGlobales) { const sec = datosGlobales.secciones.find(s => s.id === state.seccionId); if (sec) { mostrarSeccion(sec, { push: false }); const foto = sec.fotos[state.fotoIndex] || sec.fotos[0]; if (foto) { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false }); } } else { volverAGaleriaInternal(); } } else { volverAGaleriaInternal(); } } } isHandlingPopstate = false; }
 function goBackOneStep() { if (history.state && history.state.view !== 'home') history.back(); else { aplicarEstado({ view: 'home' }); history.replaceState({ view: 'home' }, ''); } }
 
-// ===== Datos y Secciones =====
+// ===== DATOS Y SECCIONES (SIN CAMBIOS) =====
 async function cargarDatos(container) { try { const res = await fetch('data.json?v=' + Date.now()); if (!res.ok) throw new Error(`Error HTTP: ${res.status}`); const data = await res.json(); datosGlobales = data; if (!data?.secciones?.length) throw new Error('Estructura de datos inválida'); container.innerHTML = ''; data.secciones.forEach(seccion => { const card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<img src="${seccion.preview}" alt="${seccion.titulo}" class="card-image"><div class="card-content"><h3>${seccion.titulo}</h3><p>${seccion.descripcion}</p></div>`; card.addEventListener('click', () => mostrarSeccion(seccion)); container.appendChild(card); }); cargarCarrusel(data); } catch (e) { console.error('Error cargando datos:', e); container.innerHTML = `<div class="error-message"><h3>Error al cargar</h3><p>${e.message}</p><button onclick="location.reload()">Reintentar</button></div>`; } }
 function mostrarSeccion(seccion, opts = { push: true }) { currentSeccion = seccion; modalSource = 'seccion'; if (!Array.isArray(seccion.fotos)) return; todasLasFotos = seccion.fotos; const home = document.getElementById('home-view'); if (home) home.style.display = 'none'; const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none'; let view = document.getElementById('seccion-view'); if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); } view.innerHTML = `<header class="seccion-header"><button class="back-button" title="Volver">←</button><div class="seccion-title-container"><h1>${seccion.titulo}</h1><p class="seccion-descripcion">${seccion.descripcion}</p></div></header><div class="fotos-grid" id="fotos-container"></div>`; view.style.display = 'block'; const back = view.querySelector('.back-button'); if (back) back.addEventListener('click', () => goBackOneStep()); const fotosContainer = document.getElementById('fotos-container'); if (fotosContainer) { fotosContainer.innerHTML = ''; seccion.fotos.forEach((foto, i) => { if (!foto.miniatura || !foto.texto || !foto.url) return; const el = document.createElement('div'); el.className = 'foto-item'; el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`; el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); }); fotosContainer.appendChild(el); }); if (typeof forceSectionTop === 'function') forceSectionTop(fotosContainer); if (typeof refreshScrollTop === 'function') refreshScrollTop(); } currentView = 'seccion'; if (opts.push && !isHandlingPopstate) { history.pushState({ view: 'seccion', seccionId: seccion.id }, ''); } }
 
-// ===== Carrusel =====
+// ===== CARRUSEL (SIN CAMBIOS) =====
 function cargarCarrusel(data) { const inner = document.getElementById('ultimas-fotos-carrusel'); const dots = document.getElementById('carrusel-dots'); if (!inner) return; carruselFotos = obtenerFotosParaCarrusel(data); mostrarCarruselFotos(carruselFotos, inner, dots); iniciarAutoPlay(); configurarInteraccionCarrusel(); }
 function obtenerFotosParaCarrusel(data) { const planas = []; data.secciones.forEach(sec => { if (Array.isArray(sec.fotos)) { sec.fotos.forEach((foto, i) => planas.push({ ...foto, seccionId: sec.id, seccionTitulo: sec.titulo, indiceEnSeccion: i })); } }); return planas.slice(-20).reverse(); }
 function mostrarCarruselFotos(fotos, container, dotsContainer) { container.innerHTML = ''; if (dotsContainer) dotsContainer.innerHTML = ''; if (!fotos.length) { container.innerHTML = '<div class="carrusel-item"><p class="no-fotos">No hay fotos recientes</p></div>'; return; } fotos.forEach(f => { const item = document.createElement('div'); item.className = 'carrusel-item'; item.innerHTML = `<img src="${f.url}" alt="${f.texto}" class="carrusel-img"><div class="carrusel-info"><div class="carrusel-desc">${f.texto}</div></div>`; container.appendChild(item); }); if (dotsContainer) { fotos.forEach((_, idx) => { const dot = document.createElement('button'); dot.className = `carrusel-dot ${idx === 0 ? 'active' : ''}`; dot.addEventListener('click', () => { pausarCarrusel(); moverCarruselA(idx, { delayAfterMs: carouselUserPauseMs }); }); dotsContainer.appendChild(dot); }); } setupCarruselInfinito(container); configurarBotonesCarrusel(); container.addEventListener('click', () => abrirModalDesdeCarrusel(carruselActualIndex)); actualizarCarrusel(); }
@@ -177,38 +168,24 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     }
     
     modal.addEventListener('click', function (event) { if (event.target === modal) { if (ignoreNextClick) { ignoreNextClick = false; return; } goBackOneStep(); } });
-
     let tapStartX = 0, tapStartY = 0, tapStartT = 0;
     modalImg.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now(); } }, { passive: true });
     modalImg.addEventListener('touchend', (e) => { if (ignoreNextClick) { ignoreNextClick = false; return; } if (e.changedTouches.length === 1) { const dx = e.changedTouches[0].clientX - tapStartX; const dy = e.changedTouches[0].clientY - tapStartY; const dt = Date.now() - tapStartT; if (Math.hypot(dx, dy) < 12 && dt < 250) { doClickToggle(); ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); } } }, { passive: true });
     modalImg.addEventListener('click', function (event) { if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; } doClickToggle(); event.stopPropagation(); });
     modalImg.addEventListener('dblclick', (e) => e.preventDefault());
-    
     modal.addEventListener('wheel', function (e) { e.preventDefault(); const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9; const newScale = currentScale * zoomFactor; if (newScale >= 1 && newScale <= 5) { currentScale = newScale; aplicarZoom(); } }, { passive: false });
-    
     modalImg.addEventListener('mousedown', startDrag);
     modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
-
     attachSwipeToModal(modal);
     attachBottomSheet(modal);
-
     if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
     fullscreenChangeHandler = () => { const active = !!document.fullscreenElement; modal.classList.toggle('fs-active', active); const b = modal.querySelector('.fullscreen-toggle'); if (b) b.classList.toggle('is-active', active); };
     document.addEventListener('fullscreenchange', fullscreenChangeHandler);
-
-    keydownHandler = function (ev) {
-      switch (ev.key) {
-        case 'Escape': goBackOneStep(); break;
-        case 'ArrowLeft': navegarFoto(-1); break;
-        case 'ArrowRight': navegarFoto(1); break;
-      }
-    };
+    keydownHandler = function (ev) { switch (ev.key) { case 'Escape': goBackOneStep(); break; case 'ArrowLeft': navegarFoto(-1); break; case 'ArrowRight': navegarFoto(1); break; } };
     document.addEventListener('keydown', keydownHandler);
-
     function doClickToggle() { if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; } else { currentScale = defaultClickZoom; } aplicarZoom(); }
   }
 }
-
 function precacheAround(index) { const list = getModalList() || []; if (!list.length) return; const n = list.length; [ (index + 1) % n, (index - 1 + n) % n ].forEach(i => { const im = new Image(); im.src = list[i].url; }); }
 function onTouchStartImg(e) { if (e.touches.length === 2) { isPinching = true; pinchStartDistance = getTouchesDistance(e.touches[0], e.touches[1]); pinchStartScale = currentScale; if (currentImage) currentImage.style.transition = 'none'; document.addEventListener('touchmove', onTouchMoveImg, { passive: false }); document.addEventListener('touchend', onTouchEndImg); e.preventDefault(); e.stopPropagation(); return; } }
 function onTouchMoveImg(e) { if (isPinching && e.touches.length === 2) { e.preventDefault(); const newDistance = getTouchesDistance(e.touches[0], e.touches[1]); let newScale = pinchStartScale * (newDistance / pinchStartDistance); newScale = Math.max(1, Math.min(5, newScale)); currentScale = newScale; aplicarZoom(true); } }
