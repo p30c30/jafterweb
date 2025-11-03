@@ -1,50 +1,20 @@
 // ===================================================================
-// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v33)           ==
+// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v34)           ==
 // ===================================================================
 
-console.log('✅ script.js v33 CARGADO');
+console.log('✅ script.js v34 CARGADO');
 
 // ===== Estado global =====
-let currentSeccion = null;
-let currentFotoIndex = 0;
-let todasLasFotos = [];
-let carruselActualIndex = 0;
-let carruselFotos = [];
-let datosGlobales = null;
-let isModalOpen = false;
-let scrollTopBtn = null;
-let modalSource = 'seccion';
-let currentView = 'home';
-let isHandlingPopstate = false;
-let ignoreNextClick = false;
-let suppressNextClick = false;
-let currentScale = 1;
-let currentImage = null;
-let isDragging = false;
-let startX, startY;
-let translateX = 0, translateY = 0;
-let lastX = 0, lastY = 0;
-let animationFrameId = null;
-let isPinching = false;
-let pinchStartDistance = 0;
-let pinchStartScale = 1;
+let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
+let scrollTopBtn = null, modalSource = 'seccion', currentView = 'home', isHandlingPopstate = false, ignoreNextClick = false, suppressNextClick = false;
+let currentScale = 1, currentImage = null, isDragging = false, startX, startY, translateX = 0, translateY = 0, lastX = 0, lastY = 0;
+let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
 const defaultClickZoom = 2;
-const SCALE_EPS = 0.01;
-let keydownHandler = null;
-let fullscreenChangeHandler = null;
-let carouselTimer = null;
-const carouselAutoDelay = 20000;
-const carouselUserPauseMs = 60000;
-let pendingAutoplayDelay = carouselAutoDelay;
-let carruselInnerRef = null;
-let carruselRealLength = 0;
-let carruselPosition = 1;
-let carruselTransitionHandler = null;
-let velX = 0, velY = 0;
-let inertiaId = null;
-const dragFriction = 0.92;
-const dragMaxSpeed = 60;
-const edgeResistance = 0.18;
+let keydownHandler = null, fullscreenChangeHandler = null, carouselTimer = null;
+const carouselAutoDelay = 20000, carouselUserPauseMs = 60000;
+let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
+let velX = 0, velY = 0, inertiaId = null;
+const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
 let __scrollLockY = 0;
 
 // ===== Funciones Helper =====
@@ -93,7 +63,6 @@ function abrirModalDesdeCarrusel(index = carruselActualIndex) { if (!carruselFot
 // ===== Modal (Parte 2/2) =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
   const modal = document.getElementById('modal');
-  const contentWrapper = document.getElementById('modal-content-wrapper');
   currentFotoIndex = fotoIndex; isModalOpen = true;
 
   const list = getModalList();
@@ -101,30 +70,36 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   const sectionId = modalSource === 'carrusel' ? item.seccionId : (currentSeccion ? currentSeccion.id : '');
   const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
 
-  contentWrapper.innerHTML = `
-    <div class="close-modal">×</div>
-    <div class="nav-button prev-button">‹</div>
-    <div class="nav-button next-button">›</div>
-    <div class="modal-content">
-      <div class="modal-img-container">
-        <img src="" alt="${title}" class="modal-img" id="modal-img">
-        <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g>
-            <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g>
-          </svg>
+  modal.innerHTML = `
+    <div class="modal-hotspot top"></div>
+    <div class="modal-hotspot left"></div>
+    <div class="modal-hotspot right"></div>
+    <div class="modal-hotspot bottom"></div>
+    <div id="modal-content-wrapper">
+      <div class="close-modal">×</div>
+      <div class="nav-button prev-button">‹</div>
+      <div class="nav-button next-button">›</div>
+      <div class="modal-content">
+        <div class="modal-img-container">
+          <img src="" alt="${title}" class="modal-img" id="modal-img">
+          <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g>
+              <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="modal-info">
+        <div class="info-handle" aria-hidden="true"></div>
+        <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div>
+        <div class="foto-title">${title}</div>
+        <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'}>
+          <span class="chip-label">Ver sección:</span>
+          <span class="chip-name">${sectionTitle || ''}</span>
+          <span class="chip-arrow">→</span>
         </button>
       </div>
-    </div>
-    <div class="modal-info">
-      <div class="info-handle" aria-hidden="true"></div>
-      <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div>
-      <div class="foto-title">${title}</div>
-      <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'}>
-        <span class="chip-label">Ver sección:</span>
-        <span class="chip-name">${sectionTitle || ''}</span>
-        <span class="chip-arrow">→</span>
-      </button>
     </div>`;
 
   const modalImg = document.getElementById('modal-img');
@@ -137,7 +112,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     configurarEventosModal();
     precacheAround(currentFotoIndex);
 
-    const uiElements = contentWrapper.querySelectorAll('.nav-button, .close-modal, .modal-info');
+    const uiElements = modal.querySelectorAll('.nav-button, .close-modal, .modal-info, .fullscreen-toggle');
     uiElements.forEach(el => el.classList.add('visible'));
     setTimeout(() => {
       uiElements.forEach(el => el.classList.remove('visible'));
@@ -157,17 +132,17 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   }
 
   function configurarEventosModal() {
-    const closeBtn = contentWrapper.querySelector('.close-modal');
-    const prevBtn = contentWrapper.querySelector('.prev-button');
-    const nextBtn = contentWrapper.querySelector('.next-button');
-    const infoPanel = contentWrapper.querySelector('.modal-info');
-    const fsBtn = contentWrapper.querySelector('.fullscreen-toggle');
-    const chip = contentWrapper.querySelector('.section-chip');
+    const closeBtn = modal.querySelector('.close-modal');
+    const prevBtn = modal.querySelector('.prev-button');
+    const nextBtn = modal.querySelector('.next-button');
+    const infoPanel = modal.querySelector('.modal-info');
+    const fsBtn = modal.querySelector('.fullscreen-toggle');
+    const chip = modal.querySelector('.section-chip');
     
-    const hotspotTop = document.querySelector('.modal-hotspot.top');
-    const hotspotLeft = document.querySelector('.modal-hotspot.left');
-    const hotspotRight = document.querySelector('.modal-hotspot.right');
-    const hotspotBottom = document.querySelector('.modal-hotspot.bottom');
+    const hotspotTop = modal.querySelector('.modal-hotspot.top');
+    const hotspotLeft = modal.querySelector('.modal-hotspot.left');
+    const hotspotRight = modal.querySelector('.modal-hotspot.right');
+    const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
     
     let uiTimers = {};
     function showUI(element) { if (element) { const key = element.className.split(' ')[0]; clearTimeout(uiTimers[key]); element.classList.add('visible'); } }
@@ -250,7 +225,7 @@ function clampPan() { const { maxX, maxY } = getPanBounds(); if (Math.abs(transl
 function aplicarZoom(noTransition = false) { if (!currentImage) return; if (noTransition) currentImage.style.transition = 'none'; else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease'; clampPan(); currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`; currentImage.style.transformOrigin = 'center center'; const modalEl = document.getElementById('modal'); if (currentScale > 1) { currentImage.classList.add('zoomed'); currentImage.style.cursor = isDragging ? 'grabbing' : 'move'; modalEl?.classList.add('is-zoomed'); } else { currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default'; translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed'); currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`; } }
 function resetZoom() { currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; } if (currentImage) { currentImage.style.transition = ''; currentImage.style.transform = 'scale(1) translate3d(0px, 0px, 0)'; currentImage.classList.remove('zoomed', 'grabbing'); currentImage.style.cursor = 'default'; } const modalEl = document.getElementById('modal'); if (modalEl) modalEl.classList.remove('is-zoomed'); }
 function getModalList() { return modalSource === 'carrusel' ? carruselFotos : todasLasFotos; }
-function navegarFoto(direccion) { const list = getModalList(); if (!list?.length) return; let idx = currentFotoIndex + direccion; if (idx < 0) idx = list.length - 1; else if (idx >= list.length) idx = 0; currentFotoIndex = idx; const nueva = list[currentFotoIndex]; const contentWrapper = document.getElementById('modal-content-wrapper'); const modalImg = contentWrapper.querySelector('#modal-img'); const contador = contentWrapper.querySelector('.foto-counter'); const titulo = contentWrapper.querySelector('.foto-title'); const chip = contentWrapper.querySelector('.section-chip'); resetZoom(); const im = new Image(); im.onload = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`; if (titulo) titulo.textContent = nueva.texto; if (chip) { if (modalSource === 'carrusel') { chip.dataset.seccionId = nueva.seccionId || ''; chip.querySelector('.chip-name').textContent = nueva.seccionTitulo || 'Ver sección'; chip.disabled = !nueva.seccionId; } else if (currentSeccion) { chip.dataset.seccionId = currentSeccion.id; chip.querySelector('.chip-name').textContent = currentSeccion.titulo; chip.disabled = false; } } if (!isHandlingPopstate && history.state?.view === 'modal') { const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex }; if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id; history.replaceState(state, ''); } precacheAround(currentFotoIndex); }; im.onerror = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; }; im.src = nueva.url; }
+function navegarFoto(direccion) { const list = getModalList(); if (!list?.length) return; let idx = currentFotoIndex + direccion; if (idx < 0) idx = list.length - 1; else if (idx >= list.length) idx = 0; currentFotoIndex = idx; const nueva = list[currentFotoIndex]; const contentWrapper = document.getElementById('modal-content-wrapper'); if (!contentWrapper) return; const modalImg = contentWrapper.querySelector('#modal-img'); const contador = contentWrapper.querySelector('.foto-counter'); const titulo = contentWrapper.querySelector('.foto-title'); const chip = contentWrapper.querySelector('.section-chip'); resetZoom(); const im = new Image(); im.onload = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`; if (titulo) titulo.textContent = nueva.texto; if (chip) { if (modalSource === 'carrusel') { chip.dataset.seccionId = nueva.seccionId || ''; chip.querySelector('.chip-name').textContent = nueva.seccionTitulo || 'Ver sección'; chip.disabled = !nueva.seccionId; } else if (currentSeccion) { chip.dataset.seccionId = currentSeccion.id; chip.querySelector('.chip-name').textContent = currentSeccion.titulo; chip.disabled = false; } } if (!isHandlingPopstate && history.state?.view === 'modal') { const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex }; if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id; history.replaceState(state, ''); } precacheAround(currentFotoIndex); }; im.onerror = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; }; im.src = nueva.url; }
 function attachSwipeToModal(modal) { const container = modal.querySelector('.modal-img-container'); if (!container) return; let sx = 0, sy = 0, st = 0, blockVertical = false, swipeLock = false; function onStart(e) { if (currentScale > 1) return; const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); blockVertical = false; modal.classList.add('is-gesturing'); } function onMove(e) { if (currentScale > 1) return; const t = e.touches[0]; const dx = t.clientX - sx; const dy = t.clientY - sy; if (!blockVertical && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) { blockVertical = true; modal.classList.remove('is-gesturing'); } } function onEnd(e) { modal.classList.remove('is-gesturing'); if (currentScale > 1 || blockVertical || swipeLock) return; const t = e.changedTouches[0]; const dx = t.clientX - sx; const dt = Date.now() - st; const threshold = 60; const fast = Math.abs(dx) / dt > 0.5; if (Math.abs(dx) > threshold || fast) { swipeLock = true; ignoreNextClick = true; dx < 0 ? navegarFoto(1) : navegarFoto(-1); setTimeout(() => { swipeLock = false; }, 300); setTimeout(() => { ignoreNextClick = false; }, 300); } } container.addEventListener('touchstart', onStart, { passive: true }); container.addEventListener('touchmove', onMove, { passive: true }); container.addEventListener('touchend', onEnd, { passive: true }); }
 function attachBottomSheet(modal) { const isMobile = window.matchMedia('(max-width: 1024px)').matches; if (!isMobile) return; const imgContainer = modal.querySelector('.modal-img-container'); const info = modal.querySelector('.modal-info'); const handle = modal.querySelector('.info-handle'); if (!imgContainer || !info || !handle) return; lockBodyScroll(); modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); modal.addEventListener('wheel', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); function stopScrollBounce(el) { el.addEventListener('wheel', (e) => { const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) e.preventDefault(); }, { passive: false }); let tsY = 0; el.addEventListener('touchstart', (e) => { if (e.touches.length !== 1) return; tsY = e.touches[0].clientY; }, { passive: true }); el.addEventListener('touchmove', (e) => { if (e.touches.length !== 1) return; const dy = e.touches[0].clientY - tsY; const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((dy > 0 && atTop) || (dy < 0 && atBottom)) e.preventDefault(); }, { passive: false }); } stopScrollBounce(info); function getCollapsed() { return window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh'; } function getExpanded() { return '60dvh'; } function setInfoHeight(v) { modal.style.setProperty('--info-height', v); } setInfoHeight(getCollapsed()); let startY = 0, deltaY = 0; imgContainer.addEventListener('touchstart', (e) => { if (currentScale > 1) return; const t = e.touches[0]; startY = t.clientY; deltaY = 0; modal.classList.add('is-gesturing'); }, { passive: true }); imgContainer.addEventListener('touchmove', (e) => { if (currentScale > 1) return; const t = e.touches[0]; deltaY = t.clientY - startY; }, { passive: true }); imgContainer.addEventListener('touchend', () => { modal.classList.remove('is-gesturing'); if (currentScale > 1) return; if (Math.abs(deltaY) > 40) { ignoreNextClick = true; if (deltaY < 0) setInfoHeight(getExpanded()); else setInfoHeight(getCollapsed()); setTimeout(() => { ignoreNextClick = false; }, 250); } }, { passive: true }); let dragging = false, dragStartY = 0, startHeightPx = 0; function vhToPx(v) { const m = String(v).match(/([\d.]+)d?vh/); const n = m ? parseFloat(m[1]) : 0; return (n / 100) * window.innerHeight; } function pxToVh(px) { return (px / window.innerHeight) * 100; } handle.addEventListener('touchstart', (e) => { const t = e.touches[0]; dragging = true; dragStartY = t.clientY; startHeightPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); modal.classList.add('is-gesturing'); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchmove', (e) => { if (!dragging) return; const t = e.touches[0]; const dy = t.clientY - dragStartY; let newHeightPx = startHeightPx - dy; const minPx = vhToPx(getCollapsed()), maxPx = vhToPx(getExpanded()); newHeightPx = Math.max(minPx, Math.min(maxPx, newHeightPx)); const newVh = pxToVh(newHeightPx).toFixed(2) + 'dvh'; setInfoHeight(newVh); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchend', () => { if (!dragging) return; dragging = false; modal.classList.remove('is-gesturing'); const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const midPx = (vhToPx(getCollapsed()) + vhToPx(getExpanded())) / 2; setInfoHeight(curPx >= midPx ? getExpanded() : getCollapsed()); ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); }); window.addEventListener('resize', () => { if (!isModalOpen) return; const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const collapsedPx = vhToPx(getCollapsed()); const expandedPx = vhToPx(getExpanded()); const target = Math.abs(curPx - expandedPx) < Math.abs(curPx - collapsedPx) ? getExpanded() : getCollapsed(); setInfoHeight(target); }); }
 function toggleFullscreen() { const modal = document.getElementById('modal'); const btn = modal?.querySelector('.fullscreen-toggle'); const restorePanel = () => { modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed'); currentScale = 1; translateX = 0; translateY = 0; const info = modal.querySelector('.modal-info'); if (info) info.style.display = ''; modal.style.removeProperty('--info-height'); aplicarZoom(true); }; if (!document.fullscreenElement) { if (modal?.requestFullscreen) { modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); }); } else { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); } } else { if (document.exitFullscreen) document.exitFullscreen(); restorePanel(); if (btn) btn.classList.remove('is-active'); } }
@@ -267,6 +242,7 @@ function closeModal() {
   resetZoom();
   if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
   if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
+  modal.innerHTML = ''; // Limpiamos el contenido al cerrar
   unlockBodyScroll();
   if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
   refreshScrollTop();
@@ -278,6 +254,7 @@ function volverAGaleriaInternal() {
   const view = document.getElementById('seccion-view'); if (view) view.style.display = 'none';
   const modal = document.getElementById('modal');
   if (modal) {
+    modal.innerHTML = '';
     modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
     document.body.classList.remove('modal-open'); resetZoom();
     if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
