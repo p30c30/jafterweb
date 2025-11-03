@@ -54,3 +54,8 @@ body{
 main,#content,.container,.home-view,.seccion-view,#inspiration-section,.ultimas-fotos-section,.carrusel-container,.carrusel,.fotos-grid,#seccion-view,#content>section,#content>div{
   background-color:var(--bg-page)!important; background-image:none!important;
 }
+/* Quita el subrayado del enlace */
+.logo-link {
+  text-decoration: none; /* Quita el subrayado del enlace */
+}
+
