@@ -488,13 +488,7 @@ if (fotosContainer) {
     history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
   }
 }
-// ======================================================================
-// ==   MODAL (PARTE 2/2) - VERSIÓN FINAL CON LÓGICA HÍBRIDA           ==
-// ======================================================================
-
-// --- Variable global para el temporizador del botón de cerrar ---
-let closeButtonTimer = null;
-
+// ===== Modal (Parte 2/2) =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
   const modal = document.getElementById('modal');
   currentFotoIndex = fotoIndex; isModalOpen = true;
@@ -504,7 +498,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   const sectionId = modalSource === 'carrusel' ? item.seccionId : (currentSeccion ? currentSeccion.id : '');
   const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
 
-  // El wrapper ahora se añade aquí para que CSS pueda encontrarlo
   modal.innerHTML = `
     <div id="modal-content-wrapper">
       <div class="close-modal">×</div>
@@ -540,17 +533,15 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     resetZoom();
     modal.classList.add('active');
     document.body.classList.add('modal-open');
-
-    // --- NUEVA LÓGICA DE VISIBILIDAD INICIAL ---
-    modal.classList.add('show-all-ui');
-    clearTimeout(closeButtonTimer);
-    setTimeout(() => {
-      modal.classList.remove('show-all-ui');
-      handleCloseButtonUI(true);
-    }, 1000);
-
     configurarEventosModal();
     precacheAround(currentFotoIndex);
+
+    // --- NUEVA LÓGICA DE VISIBILIDAD INICIAL ---
+    const uiElements = modal.querySelectorAll('.nav-button, .close-modal, .modal-info');
+    uiElements.forEach(el => el.classList.add('visible'));
+    setTimeout(() => {
+      uiElements.forEach(el => el.classList.remove('visible'));
+    }, 1000);
   };
   
   const img = new Image();
@@ -566,36 +557,61 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   }
 
   function configurarEventosModal() {
-    const contentWrapper = document.getElementById('modal-content-wrapper');
-    const closeBtn = contentWrapper.querySelector('.close-modal');
-    const prevBtn = contentWrapper.querySelector('.prev-button');
-    const nextBtn = contentWrapper.querySelector('.next-button');
-    const fsBtn = contentWrapper.querySelector('.fullscreen-toggle');
-    const chip = contentWrapper.querySelector('.section-chip');
+    const closeBtn = modal.querySelector('.close-modal');
+    const prevBtn = modal.querySelector('.prev-button');
+    const nextBtn = modal.querySelector('.next-button');
+    const infoPanel = modal.querySelector('.modal-info');
+    const fsBtn = modal.querySelector('.fullscreen-toggle');
+    const chip = modal.querySelector('.section-chip');
     
+    const hotspotTop = document.querySelector('.modal-hotspot.top');
     const hotspotLeft = document.querySelector('.modal-hotspot.left');
     const hotspotRight = document.querySelector('.modal-hotspot.right');
+    const hotspotBottom = document.querySelector('.modal-hotspot.bottom');
     
+    let uiTimers = {};
+    function showUI(element) {
+      if (!element) return;
+      const key = element.className.split(' ')[0]; // Usar la primera clase como clave
+      clearTimeout(uiTimers[key]);
+      element.classList.add('visible');
+    }
+    function hideUI(element, delay = 50) {
+      if (!element) return;
+      const key = element.className.split(' ')[0];
+      uiTimers[key] = setTimeout(() => {
+        element.classList.remove('visible');
+      }, delay);
+    }
+
+    hotspotTop.addEventListener('mouseenter', () => showUI(closeBtn));
+    hotspotTop.addEventListener('mouseleave', () => hideUI(closeBtn));
+    
+    hotspotLeft.addEventListener('mouseenter', () => showUI(prevBtn));
+    hotspotLeft.addEventListener('mouseleave', () => hideUI(prevBtn));
+    
+    hotspotRight.addEventListener('mouseenter', () => showUI(nextBtn));
+    hotspotRight.addEventListener('mouseleave', () => hideUI(nextBtn));
+
+    hotspotBottom.addEventListener('mouseenter', () => showUI(infoPanel));
+    hotspotBottom.addEventListener('mouseleave', () => hideUI(infoPanel));
+
+    hotspotLeft.onclick = () => navegarFoto(-1);
+    hotspotRight.onclick = () => navegarFoto(1);
+
     if (closeBtn) closeBtn.onclick = goBackOneStep;
     if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
     if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
-    if (hotspotLeft) hotspotLeft.onclick = () => navegarFoto(-1);
-    if (hotspotRight) hotspotRight.onclick = () => navegarFoto(1);
     if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
-
-    modal.addEventListener('mousemove', () => handleCloseButtonUI(true));
     
     if (chip && chip.dataset.seccionId) {
       chip.addEventListener('click', (e) => {
-        e.preventDefault(); e.stopPropagation();
-        const sid = chip.dataset.seccionId;
+        e.preventDefault(); e.stopPropagation(); const sid = chip.dataset.seccionId;
         if (modalSource === 'seccion') { history.back(); return; }
         const sec = datosGlobales?.secciones?.find(s => s.id === sid);
         if (!sec) return;
         history.replaceState({ view: 'seccion', seccionId: sid }, '');
-        closeModal();
-        mostrarSeccion(sec, { push: false });
-        scrollToTopHard();
+        closeModal(); mostrarSeccion(sec, { push: false }); scrollToTopHard();
       });
     }
 
@@ -611,7 +627,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     modalImg.addEventListener('touchend', (e) => { if (ignoreNextClick) { ignoreNextClick = false; return; } if (e.changedTouches.length === 1) { const dx = e.changedTouches[0].clientX - tapStartX; const dy = e.changedTouches[0].clientY - tapStartY; const dt = Date.now() - tapStartT; if (Math.hypot(dx, dy) < 12 && dt < 250) { doClickToggle(); ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); } } }, { passive: true });
     modalImg.addEventListener('click', function (event) { if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; } doClickToggle(); event.stopPropagation(); });
     modalImg.addEventListener('dblclick', (e) => e.preventDefault());
-
+    
     modal.addEventListener('wheel', function (e) { e.preventDefault(); const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9; const newScale = currentScale * zoomFactor; if (newScale >= 1 && newScale <= 5) { currentScale = newScale; aplicarZoom(); } }, { passive: false });
     
     modalImg.addEventListener('mousedown', startDrag);
@@ -625,7 +641,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     document.addEventListener('fullscreenchange', fullscreenChangeHandler);
 
     keydownHandler = function (ev) {
-      handleCloseButtonUI(true);
       switch (ev.key) {
         case 'Escape': goBackOneStep(); break;
         case 'ArrowLeft': navegarFoto(-1); break;
@@ -635,18 +650,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     document.addEventListener('keydown', keydownHandler);
 
     function doClickToggle() { if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; } else { currentScale = defaultClickZoom; } aplicarZoom(); }
-  } 
-}
-
-function handleCloseButtonUI(resetTimer = false) {
-  const modal = document.getElementById('modal');
-  if (!modal || !isModalOpen) return;
-  modal.classList.add('show-close-btn');
-  clearTimeout(closeButtonTimer);
-  if (resetTimer) {
-    closeButtonTimer = setTimeout(() => {
-      modal.classList.remove('show-close-btn');
-    }, 2000);
   }
 }
 
@@ -671,30 +674,22 @@ function attachSwipeToModal(modal) { const container = modal.querySelector('.mod
 function attachBottomSheet(modal) { const isMobile = window.matchMedia('(max-width: 1024px)').matches; if (!isMobile) return; const imgContainer = modal.querySelector('.modal-img-container'); const info = modal.querySelector('.modal-info'); const handle = modal.querySelector('.info-handle'); if (!imgContainer || !info || !handle) return; lockBodyScroll(); modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); modal.addEventListener('wheel', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); function stopScrollBounce(el) { el.addEventListener('wheel', (e) => { const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) e.preventDefault(); }, { passive: false }); let tsY = 0; el.addEventListener('touchstart', (e) => { if (e.touches.length !== 1) return; tsY = e.touches[0].clientY; }, { passive: true }); el.addEventListener('touchmove', (e) => { if (e.touches.length !== 1) return; const dy = e.touches[0].clientY - tsY; const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((dy > 0 && atTop) || (dy < 0 && atBottom)) e.preventDefault(); }, { passive: false }); } stopScrollBounce(info); function getCollapsed() { return window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh'; } function getExpanded() { return '60dvh'; } function setInfoHeight(v) { modal.style.setProperty('--info-height', v); } setInfoHeight(getCollapsed()); let startY = 0, deltaY = 0; imgContainer.addEventListener('touchstart', (e) => { if (currentScale > 1) return; const t = e.touches[0]; startY = t.clientY; deltaY = 0; modal.classList.add('is-gesturing'); }, { passive: true }); imgContainer.addEventListener('touchmove', (e) => { if (currentScale > 1) return; const t = e.touches[0]; deltaY = t.clientY - startY; }, { passive: true }); imgContainer.addEventListener('touchend', () => { modal.classList.remove('is-gesturing'); if (currentScale > 1) return; if (Math.abs(deltaY) > 40) { ignoreNextClick = true; if (deltaY < 0) setInfoHeight(getExpanded()); else setInfoHeight(getCollapsed()); setTimeout(() => { ignoreNextClick = false; }, 250); } }, { passive: true }); let dragging = false, dragStartY = 0, startHeightPx = 0; function vhToPx(v) { const m = String(v).match(/([\d.]+)d?vh/); const n = m ? parseFloat(m[1]) : 0; return (n / 100) * window.innerHeight; } function pxToVh(px) { return (px / window.innerHeight) * 100; } handle.addEventListener('touchstart', (e) => { const t = e.touches[0]; dragging = true; dragStartY = t.clientY; startHeightPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); modal.classList.add('is-gesturing'); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchmove', (e) => { if (!dragging) return; const t = e.touches[0]; const dy = t.clientY - dragStartY; let newHeightPx = startHeightPx - dy; const minPx = vhToPx(getCollapsed()), maxPx = vhToPx(getExpanded()); newHeightPx = Math.max(minPx, Math.min(maxPx, newHeightPx)); const newVh = pxToVh(newHeightPx).toFixed(2) + 'dvh'; setInfoHeight(newVh); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchend', () => { if (!dragging) return; dragging = false; modal.classList.remove('is-gesturing'); const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const midPx = (vhToPx(getCollapsed()) + vhToPx(getExpanded())) / 2; setInfoHeight(curPx >= midPx ? getExpanded() : getCollapsed()); ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); }); window.addEventListener('resize', () => { if (!isModalOpen) return; const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const collapsedPx = vhToPx(getCollapsed()); const expandedPx = vhToPx(getExpanded()); const target = Math.abs(curPx - expandedPx) < Math.abs(curPx - collapsedPx) ? getExpanded() : getCollapsed(); setInfoHeight(target); }); }
 function toggleFullscreen() { const modal = document.getElementById('modal'); const btn = modal?.querySelector('.fullscreen-toggle'); const restorePanel = () => { modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed'); currentScale = 1; translateX = 0; translateY = 0; const info = modal.querySelector('.modal-info'); if (info) info.style.display = ''; modal.style.removeProperty('--info-height'); aplicarZoom(true); }; if (!document.fullscreenElement) { if (modal?.requestFullscreen) { modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); }); } else { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); } } else { if (document.exitFullscreen) document.exitFullscreen(); restorePanel(); if (btn) btn.classList.remove('is-active'); } }
 function initMobileRotationHandler() { let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'; window.addEventListener('resize', () => { const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'; if (last !== now && isModalOpen) {} last = now; }); }
-
-let __scrollLockY = 0;
 function lockBodyScroll() { __scrollLockY = window.scrollY || document.documentElement.scrollTop || 0; document.body.style.position = 'fixed'; document.body.style.top = `-${__scrollLockY}px`; document.body.style.left = '0'; document.body.style.right = '0'; document.body.style.width = '100%'; document.body.classList.add('modal-open'); }
 function unlockBodyScroll() { document.body.classList.remove('modal-open'); document.body.style.position = ''; document.body.style.top = ''; document.body.style.left = ''; document.body.style.right = ''; document.body.style.width = ''; window.scrollTo(0, __scrollLockY || 0); }
-
 function closeModal() {
   const modal = document.getElementById('modal');
   if (!modal) return;
-
-  clearTimeout(closeButtonTimer);
-
-  modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active', 'show-all-ui', 'show-close-btn');
+  modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
   document.body.classList.remove('modal-open');
   isModalOpen = false;
   ignoreNextClick = false;
   resetZoom();
-
   if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
   if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
   unlockBodyScroll();
   if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
   refreshScrollTop();
 }
-
 function volverAGaleriaInternal() {
   currentSeccion = null; currentFotoIndex = 0; todasLasFotos = []; isModalOpen = false;
   const home = document.getElementById('home-view'); if (home) home.style.display = 'block';
@@ -702,7 +697,7 @@ function volverAGaleriaInternal() {
   const view = document.getElementById('seccion-view'); if (view) view.style.display = 'none';
   const modal = document.getElementById('modal');
   if (modal) {
-    modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active', 'show-all-ui', 'show-close-btn');
+    modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
     document.body.classList.remove('modal-open'); resetZoom();
     if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
   }
@@ -711,7 +706,6 @@ function volverAGaleriaInternal() {
   currentView = 'home';
   refreshScrollTop();
 }
-
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', iniciar, { once: true });
 } else {
