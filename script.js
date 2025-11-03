@@ -491,6 +491,8 @@ if (fotosContainer) {
 // ===== Modal (Parte 2/2) =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
   const modal = document.getElementById('modal');
+  // CORRECCIÓN: Obtenemos la referencia al wrapper que ya existe en el HTML
+  const contentWrapper = document.getElementById('modal-content-wrapper');
   currentFotoIndex = fotoIndex; isModalOpen = true;
 
   const list = getModalList();
@@ -498,32 +500,31 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   const sectionId = modalSource === 'carrusel' ? item.seccionId : (currentSeccion ? currentSeccion.id : '');
   const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
 
-  modal.innerHTML = `
-    <div id="modal-content-wrapper">
-      <div class="close-modal">×</div>
-      <div class="nav-button prev-button">‹</div>
-      <div class="nav-button next-button">›</div>
-      <div class="modal-content">
-        <div class="modal-img-container">
-          <img src="" alt="${title}" class="modal-img" id="modal-img">
-          <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g>
-              <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="modal-info">
-        <div class="info-handle" aria-hidden="true"></div>
-        <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div>
-        <div class="foto-title">${title}</div>
-        <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'}>
-          <span class="chip-label">Ver sección:</span>
-          <span class="chip-name">${sectionTitle || ''}</span>
-          <span class="chip-arrow">→</span>
+  // CORRECCIÓN: Inyectamos el HTML DENTRO del wrapper, no en el modal completo
+  contentWrapper.innerHTML = `
+    <div class="close-modal">×</div>
+    <div class="nav-button prev-button">‹</div>
+    <div class="nav-button next-button">›</div>
+    <div class="modal-content">
+      <div class="modal-img-container">
+        <img src="" alt="${title}" class="modal-img" id="modal-img">
+        <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g>
+            <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g>
+          </svg>
         </button>
       </div>
+    </div>
+    <div class="modal-info">
+      <div class="info-handle" aria-hidden="true"></div>
+      <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div>
+      <div class="foto-title">${title}</div>
+      <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'}>
+        <span class="chip-label">Ver sección:</span>
+        <span class="chip-name">${sectionTitle || ''}</span>
+        <span class="chip-arrow">→</span>
+      </button>
     </div>`;
 
   const modalImg = document.getElementById('modal-img');
@@ -536,7 +537,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     configurarEventosModal();
     precacheAround(currentFotoIndex);
 
-    // --- NUEVA LÓGICA DE VISIBILIDAD INICIAL ---
     const uiElements = modal.querySelectorAll('.nav-button, .close-modal, .modal-info');
     uiElements.forEach(el => el.classList.add('visible'));
     setTimeout(() => {
@@ -557,42 +557,29 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   }
 
   function configurarEventosModal() {
-    const closeBtn = modal.querySelector('.close-modal');
-    const prevBtn = modal.querySelector('.prev-button');
-    const nextBtn = modal.querySelector('.next-button');
-    const infoPanel = modal.querySelector('.modal-info');
-    const fsBtn = modal.querySelector('.fullscreen-toggle');
-    const chip = modal.querySelector('.section-chip');
+    const closeBtn = contentWrapper.querySelector('.close-modal');
+    const prevBtn = contentWrapper.querySelector('.prev-button');
+    const nextBtn = contentWrapper.querySelector('.next-button');
+    const infoPanel = contentWrapper.querySelector('.modal-info');
+    const fsBtn = contentWrapper.querySelector('.fullscreen-toggle');
+    const chip = contentWrapper.querySelector('.section-chip');
     
+    // Las zonas calientes ahora se buscan en el document porque son permanentes
     const hotspotTop = document.querySelector('.modal-hotspot.top');
     const hotspotLeft = document.querySelector('.modal-hotspot.left');
     const hotspotRight = document.querySelector('.modal-hotspot.right');
     const hotspotBottom = document.querySelector('.modal-hotspot.bottom');
     
     let uiTimers = {};
-    function showUI(element) {
-      if (!element) return;
-      const key = element.className.split(' ')[0]; // Usar la primera clase como clave
-      clearTimeout(uiTimers[key]);
-      element.classList.add('visible');
-    }
-    function hideUI(element, delay = 50) {
-      if (!element) return;
-      const key = element.className.split(' ')[0];
-      uiTimers[key] = setTimeout(() => {
-        element.classList.remove('visible');
-      }, delay);
-    }
+    function showUI(element) { if (element) { const key = element.className.split(' ')[0]; clearTimeout(uiTimers[key]); element.classList.add('visible'); } }
+    function hideUI(element, delay = 50) { if (element) { const key = element.className.split(' ')[0]; uiTimers[key] = setTimeout(() => { element.classList.remove('visible'); }, delay); } }
 
     hotspotTop.addEventListener('mouseenter', () => showUI(closeBtn));
     hotspotTop.addEventListener('mouseleave', () => hideUI(closeBtn));
-    
     hotspotLeft.addEventListener('mouseenter', () => showUI(prevBtn));
     hotspotLeft.addEventListener('mouseleave', () => hideUI(prevBtn));
-    
     hotspotRight.addEventListener('mouseenter', () => showUI(nextBtn));
     hotspotRight.addEventListener('mouseleave', () => hideUI(nextBtn));
-
     hotspotBottom.addEventListener('mouseenter', () => showUI(infoPanel));
     hotspotBottom.addEventListener('mouseleave', () => hideUI(infoPanel));
 
@@ -615,12 +602,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       });
     }
 
-    modal.addEventListener('click', function (event) {
-      if (event.target === modal) {
-        if (ignoreNextClick) { ignoreNextClick = false; return; }
-        goBackOneStep();
-      }
-    });
+    modal.addEventListener('click', function (event) { if (event.target === modal) { if (ignoreNextClick) { ignoreNextClick = false; return; } goBackOneStep(); } });
 
     let tapStartX = 0, tapStartY = 0, tapStartT = 0;
     modalImg.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now(); } }, { passive: true });
