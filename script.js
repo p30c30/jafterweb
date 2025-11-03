@@ -489,7 +489,7 @@ if (fotosContainer) {
   }
 }
 // ======================================================================
-// ==   MODAL (PARTE 2/2) - VERSIÓN CON LÓGICA HÍBRIDA FINAL           ==
+// ==   MODAL (PARTE 2/2) - VERSIÓN FINAL CON LÓGICA HÍBRIDA           ==
 // ======================================================================
 
 // --- Variable global para el temporizador del botón de cerrar ---
@@ -497,55 +497,57 @@ let closeButtonTimer = null;
 
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
   const modal = document.getElementById('modal');
-  const contentWrapper = document.getElementById('modal-content-wrapper'); // Usamos el nuevo wrapper
   currentFotoIndex = fotoIndex; isModalOpen = true;
 
-  const list = modalSource === 'carrusel' ? carruselFotos : todasLasFotos;
+  const list = getModalList();
   const item = list[currentFotoIndex] || { url: imageUrl, texto: title };
   const sectionId = modalSource === 'carrusel' ? item.seccionId : (currentSeccion ? currentSeccion.id : '');
   const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
 
-  contentWrapper.innerHTML = `
-    <div class="close-modal">×</div>
-    <div class="nav-button prev-button">‹</div>
-    <div class="nav-button next-button">›</div>
-    <div class="modal-content">
-      <div class="modal-img-container">
-        <img src="" alt="${title}" class="modal-img" id="modal-img">
-        <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g>
-            <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g>
-          </svg>
+  // El wrapper ahora se añade aquí para que CSS pueda encontrarlo
+  modal.innerHTML = `
+    <div id="modal-content-wrapper">
+      <div class="close-modal">×</div>
+      <div class="nav-button prev-button">‹</div>
+      <div class="nav-button next-button">›</div>
+      <div class="modal-content">
+        <div class="modal-img-container">
+          <img src="" alt="${title}" class="modal-img" id="modal-img">
+          <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g>
+              <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="modal-info">
+        <div class="info-handle" aria-hidden="true"></div>
+        <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div>
+        <div class="foto-title">${title}</div>
+        <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'}>
+          <span class="chip-label">Ver sección:</span>
+          <span class="chip-name">${sectionTitle || ''}</span>
+          <span class="chip-arrow">→</span>
         </button>
       </div>
-    </div>
-    <div class="modal-info">
-      <div class="info-handle" aria-hidden="true"></div>
-      <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div>
-      <div class="foto-title">${title}</div>
-      <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'}>
-        <span class="chip-label">Ver sección:</span>
-        <span class="chip-name">${sectionTitle || ''}</span>
-        <span class="chip-arrow">→</span>
-      </button>
     </div>`;
 
   const modalImg = document.getElementById('modal-img');
 
   const onImageLoad = function () {
-    modalImg.src = imageUrl; modalImg.alt = title; currentImage = modalImg;
+    modalImg.src = imageUrl; currentImage = modalImg;
     resetZoom();
-    modal.classList.add('active'); 
+    modal.classList.add('active');
     document.body.classList.add('modal-open');
 
-    // --- LA NUEVA LÓGICA HÍBRIDA ---
+    // --- NUEVA LÓGICA DE VISIBILIDAD INICIAL ---
     modal.classList.add('show-all-ui');
     clearTimeout(closeButtonTimer);
     setTimeout(() => {
       modal.classList.remove('show-all-ui');
       handleCloseButtonUI(true);
-    }, 1000); 
+    }, 1000);
 
     configurarEventosModal();
     precacheAround(currentFotoIndex);
@@ -564,16 +566,16 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   }
 
   function configurarEventosModal() {
+    const contentWrapper = document.getElementById('modal-content-wrapper');
+    const closeBtn = contentWrapper.querySelector('.close-modal');
     const prevBtn = contentWrapper.querySelector('.prev-button');
     const nextBtn = contentWrapper.querySelector('.next-button');
-    const closeBtn = contentWrapper.querySelector('.close-modal');
     const fsBtn = contentWrapper.querySelector('.fullscreen-toggle');
     const chip = contentWrapper.querySelector('.section-chip');
-
-    // Usamos las zonas calientes del HTML principal
+    
     const hotspotLeft = document.querySelector('.modal-hotspot.left');
     const hotspotRight = document.querySelector('.modal-hotspot.right');
-
+    
     if (closeBtn) closeBtn.onclick = goBackOneStep;
     if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
     if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
@@ -585,36 +587,44 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     
     if (chip && chip.dataset.seccionId) {
       chip.addEventListener('click', (e) => {
-        e.preventDefault(); e.stopPropagation(); const sid = chip.dataset.seccionId;
+        e.preventDefault(); e.stopPropagation();
+        const sid = chip.dataset.seccionId;
         if (modalSource === 'seccion') { history.back(); return; }
         const sec = datosGlobales?.secciones?.find(s => s.id === sid);
         if (!sec) return;
         history.replaceState({ view: 'seccion', seccionId: sid }, '');
-        closeModal(); mostrarSeccion(sec, { push: false }); scrollToTopHard();
+        closeModal();
+        mostrarSeccion(sec, { push: false });
+        scrollToTopHard();
       });
     }
 
-    modal.addEventListener('click', function(e) { if (e.target === modal) { if (ignoreNextClick) { ignoreNextClick = false; return; } goBackOneStep(); } });
-    
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) {
+        if (ignoreNextClick) { ignoreNextClick = false; return; }
+        goBackOneStep();
+      }
+    });
+
     let tapStartX = 0, tapStartY = 0, tapStartT = 0;
     modalImg.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now(); } }, { passive: true });
     modalImg.addEventListener('touchend', (e) => { if (ignoreNextClick) { ignoreNextClick = false; return; } if (e.changedTouches.length === 1) { const dx = e.changedTouches[0].clientX - tapStartX; const dy = e.changedTouches[0].clientY - tapStartY; const dt = Date.now() - tapStartT; if (Math.hypot(dx, dy) < 12 && dt < 250) { doClickToggle(); ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); } } }, { passive: true });
-    modalImg.addEventListener('click', function(e) { if (ignoreNextClick) { ignoreNextClick = false; e.stopPropagation(); return; } doClickToggle(); e.stopPropagation(); });
+    modalImg.addEventListener('click', function (event) { if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; } doClickToggle(); event.stopPropagation(); });
     modalImg.addEventListener('dblclick', (e) => e.preventDefault());
-    
-    modal.addEventListener('wheel', function(e) { e.preventDefault(); const z = e.deltaY < 0 ? 1.1 : 0.9; const nS = currentScale * z; if (nS >= 1 && nS <= 5) { currentScale = nS; aplicarZoom(); } }, { passive: false });
+
+    modal.addEventListener('wheel', function (e) { e.preventDefault(); const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9; const newScale = currentScale * zoomFactor; if (newScale >= 1 && newScale <= 5) { currentScale = newScale; aplicarZoom(); } }, { passive: false });
     
     modalImg.addEventListener('mousedown', startDrag);
     modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
-    
+
     attachSwipeToModal(modal);
     attachBottomSheet(modal);
-    
+
     if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-    fullscreenChangeHandler = () => { const a = !!document.fullscreenElement; modal.classList.toggle('fs-active', a); const b = modal.querySelector('.fullscreen-toggle'); if (b) b.classList.toggle('is-active', a); };
+    fullscreenChangeHandler = () => { const active = !!document.fullscreenElement; modal.classList.toggle('fs-active', active); const b = modal.querySelector('.fullscreen-toggle'); if (b) b.classList.toggle('is-active', active); };
     document.addEventListener('fullscreenchange', fullscreenChangeHandler);
-    
-    keydownHandler = function(ev) {
+
+    keydownHandler = function (ev) {
       handleCloseButtonUI(true);
       switch (ev.key) {
         case 'Escape': goBackOneStep(); break;
@@ -623,9 +633,9 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       }
     };
     document.addEventListener('keydown', keydownHandler);
-    
+
     function doClickToggle() { if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; } else { currentScale = defaultClickZoom; } aplicarZoom(); }
-  } // Fin configurarEventosModal
+  } 
 }
 
 function handleCloseButtonUI(resetTimer = false) {
@@ -640,76 +650,23 @@ function handleCloseButtonUI(resetTimer = false) {
   }
 }
 
-function precacheAround(index) {
-  const list = getModalList() || []; if (!list.length) return;
-  const n = list.length;
-  [ (index + 1) % n, (index - 1 + n) % n ].forEach(i => { const im = new Image(); im.src = list[i].url; });
-}
-
+function precacheAround(index) { const list = getModalList() || []; if (!list.length) return; const n = list.length; [ (index + 1) % n, (index - 1 + n) % n ].forEach(i => { const im = new Image(); im.src = list[i].url; }); }
 function onTouchStartImg(e) { if (e.touches.length === 2) { isPinching = true; pinchStartDistance = getTouchesDistance(e.touches[0], e.touches[1]); pinchStartScale = currentScale; if (currentImage) currentImage.style.transition = 'none'; document.addEventListener('touchmove', onTouchMoveImg, { passive: false }); document.addEventListener('touchend', onTouchEndImg); e.preventDefault(); e.stopPropagation(); return; } }
 function onTouchMoveImg(e) { if (isPinching && e.touches.length === 2) { e.preventDefault(); const newDistance = getTouchesDistance(e.touches[0], e.touches[1]); let newScale = pinchStartScale * (newDistance / pinchStartDistance); newScale = Math.max(1, Math.min(5, newScale)); currentScale = newScale; aplicarZoom(true); } }
 function onTouchEndImg(e) { if (isPinching && e.touches.length < 2) { isPinching = false; if (currentImage) currentImage.style.transition = ''; ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); document.removeEventListener('touchmove', onTouchMoveImg); document.removeEventListener('touchend', onTouchEndImg); } }
 function getTouchesDistance(t1, t2) { const dx = t2.clientX - t1.clientX, dy = t2.clientY - t1.clientY; return Math.hypot(dx, dy); }
-
 function startDrag(e) { if (currentScale <= 1) return; isDragging = true; if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; } startX = e.clientX - translateX; startY = e.clientY - translateY; lastX = e.clientX; lastY = e.clientY; currentImage?.classList.add('grabbing'); currentImage.style.cursor = 'grabbing'; document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stopDrag); e.preventDefault(); e.stopPropagation(); }
 function startDragTouch(e) { if (currentScale <= 1) return; isDragging = true; if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; } const t = e.touches[0]; startX = t.clientX - translateX; startY = t.clientY - translateY; lastX = t.clientX; lastY = t.clientY; currentImage?.classList.add('grabbing'); document.addEventListener('touchmove', dragTouch, { passive: false }); document.addEventListener('touchend', stopDrag); e.preventDefault(); e.stopPropagation(); }
 function drag(e) { if (!isDragging) return; if (animationFrameId) cancelAnimationFrame(animationFrameId); animationFrameId = requestAnimationFrame(() => { const dx = e.clientX - lastX, dy = e.clientY - lastY; lastX = e.clientX; lastY = e.clientY; velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx)); velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy)); translateX += velX; translateY += velY; aplicarZoom(true); }); }
 function dragTouch(e) { if (!isDragging) return; const t = e.touches[0]; if (animationFrameId) cancelAnimationFrame(animationFrameId); animationFrameId = requestAnimationFrame(() => { const dx = t.clientX - lastX, dy = t.clientY - lastY; lastX = t.clientX; lastY = t.clientY; velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx)); velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy)); translateX += velX; translateY += velY; aplicarZoom(true); }); e.preventDefault(); }
 function stopDrag() { if (!isDragging) return; isDragging = false; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } if (currentImage && currentScale > 1) { currentImage.style.cursor = 'move'; currentImage.classList.remove('grabbing'); startInertia(); } document.removeEventListener('mousemove', drag); document.removeEventListener('touchmove', dragTouch); document.removeEventListener('mouseup', stopDrag); document.removeEventListener('touchend', stopDrag); }
 function startInertia() { if (inertiaId) cancelAnimationFrame(inertiaId); function step() { translateX += velX; translateY += velY; const { maxX, maxY } = getPanBounds(); if (Math.abs(translateX) > maxX) velX -= (translateX - Math.sign(translateX)*maxX) * edgeResistance; if (Math.abs(translateY) > maxY) velY -= (translateY - Math.sign(translateY)*maxY) * edgeResistance; velX *= dragFriction; velY *= dragFriction; if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) { clampPan(); aplicarZoom(true); inertiaId = null; return; } aplicarZoom(true); inertiaId = requestAnimationFrame(step); } inertiaId = requestAnimationFrame(step); }
-
 function getPanBounds() { if (!currentImage) return { maxX: 0, maxY: 0 }; const container = currentImage.closest('.modal-img-container'); if (!container) return { maxX: 0, maxY: 0 }; const cw = container.clientWidth, ch = container.clientHeight; const iw = currentImage.clientWidth, ih = currentImage.clientHeight; const scaledW = iw * currentScale, scaledH = ih * currentScale; return { maxX: Math.max(0, (scaledW - cw) / 2), maxY: Math.max(0, (scaledH - ch) / 2) }; }
 function clampPan() { const { maxX, maxY } = getPanBounds(); if (Math.abs(translateX) > maxX) translateX = Math.sign(translateX) * maxX; if (Math.abs(translateY) > maxY) translateY = Math.sign(translateY) * maxY; }
-
 function aplicarZoom(noTransition = false) { if (!currentImage) return; if (noTransition) currentImage.style.transition = 'none'; else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease'; clampPan(); currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`; currentImage.style.transformOrigin = 'center center'; const modalEl = document.getElementById('modal'); if (currentScale > 1) { currentImage.classList.add('zoomed'); currentImage.style.cursor = isDragging ? 'grabbing' : 'move'; modalEl?.classList.add('is-zoomed'); } else { currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default'; translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed'); currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`; } }
 function resetZoom() { currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; } if (currentImage) { currentImage.style.transition = ''; currentImage.style.transform = 'scale(1) translate3d(0px, 0px, 0)'; currentImage.classList.remove('zoomed', 'grabbing'); currentImage.style.cursor = 'default'; } const modalEl = document.getElementById('modal'); if (modalEl) modalEl.classList.remove('is-zoomed'); }
 function getModalList() { return modalSource === 'carrusel' ? carruselFotos : todasLasFotos; }
-
-function navegarFoto(direccion) {
-  const list = getModalList(); if (!list?.length) return;
-  let idx = currentFotoIndex + direccion;
-  if (idx < 0) idx = list.length - 1; else if (idx >= list.length) idx = 0;
-  currentFotoIndex = idx;
-  const nueva = list[currentFotoIndex];
-
-  const contentWrapper = document.getElementById('modal-content-wrapper');
-  const modalImg = contentWrapper.querySelector('#modal-img');
-  const contador = contentWrapper.querySelector('.foto-counter');
-  const titulo = contentWrapper.querySelector('.foto-title');
-  const chip = contentWrapper.querySelector('.section-chip');
-
-  resetZoom();
-
-  const im = new Image();
-  im.onload = function () {
-    modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg;
-    if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`;
-    if (titulo) titulo.textContent = nueva.texto;
-
-    if (chip) {
-      if (modalSource === 'carrusel') {
-        chip.dataset.seccionId = nueva.seccionId || '';
-        chip.querySelector('.chip-name').textContent = nueva.seccionTitulo || 'Ver sección';
-        chip.disabled = !nueva.seccionId;
-      } else if (currentSeccion) {
-        chip.dataset.seccionId = currentSeccion.id;
-        chip.querySelector('.chip-name').textContent = currentSeccion.titulo;
-        chip.disabled = false;
-      }
-    }
-
-    if (!isHandlingPopstate && history.state?.view === 'modal') {
-      const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
-      if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
-      history.replaceState(state, '');
-    }
-
-    precacheAround(currentFotoIndex);
-  };
-  im.onerror = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; };
-  im.src = nueva.url;
-}
-
+function navegarFoto(direccion) { const list = getModalList(); if (!list?.length) return; let idx = currentFotoIndex + direccion; if (idx < 0) idx = list.length - 1; else if (idx >= list.length) idx = 0; currentFotoIndex = idx; const nueva = list[currentFotoIndex]; const contentWrapper = document.getElementById('modal-content-wrapper'); const modalImg = contentWrapper.querySelector('#modal-img'); const contador = contentWrapper.querySelector('.foto-counter'); const titulo = contentWrapper.querySelector('.foto-title'); const chip = contentWrapper.querySelector('.section-chip'); resetZoom(); const im = new Image(); im.onload = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`; if (titulo) titulo.textContent = nueva.texto; if (chip) { if (modalSource === 'carrusel') { chip.dataset.seccionId = nueva.seccionId || ''; chip.querySelector('.chip-name').textContent = nueva.seccionTitulo || 'Ver sección'; chip.disabled = !nueva.seccionId; } else if (currentSeccion) { chip.dataset.seccionId = currentSeccion.id; chip.querySelector('.chip-name').textContent = currentSeccion.titulo; chip.disabled = false; } } if (!isHandlingPopstate && history.state?.view === 'modal') { const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex }; if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id; history.replaceState(state, ''); } precacheAround(currentFotoIndex); }; im.onerror = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; }; im.src = nueva.url; }
 function attachSwipeToModal(modal) { const container = modal.querySelector('.modal-img-container'); if (!container) return; let sx = 0, sy = 0, st = 0, blockVertical = false, swipeLock = false; function onStart(e) { if (currentScale > 1) return; const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); blockVertical = false; modal.classList.add('is-gesturing'); } function onMove(e) { if (currentScale > 1) return; const t = e.touches[0]; const dx = t.clientX - sx; const dy = t.clientY - sy; if (!blockVertical && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) { blockVertical = true; modal.classList.remove('is-gesturing'); } } function onEnd(e) { modal.classList.remove('is-gesturing'); if (currentScale > 1 || blockVertical || swipeLock) return; const t = e.changedTouches[0]; const dx = t.clientX - sx; const dt = Date.now() - st; const threshold = 60; const fast = Math.abs(dx) / dt > 0.5; if (Math.abs(dx) > threshold || fast) { swipeLock = true; ignoreNextClick = true; dx < 0 ? navegarFoto(1) : navegarFoto(-1); setTimeout(() => { swipeLock = false; }, 300); setTimeout(() => { ignoreNextClick = false; }, 300); } } container.addEventListener('touchstart', onStart, { passive: true }); container.addEventListener('touchmove', onMove, { passive: true }); container.addEventListener('touchend', onEnd, { passive: true }); }
 function attachBottomSheet(modal) { const isMobile = window.matchMedia('(max-width: 1024px)').matches; if (!isMobile) return; const imgContainer = modal.querySelector('.modal-img-container'); const info = modal.querySelector('.modal-info'); const handle = modal.querySelector('.info-handle'); if (!imgContainer || !info || !handle) return; lockBodyScroll(); modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); modal.addEventListener('wheel', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); function stopScrollBounce(el) { el.addEventListener('wheel', (e) => { const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) e.preventDefault(); }, { passive: false }); let tsY = 0; el.addEventListener('touchstart', (e) => { if (e.touches.length !== 1) return; tsY = e.touches[0].clientY; }, { passive: true }); el.addEventListener('touchmove', (e) => { if (e.touches.length !== 1) return; const dy = e.touches[0].clientY - tsY; const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((dy > 0 && atTop) || (dy < 0 && atBottom)) e.preventDefault(); }, { passive: false }); } stopScrollBounce(info); function getCollapsed() { return window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh'; } function getExpanded() { return '60dvh'; } function setInfoHeight(v) { modal.style.setProperty('--info-height', v); } setInfoHeight(getCollapsed()); let startY = 0, deltaY = 0; imgContainer.addEventListener('touchstart', (e) => { if (currentScale > 1) return; const t = e.touches[0]; startY = t.clientY; deltaY = 0; modal.classList.add('is-gesturing'); }, { passive: true }); imgContainer.addEventListener('touchmove', (e) => { if (currentScale > 1) return; const t = e.touches[0]; deltaY = t.clientY - startY; }, { passive: true }); imgContainer.addEventListener('touchend', () => { modal.classList.remove('is-gesturing'); if (currentScale > 1) return; if (Math.abs(deltaY) > 40) { ignoreNextClick = true; if (deltaY < 0) setInfoHeight(getExpanded()); else setInfoHeight(getCollapsed()); setTimeout(() => { ignoreNextClick = false; }, 250); } }, { passive: true }); let dragging = false, dragStartY = 0, startHeightPx = 0; function vhToPx(v) { const m = String(v).match(/([\d.]+)d?vh/); const n = m ? parseFloat(m[1]) : 0; return (n / 100) * window.innerHeight; } function pxToVh(px) { return (px / window.innerHeight) * 100; } handle.addEventListener('touchstart', (e) => { const t = e.touches[0]; dragging = true; dragStartY = t.clientY; startHeightPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); modal.classList.add('is-gesturing'); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchmove', (e) => { if (!dragging) return; const t = e.touches[0]; const dy = t.clientY - dragStartY; let newHeightPx = startHeightPx - dy; const minPx = vhToPx(getCollapsed()), maxPx = vhToPx(getExpanded()); newHeightPx = Math.max(minPx, Math.min(maxPx, newHeightPx)); const newVh = pxToVh(newHeightPx).toFixed(2) + 'dvh'; setInfoHeight(newVh); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchend', () => { if (!dragging) return; dragging = false; modal.classList.remove('is-gesturing'); const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const midPx = (vhToPx(getCollapsed()) + vhToPx(getExpanded())) / 2; setInfoHeight(curPx >= midPx ? getExpanded() : getCollapsed()); ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); }); window.addEventListener('resize', () => { if (!isModalOpen) return; const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const collapsedPx = vhToPx(getCollapsed()); const expandedPx = vhToPx(getExpanded()); const target = Math.abs(curPx - expandedPx) < Math.abs(curPx - collapsedPx) ? getExpanded() : getCollapsed(); setInfoHeight(target); }); }
 function toggleFullscreen() { const modal = document.getElementById('modal'); const btn = modal?.querySelector('.fullscreen-toggle'); const restorePanel = () => { modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed'); currentScale = 1; translateX = 0; translateY = 0; const info = modal.querySelector('.modal-info'); if (info) info.style.display = ''; modal.style.removeProperty('--info-height'); aplicarZoom(true); }; if (!document.fullscreenElement) { if (modal?.requestFullscreen) { modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); }); } else { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); } } else { if (document.exitFullscreen) document.exitFullscreen(); restorePanel(); if (btn) btn.classList.remove('is-active'); } }
@@ -723,7 +680,7 @@ function closeModal() {
   const modal = document.getElementById('modal');
   if (!modal) return;
 
-  clearTimeout(closeButtonTimer); // Limpia el temporizador al cerrar
+  clearTimeout(closeButtonTimer);
 
   modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active', 'show-all-ui', 'show-close-btn');
   document.body.classList.remove('modal-open');
