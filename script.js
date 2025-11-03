@@ -491,7 +491,7 @@ if (fotosContainer) {
 // ===== Modal (Parte 2/2) =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
   const modal = document.getElementById('modal');
-  // CORRECCIÓN: Obtenemos la referencia al wrapper que ya existe en el HTML
+  // CORRECCIÓN CLAVE: Apuntamos al contenedor interno que SÍ se puede borrar
   const contentWrapper = document.getElementById('modal-content-wrapper');
   currentFotoIndex = fotoIndex; isModalOpen = true;
 
@@ -500,7 +500,8 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   const sectionId = modalSource === 'carrusel' ? item.seccionId : (currentSeccion ? currentSeccion.id : '');
   const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
 
-  // CORRECCIÓN: Inyectamos el HTML DENTRO del wrapper, no en el modal completo
+  // CORRECCIÓN: Ahora el innerHTML se aplica al WRAPPER, no al modal.
+  // Esto deja las zonas calientes de index.html intactas.
   contentWrapper.innerHTML = `
     <div class="close-modal">×</div>
     <div class="nav-button prev-button">‹</div>
@@ -537,7 +538,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     configurarEventosModal();
     precacheAround(currentFotoIndex);
 
-    const uiElements = modal.querySelectorAll('.nav-button, .close-modal, .modal-info');
+    const uiElements = contentWrapper.querySelectorAll('.nav-button, .close-modal, .modal-info');
     uiElements.forEach(el => el.classList.add('visible'));
     setTimeout(() => {
       uiElements.forEach(el => el.classList.remove('visible'));
@@ -557,6 +558,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   }
 
   function configurarEventosModal() {
+    // Los elementos ahora se buscan dentro del 'contentWrapper' que acabamos de crear
     const closeBtn = contentWrapper.querySelector('.close-modal');
     const prevBtn = contentWrapper.querySelector('.prev-button');
     const nextBtn = contentWrapper.querySelector('.next-button');
@@ -564,7 +566,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     const fsBtn = contentWrapper.querySelector('.fullscreen-toggle');
     const chip = contentWrapper.querySelector('.section-chip');
     
-    // Las zonas calientes ahora se buscan en el document porque son permanentes
+    // Las zonas calientes se buscan en el 'document' porque son fijas
     const hotspotTop = document.querySelector('.modal-hotspot.top');
     const hotspotLeft = document.querySelector('.modal-hotspot.left');
     const hotspotRight = document.querySelector('.modal-hotspot.right');
@@ -601,6 +603,12 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
         closeModal(); mostrarSeccion(sec, { push: false }); scrollToTopHard();
       });
     }
+    
+    // El resto de tu código de eventos se mantiene igual
+    modal.addEventListener('click', function (event) { /* ... */ });
+    // ... y todos los demás hasta el final de la función
+  }
+}
 
     modal.addEventListener('click', function (event) { if (event.target === modal) { if (ignoreNextClick) { ignoreNextClick = false; return; } goBackOneStep(); } });
 
