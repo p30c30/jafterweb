@@ -1,21 +1,19 @@
-/* ======================================================================== */
-/* ==      ARCHIVO RESPONSIVE.CSS - VERSIÓN FINAL Y LIMPIA (v21)       == */
-/* ======================================================================== */
+/* ================================================================ */
+/* ==             ARCHIVO RESPONSIVE.CSS (VERSIÓN LIMPIA)        == */
+/* ================================================================ */
 
 /* === Tablets (max-width: 1199px) === */
 @media (max-width: 1199px) {
   .section-cards { grid-template-columns: repeat(2, minmax(350px,1fr)); gap:2.5rem; }
   .seccion-header { padding:1.5rem 2rem; gap:1.5rem; min-height:70px; }
-  .seccion-header h1 { font-size: 1.7rem; } /* Tamaño para tablets */
+  .seccion-header h1 { font-size: 1.7rem; }
   .seccion-descripcion { font-size:1rem; }
   .back-button { width:42px; height:42px; font-size:1.2rem; }
 }
 
 /* === Móviles (max-width: 767px) === */
 @media (max-width: 767px) {
-  .container { padding: 2rem 1.5rem !important; }
-
-  /* -- Estilos de las tarjetas en la home (Restaurados) -- */
+  .container { padding: 2rem 1.5rem; }
   .home-view .section-cards { grid-template-columns:repeat(2,1fr); gap:1rem; padding:0 .5rem; }
   .seccion-view .section-cards { grid-template-columns:minmax(320px,500px); gap:2rem; }
   .home-view .card { min-height:180px; }
@@ -24,65 +22,41 @@
   .home-view .card-content h3 { font-size:1.1rem; margin-bottom:.5rem; }
   .home-view .card-content p { font-size:.85rem; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
-  /* -- FIX: Cabecera de Sección en columna (Restaurada y Mejorada) -- */
-  .seccion-header {
-    display: flex !important; flex-direction: column !important; align-items: flex-start !important;
-    justify-content: center; gap: .4rem !important; padding: 0.75rem 1rem 0.75rem 4rem !important;
-    min-height: auto !important; position: relative;
-  }
+  .seccion-header { display:flex !important; flex-direction: column !important; align-items: flex-start !important; justify-content: center; gap:.5rem !important; padding: 1rem 1rem 1rem 4rem !important; min-height:auto !important; position: relative; }
   .seccion-title-container { display:flex !important; flex-direction: column !important; align-items: flex-start !important; gap:.35rem !important; width:100% !important; }
-  .seccion-header h1 { font-size: 1.4rem !important; } /* TAMAÑO AJUSTADO PARA MÓVIL */
+  .seccion-header h1 { font-size: 1.5rem !important; }
   .seccion-descripcion { display:block !important; font-size:.95rem !important; color:#e0e0e0 !important; margin:0 !important; line-height:1.4 !important; font-weight:300 !important; opacity:.9 !important; }
   .back-button { position:absolute !important; top:50% !important; left:1rem !important; transform:translateY(-50%) !important; width:40px; height:40px; font-size:1.1rem; }
-  .back-button:hover{ transform: translateY(-50%) scale(1.1); }
+  .back-button:hover { transform: translateY(-50%) scale(1.1); }
 
-  /* -- FIX: Sección Inspiradora con diseño específico para móvil (Versión final) -- */
+  /* -- FIX: Sección Inspiradora en Móvil -- */
   #inspiration-section { padding: 3rem 1.5rem !important; margin-top: 2rem !important; }
-  
-  #inspiration-section > div {
-    background: none !important; border: none !important; box-shadow: none !important;
-    padding: 0 !important; grid-template-columns: 1fr !important; gap: 3rem !important;
-    justify-items: initial !important; 
-  }
+  #inspiration-section > div { background: none !important; border: none !important; box-shadow: none !important; padding: 0 !important; grid-template-columns: 1fr !important; gap: 3rem !important; justify-items: initial !important; }
   #inspiration-section > div > div:first-child { order: 1; }
   #inspiration-section > div > .inspiration-image { order: 2; }
-  #inspiration-section .inspiration-image {
-    padding: 0 !important; background: none !important; box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important;
-    overflow: hidden !important; width: 95%; max-width: 400px; margin: 0 auto !important;
-    height: auto !important; aspect-ratio: 1 / 1 !important;
-  }
+  #inspiration-section .inspiration-image { padding: 0 !important; background: none !important; box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important; overflow: hidden !important; width: 95%; max-width: 400px; margin: 0 auto !important; height: auto !important; aspect-ratio: 1 / 1 !important; }
   #inspiration-section img { object-fit: cover !important; object-position: center 20% !important; }
   #inspiration-section > div > div:first-child { padding: 0 1rem; max-width: 56ch; margin: 0 auto; text-align: left; }
+
+  /* -- FIX: Masonry en móvil -- */
+  body .fotos-grid { -webkit-column-count:2 !important; -moz-column-count:2 !important; column-count:2 !important; -webkit-column-gap:.8rem !important; -moz-column-gap:.8rem !important; column-gap:.8rem !important; -webkit-column-width:auto !important; -moz-column-width:auto !important; column-width:auto !important; padding:0 .8rem !important; display:block !important; }
+  body .fotos-grid .foto-item { break-inside:avoid; display:inline-block; width:100%; margin:0 0 .8rem 0 !important; }
+
+  /* -- FIX: Scroll-to-top en móvil -- */
+  .scroll-to-top { bottom:20px; right:20px; width:45px; height:45px; font-size:1.3rem; }
 }
 
-/* === Pantallas Pequeñas (max-width: 480px) === */
+/* === Pantallas muy pequeñas (max-width: 480px) === */
 @media (max-width: 480px) {
   .container { padding:1.5rem 1rem; }
   .home-view .section-cards { gap:.8rem; padding:0 .5rem; }
-  .seccion-header h1 { font-size: 1.3rem !important; } /* Un poco más pequeño si cabe */
+  .seccion-header h1 { font-size: 1.3rem !important; }
+  body .fotos-grid { -webkit-column-count:2 !important; -moz-column-count:2 !important; column-count:2 !important; -webkit-column-width:auto !important; -moz-column-width:auto !important; column-width:auto !important; }
+  .scroll-to-top { bottom:15px; right:15px; width:40px; height:40px; font-size:1.2rem; }
 }
 
 /* === Pantallas Grandes (min-width: 1600px) === */
 @media (min-width: 1600px) {
   .container { max-width:1600px; }
   .section-cards { grid-template-columns: repeat(3, minmax(450px,1fr)); gap:4rem; }
-}
-
-/* === FIX FUERTE: Masonry SIEMPRE 2 columnas en móvil (Restaurado) === */
-@media (max-width: 768px) {
-  body .fotos-grid {
-    -webkit-column-count:2 !important; -moz-column-count:2 !important; column-count:2 !important;
-    -webkit-column-gap:.8rem !important; -moz-column-gap:.8rem !important; column-gap:.8rem !important;
-    -webkit-column-width:auto !important; -moz-column-width:auto !important; column-width:auto !important;
-    padding:0 .8rem !important; display:block !important;
-  }
-  body .fotos-grid .foto-item { break-inside:avoid; display:inline-block; width:100%; margin:0 0 .8rem 0 !important; }
-}
-
-/* === Scroll-to-top (Restaurado) === */
-@media (max-width: 768px) {
-  .scroll-to-top { bottom:20px; right:20px; width:45px; height:45px; font-size:1.3rem; }
-}
-@media (max-width: 480px) {
-  .scroll-to-top { bottom:15px; right:15px; width:40px; height:40px; font-size:1.2rem; }
 }
