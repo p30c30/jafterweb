@@ -604,13 +604,8 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       });
     }
     
-    // El resto de tu código de eventos se mantiene igual
-    modal.addEventListener('click', function (event) { /* ... */ });
-    // ... y todos los demás hasta el final de la función
-  }
-}
-
-    modal.addEventListener('click', function (event) { if (event.target === modal) { if (ignoreNextClick) { ignoreNextClick = false; return; } goBackOneStep(); } });
+   
+   modal.addEventListener('click', function (event) { if (event.target === modal) { if (ignoreNextClick) { ignoreNextClick = false; return; } goBackOneStep(); } });
 
     let tapStartX = 0, tapStartY = 0, tapStartT = 0;
     modalImg.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now(); } }, { passive: true });
