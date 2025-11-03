@@ -1,53 +1,32 @@
 /* ================================================================ */
-/* ==      ARCHIVO MODAL.CSS - VERSIÓN FINAL INTEGRADA (v24)     == */
+/* ==      ARCHIVO MODAL.CSS - VERSIÓN FINAL CORREGIDA (v25)     == */
 /* ================================================================ */
 
 /* === ESTILOS BASE DEL MODAL === */
-.modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  background: rgba(0, 0, 0, .92); /* Fondo oscuro para inmersión */
-  z-index: 1000;
-  overflow: hidden;
-  cursor: default; /* Cambiado de pointer para que no parezca que se puede cerrar en cualquier lado */
-  overscroll-behavior: contain;
-}
+.modal { display: none; position: fixed; inset: 0; width: 100%; height: 100vh; height: 100dvh; background: rgba(0, 0, 0, .92); z-index: 1000; overflow: hidden; cursor: default; overscroll-behavior: contain; }
 .modal.active { display: block; }
-.modal-content {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  min-height: 100dvh;
-  padding: 25px; /* Espacio de seguridad en los bordes */
-  cursor: default;
-}
 body.modal-open { overflow: hidden; }
 
-/* === IMAGEN Y SU CONTENEDOR === */
-.modal-img-container {
-  position: relative;
+/* --- CORRECCIÓN 1: Contenido del Modal --- */
+.modal-content {
   display: flex;
   justify-content: center;
   align-items: center;
-  max-width: 100%;
-  max-height: 100%; /* Permitimos que ocupe todo el alto disponible */
-  flex: 1;
+  width: 100%; /* Ocupa todo el ancho */
+  height: 100%; /* Ocupa todo el alto */
+  padding: 0; /* SIN PADDING, la imagen controla su propio espacio */
   cursor: default;
 }
+
+/* --- IMAGEN Y SU CONTENEDOR --- */
+.modal-img-container { position: relative; display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; flex: 1; cursor: default; }
 .modal-img {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: contain;
   display: block;
-  border-radius: 8px;
+  /* CORRECCIÓN 1: La imagen ahora usa todo el viewport disponible */
+  max-width: 100vw;
+  max-height: 100vh;
+  max-height: 100dvh;
+  object-fit: contain;
   box-shadow: 0 25px 60px rgba(0, 0, 0, .7);
   transition: transform .2s ease;
   transform-origin: center center;
@@ -60,141 +39,74 @@ body.modal-open { overflow: hidden; }
 .modal-img.grabbing { cursor: grabbing !important; }
 
 /* === INTERFAZ DE USUARIO (UI) === */
-
-/* NUEVO: Transición suave para todos los elementos de la UI */
-.nav-button, .close-modal, .modal-info, .fullscreen-toggle {
-  transition: opacity .35s ease-in-out, transform .35s ease-in-out !important;
-}
-
-/* --- Botón Cerrar (X) --- */
-.close-modal {
-  position: fixed;
-  top: 25px;
-  right: 25px;
-  color: #fff;
-  font-size: 1.8rem;
-  font-weight: bold;
-  cursor: pointer;
-  background: rgba(18, 18, 18, .5);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1003;
-  opacity: 0.8;
-}
-.close-modal:hover {
-  background: rgba(255, 255, 255, .9);
-  color: #000;
-  transform: scale(1.1) !important;
-  opacity: 1;
-}
-
-/* --- Flechas de Navegación --- */
-.nav-button {
-  position: fixed;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 55px;
-  height: 55px;
-  background: rgba(18, 18, 18, .5);
-  backdrop-filter: blur(8px);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 2.2rem;
-  cursor: pointer;
-  z-index: 1002;
-  opacity: 0.8;
-  user-select: none;
-}
-.nav-button:hover {
-  background: rgba(255, 255, 255, .9);
-  color: #000;
-  opacity: 1;
-  transform: translateY(-50%) scale(1.1) !important;
-}
+.nav-button, .close-modal, .modal-info, .fullscreen-toggle { transition: opacity .35s ease-in-out, transform .35s ease-in-out !important; }
+.close-modal { position: fixed; top: 25px; right: 25px; color: #fff; font-size: 1.8rem; font-weight: bold; cursor: pointer; background: rgba(18, 18, 18, .5); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; z-index: 1003; opacity: 0.8; }
+.close-modal:hover { background: rgba(255, 255, 255, .9); color: #000; transform: scale(1.1) !important; opacity: 1; }
+.nav-button { position: fixed; top: 50%; transform: translateY(-50%); width: 55px; height: 55px; background: rgba(18, 18, 18, .5); backdrop-filter: blur(8px); color: #fff; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2.2rem; cursor: pointer; z-index: 1002; opacity: 0.8; user-select: none; }
+.nav-button:hover { background: rgba(255, 255, 255, .9); color: #000; opacity: 1; transform: translateY(-50%) scale(1.1) !important; }
 .prev-button { left: 25px; }
 .next-button { right: 25px; }
 
-/* --- Panel de Información (con efecto "cristal") --- */
+/* --- CORRECCIÓN 2: Panel de Información (ancho automático) --- */
 .modal-info {
   text-align: center;
   padding: 1.2rem;
-  background: rgba(18, 18, 18, .5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, .1);
+  background: rgba(18, 18, 18, .6); /* Un poco más opaco para legibilidad */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, .15);
+  border-radius: 12px; /* Volvemos a los bordes redondeados */
   z-index: 1002;
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  border-radius: 0;
+  bottom: 20px;
+  /* La magia para que el ancho sea automático y centrado */
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  min-width: 300px;
+  max-width: 90%;
+  /* Resto de estilos se mantienen */
   opacity: 1;
-  transform: translateY(0); /* Estado inicial */
+  transition: opacity .25s, transform .25s;
 }
-/* Tus reglas de visibilidad al hacer zoom se respetan */
-.modal.is-zoomed .modal-info, .modal.is-gesturing .modal-info {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  transform: translateY(100%) !important;
-}
-/* Tus estilos de texto se mantienen */
+.modal.is-zoomed .modal-info, .modal.is-gesturing .modal-info { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; transform: translateX(-50%) translateY(20px) !important; }
 .modal-title { display: none !important; }
-.foto-counter { color: #FDB813; font-size: 1rem; font-weight: bold; margin-bottom: .5rem; text-shadow: 0 1px 2px rgba(0,0,0,.8); }
+.foto-counter, .foto-title, .section-chip { text-shadow: none; }
+.foto-counter { color: #FDB813; font-size: 1rem; font-weight: bold; margin-bottom: .5rem; }
 .foto-title { color: #fff; font-size: 1.1rem; line-height: 1.4; font-weight: 500; max-width: 100%; word-wrap: break-word; margin: 0; }
-.section-chip { /* Tus estilos del chip se mantienen */
-  margin-top:.75rem; display:inline-flex; align-items:center; gap:.5rem; padding:8px 14px; border-radius:999px;
-  background:rgba(253,184,19,.15); border:1px solid rgba(253,184,19,.6); color:#FDB813; font-weight:600; cursor:pointer; text-decoration:none; transition: transform .15s, box-shadow .2s, background .2s;
-}
+.section-chip { margin-top:.75rem; display:inline-flex; align-items:center; gap:.5rem; padding:8px 14px; border-radius:999px; background:rgba(253,184,19,.15); border:1px solid rgba(253,184,19,.6); color:#FDB813; font-weight:600; cursor:pointer; text-decoration:none; transition: transform .15s, box-shadow .2s, background .2s; }
 .section-chip:hover { background:rgba(253,184,19,.3); box-shadow:0 0 12px rgba(253,184,19,.3); transform:translateY(-1px); }
-.section-chip:active { transform:translateY(0); box-shadow:none; }
-.section-chip:focus-visible { outline:2px solid #FDB813; outline-offset:3px; box-shadow:0 0 0 4px rgba(253,184,19,.25); }
-.section-chip .chip-arrow { font-weight:700; }
 
-/* === LÓGICA DE LA VISTA INMERSIVA (NUEVO) === */
-
-/* --- Zonas Calientes (Hotspots) --- */
-.modal-hotspot {
-  position: absolute;
-  z-index: 1001; /* Por debajo de la UI, por encima de la imagen */
-  top: 0;
-  height: 100%;
-}
-.modal-hotspot.left {
-  left: 0;
-  width: 20%;
-  cursor: w-resize; /* Cursor para indicar navegación a la izquierda */
-}
-.modal-hotspot.right {
-  right: 0;
-  width: 20%;
-  cursor: e-resize; /* Cursor para indicar navegación a la derecha */
-}
+/* === LÓGICA DE LA VISTA INMERSIVA === */
+.modal-hotspot { position: absolute; z-index: 1001; }
+.modal-hotspot.left { top: 0; left: 0; width: 20%; height: 100%; cursor: w-resize; }
+.modal-hotspot.right { top: 0; right: 0; width: 20%; height: 100%; cursor: e-resize; }
+/* CORRECCIÓN 3: Zona caliente inferior */
+.modal-hotspot.bottom { bottom: 0; left: 0; width: 100%; height: 160px; /* Altura generosa para activar el info */ }
 
 /* --- Ocultar la UI en modo inmersivo --- */
 .modal.immersive-ui .nav-button,
 .modal.immersive-ui .close-modal,
-.modal.immersive-ui .modal-info,
 .modal.immersive-ui .fullscreen-toggle {
+  opacity: 0; pointer-events: none;
+}
+/* CORRECCIÓN 3: El modal-info se oculta por defecto y solo aparece con hover en su zona */
+.modal-info {
   opacity: 0;
   pointer-events: none;
+  transform: translateX(-50%) translateY(20px); /* Empieza oculto y abajo */
 }
-/* Efectos de movimiento para una transición más elegante */
+.modal-hotspot.bottom:hover ~ .modal-content .modal-info {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0); /* Aparece en su sitio */
+}
+
+/* Efectos de movimiento para flechas y cerrar */
 .modal.immersive-ui .prev-button { transform: translateY(-50%) translateX(-20px) !important; }
 .modal.immersive-ui .next-button { transform: translateY(-50%) translateX(20px) !important; }
 .modal.immersive-ui .close-modal { transform: translateY(-20px) !important; }
-.modal.immersive-ui .modal-info { transform: translateY(100%) !important; }
+
 
 /* === BOTÓN FULLSCREEN Y ESTILOS RESPONSIVE (TUS REGLAS ORIGINALES) === */
 .fullscreen-toggle {
