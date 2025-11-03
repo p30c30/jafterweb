@@ -26,11 +26,11 @@ body{
 }
 
 /* Logo editorial premium + dorado degradado */
-/* Apuntamos al ID para máxima prioridad */
+/* Prueba de tamaño DRÁSTICAMENTE más pequeño para el logo */
 #logoHome {
-  font-size: clamp(32px, calc(2.8vw + 8px), 64px) !important;
+  /* Mínimo de 24px, máximo de 50px. ¡Deberías notar esto! antes (32px, calc(2.8vw + 8px), 64px)*/
+  font-size: clamp(24px, calc(2.2vw + 8px), 50px) !important;
 }
-
 .logo:hover{ opacity:.9; transform:scale(1.03); letter-spacing:.02em; }
 .logo--editorial{ font-family:'Bodoni Moda','Times New Roman',Georgia,serif; font-weight:700; letter-spacing:.01em; font-variant-ligatures:common-ligatures discretionary-ligatures; }
 .brand-gold-text{
