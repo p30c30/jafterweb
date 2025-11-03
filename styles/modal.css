@@ -1,39 +1,45 @@
 /* ================================================================ */
-/* ==      ARCHIVO MODAL.CSS - LÓGICA HÍBRIDA FINAL (v30)        == */
+/* ==      ARCHIVO MODAL.CSS - CONTROLADO POR JS (v31)           == */
 /* ================================================================ */
 
 /* === ESTILO BASE DEL MODAL === */
-.modal { display: none; position: fixed; inset: 0; width: 100%; height: 100vh; height: 100dvh; background: rgba(0, 0, 0, .92); z-index: 1000; overflow: hidden; cursor: default; overscroll-behavior: contain; }
+/* CORRECCIÓN: Fondo cristal, como querías */
+.modal { display: none; position: fixed; inset: 0; width: 100%; height: 100vh; height: 100dvh; background: rgba(0, 0, 0, .92); z-index: 1000; overflow: hidden; cursor: default; }
 .modal.active { display: block; }
 body.modal-open { overflow: hidden; }
 
 /* --- Contenedor y Foto (con 'contain') --- */
 .modal-content { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; padding: 25px; }
 .modal-img-container { position: relative; display: flex; justify-content: center; align-items: center; max-width: 100%; max-height: 100%; flex: 1; }
-.modal-img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 25px 60px rgba(0, 0, 0, .7); border-radius: 8px; transition: transform .2s ease; transform-origin: center center; touch-action: none; user-select: none; -webkit-user-drag: none; will-change: transform; }
-.modal-img.zoomed { cursor: move; }
-.modal-img.grabbing { cursor: grabbing !important; }
+.modal-img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 25px 60px rgba(0, 0, 0, .7); border-radius: 8px; transition: transform .2s ease; /* ... el resto de tus estilos de zoom ... */ }
+.modal-img.zoomed { cursor: move; } .modal-img.grabbing { cursor: grabbing !important; }
 
 /* === ZONAS CALIENTES (HOTSPOTS) === */
 .modal-hotspot { position: fixed; z-index: 1001; }
+.modal-hotspot.top { top: 0; left: 0; width: 100%; height: 15%; }
 .modal-hotspot.left { top: 0; left: 0; width: 20%; height: 100%; cursor: pointer; }
 .modal-hotspot.right { top: 0; right: 0; width: 20%; height: 100%; cursor: pointer; }
 .modal-hotspot.bottom { bottom: 0; left: 0; width: 100%; height: 20%; }
 
 /* === LÓGICA DE LA INTERFAZ (UI) === */
-/* Todos los elementos tienen transición y empiezan ocultos */
+/* Todos los elementos tienen transición y empiezan ocultos por defecto */
 .nav-button, .close-modal, .modal-info, .fullscreen-toggle {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease-out, transform 0.3s ease-out !important;
+  transition: opacity 0.3s ease-out !important; /* Transición solo para la opacidad */
+}
+/* La clase 'visible' que añadirá JS los mostrará */
+.nav-button.visible, .close-modal.visible, .modal-info.visible, .fullscreen-toggle.visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
-/* Posicionamiento y estilos originales (ahora en estado oculto) */
-.close-modal { position: fixed; top: 20px; right: 20px; color:rgba(253,184,19,.8); font-size:22px; font-weight:bold; cursor:pointer; background:rgba(0,0,0,.5); border:2px solid rgba(253,184,19,.5); border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; z-index:1003; transform: translateY(-20px); }
-.nav-button { position: fixed; top: 50%; width:65px; height:65px; background:rgba(0,0,0,.7); color:#FDB813; border:3px solid rgba(253,184,19,.7); border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:2.2rem; font-weight:bold; cursor:pointer; z-index:1002; user-select:none; }
-.prev-button { left: 25px; transform: translateY(-50%) translateX(-20px); }
-.next-button { right: 25px; transform: translateY(-50%) translateX(20px); }
-.modal-info { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100%); z-index: 1002; text-align:center; padding:1.2rem; background:rgba(0,0,0,.95); border-radius:10px; backdrop-filter: blur(20px); border:1px solid rgba(253,184,19,.4); width:auto; min-width:300px; max-width:90%; }
+/* Posicionamiento y estilos originales */
+.close-modal { position: fixed; top: 20px; right: 20px; color:rgba(253,184,19,.8); font-size:22px; font-weight:bold; cursor:pointer; background:rgba(0,0,0,.5); border:2px solid rgba(253,184,19,.5); border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; z-index:1003; }
+.nav-button { position: fixed; top: 50%; transform: translateY(-50%); width:65px; height:65px; background:rgba(0,0,0,.7); color:#FDB813; border:3px solid rgba(253,184,19,.7); border-radius:50%; display:flex; justify-content:center; align-items:center; font-size:2.2rem; font-weight:bold; cursor:pointer; z-index:1002; user-select:none; }
+.prev-button { left: 25px; }
+.next-button { right: 25px; }
+.modal-info { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1002; text-align:center; padding:1.2rem; background:rgba(0,0,0,.95); border-radius:10px; backdrop-filter: blur(20px); border:1px solid rgba(253,184,19,.4); width:auto; min-width:300px; max-width:90%; }
 
 /* Estilos de :hover originales */
 .close-modal:hover { background:rgba(253,184,19,.9); color:#000; transform:scale(1.15) !important; box-shadow:0 0 12px rgba(253,184,19,.4); }
