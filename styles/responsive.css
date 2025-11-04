@@ -77,38 +77,36 @@
   justify-content: flex-start;
 }
 
-/* Logo: tamaño correcto y sin width:100% globales */
+/* Header en una sola línea: logo pequeño + título sin perder su estilo */
 .site-header {
-display: flex !important;
-align-items: center !important;
-justify-content: flex-start !important;
-gap: 14px; /* separación entre logo y título /
-padding-inline: 16px; / leve respiración lateral */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 14px;
+  padding-inline: 16px;
 }
 
+/* Logo: tamaño fijo, anulando reglas globales de img */
 .site-header .title-logo {
-display: inline-block !important;
-height: 28px !important; /* ajústalo a 24–28px si lo prefieres /
-width: auto !important;
-max-width: none !important; / anula max-width:100% globales /
-margin-right: 12px;
-vertical-align: middle;
-opacity: .98;
-filter: drop-shadow(0 1px 1px rgba(0,0,0,.22)); / sutil en header claro */
-transition: transform .15s ease, opacity .15s ease;
+  display: inline-block !important;
+  height: 28px !important;       /* ajusta: 24–28px */
+  width: auto !important;
+  max-width: none !important;     /* evita width/max-width:100% globales */
+  margin-right: 12px;
+  vertical-align: middle;
+  opacity: .98;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22));
+  transition: transform .15s ease, opacity .15s ease;
 }
 .site-header .title-logo:hover { transform: translateY(-1px); opacity: 1; }
 
-/* Evita salto de línea del título sin tocar su fuente/color */
+/* Evita salto de línea del título (no cambia su tipografía ni color) */
 #logoHome { display: inline-block !important; vertical-align: middle; }
 
-/* Si tu estilo del título dependía de site-brand, defínelo aquí (sin cambiar su aspecto actual).
-Si ya está en otra hoja, no hace falta. Puedes ajustar color/fuente si te hace falta. /
-.site-brand {
-/ ejemplo: descomenta si lo necesitas
-font-family:'Bodoni Moda','Times New Roman',Georgia,serif;
-font-weight:700;
-color: var(--accent);
-text-shadow: 0 0 20px rgba(253,184,19,.3);
-*/
+/* Responsive opcional */
+@media (max-width: 768px) {
+  .site-header .title-logo { height: 22px !important; margin-right: 10px; }
+}
+@media (max-width: 480px) {
+  .site-header .title-logo { height: 20px !important; margin-right: 8px; }
 }
