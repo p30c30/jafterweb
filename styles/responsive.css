@@ -68,6 +68,4 @@
     opacity: 1 !important;
   }
 }
-/* Responsive (opcional) logo */
-@media (max-width: 768px) { .title-logo { height: 20px; margin-right: 10px; } }
-@media (max-width: 480px) { .title-logo { height: 18px; margin-right: 8px; } }
+
