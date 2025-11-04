@@ -215,3 +215,90 @@ body.modal-open{ overflow:hidden; }
 @media (max-width:480px){ .modal { --info-height:30dvh; } .foto-title { font-size:.9rem; } }
 @media (min-width:1600px){ .modal-info { max-width:70%; } }
 @supports (padding:max(0px)){ .modal-info{ padding-bottom:max(1rem, env(safe-area-inset-bottom)); } }
+/* FIX móvil: asegura que la info sea visible al abrir */
+@media (max-width:1024px){
+  /* Estructura de layout */
+  #modal-content-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100dvh !important;
+  }
+
+  /* Muy importante: anular el min-height global */
+  .modal-content{
+    min-height: 0 !important;     /* <- evita que ocupe todo el alto */
+    height: auto !important;
+    padding: 0 !important;
+    flex: 0 0 calc(100dvh - var(--info-height)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+
+  .modal-img-container{
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+  }
+
+  .modal-info{
+    position: relative !important;
+    left: auto !important;
+    bottom: auto !important;
+    transform: none !important;    /* <- anula el translateX(-50%) del estilo de escritorio */
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;       /* <- evita ancho mínimo de 300px en pantallas estrechas */
+    height: var(--info-height) !important;
+    max-height: 75dvh !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* FIX móvil: asegura que la info sea visible al abrir */
+@media (max-width:1024px){
+  /* Estructura de layout */
+  #modal-content-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100dvh !important;
+  }
+
+  /* Muy importante: anular el min-height global */
+  .modal-content{
+    min-height: 0 !important;     /* <- evita que ocupe todo el alto */
+    height: auto !important;
+    padding: 0 !important;
+    flex: 0 0 calc(100dvh - var(--info-height)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    overflow: hidden !important;
+  }
+
+  .modal-img-container{
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+  }
+
+  .modal-info{
+    position: relative !important;
+    left: auto !important;
+    bottom: auto !important;
+    transform: none !important;    /* <- anula el translateX(-50%) del estilo de escritorio */
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;       /* <- evita ancho mínimo de 300px en pantallas estrechas */
+    height: var(--info-height) !important;
+    max-height: 75dvh !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    overflow-y: auto !important;
+  }
+}
