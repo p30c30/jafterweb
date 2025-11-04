@@ -108,12 +108,23 @@
   vertical-align: middle;
 }
 
-/* Ajustes responsivos (opcional) */
+/* Tamaño del logo por breakpoint */
+.site-header .title-logo {
+  height: 40px !important;   /* antes 36px */
+  width: auto !important;
+  max-width: none !important;
+}
+
+.site-header {
+  column-gap: 8px;            /* acércalo un poco al título (antes 10px) */
+}
+
 @media (max-width: 768px) {
-  .title-logo { height: 28px !important; }
+  .site-header .title-logo { height: 34px !important; }
   .site-header { column-gap: 8px; }
 }
+
 @media (max-width: 480px) {
-  .title-logo { height: 24px !important; }
-  .site-header { column-gap: 6px; padding-inline: 12px; }
+  .site-header .title-logo { height: 28px !important; }
+  .site-header { column-gap: 6px; }
 }
