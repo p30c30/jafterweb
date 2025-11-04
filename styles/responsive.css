@@ -61,10 +61,10 @@
   .section-cards { grid-template-columns: repeat(3, minmax(450px,1fr)); gap:4rem; }
 }
 
-/* Miniaturas: Muestra el caption solo en escritorio al hacer hover */
+/* === miniaturas texto al pasar raton (solo escritorio) === */
 @media (min-width: 1025px) {
   .fotos-grid .foto-item:hover .thumb-caption {
-    transform: translateY(0);
-    opacity: 1;
+    transform: translateY(0) !important;
+    opacity: 1 !important;
   }
 }
