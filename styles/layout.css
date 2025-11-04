@@ -35,19 +35,23 @@
 #inspiration-section img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; border-radius: 8px; transition: transform .4s ease-out; }
 #inspiration-section > div:hover img { transform: scale(1.05); }
 
-/* Logo “foto” a la izquierda del título (sin tocar #logoHome) */
-.title-logo {
+/* Logo separado a la izquierda del título (sin tocar el estilo del título) */
+.site-header .title-logo {
   display: inline-block !important;
-  height: 22px !important;     /* más pequeño que el título */
-  width: auto !important;       /* evita width:100% global */
-  max-width: none !important;   /* por si hay max-width global */
-  margin-right: 12px;           /* separación con el texto */
+  /* tamaño relativo al texto del título: apenas más pequeño */
+  height: 0.95em !important;
+  width: auto !important;
+  max-width: none !important;    /* neutraliza img { max-width:100% } globales */
+  margin-right: 12px;
   vertical-align: middle;
-  opacity: .96;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22)); /* sutil en cabeceras claras */
+  opacity: .98;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22)); /* sutil en headers claros */
   transition: transform .15s ease, opacity .15s ease;
 }
-.title-logo:hover { transform: translateY(-1px); opacity: 1; }
+.site-header .title-logo:hover { transform: translateY(-1px); opacity: 1; }
 
-/* Si #logoHome es block y se te va a otra línea, activa esto: */
-#logoHome { display: inline-block; vertical-align: middle; }
+/* Solo si el título se te va a otra línea porque es block, activa esto: */
+/* .site-header #logoHome { display:inline-block; vertical-align:middle; } */
+
+/* Si prefieres un tamaño fijo:
+   .site-header .title-logo { height: 28px !important; } */
