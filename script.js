@@ -1,20 +1,49 @@
 // ===================================================================
-// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v35)           ==
+// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v34)           ==
 // ===================================================================
 
-console.log('✅ script.js v35 CARGADO');
+console.log('✅ script.js v34 CARGADO');
 
 // ===== Estado global =====
-let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
-let scrollTopBtn = null, modalSource = 'seccion', currentView = 'home', isHandlingPopstate = false, ignoreNextClick = false;
-let currentScale = 1, currentImage = null, isDragging = false, startX, startY, translateX = 0, translateY = 0, lastX = 0, lastY = 0;
-let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
+let currentSeccion = null;
+let currentFotoIndex = 0;
+let todasLasFotos = [];
+let carruselActualIndex = 0;
+let carruselFotos = [];
+let datosGlobales = null;
+let isModalOpen = false;
+let scrollTopBtn = null;
+let modalSource = 'seccion';
+let currentView = 'home';
+let isHandlingPopstate = false;
+let ignoreNextClick = false;
+let suppressNextClick = false;
+let currentScale = 1;
+let currentImage = null;
+let isDragging = false;
+let startX, startY;
+let translateX = 0, translateY = 0;
+let lastX = 0, lastY = 0;
+let animationFrameId = null;
+let isPinching = false;
+let pinchStartDistance = 0;
+let pinchStartScale = 1;
 const defaultClickZoom = 2;
-let keydownHandler = null, fullscreenChangeHandler = null, carouselTimer = null;
-const carouselAutoDelay = 20000, carouselUserPauseMs = 60000;
-let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
-let velX = 0, velY = 0, inertiaId = null;
-const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
+let keydownHandler = null;
+let fullscreenChangeHandler = null;
+let carouselTimer = null;
+const carouselAutoDelay = 20000;
+const carouselUserPauseMs = 60000;
+let pendingAutoplayDelay = carouselAutoDelay;
+let carruselInnerRef = null;
+let carruselRealLength = 0;
+let carruselPosition = 1;
+let carruselTransitionHandler = null;
+let velX = 0, velY = 0;
+let inertiaId = null;
+const dragFriction = 0.92;
+const dragMaxSpeed = 60;
+const edgeResistance = 0.18;
 let __scrollLockY = 0;
 
 // ===== Funciones Helper =====
@@ -229,7 +258,7 @@ function closeModal() {
   resetZoom();
   if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
   if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-  modal.innerHTML = '';
+  modal.innerHTML = ''; // Limpiamos el contenido al cerrar
   unlockBodyScroll();
   if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
   refreshScrollTop();
