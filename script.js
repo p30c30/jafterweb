@@ -1,8 +1,8 @@
 // ===================================================================
-// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v36.3)         ==
+// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v36.4)         ==
 // ===================================================================
 
-console.log('✅ script.js v36.3 CARGADO');
+console.log('✅ script.js v36.4 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -156,6 +156,7 @@ function abrirModalDesdeCarrusel(index = carruselActualIndex) {
   const f = carruselFotos[index];
   mostrarModal(f.url, f.texto, index, { push: true, source: 'carrusel' });
 }
+
 // ===== Modal (Parte 2/2) =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
   const modal = document.getElementById('modal');
@@ -242,28 +243,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
 
     const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
 
-    // Escala "cover" moderada para clic en ESCRITORIO
-ffunction getClickZoomScale() {
-  if (!currentImage) return 1.25;
-  const container = currentImage.closest('.modal-img-container');
-  if (!container) return 1.25;
-
-  const cw = container.clientWidth;
-  const ch = container.clientHeight;
-  const iw = currentImage.clientWidth;   // a escala 1
-  const ih = currentImage.clientHeight;
-
-  // Base "cover" moderada
-  const base = Math.max(cw / iw, ch / ih) * 0.97;
-
-  // Aumenta 4x el “poquito” sobre 1
-  let scale = 1 + (base - 1) * 4;
-
-  // Límites razonables
-  scale = Math.min(3.0, Math.max(1.2, scale));
-  return scale;
-}
-
     // Hotspots navegación
     if (hotspotLeft) hotspotLeft.onclick = () => navegarFoto(-1);
     if (hotspotRight) hotspotRight.onclick = () => navegarFoto(1);
@@ -280,31 +259,25 @@ ffunction getClickZoomScale() {
 
     // Chip "Ver sección" robusto
     if (chip) {
-  chip.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+      chip.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-    const sid = chip.dataset.seccionId;
-    if (!sid) { goBackOneStep(); return; }
+        const sid = chip.dataset.seccionId;
+        if (!sid) { goBackOneStep(); return; }
 
-    const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-    if (!sec) return;
+        const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+        if (!sec) return;
 
-    if (modalSource === 'carrusel') {
-      // Reemplaza el estado actual (modal) por Home, así "Volver" te lleva a Home
-      history.replaceState({ view: 'home' }, '');
-      closeModal(); // no hará scroll en desktop con el fix de arriba
-      mostrarSeccion(sec, { push: true });
-    } else {
-      // Si ya estás en la sección detrás del modal, solo cierra
-      closeModal();
-    }
-  });
-}
-
-        // Vienes del carrusel: cierra y abre la sección (pushState)
-        closeModal();
-        mostrarSeccion(sec, { push: true });
+        if (modalSource === 'carrusel') {
+          // Sustituye el estado del modal por Home, así "Volver" te lleva a portada
+          history.replaceState({ view: 'home' }, '');
+          closeModal();             // con unlockBodyScroll parcheado no hace scroll en desktop
+          mostrarSeccion(sec, { push: true });
+        } else {
+          // Si ya estás en la sección detrás, solo cierra
+          closeModal();
+        }
       });
     }
 
@@ -383,17 +356,34 @@ ffunction getClickZoomScale() {
     };
     document.addEventListener('keydown', keydownHandler);
 
+    // Zoom de clic: inline (solo escritorio)
     function doClickToggle() {
-  if (currentScale > 1) {
-    currentScale = 1;
-    translateX = 0;
-    translateY = 0;
-  } else {
-    // Solo ESCRITORIO: zoom "cover suave (x4)"; en móvil, zoom por defecto
-    currentScale = isMobileViewport ? defaultClickZoom : getClickZoomScale();
-  }
-  aplicarZoom();
-}
+      if (currentScale > 1) {
+        currentScale = 1;
+        translateX = 0;
+        translateY = 0;
+      } else {
+        if (isMobileViewport) {
+          // En móvil, comportamiento previo
+          currentScale = defaultClickZoom;
+        } else {
+          // Desktop: zoom “cover suave x4”
+          let scale = 1.25; // fallback
+          if (currentImage) {
+            const container = currentImage.closest('.modal-img-container');
+            if (container) {
+              const cw = container.clientWidth, ch = container.clientHeight;
+              const iw = currentImage.clientWidth, ih = currentImage.clientHeight; // a escala 1
+              const base = Math.max(cw / iw, ch / ih) * 0.97; // cover moderado
+              scale = 1 + (base - 1) * 4;                     // x4 del “poquito”
+              scale = Math.min(3.0, Math.max(1.2, scale));    // límites
+            }
+          }
+          currentScale = scale;
+        }
+      }
+      aplicarZoom();
+    }
 
     // === SOLO ESCRITORIO: auto-ocultar + hotspots ===
     if (!isMobileViewport) {
