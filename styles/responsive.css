@@ -71,26 +71,26 @@
 
 
 
-/* Header centrado: logo aqui 1fr | auto | 1fr */
+/* Header centrado: logo 1fr | auto - titulo  | 1fr */
 .site-header {
   display: grid !important;
-  grid-template-columns: 1fr auto 1fr; /* título centrado en la columna del medio */
+  grid-template-columns: 1fr auto 1fr;   /* título en la columna central */
   align-items: center !important;
-  column-gap: 10px;                    /* distancia entre logo y título (ajústala) */
   justify-content: stretch;
-  padding-inline: 16px;                /* respiración lateral */
+  column-gap: 8px;                       /* distancia logo ↔ título */
+  padding-inline: 16px;
 }
 
-/* El logo viaja hacia el título (no se queda en la esquina) */
-.title-logo {
+/* Logo: viaja hacia el centro y tamaño forzado */
+header.site-header > img.title-logo {
   grid-column: 1;           /* columna izquierda (1fr) */
-  justify-self: end;        /* lo acerca al centro, junto al título */
+  justify-self: end;        /* acércalo al título */
   display: block !important;
 
-  /* tamaño del logo (grande y visible) */
-  height: 60px !important;  /* ajusta a 32–40px a tu gusto */
+  height: 60px !important;  /* AJUSTA AQUÍ: 48/56/60/64px */
   width: auto !important;
   max-width: none !important;
+  max-height: none !important; /* neutraliza límites ocultos */
 
   margin-right: 0 !important;
   vertical-align: middle;
@@ -98,33 +98,24 @@
   filter: drop-shadow(0 1px 1px rgba(0,0,0,.22));
   transition: transform .15s ease, opacity .15s ease;
 }
-.title-logo:hover { transform: translateY(-1px); opacity: 1; }
+header.site-header > img.title-logo:hover { transform: translateY(-1px); opacity: 1; }
 
-/* Título centrado matemáticamente en el header */
+/* Título: centrado matemático (sin tocar su tipografía/color) */
 #logoHome {
-  grid-column: 2;           /* columna central (auto) */
-  justify-self: center;     /* centrado de verdad */
-  display: inline-block !important; /* evita salto de línea */
+  grid-column: 2;           /* columna central */
+  justify-self: center;
+  display: inline-block !important;
   vertical-align: middle;
 }
 
-/* Tamaño del logo por breakpoint */
-.site-header .title-logo {
-  height: 40px !important;   /* antes 36px */
-  width: auto !important;
-  max-width: none !important;
+/* Breakpoints */
+@media (max-width: 1024px) {
+  header.site-header > img.title-logo { height: 44px !important; }
 }
-
-.site-header {
-  column-gap: 8px;            /* acércalo un poco al título (antes 10px) */
-}
-
 @media (max-width: 768px) {
-  .site-header .title-logo { height: 34px !important; }
-  .site-header { column-gap: 8px; }
+  header.site-header > img.title-logo { height: 36px !important; }
 }
-
 @media (max-width: 480px) {
-  .site-header .title-logo { height: 28px !important; }
-  .site-header { column-gap: 6px; }
+  header.site-header > img.title-logo { height: 28px !important; }
+  .site-header { column-gap: 6px; padding-inline: 12px; }
 }
