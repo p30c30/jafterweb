@@ -1,49 +1,20 @@
 // ===================================================================
-// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v34)           ==
+// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v35)           ==
 // ===================================================================
 
-console.log('✅ script.js v34 CARGADO');
+console.log('✅ script.js v35 CARGADO');
 
 // ===== Estado global =====
-let currentSeccion = null;
-let currentFotoIndex = 0;
-let todasLasFotos = [];
-let carruselActualIndex = 0;
-let carruselFotos = [];
-let datosGlobales = null;
-let isModalOpen = false;
-let scrollTopBtn = null;
-let modalSource = 'seccion';
-let currentView = 'home';
-let isHandlingPopstate = false;
-let ignoreNextClick = false;
-let suppressNextClick = false;
-let currentScale = 1;
-let currentImage = null;
-let isDragging = false;
-let startX, startY;
-let translateX = 0, translateY = 0;
-let lastX = 0, lastY = 0;
-let animationFrameId = null;
-let isPinching = false;
-let pinchStartDistance = 0;
-let pinchStartScale = 1;
+let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
+let scrollTopBtn = null, modalSource = 'seccion', currentView = 'home', isHandlingPopstate = false, ignoreNextClick = false;
+let currentScale = 1, currentImage = null, isDragging = false, startX, startY, translateX = 0, translateY = 0, lastX = 0, lastY = 0;
+let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
 const defaultClickZoom = 2;
-let keydownHandler = null;
-let fullscreenChangeHandler = null;
-let carouselTimer = null;
-const carouselAutoDelay = 20000;
-const carouselUserPauseMs = 60000;
-let pendingAutoplayDelay = carouselAutoDelay;
-let carruselInnerRef = null;
-let carruselRealLength = 0;
-let carruselPosition = 1;
-let carruselTransitionHandler = null;
-let velX = 0, velY = 0;
-let inertiaId = null;
-const dragFriction = 0.92;
-const dragMaxSpeed = 60;
-const edgeResistance = 0.18;
+let keydownHandler = null, fullscreenChangeHandler = null, carouselTimer = null;
+const carouselAutoDelay = 20000, carouselUserPauseMs = 60000;
+let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
+let velX = 0, velY = 0, inertiaId = null;
+const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
 let __scrollLockY = 0;
 
 // ===== Funciones Helper =====
@@ -88,6 +59,7 @@ function pausarCarrusel() { startCarouselAutoplay(carouselUserPauseMs); }
 function configurarBotonesCarrusel() { const prevBtn = document.querySelector('.prev-btn'); const nextBtn = document.querySelector('.next-btn'); if (prevBtn) prevBtn.onclick = () => { pausarCarrusel(); moverCarruselA(carruselActualIndex - 1, { delayAfterMs: carouselUserPauseMs, stepDirection: -1 }); }; if (nextBtn) nextBtn.onclick = () => { pausarCarrusel(); moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselUserPauseMs, stepDirection: 1 }); }; }
 function configurarInteraccionCarrusel() { const carrusel = document.querySelector('.carrusel'); const inner = document.querySelector('.carrusel-inner'); if (!carrusel || !inner) return; carrusel.addEventListener('mouseenter', () => stopCarouselAutoplay()); carrusel.addEventListener('mouseleave', () => startCarouselAutoplay(carouselAutoDelay)); let startX = 0, isDraggingLocal = false, dx = 0; function onStart(e) { isDraggingLocal = true; dx = 0; startX = (e.touches ? e.touches[0].clientX : e.clientX); inner.style.transition = 'none'; stopCarouselAutoplay(); } function onMove(e) { if (!isDraggingLocal) return; const x = (e.touches ? e.touches[0].clientX : e.clientX); dx = x - startX; const base = -(carruselPosition * carrusel.offsetWidth); inner.style.transform = `translateX(${base + dx}px)`; } function onEnd() { if (!isDraggingLocal) return; isDraggingLocal = false; inner.style.transition = 'transform 0.35s ease'; const width = carrusel.offsetWidth; if (Math.abs(dx) > width * 0.2) { moverCarruselA(carruselActualIndex + (dx < 0 ? 1 : -1), { delayAfterMs: carouselUserPauseMs, stepDirection: (dx < 0 ? 1 : -1) }); startCarouselAutoplay(carouselUserPauseMs); } else { inner.style.transform = `translateX(-${carruselPosition * 100}%)`; startCarouselAutoplay(carouselAutoDelay); } dx = 0; } inner.addEventListener('touchstart', onStart, { passive: true }); inner.addEventListener('touchmove', onMove, { passive: true }); inner.addEventListener('touchend', onEnd, { passive: true }); inner.addEventListener('mousedown', onStart); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onEnd); }
 function abrirModalDesdeCarrusel(index = carruselActualIndex) { if (!carruselFotos?.length) return; modalSource = 'carrusel'; const f = carruselFotos[index]; mostrarModal(f.url, f.texto, index, { push: true, source: 'carrusel' }); }
+
 // ===== Modal (Parte 2/2) =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
   const modal = document.getElementById('modal');
@@ -206,34 +178,21 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     }
     
     modal.addEventListener('click', function (event) { if (event.target === modal) { if (ignoreNextClick) { ignoreNextClick = false; return; } goBackOneStep(); } });
-
     let tapStartX = 0, tapStartY = 0, tapStartT = 0;
     modalImg.addEventListener('touchstart', (e) => { if (e.touches.length === 1) { tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now(); } }, { passive: true });
     modalImg.addEventListener('touchend', (e) => { if (ignoreNextClick) { ignoreNextClick = false; return; } if (e.changedTouches.length === 1) { const dx = e.changedTouches[0].clientX - tapStartX; const dy = e.changedTouches[0].clientY - tapStartY; const dt = Date.now() - tapStartT; if (Math.hypot(dx, dy) < 12 && dt < 250) { doClickToggle(); ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); } } }, { passive: true });
     modalImg.addEventListener('click', function (event) { if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; } doClickToggle(); event.stopPropagation(); });
     modalImg.addEventListener('dblclick', (e) => e.preventDefault());
-    
     modal.addEventListener('wheel', function (e) { e.preventDefault(); const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9; const newScale = currentScale * zoomFactor; if (newScale >= 1 && newScale <= 5) { currentScale = newScale; aplicarZoom(); } }, { passive: false });
-    
     modalImg.addEventListener('mousedown', startDrag);
     modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
-
     attachSwipeToModal(modal);
     attachBottomSheet(modal);
-
     if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
     fullscreenChangeHandler = () => { const active = !!document.fullscreenElement; modal.classList.toggle('fs-active', active); const b = modal.querySelector('.fullscreen-toggle'); if (b) b.classList.toggle('is-active', active); };
     document.addEventListener('fullscreenchange', fullscreenChangeHandler);
-
-    keydownHandler = function (ev) {
-      switch (ev.key) {
-        case 'Escape': goBackOneStep(); break;
-        case 'ArrowLeft': navegarFoto(-1); break;
-        case 'ArrowRight': navegarFoto(1); break;
-      }
-    };
+    keydownHandler = function (ev) { switch (ev.key) { case 'Escape': goBackOneStep(); break; case 'ArrowLeft': navegarFoto(-1); break; case 'ArrowRight': navegarFoto(1); break; } };
     document.addEventListener('keydown', keydownHandler);
-
     function doClickToggle() { if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; } else { currentScale = defaultClickZoom; } aplicarZoom(); }
   }
 }
@@ -270,7 +229,7 @@ function closeModal() {
   resetZoom();
   if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
   if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-  modal.innerHTML = ''; // Limpiamos el contenido al cerrar
+  modal.innerHTML = '';
   unlockBodyScroll();
   if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
   refreshScrollTop();
