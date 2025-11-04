@@ -5,12 +5,12 @@
   <title>Galería Jafter - Fotografía Inspiradora</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-  <!-- Tipografía para el logo: Bodoni Moda -->
+  <!-- Tipografía para el logo/título (si la usas en tus estilos) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@600;700&display=swap" rel="stylesheet">
 
-  <!-- CSS (main define fondo uniforme + línea dorada; responsive el último) -->
+  <!-- CSS (responsive el último) -->
   <link rel="stylesheet" href="styles/main.css?v=36">
   <link rel="stylesheet" href="styles/layout.css?v=36" />
   <link rel="stylesheet" href="styles/components.css?v=36" />
@@ -21,19 +21,15 @@
 <body>
   <!-- Header -->
   <header class="site-header">
-  <div class="site-header-left">
+    <!-- Logo pequeño a la izquierda del título -->
     <img
-      class="site-logo"
+      class="title-logo"
       src="https://jafterpic.com/assets/logos/jafter-blanco.svg"
-      alt="Jafter">
-    <img class="title-logo" src="https://jafterpic.com/assets/logos/jafter-blanco.svg" alt="Jafter">
+      alt="Jafter"
+      style="display:inline-block;height:22px;width:auto;max-width:none;margin-right:12px;vertical-align:middle;opacity:.96;filter:drop-shadow(0 1px 1px rgba(0,0,0,.22));transition:transform .15s ease,opacity .15s ease;">
     <div id="logoHome">Galería Jafter</div>
-  </div>
-
-  
- </a>
   </header>
-  
+
   <main id="content" class="container">
     <!-- Vista principal -->
     <div id="home-view" class="home-view">
@@ -70,13 +66,17 @@
     </div>
   </main>
 
-  <!--  para fotos -->
-<div id="modal" class="modal"></div>
+  <!-- Modal para fotos -->
+  <div id="modal" class="modal"></div>
   
   <footer class="site-footer">
     <div class="contact-info">
-      Contacto: <a href="mailto:jafterphoto@gmail.com">jafterphoto@gmail.com</a> / 
-      <a href="https://www.facebook.com/profile.php?id=61571917450059&locale=es_ES">Facebook</a> / © 2025 Galería Jafter
+      Contacto: <a href="mailto:jafterphoto@gmail.com">jafterphoto@gmail.com</a> /
+      <a href="https://www.facebook.com/profile.php?id=61571917450059&locale=es_ES">Facebook</a>
+    </div>
+    <!-- Última línea centrada en solitario -->
+    <div class="site-copy" style="text-align:center;margin-top:10px;">
+      © 2025 Galería Jafter
     </div>
   </footer>
 
