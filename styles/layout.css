@@ -35,19 +35,20 @@
 #inspiration-section img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; border-radius: 8px; transition: transform .4s ease-out; }
 #inspiration-section > div:hover img { transform: scale(1.05); }
 
-/* Añade un logo a la izquierda del título, sin tocar el HTML ni sus estilos */
-#logoHome::before {
-  content: "";
+/* Logo separado, a la izquierda del título (sin tocar #logoHome) */
+.title-logo {
   display: inline-block;
-  width: 22px;                 /* tamaño del logo (más pequeño que el título) */
-  height: 22px;
-  margin-right: 12px;          /* separación con el texto */
+  height: 22px;          /* más pequeño que el título */
+  width: auto;
+  margin-right: 12px;    /* separación con el texto */
   vertical-align: middle;
-  background: url("https://jafterpic.com/assets/logos/jafter-blanco.svg") no-repeat center / contain;
-  opacity: 0.98;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22));  /* sutil para cabeceras claras */
+  opacity: .96;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22));  /* sutil en cabeceras claras */
+  transition: transform .15s ease, opacity .15s ease;
 }
+.title-logo:hover { transform: translateY(-1px); opacity: 1; }
 
-/* Si ves que el logo y el texto no quedan centrados verticalmente,
-   puedes forzar el texto a alinearse sin cambiar su tipografía/estilo: */
-#logoHome { line-height: 1.1; } /* opcional, solo si lo necesitas */
+/* SOLO si ves que el logo salta a otra línea porque #logoHome es block:
+   descomenta esta línea, no cambia la tipografía ni el tamaño del título. */
+/* #logoHome { display: inline-block; vertical-align: middle; } */
+
