@@ -16,6 +16,7 @@ let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselR
 let velX = 0, velY = 0, inertiaId = null;
 const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
 let __scrollLockY = 0;
+let isBodyLocked = false;
 
 // NUEVO: Modal abierto desde carrusel de portada
 let modalFromHomeCarousel = false;
@@ -242,21 +243,24 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
 
     // Escala "cover" moderada para clic en ESCRITORIO
-function getClickZoomScale() {
+ffunction getClickZoomScale() {
   if (!currentImage) return 1.25;
   const container = currentImage.closest('.modal-img-container');
   if (!container) return 1.25;
 
   const cw = container.clientWidth;
   const ch = container.clientHeight;
-  const iw = currentImage.clientWidth;   // tamaño mostrado a escala 1
+  const iw = currentImage.clientWidth;   // a escala 1
   const ih = currentImage.clientHeight;
 
-  // Cover del contenedor, moderado un 3% para evitar recorte excesivo
-  let scale = Math.max(cw / iw, ch / ih) * 0.97;
+  // Base "cover" moderada
+  const base = Math.max(cw / iw, ch / ih) * 0.97;
+
+  // Aumenta 4x el “poquito” sobre 1
+  let scale = 1 + (base - 1) * 4;
 
   // Límites razonables
-  scale = Math.min(2.0, Math.max(1.05, scale));
+  scale = Math.min(3.0, Math.max(1.2, scale));
   return scale;
 }
 
@@ -276,21 +280,27 @@ function getClickZoomScale() {
 
     // Chip "Ver sección" robusto
     if (chip) {
-      chip.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+  chip.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-        const sid = chip.dataset.seccionId;
-        if (!sid) { goBackOneStep(); return; }
+    const sid = chip.dataset.seccionId;
+    if (!sid) { goBackOneStep(); return; }
 
-        const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-        if (!sec) return;
+    const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+    if (!sec) return;
 
-        if (modalSource === 'seccion') {
-          // Ya estás en la sección detrás: solo cierra
-          closeModal();
-          return;
-        }
+    if (modalSource === 'carrusel') {
+      // Reemplaza el estado actual (modal) por Home, así "Volver" te lleva a Home
+      history.replaceState({ view: 'home' }, '');
+      closeModal(); // no hará scroll en desktop con el fix de arriba
+      mostrarSeccion(sec, { push: true });
+    } else {
+      // Si ya estás en la sección detrás del modal, solo cierra
+      closeModal();
+    }
+  });
+}
 
         // Vienes del carrusel: cierra y abre la sección (pushState)
         closeModal();
@@ -379,7 +389,7 @@ function getClickZoomScale() {
     translateX = 0;
     translateY = 0;
   } else {
-    // Solo ESCRITORIO: zoom "cover suave"; en móvil, zoom por defecto
+    // Solo ESCRITORIO: zoom "cover suave (x4)"; en móvil, zoom por defecto
     currentScale = isMobileViewport ? defaultClickZoom : getClickZoomScale();
   }
   aplicarZoom();
@@ -450,8 +460,29 @@ function attachSwipeToModal(modal) { const container = modal.querySelector('.mod
 function attachBottomSheet(modal) { const isMobile = window.matchMedia('(max-width: 1024px)').matches; if (!isMobile) return; const imgContainer = modal.querySelector('.modal-img-container'); const info = modal.querySelector('.modal-info'); const handle = modal.querySelector('.info-handle'); if (!imgContainer || !info || !handle) return; lockBodyScroll(); modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); modal.addEventListener('wheel', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); function stopScrollBounce(el) { el.addEventListener('wheel', (e) => { const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) e.preventDefault(); }, { passive: false }); let tsY = 0; el.addEventListener('touchstart', (e) => { if (e.touches.length !== 1) return; tsY = e.touches[0].clientY; }, { passive: true }); el.addEventListener('touchmove', (e) => { if (e.touches.length !== 1) return; const dy = e.touches[0].clientY - tsY; const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((dy > 0 && atTop) || (dy < 0 && atBottom)) e.preventDefault(); }, { passive: false }); } stopScrollBounce(info); function getCollapsed() { return window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh'; } function getExpanded() { return '60dvh'; } function setInfoHeight(v) { modal.style.setProperty('--info-height', v); } setInfoHeight(getCollapsed()); let startY = 0, deltaY = 0; imgContainer.addEventListener('touchstart', (e) => { if (currentScale > 1) return; const t = e.touches[0]; startY = t.clientY; deltaY = 0; modal.classList.add('is-gesturing'); }, { passive: true }); imgContainer.addEventListener('touchmove', (e) => { if (currentScale > 1) return; const t = e.touches[0]; deltaY = t.clientY - startY; }, { passive: true }); imgContainer.addEventListener('touchend', () => { modal.classList.remove('is-gesturing'); if (currentScale > 1) return; if (Math.abs(deltaY) > 40) { ignoreNextClick = true; if (deltaY < 0) setInfoHeight(getExpanded()); else setInfoHeight(getCollapsed()); setTimeout(() => { ignoreNextClick = false; }, 250); } }, { passive: true }); let dragging = false, dragStartY = 0, startHeightPx = 0; function vhToPx(v) { const m = String(v).match(/([\d.]+)d?vh/); const n = m ? parseFloat(m[1]) : 0; return (n / 100) * window.innerHeight; } function pxToVh(px) { return (px / window.innerHeight) * 100; } const vhToPxCollapsed = () => vhToPx(getCollapsed()); const vhToPxExpanded = () => vhToPx(getExpanded()); const pxToVhStr = (px) => (pxToVh(px).toFixed(2) + 'dvh'); handle.addEventListener('touchstart', (e) => { const t = e.touches[0]; dragging = true; dragStartY = t.clientY; startHeightPx = vhToPxCollapsed(); modal.classList.add('is-gesturing'); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchmove', (e) => { if (!dragging) return; const t = e.touches[0]; const dy = t.clientY - dragStartY; let newHeightPx = startHeightPx - dy; const minPx = vhToPxCollapsed(), maxPx = vhToPxExpanded(); newHeightPx = Math.max(minPx, Math.min(maxPx, newHeightPx)); setInfoHeight(pxToVhStr(newHeightPx)); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchend', () => { if (!dragging) return; dragging = false; modal.classList.remove('is-gesturing'); const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const midPx = (vhToPxCollapsed() + vhToPxExpanded()) / 2; setInfoHeight(curPx >= midPx ? getExpanded() : getCollapsed()); ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); }); window.addEventListener('resize', () => { if (!isModalOpen) return; const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const collapsedPx = vhToPxCollapsed(); const expandedPx = vhToPxExpanded(); const target = Math.abs(curPx - expandedPx) < Math.abs(curPx - collapsedPx) ? getExpanded() : getCollapsed(); setInfoHeight(target); }); }
 function toggleFullscreen() { const modal = document.getElementById('modal'); const btn = modal?.querySelector('.fullscreen-toggle'); const restorePanel = () => { modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed'); currentScale = 1; translateX = 0; translateY = 0; const info = modal.querySelector('.modal-info'); if (info) info.style.display = ''; modal.style.removeProperty('--info-height'); aplicarZoom(true); }; if (!document.fullscreenElement) { if (modal?.requestFullscreen) { modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); }); } else { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); } } else { if (document.exitFullscreen) document.exitFullscreen(); restorePanel(); if (btn) btn.classList.remove('is-active'); } }
 function initMobileRotationHandler() { let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'; window.addEventListener('resize', () => { const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'; if (last !== now && isModalOpen) {} last = now; }); }
-function lockBodyScroll() { __scrollLockY = window.scrollY || document.documentElement.scrollTop || 0; document.body.style.position = 'fixed'; document.body.style.top = `-${__scrollLockY}px`; document.body.style.left = '0'; document.body.style.right = '0'; document.body.style.width = '100%'; document.body.classList.add('modal-open'); }
-function unlockBodyScroll() { document.body.classList.remove('modal-open'); document.body.style.position = ''; document.body.style.top = ''; document.body.style.left = ''; document.body.style.right = ''; document.body.style.width = ''; window.scrollTo(0, __scrollLockY || 0); }
+function lockBodyScroll() {
+  __scrollLockY = window.scrollY || document.documentElement.scrollTop || 0;
+  isBodyLocked = true;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${__scrollLockY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  document.body.classList.add('modal-open');
+}
+function unlockBodyScroll() {
+  document.body.classList.remove('modal-open');
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  if (isBodyLocked) {
+    window.scrollTo(0, __scrollLockY || 0);
+  }
+  isBodyLocked = false;
+}
+
 function closeModal() {
   const modal = document.getElementById('modal');
   if (!modal) return;
