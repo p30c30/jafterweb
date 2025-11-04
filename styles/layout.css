@@ -35,43 +35,36 @@
 #inspiration-section img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; border-radius: 8px; transition: transform .4s ease-out; }
 #inspiration-section > div:hover img { transform: scale(1.05); }
 
-/* Contenedor de marca (logo + texto) */
-.brand {
-  display: inline-flex;
+/* Grupo izquierdo: logo separado + título */
+.site-header-left {
+  display: flex;
   align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  text-decoration: none;
+  gap: 14px;              /* separación sutil entre logo y título */
 }
 
-/* SVG como imagen: tamaño y realce sutil */
-.brand-logo {
-  height: 28px;         /* tamaño en escritorio */
+
+/* Logo separado, más pequeño que el título */
+.site-logo {
+  height: 22px;           /* ajusta si quieres 20–24px */
   width: auto;
   display: block;
-  opacity: 0.98;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); /* mejora legibilidad si el header es claro */
-  transition: transform .15s ease, opacity .15s ease, filter .2s ease;
+  flex: 0 0 auto;
+  opacity: .96;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22)); /* mejora lectura en headers claros */
+  transition: transform .15s ease, opacity .15s ease;
 }
 
-.brand-name {
-  font-weight: 700;     /* ajusta si ya tienes tipografías en tu proyecto */
-  font-size: 1.25rem;
-  line-height: 1;
+.site-logo:hover {
+  transform: translateY(-1px);
+  opacity: 1;
 }
 
-/* Hover/focus accesible */
-.brand:hover .brand-logo { transform: translateY(-1px); opacity: 1; }
-.brand:focus-visible { outline: 2px solid rgba(253,184,19,.65); outline-offset: 3px; }
-
-/* Responsive */
+/* Responsive: un poco más pequeño en móvil */
 @media (max-width: 768px) {
-  .brand-logo { height: 22px; }
-  .brand { gap: 10px; }
-  .brand-name { font-size: 1.15rem; }
+  .site-logo { height: 20px; }
+  .site-header-left { gap: 12px; }
 }
 @media (max-width: 480px) {
-  .brand-logo { height: 20px; }
-  .brand { gap: 8px; }
-  .brand-name { font-size: 1.05rem; }
+  .site-logo { height: 18px; }
+  .site-header-left { gap: 10px; }
 }
