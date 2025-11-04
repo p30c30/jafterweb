@@ -320,14 +320,29 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     });
     modalImg.addEventListener('dblclick', (e) => e.preventDefault());
 
-    // Zoom con rueda
-    modal.addEventListener('wheel', function (e) {
-      e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
-      const newScale = currentScale * zoomFactor;
-      if (newScale >= 1 && newScale <= 5) { currentScale = newScale; aplicarZoom(); }
-    }, { passive: false });
+    // Zoom con rueda (suave y proporcional)
+modal.addEventListener('wheel', function (e) {
+  e.preventDefault();
 
+  const ZOOM_MIN = 1, ZOOM_MAX = 5;        // ajusta ZOOM_MAX si quieres limitar más
+  const BASE_SENS = 0.0015;                // sensibilidad base (deltaMode 0 = pixels)
+  let sens = BASE_SENS;
+
+  // Ajusta según el deltaMode del evento (varía entre dispositivos/navegadores)
+  if (e.deltaMode === 1) sens = 0.02;      // por líneas (ruedas “clásicas”)
+  else if (e.deltaMode === 2) sens = 0.1;  // por páginas (raro)
+
+  // Factor exponencial => cambios suaves y consistentes
+  const factor = Math.exp(-e.deltaY * sens);
+  let newScale = currentScale * factor;
+  newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newScale));
+
+  if (Math.abs(newScale - currentScale) > 0.0001) {
+    currentScale = newScale;
+    aplicarZoom();
+  }
+}, { passive: false });
+    
     // Drag/Pan y pinch
     modalImg.addEventListener('mousedown', startDrag);
     modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
@@ -375,7 +390,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
               const cw = container.clientWidth, ch = container.clientHeight;
               const iw = currentImage.clientWidth, ih = currentImage.clientHeight; // a escala 1
               const base = Math.max(cw / iw, ch / ih) * 0.97; // cover moderado
-              scale = 1 + (base - 1) * 4;                     // x4 del “poquito”
+              scale = 1 + (base - 1) * 6;                     // x4 del “poquito”
               scale = Math.min(3.0, Math.max(1.2, scale));    // límites
             }
           }
