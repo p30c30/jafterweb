@@ -421,7 +421,15 @@ function getClickZoomScale() {
   }
 }
 
-function precacheAround(index) { const list = getModalList() || []; if (!list.length) return; const n = list.length; [ (index + 1) % n, (index - 1 + n) % n ].forEach	i => { const im = new Image(); im.src = list[i].url; }; }
+function precacheAround(index) {
+  const list = getModalList() || [];
+  if (!list.length) return;
+  const n = list.length;
+  [ (index + 1) % n, (index - 1 + n) % n ].forEach((i) => {
+    const im = new Image();
+    im.src = list[i].url;
+  });
+}
 function onTouchStartImg(e) { if (e.touches.length === 2) { isPinching = true; pinchStartDistance = getTouchesDistance(e.touches[0], e.touches[1]); pinchStartScale = currentScale; if (currentImage) currentImage.style.transition = 'none'; document.addEventListener('touchmove', onTouchMoveImg, { passive: false }); document.addEventListener('touchend', onTouchEndImg); e.preventDefault(); e.stopPropagation(); return; } }
 function onTouchMoveImg(e) { if (isPinching && e.touches.length === 2) { e.preventDefault(); const newDistance = getTouchesDistance(e.touches[0], e.touches[1]); let newScale = pinchStartScale * (newDistance / pinchStartDistance); newScale = Math.max(1, Math.min(5, newScale)); currentScale = newScale; aplicarZoom(true); } }
 function onTouchEndImg(e) { if (isPinching && e.touches.length < 2) { isPinching = false; if (currentImage) currentImage.style.transition = ''; ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); document.removeEventListener('touchmove', onTouchMoveImg); document.removeEventListener('touchend', onTouchEndImg); } }
