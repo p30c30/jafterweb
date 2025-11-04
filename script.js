@@ -259,254 +259,225 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     history.pushState(state, '');
   }
 
-  function configurarEventosModal() {
-    const closeBtn = modal.querySelector('.close-modal');
-    const prevBtn = modal.querySelector('.prev-button');
-    const nextBtn = modal.querySelector('.next-button');
-    const infoPanel = modal.querySelector('.modal-info');
-    const fsBtn = modal.querySelector('.fullscreen-toggle');
-    const chip = modal.querySelector('.section-chip');
+function configurarEventosModal() {
+  const closeBtn = modal.querySelector('.close-modal');
+  const prevBtn = modal.querySelector('.prev-button');
+  const nextBtn = modal.querySelector('.next-button');
+  const infoPanel = modal.querySelector('.modal-info');
+  const fsBtn = modal.querySelector('.fullscreen-toggle');
+  const chip = modal.querySelector('.section-chip');
 
-    const hotspotTop = modal.querySelector('.modal-hotspot.top');
-    const hotspotLeft = modal.querySelector('.modal-hotspot.left');
-    const hotspotRight = modal.querySelector('.modal-hotspot.right');
-    const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
+  const hotspotTop = modal.querySelector('.modal-hotspot.top');
+  const hotspotLeft = modal.querySelector('.modal-hotspot.left');
+  const hotspotRight = modal.querySelector('.modal-hotspot.right');
+  const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
 
-    const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
+  const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
 
-    // Hotspots navegación
-    if (hotspotLeft) hotspotLeft.onclick = () => navegarFoto(-1);
-    if (hotspotRight) hotspotRight.onclick = () => navegarFoto(1);
+  // Navegación por hotspots
+  if (hotspotLeft) hotspotLeft.onclick = () => navegarFoto(-1);
+  if (hotspotRight) hotspotRight.onclick = () => navegarFoto(1);
 
-   // Botón cerrar robusto + salir de fullscreen si está activo
-if (closeBtn) {
-  closeBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (document.fullscreenElement) {
-      try { document.exitFullscreen().catch(() => {}); } catch(_) {}
-    }
-    goBackOneStep();
-  });
-}
-
-// Fallback: captura el clic en el contenedor del modal por si algún handler se perdiera
-modal.addEventListener('click', (e) => {
-  const btn = e.target.closest('.close-modal');
-  if (btn) {
-    e.stopPropagation();
-    if (document.fullscreenElement) {
-      try { document.exitFullscreen().catch(() => {}); } catch(_) {}
-    }
-    goBackOneStep();
-  }
-}, true);
-
-  modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
-  document.body.classList.remove('modal-open');
-  isModalOpen = false;
-  ignoreNextClick = false;
-  resetZoom();
-  if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
-  if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-  modal.innerHTML = '';
-  unlockBodyScroll();
-  if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
-  refreshScrollTop();
-
-  // Ajusta currentView tras cerrar, según origen del modal
-  if (currentView === 'modal') {
-    currentView = (modalSource === 'carrusel') ? 'home' : (modalSource === 'seccion' ? 'seccion' : 'home');
-  }
-  // Limpia flag de origen carrusel de portada
-  modalFromHomeCarousel = false;
-
-  if (window.triggerUiAfterPhotoChange) {
-    try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
-  }
-}
-    // Flechas
-    if (prevBtn) prevBtn.onclick = (e) => { e.stopPropagation(); navegarFoto(-1); };
-    if (nextBtn) nextBtn.onclick = (e) => { e.stopPropagation(); navegarFoto(1); };
-
-    // Fullscreen
-    if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
-
-    // Chip "Ver sección" robusto
-    if (chip) {
-      chip.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const sid = chip.dataset.seccionId;
-        if (!sid) { goBackOneStep(); return; }
-
-        const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-        if (!sec) return;
-
-        if (modalSource === 'carrusel') {
-          // Sustituye el estado del modal por Home, así "Volver" te lleva a portada
-          history.replaceState({ view: 'home' }, '');
-          closeModal();             // con unlockBodyScroll parcheado no hace scroll en desktop
-          mostrarSeccion(sec, { push: true });
-        } else {
-          // Si ya estás en la sección detrás, solo cierra
-          closeModal();
-        }
-      });
-    }
-
-    // Cerrar clicando fuera (overlay)
-    modal.addEventListener('click', function (event) {
-      if (event.target === modal) {
-        if (ignoreNextClick) { ignoreNextClick = false; return; }
-        goBackOneStep();
+  // Botón cerrar robusto + salir de fullscreen si está activo
+  if (closeBtn) {
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (document.fullscreenElement) {
+        try { document.exitFullscreen().catch(() => {}); } catch(_) {}
       }
+      goBackOneStep();
     });
-
-    // Tap rápido en imagen => toggle zoom
-    let tapStartX = 0, tapStartY = 0, tapStartT = 0;
-    modalImg.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) {
-        tapStartX = e.touches[0].clientX;
-        tapStartY = e.touches[0].clientY;
-        tapStartT = Date.now();
-      }
-    }, { passive: true });
-    modalImg.addEventListener('touchend', (e) => {
-      if (ignoreNextClick) { ignoreNextClick = false; return; }
-      if (e.changedTouches.length === 1) {
-        const dx = e.changedTouches[0].clientX - tapStartX;
-        const dy = e.changedTouches[0].clientY - tapStartY;
-        const dt = Date.now() - tapStartT;
-        if (Math.hypot(dx, dy) < 12 && dt < 250) {
-          doClickToggle();
-          ignoreNextClick = true;
-          setTimeout(() => { ignoreNextClick = false; }, 250);
-        }
-      }
-    }, { passive: true });
-
-    // Click en imagen => toggle zoom
-    modalImg.addEventListener('click', function (event) {
-      if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
-      doClickToggle();
-      event.stopPropagation();
-    });
-    modalImg.addEventListener('dblclick', (e) => e.preventDefault());
-
-    // Zoom con rueda (suave y proporcional)
-modal.addEventListener('wheel', function (e) {
-  e.preventDefault();
-
-  const ZOOM_MIN = 1, ZOOM_MAX = 5;        // ajusta ZOOM_MAX si quieres limitar más
-  const BASE_SENS = 0.0015;                // sensibilidad base (deltaMode 0 = pixels)
-  let sens = BASE_SENS;
-
-  // Ajusta según el deltaMode del evento (varía entre dispositivos/navegadores)
-  if (e.deltaMode === 1) sens = 0.02;      // por líneas (ruedas “clásicas”)
-  else if (e.deltaMode === 2) sens = 0.1;  // por páginas (raro)
-
-  // Factor exponencial => cambios suaves y consistentes
-  const factor = Math.exp(-e.deltaY * sens);
-  let newScale = currentScale * factor;
-  newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newScale));
-
-  if (Math.abs(newScale - currentScale) > 0.0001) {
-    currentScale = newScale;
-    aplicarZoom();
   }
-}, { passive: false });
-    
-    // Drag/Pan y pinch
-    modalImg.addEventListener('mousedown', startDrag);
-    modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
 
-    // Gestos adicionales
-    attachSwipeToModal(modal);
-    attachBottomSheet(modal);
-
-    // Fullscreen state
-    if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-    fullscreenChangeHandler = () => {
-      const active = !!document.fullscreenElement;
-      modal.classList.toggle('fs-active', active);
-      const b = modal.querySelector('.fullscreen-toggle');
-      if (b) b.classList.toggle('is-active', active);
-    };
-    document.addEventListener('fullscreenchange', fullscreenChangeHandler);
-
-    // Teclado
-    keydownHandler = function (ev) {
-      switch (ev.key) {
-        case 'Escape': goBackOneStep(); break;
-        case 'ArrowLeft': navegarFoto(-1); break;
-        case 'ArrowRight': navegarFoto(1); break;
+  // Fallback: por si algo pisa el handler del botón cerrar (captura en fase de captura)
+  modal.addEventListener('click', (e) => {
+    const btn = e.target.closest('.close-modal');
+    if (btn) {
+      e.stopPropagation();
+      if (document.fullscreenElement) {
+        try { document.exitFullscreen().catch(() => {}); } catch(_) {}
       }
-    };
-    document.addEventListener('keydown', keydownHandler);
+      goBackOneStep();
+    }
+  }, true);
 
-    // Zoom de clic: inline (solo escritorio)
-    function doClickToggle() {
-      if (currentScale > 1) {
-        currentScale = 1;
-        translateX = 0;
-        translateY = 0;
+  // Flechas
+  if (prevBtn) prevBtn.onclick = (e) => { e.stopPropagation(); navegarFoto(-1); };
+  if (nextBtn) nextBtn.onclick = (e) => { e.stopPropagation(); navegarFoto(1); };
+
+  // Fullscreen toggle
+  if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
+
+  // Chip "Ver sección" robusto (desde carrusel -> Home en history, luego abre sección)
+  if (chip) {
+    chip.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const sid = chip.dataset.seccionId;
+      if (!sid) { goBackOneStep(); return; }
+
+      const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+      if (!sec) return;
+
+      if (modalSource === 'carrusel') {
+        history.replaceState({ view: 'home' }, '');
+        closeModal();
+        mostrarSeccion(sec, { push: true });
       } else {
-        if (isMobileViewport) {
-          // En móvil, comportamiento previo
-          currentScale = defaultClickZoom;
-        } else {
-          // Desktop: zoom “cover suave x4”
-          let scale = 1.25; // fallback
-          if (currentImage) {
-            const container = currentImage.closest('.modal-img-container');
-            if (container) {
-              const cw = container.clientWidth, ch = container.clientHeight;
-              const iw = currentImage.clientWidth, ih = currentImage.clientHeight; // a escala 1
-              const base = Math.max(cw / iw, ch / ih) * 0.97; // cover moderado
-              scale = 1 + (base - 1) * 6;                     // x4 del “poquito”
-              scale = Math.min(3.0, Math.max(1.2, scale));    // límites
-            }
-          }
-          currentScale = scale;
-        }
+        closeModal();
       }
+    });
+  }
+
+  // Cerrar clicando fuera (overlay)
+  modal.addEventListener('click', function (event) {
+    if (event.target === modal) {
+      if (ignoreNextClick) { ignoreNextClick = false; return; }
+      goBackOneStep();
+    }
+  });
+
+  // Tap rápido en imagen => toggle zoom
+  let tapStartX = 0, tapStartY = 0, tapStartT = 0;
+  modalImg.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      tapStartX = e.touches[0].clientX;
+      tapStartY = e.touches[0].clientY;
+      tapStartT = Date.now();
+    }
+  }, { passive: true });
+  modalImg.addEventListener('touchend', (e) => {
+    if (ignoreNextClick) { ignoreNextClick = false; return; }
+    if (e.changedTouches.length === 1) {
+      const dx = e.changedTouches[0].clientX - tapStartX;
+      const dy = e.changedTouches[0].clientY - tapStartY;
+      const dt = Date.now() - tapStartT;
+      if (Math.hypot(dx, dy) < 12 && dt < 250) {
+        doClickToggle();
+        ignoreNextClick = true;
+        setTimeout(() => { ignoreNextClick = false; }, 250);
+      }
+    }
+  }, { passive: true });
+
+  // Click en imagen => toggle zoom
+  modalImg.addEventListener('click', function (event) {
+    if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
+    doClickToggle();
+    event.stopPropagation();
+  });
+  modalImg.addEventListener('dblclick', (e) => e.preventDefault());
+
+  // Zoom con rueda (suave y proporcional)
+  modal.addEventListener('wheel', function (e) {
+    e.preventDefault();
+
+    // Alinea con tus límites de zoom
+    const ZOOM_MIN = 1, ZOOM_MAX = 5; // si subiste el tope del click a 3.4, puedes poner 3.4 aquí
+    const BASE_SENS = 0.0015;
+    let sens = BASE_SENS;
+
+    if (e.deltaMode === 1) sens = 0.02;   // por líneas
+    else if (e.deltaMode === 2) sens = 0.1; // por páginas
+
+    const factor = Math.exp(-e.deltaY * sens);
+    let newScale = currentScale * factor;
+    newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newScale));
+
+    if (Math.abs(newScale - currentScale) > 0.0001) {
+      currentScale = newScale;
       aplicarZoom();
     }
+  }, { passive: false });
 
-    // === SOLO ESCRITORIO: auto-ocultar + hotspots ===
-    if (!isMobileViewport) {
-      const AUTO_HIDE_MS = 3000;
-      let autoHideId = null;
+  // Drag/Pan y pinch
+  modalImg.addEventListener('mousedown', startDrag);
+  modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
 
-      function show(el) { if (el) { el.classList.add('visible'); el.style.pointerEvents = 'auto'; } }
-      function hide(el) { if (el) { el.classList.remove('visible'); el.style.pointerEvents = ''; } }
-      function hideAll() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(hide); }
-      function resetTimer() { clearTimeout(autoHideId); autoHideId = setTimeout(hideAll, AUTO_HIDE_MS); }
-      function showAllAndArmTimer() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(show); resetTimer(); }
-      function showCloseAndArmTimer() { show(closeBtn); resetTimer(); }
+  // Gestos adicionales
+  attachSwipeToModal(modal);
+  attachBottomSheet(modal);
 
-      // Hook para reiniciar ciclo tras cambiar de foto
-      window.triggerUiAfterPhotoChange = () => showAllAndArmTimer();
+  // Fullscreen state
+  if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
+  fullscreenChangeHandler = () => {
+    const active = !!document.fullscreenElement;
+    modal.classList.toggle('fs-active', active);
+    const b = modal.querySelector('.fullscreen-toggle');
+    if (b) b.classList.toggle('is-active', active);
+  };
+  document.addEventListener('fullscreenchange', fullscreenChangeHandler);
 
-      // Mover ratón en cualquier parte => muestra Cerrar y rearma timer
-      modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
-
-      // Hotspots muestran UI
-      hotspotTop?.addEventListener('mouseenter', () => { show(closeBtn); resetTimer(); });
-      hotspotLeft?.addEventListener('mouseenter', () => { show(prevBtn); resetTimer(); });
-      hotspotRight?.addEventListener('mouseenter', () => { show(nextBtn); resetTimer(); });
-      hotspotBottom?.addEventListener('mouseenter', () => { show(infoPanel); show(fsBtn); resetTimer(); });
-
-      // Mantener visible mientras el cursor está sobre el propio elemento
-      [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(el => {
-        el?.addEventListener('mouseenter', () => { show(el); clearTimeout(autoHideId); });
-        el?.addEventListener('mouseleave', () => { resetTimer(); });
-      });
-    } else {
-      // Móvil: sin auto-ocultar
-      try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
+  // Teclado
+  keydownHandler = function (ev) {
+    switch (ev.key) {
+      case 'Escape': goBackOneStep(); break;
+      case 'ArrowLeft': navegarFoto(-1); break;
+      case 'ArrowRight': navegarFoto(1); break;
     }
+  };
+  document.addEventListener('keydown', keydownHandler);
+
+  // Zoom por click: solo escritorio, “cover suave x5”
+  function doClickToggle() {
+    if (currentScale > 1) {
+      currentScale = 1;
+      translateX = 0;
+      translateY = 0;
+    } else {
+      if (isMobileViewport) {
+        currentScale = defaultClickZoom; // móvil: igual que antes
+      } else {
+        let scale = 1.25; // fallback
+        if (currentImage) {
+          const container = currentImage.closest('.modal-img-container');
+          if (container) {
+            const cw = container.clientWidth, ch = container.clientHeight;
+            const iw = currentImage.clientWidth, ih = currentImage.clientHeight; // a escala 1
+            const base = Math.max(cw / iw, ch / ih) * 0.97; // cover moderado
+            scale = 1 + (base - 1) * 5;                      // x5 del “poquito”
+            scale = Math.min(3.0, Math.max(1.2, scale));     // límites (ajusta si quieres)
+          }
+        }
+        currentScale = scale;
+      }
+    }
+    aplicarZoom();
+  }
+
+  // === SOLO ESCRITORIO: auto-ocultar + hotspots ===
+  if (!isMobileViewport) {
+    const AUTO_HIDE_MS = 3000;
+    let autoHideId = null;
+
+    function show(el) { if (el) { el.classList.add('visible'); el.style.pointerEvents = 'auto'; } }
+    function hide(el) { if (el) { el.classList.remove('visible'); el.style.pointerEvents = ''; } }
+    function hideAll() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(hide); }
+    function resetTimer() { clearTimeout(autoHideId); autoHideId = setTimeout(hideAll, AUTO_HIDE_MS); }
+    function showAllAndArmTimer() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(show); resetTimer(); }
+    function showCloseAndArmTimer() { show(closeBtn); resetTimer(); }
+
+    // Hook para reiniciar ciclo tras cambiar de foto
+    window.triggerUiAfterPhotoChange = () => showAllAndArmTimer();
+
+    // Mover ratón => muestra Cerrar y rearma timer
+    modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
+
+    // Hotspots muestran UI
+    hotspotTop?.addEventListener('mouseenter', () => { show(closeBtn); resetTimer(); });
+    hotspotLeft?.addEventListener('mouseenter', () => { show(prevBtn); resetTimer(); });
+    hotspotRight?.addEventListener('mouseenter', () => { show(nextBtn); resetTimer(); });
+    hotspotBottom?.addEventListener('mouseenter', () => { show(infoPanel); show(fsBtn); resetTimer(); });
+
+    // Mantener visible mientras el cursor está sobre el propio elemento
+    [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(el => {
+      el?.addEventListener('mouseenter', () => { show(el); clearTimeout(autoHideId); });
+      el?.addEventListener('mouseleave', () => { resetTimer(); });
+    });
+  } else {
+    // Móvil: sin auto-ocultar
+    try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
   }
 }
 
