@@ -278,15 +278,28 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     if (hotspotLeft) hotspotLeft.onclick = () => navegarFoto(-1);
     if (hotspotRight) hotspotRight.onclick = () => navegarFoto(1);
 
-    // Botón cerrar robusto
-  function closeModal() {
-  const modal = document.getElementById('modal');
-  if (!modal) return;
+   // Botón cerrar robusto + salir de fullscreen si está activo
+if (closeBtn) {
+  closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (document.fullscreenElement) {
+      try { document.exitFullscreen().catch(() => {}); } catch(_) {}
+    }
+    goBackOneStep();
+  });
+}
 
-  // Salir de pantalla completa si está activo
-  if (document.fullscreenElement) {
-    try { document.exitFullscreen().catch(() => {}); } catch(_) {}
+// Fallback: captura el clic en el contenedor del modal por si algún handler se perdiera
+modal.addEventListener('click', (e) => {
+  const btn = e.target.closest('.close-modal');
+  if (btn) {
+    e.stopPropagation();
+    if (document.fullscreenElement) {
+      try { document.exitFullscreen().catch(() => {}); } catch(_) {}
+    }
+    goBackOneStep();
   }
+}, true);
 
   modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
   document.body.classList.remove('modal-open');
