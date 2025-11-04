@@ -2,6 +2,21 @@
 /* ==      ARCHIVO MODAL.CSS - AJUSTES FINALES (v36)             == */
 /* ================================================================ */
 
+/* Solo ESCRITORIO: UI oculta por defecto; visible con .visible */
+@media (min-width: 1025px) {
+  .nav-button, .modal-info, .close-modal, .fullscreen-toggle {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-out;
+  }
+  .nav-button.visible, .modal-info.visible, .close-modal.visible, .fullscreen-toggle.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* Asegura hotspot superior (para Cerrar) en escritorio */
+  .modal-hotspot.top { top: 0; left: 0; width: 100%; height: 15%; }
+}
+
 /* === ESTILO BASE Y FOTO === */
 .modal{ display:none; position:fixed; inset:0; width:100%; height:100vh; height:100dvh; background:rgba(0,0,0,.95); z-index:1000; overflow:hidden; cursor:pointer; overscroll-behavior:contain; }
 .modal.active{ display:block; }
