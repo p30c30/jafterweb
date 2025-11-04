@@ -35,36 +35,19 @@
 #inspiration-section img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; border-radius: 8px; transition: transform .4s ease-out; }
 #inspiration-section > div:hover img { transform: scale(1.05); }
 
-/* Grupo izquierdo: logo separado + título */
-.site-header-left {
-  display: flex;
-  align-items: center;
-  gap: 14px;              /* separación sutil entre logo y título */
+/* Añade un logo a la izquierda del título, sin tocar el HTML ni sus estilos */
+#logoHome::before {
+  content: "";
+  display: inline-block;
+  width: 22px;                 /* tamaño del logo (más pequeño que el título) */
+  height: 22px;
+  margin-right: 12px;          /* separación con el texto */
+  vertical-align: middle;
+  background: url("https://jafterpic.com/assets/logos/jafter-blanco.svg") no-repeat center / contain;
+  opacity: 0.98;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22));  /* sutil para cabeceras claras */
 }
 
-
-/* Logo separado, más pequeño que el título */
-.site-logo {
-  height: 22px;           /* ajusta si quieres 20–24px */
-  width: auto;
-  display: block;
-  flex: 0 0 auto;
-  opacity: .96;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22)); /* mejora lectura en headers claros */
-  transition: transform .15s ease, opacity .15s ease;
-}
-
-.site-logo:hover {
-  transform: translateY(-1px);
-  opacity: 1;
-}
-
-/* Responsive: un poco más pequeño en móvil */
-@media (max-width: 768px) {
-  .site-logo { height: 20px; }
-  .site-header-left { gap: 12px; }
-}
-@media (max-width: 480px) {
-  .site-logo { height: 18px; }
-  .site-header-left { gap: 10px; }
-}
+/* Si ves que el logo y el texto no quedan centrados verticalmente,
+   puedes forzar el texto a alinearse sin cambiar su tipografía/estilo: */
+#logoHome { line-height: 1.1; } /* opcional, solo si lo necesitas */
