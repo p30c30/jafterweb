@@ -1,8 +1,8 @@
 // ===================================================================
-// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v36.1)         ==
+// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v36.2)         ==
 // ===================================================================
 
-console.log('✅ script.js v36.1 CARGADO');
+console.log('✅ script.js v36.2 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -34,7 +34,50 @@ function iniciar() {
 function crearBotonScrollTop() { scrollTopBtn = document.querySelector('.scroll-to-top'); if (!scrollTopBtn) { scrollTopBtn = document.createElement('button'); scrollTopBtn.className = 'scroll-to-top'; scrollTopBtn.innerHTML = '↑'; scrollTopBtn.setAttribute('aria-label', 'Volver arriba'); document.body.appendChild(scrollTopBtn); } scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' }); window.addEventListener('scroll', refreshScrollTop, { passive: true }); window.addEventListener('resize', refreshScrollTop, { passive: true }); window.addEventListener('load', refreshScrollTop, { once: true }); refreshScrollTop(); }
 function initHistoryHandler() { if (!history.state) history.replaceState({ view: 'home' }, ''); window.addEventListener('popstate', (e) => { const state = e.state || { view: 'home' }; aplicarEstado(state); }); }
 function aplicarEstado(state) { isHandlingPopstate = true; if (state.view !== 'modal' && isModalOpen) closeModal(); if (state.view === 'home') { volverAGaleriaInternal(); } else if (state.view === 'seccion') { if (datosGlobales) { const sec = datosGlobales.secciones.find(s => s.id === state.seccionId); sec ? mostrarSeccion(sec, { push: false }) : volverAGaleriaInternal(); } else { volverAGaleriaInternal(); } } else if (state.view === 'modal') { if (state.source === 'carrusel') { if (!carruselFotos?.length && datosGlobales) { carruselFotos = obtenerFotosParaCarrusel(datosGlobales); } const f = carruselFotos[state.fotoIndex]; if (f) { modalSource = 'carrusel'; mostrarModal(f.url, f.texto, state.fotoIndex, { push: false }); } else { volverAGaleriaInternal(); } } else { if (datosGlobales) { const sec = datosGlobales.secciones.find(s => s.id === state.seccionId); if (sec) { mostrarSeccion(sec, { push: false }); const foto = sec.fotos[state.fotoIndex] || sec.fotos[0]; if (foto) { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false }); } } else { volverAGaleriaInternal(); } } else { volverAGaleriaInternal(); } } } isHandlingPopstate = false; }
-function goBackOneStep() { if (history.state && history.state.view !== 'home') history.back(); else { aplicarEstado({ view: 'home' }); history.replaceState({ view: 'home' }, ''); } }
+
+// NUEVO: Volver robusto
+function goBackOneStep() {
+  try {
+    const st = history.state || {};
+
+    // Si hay modal abierto, prioriza cerrarlo
+    if (isModalOpen) {
+      if (st.view === 'modal' && history.length > 1) {
+        history.back();
+        setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
+      } else {
+        closeModal();
+      }
+      return;
+    }
+
+    // Si estamos en una sección, intenta back y si no, fuerza Home
+    if (currentView === 'seccion') {
+      if (st.view === 'seccion' && history.length > 1) {
+        history.back();
+        setTimeout(() => {
+          if (currentView !== 'home') {
+            aplicarEstado({ view: 'home' });
+            history.replaceState({ view: 'home' }, '');
+          }
+        }, 150);
+      } else {
+        aplicarEstado({ view: 'home' });
+        history.replaceState({ view: 'home' }, '');
+      }
+      return;
+    }
+
+    // Fallback general a Home
+    aplicarEstado({ view: 'home' });
+    history.replaceState({ view: 'home' }, '');
+  } catch (e) {
+    console.warn('goBackOneStep fallback', e);
+    if (isModalOpen) closeModal();
+    else { aplicarEstado({ view: 'home' }); history.replaceState({ view: 'home' }, ''); }
+  }
+}
+
 async function cargarDatos(container) { try { const res = await fetch('data.json?v=' + Date.now()); if (!res.ok) throw new Error(`Error HTTP: ${res.status}`); const data = await res.json(); datosGlobales = data; if (!data?.secciones?.length) throw new Error('Estructura de datos inválida'); container.innerHTML = ''; data.secciones.forEach(seccion => { const card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<img src="${seccion.preview}" alt="${seccion.titulo}" class="card-image"><div class="card-content"><h3>${seccion.titulo}</h3><p>${seccion.descripcion}</p></div>`; card.addEventListener('click', () => mostrarSeccion(seccion)); container.appendChild(card); }); cargarCarrusel(data); } catch (e) { console.error('Error cargando datos:', e); container.innerHTML = `<div class="error-message"><h3>Error al cargar</h3><p>${e.message}</p><button onclick="location.reload()">Reintentar</button></div>`; } }
 function mostrarSeccion(seccion, opts = { push: true }) { currentSeccion = seccion; modalSource = 'seccion'; if (!Array.isArray(seccion.fotos)) return; todasLasFotos = seccion.fotos; const home = document.getElementById('home-view'); if (home) home.style.display = 'none'; const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none'; let view = document.getElementById('seccion-view'); if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); } view.innerHTML = `<header class="seccion-header"><button class="back-button" title="Volver">←</button><div class="seccion-title-container"><h1>${seccion.titulo}</h1><p class="seccion-descripcion">${seccion.descripcion}</p></div></header><div class="fotos-grid" id="fotos-container"></div>`; view.style.display = 'block'; const back = view.querySelector('.back-button'); if (back) back.addEventListener('click', () => goBackOneStep()); const fotosContainer = document.getElementById('fotos-container'); if (fotosContainer) { fotosContainer.innerHTML = ''; seccion.fotos.forEach((foto, i) => { if (!foto.miniatura || !foto.texto || !foto.url) return; const el = document.createElement('div'); el.className = 'foto-item'; el.innerHTML = `<img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`; el.addEventListener('click', () => { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, i); }); fotosContainer.appendChild(el); }); if (typeof forceSectionTop === 'function') forceSectionTop(fotosContainer); if (typeof refreshScrollTop === 'function') refreshScrollTop(); } currentView = 'seccion'; if (opts.push && !isHandlingPopstate) { history.pushState({ view: 'seccion', seccionId: seccion.id }, ''); } }
 function cargarCarrusel(data) { const inner = document.getElementById('ultimas-fotos-carrusel'); const dots = document.getElementById('carrusel-dots'); if (!inner) return; carruselFotos = obtenerFotosParaCarrusel(data); mostrarCarruselFotos(carruselFotos, inner, dots); iniciarAutoPlay(); configurarInteraccionCarrusel(); }
@@ -135,31 +178,47 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     const hotspotRight = modal.querySelector('.modal-hotspot.right');
     const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
 
-    // Viewport check
     const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
 
-    // === Eventos comunes (desktop + móvil) ===
+    // Hotspots navegación
     if (hotspotLeft) hotspotLeft.onclick = () => navegarFoto(-1);
     if (hotspotRight) hotspotRight.onclick = () => navegarFoto(1);
 
+    // Botón cerrar robusto
     if (closeBtn) closeBtn.onclick = (e) => { e.stopPropagation(); goBackOneStep(); };
+
+    // Flechas
     if (prevBtn) prevBtn.onclick = (e) => { e.stopPropagation(); navegarFoto(-1); };
     if (nextBtn) nextBtn.onclick = (e) => { e.stopPropagation(); navegarFoto(1); };
+
+    // Fullscreen
     if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-    if (chip && chip.dataset.seccionId) {
+    // Chip "Ver sección" robusto
+    if (chip) {
       chip.addEventListener('click', (e) => {
-        e.preventDefault(); e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
+
         const sid = chip.dataset.seccionId;
-        if (modalSource === 'seccion') { history.back(); return; }
+        if (!sid) { goBackOneStep(); return; }
+
         const sec = datosGlobales?.secciones?.find(s => s.id === sid);
         if (!sec) return;
-        history.replaceState({ view: 'seccion', seccionId: sid }, '');
-        closeModal(); mostrarSeccion(sec, { push: false }); scrollToTopHard();
+
+        if (modalSource === 'seccion') {
+          // Ya estás en la sección detrás: solo cierra
+          closeModal();
+          return;
+        }
+
+        // Vienes del carrusel: cierra y abre la sección (pushState)
+        closeModal();
+        mostrarSeccion(sec, { push: true });
       });
     }
 
-    // Cerrar clicando fuera
+    // Cerrar clicando fuera (overlay)
     modal.addEventListener('click', function (event) {
       if (event.target === modal) {
         if (ignoreNextClick) { ignoreNextClick = false; return; }
@@ -214,7 +273,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     attachSwipeToModal(modal);
     attachBottomSheet(modal);
 
-    // Fullscreen
+    // Fullscreen state
     if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
     fullscreenChangeHandler = () => {
       const active = !!document.fullscreenElement;
@@ -240,7 +299,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       aplicarZoom();
     }
 
-    // === SOLO ESCRITORIO: auto-ocultar y hotspots estables ===
+    // === SOLO ESCRITORIO: auto-ocultar + hotspots ===
     if (!isMobileViewport) {
       const AUTO_HIDE_MS = 3000;
       let autoHideId = null;
@@ -258,13 +317,13 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       // Mover ratón en cualquier parte => muestra Cerrar y rearma timer
       modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
 
-      // Hotspots: muestran su UI; no ocultamos en mouseleave (lo hace el timer)
+      // Hotspots muestran UI
       hotspotTop?.addEventListener('mouseenter', () => { show(closeBtn); resetTimer(); });
       hotspotLeft?.addEventListener('mouseenter', () => { show(prevBtn); resetTimer(); });
       hotspotRight?.addEventListener('mouseenter', () => { show(nextBtn); resetTimer(); });
       hotspotBottom?.addEventListener('mouseenter', () => { show(infoPanel); show(fsBtn); resetTimer(); });
 
-      // Mantener visible mientras está el cursor encima del propio elemento
+      // Mantener visible mientras el cursor está sobre el propio elemento
       [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(el => {
         el?.addEventListener('mouseenter', () => { show(el); clearTimeout(autoHideId); });
         el?.addEventListener('mouseleave', () => { resetTimer(); });
@@ -292,9 +351,7 @@ function clampPan() { const { maxX, maxY } = getPanBounds(); if (Math.abs(transl
 function aplicarZoom(noTransition = false) { if (!currentImage) return; if (noTransition) currentImage.style.transition = 'none'; else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease'; clampPan(); currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`; currentImage.style.transformOrigin = 'center center'; const modalEl = document.getElementById('modal'); if (currentScale > 1) { currentImage.classList.add('zoomed'); currentImage.style.cursor = isDragging ? 'grabbing' : 'move'; modalEl?.classList.add('is-zoomed'); } else { currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default'; translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed'); currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`; } }
 function resetZoom() { currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; } if (currentImage) { currentImage.style.transition = ''; currentImage.style.transform = 'scale(1) translate3d(0px, 0px, 0)'; currentImage.classList.remove('zoomed', 'grabbing'); currentImage.style.cursor = 'default'; } const modalEl = document.getElementById('modal'); if (modalEl) modalEl.classList.remove('is-zoomed'); }
 function getModalList() { return modalSource === 'carrusel' ? carruselFotos : todasLasFotos; }
-function navegarFoto(direccion) { const list = getModalList(); if (!list?.length) return; let idx = currentFotoIndex + direccion; if (idx < 0) idx = list.length - 1; else if (idx >= list.length) idx = 0; currentFotoIndex = idx; const nueva = list[currentFotoIndex]; const modal = document.getElementById('modal'); if (!modal) return; const modalImg = modal.querySelector('#modal-img'); const contador = modal.querySelector('.foto-counter'); const titulo = modal.querySelector('.foto-title'); const chip = modal.querySelector('.section-chip'); resetZoom(); const im = new Image(); im.onload = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`; if (titulo) titulo.textContent = nueva.texto; if (chip) { if (modalSource === 'carrusel') { chip.dataset.seccionId = nueva.seccionId || ''; chip.querySelector('.chip-name').textContent = nueva.seccionTitulo || 'Ver sección'; chip.disabled = !nueva.seccionId; } else if (currentSeccion) { chip.dataset.seccionId = currentSeccion.id; chip.querySelector('.chip-name').textContent = currentSeccion.titulo; chip.disabled = false; } } if (!isHandlingPopstate && history.state?.view === 'modal') { const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex }; if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id; history.replaceState(state, ''); } precacheAround(currentFotoIndex); // Desktop: mostrar UI 3s tras cambiar de foto
-    if (typeof window.triggerUiAfterPhotoChange === 'function') { window.triggerUiAfterPhotoChange(); }
-  }; im.onerror = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; }; im.src = nueva.url; }
+function navegarFoto(direccion) { const list = getModalList(); if (!list?.length) return; let idx = currentFotoIndex + direccion; if (idx < 0) idx = list.length - 1; else if (idx >= list.length) idx = 0; currentFotoIndex = idx; const nueva = list[currentFotoIndex]; const modal = document.getElementById('modal'); if (!modal) return; const modalImg = modal.querySelector('#modal-img'); const contador = modal.querySelector('.foto-counter'); const titulo = modal.querySelector('.foto-title'); const chip = modal.querySelector('.section-chip'); resetZoom(); const im = new Image(); im.onload = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`; if (titulo) titulo.textContent = nueva.texto; if (chip) { if (modalSource === 'carrusel') { chip.dataset.seccionId = nueva.seccionId || ''; chip.querySelector('.chip-name').textContent = nueva.seccionTitulo || 'Ver sección'; chip.disabled = !nueva.seccionId; } else if (currentSeccion) { chip.dataset.seccionId = currentSeccion.id; chip.querySelector('.chip-name').textContent = currentSeccion.titulo; chip.disabled = false; } } if (!isHandlingPopstate && history.state?.view === 'modal') { const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex }; if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id; history.replaceState(state, ''); } precacheAround(currentFotoIndex); if (typeof window.triggerUiAfterPhotoChange === 'function') { window.triggerUiAfterPhotoChange(); } }; im.onerror = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; }; im.src = nueva.url; }
 function attachSwipeToModal(modal) { const container = modal.querySelector('.modal-img-container'); if (!container) return; let sx = 0, sy = 0, st = 0, blockVertical = false, swipeLock = false; function onStart(e) { if (currentScale > 1) return; const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); blockVertical = false; modal.classList.add('is-gesturing'); } function onMove(e) { if (currentScale > 1) return; const t = e.touches[0]; const dx = t.clientX - sx; const dy = t.clientY - sy; if (!blockVertical && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) { blockVertical = true; modal.classList.remove('is-gesturing'); } } function onEnd(e) { modal.classList.remove('is-gesturing'); if (currentScale > 1 || blockVertical || swipeLock) return; const t = e.changedTouches[0]; const dx = t.clientX - sx; const dt = Date.now() - st; const threshold = 60; const fast = Math.abs(dx) / dt > 0.5; if (Math.abs(dx) > threshold || fast) { swipeLock = true; ignoreNextClick = true; dx < 0 ? navegarFoto(1) : navegarFoto(-1); setTimeout(() => { swipeLock = false; }, 300); setTimeout(() => { ignoreNextClick = false; }, 300); } } container.addEventListener('touchstart', onStart, { passive: true }); container.addEventListener('touchmove', onMove, { passive: true }); container.addEventListener('touchend', onEnd, { passive: true }); }
 function attachBottomSheet(modal) { const isMobile = window.matchMedia('(max-width: 1024px)').matches; if (!isMobile) return; const imgContainer = modal.querySelector('.modal-img-container'); const info = modal.querySelector('.modal-info'); const handle = modal.querySelector('.info-handle'); if (!imgContainer || !info || !handle) return; lockBodyScroll(); modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); modal.addEventListener('wheel', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); function stopScrollBounce(el) { el.addEventListener('wheel', (e) => { const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) e.preventDefault(); }, { passive: false }); let tsY = 0; el.addEventListener('touchstart', (e) => { if (e.touches.length !== 1) return; tsY = e.touches[0].clientY; }, { passive: true }); el.addEventListener('touchmove', (e) => { if (e.touches.length !== 1) return; const dy = e.touches[0].clientY - tsY; const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((dy > 0 && atTop) || (dy < 0 && atBottom)) e.preventDefault(); }, { passive: false }); } stopScrollBounce(info); function getCollapsed() { return window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh'; } function getExpanded() { return '60dvh'; } function setInfoHeight(v) { modal.style.setProperty('--info-height', v); } setInfoHeight(getCollapsed()); let startY = 0, deltaY = 0; imgContainer.addEventListener('touchstart', (e) => { if (currentScale > 1) return; const t = e.touches[0]; startY = t.clientY; deltaY = 0; modal.classList.add('is-gesturing'); }, { passive: true }); imgContainer.addEventListener('touchmove', (e) => { if (currentScale > 1) return; const t = e.touches[0]; deltaY = t.clientY - startY; }, { passive: true }); imgContainer.addEventListener('touchend', () => { modal.classList.remove('is-gesturing'); if (currentScale > 1) return; if (Math.abs(deltaY) > 40) { ignoreNextClick = true; if (deltaY < 0) setInfoHeight(getExpanded()); else setInfoHeight(getCollapsed()); setTimeout(() => { ignoreNextClick = false; }, 250); } }, { passive: true }); let dragging = false, dragStartY = 0, startHeightPx = 0; function vhToPx(v) { const m = String(v).match(/([\d.]+)d?vh/); const n = m ? parseFloat(m[1]) : 0; return (n / 100) * window.innerHeight; } function pxToVh(px) { return (px / window.innerHeight) * 100; } const vhToPxCollapsed = () => vhToPx(getCollapsed()); const vhToPxExpanded = () => vhToPx(getExpanded()); const pxToVhStr = (px) => (pxToVh(px).toFixed(2) + 'dvh'); handle.addEventListener('touchstart', (e) => { const t = e.touches[0]; dragging = true; dragStartY = t.clientY; startHeightPx = vhToPxCollapsed(); modal.classList.add('is-gesturing'); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchmove', (e) => { if (!dragging) return; const t = e.touches[0]; const dy = t.clientY - dragStartY; let newHeightPx = startHeightPx - dy; const minPx = vhToPxCollapsed(), maxPx = vhToPxExpanded(); newHeightPx = Math.max(minPx, Math.min(maxPx, newHeightPx)); setInfoHeight(pxToVhStr(newHeightPx)); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchend', () => { if (!dragging) return; dragging = false; modal.classList.remove('is-gesturing'); const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const midPx = (vhToPxCollapsed() + vhToPxExpanded()) / 2; setInfoHeight(curPx >= midPx ? getExpanded() : getCollapsed()); ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); }); window.addEventListener('resize', () => { if (!isModalOpen) return; const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const collapsedPx = vhToPxCollapsed(); const expandedPx = vhToPxExpanded(); const target = Math.abs(curPx - expandedPx) < Math.abs(curPx - collapsedPx) ? getExpanded() : getCollapsed(); setInfoHeight(target); }); }
 function toggleFullscreen() { const modal = document.getElementById('modal'); const btn = modal?.querySelector('.fullscreen-toggle'); const restorePanel = () => { modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed'); currentScale = 1; translateX = 0; translateY = 0; const info = modal.querySelector('.modal-info'); if (info) info.style.display = ''; modal.style.removeProperty('--info-height'); aplicarZoom(true); }; if (!document.fullscreenElement) { if (modal?.requestFullscreen) { modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); }); } else { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); } } else { if (document.exitFullscreen) document.exitFullscreen(); restorePanel(); if (btn) btn.classList.remove('is-active'); } }
@@ -315,7 +372,6 @@ function closeModal() {
   unlockBodyScroll();
   if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
   refreshScrollTop();
-  // Limpia hook global de UI
   if (window.triggerUiAfterPhotoChange) {
     try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
   }
