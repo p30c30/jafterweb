@@ -83,27 +83,17 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
   overflow: hidden;
 }
 
+/* Miniaturas: franja más fina y fondo más transparente */
 .fotos-grid .foto-item .thumb-caption {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  padding: 8px 10px;
-  /* Fondo más sutil */
-  background: rgba(0, 0, 0, 0.35) !important;
-  color: #fff;
-  /* Centrado y verticalmente alineado */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center !important;
+  padding: 6px 10px; /* antes 8px 10px -> franja más pequeña */
+  background: rgba(0, 0, 0, 0.22) !important; /* más transparente */
+  backdrop-filter: blur(2px) saturate(110%);
+  -webkit-backdrop-filter: blur(2px) saturate(110%);
+}
 
-  transform: translateY(100%);
-  opacity: 0;
-  transition: transform .22s ease, opacity .22s ease;
-  pointer-events: none;
-  /* Un poco de glass sutil */
-  backdrop-filter: blur(3px) saturate(110%);
-  -webkit-backdrop-filter: blur(3px) saturate(110%);
-  z-index: 1;
+.fotos-grid .foto-item .thumb-caption span {
+  font-size: 0.9rem;                 /* un pelín más pequeño para reducir altura */
+  text-shadow: 0 1px 1px rgba(0,0,0,0.35); /* sombra más sutil */
 }
 
 .fotos-grid .foto-item .thumb-caption span {
