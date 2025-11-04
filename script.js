@@ -275,8 +275,8 @@ function configurarEventosModal() {
   const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
 
   // Navegación por hotspots
-  if (hotspotLeft) hotspotLeft.onclick = () => navegarFoto(-1);
-  if (hotspotRight) hotspotRight.onclick = () => navegarFoto(1);
+  if (hotspotLeft) hotspotLeft.addEventListener('click', () => navegarFoto(-1));
+  if (hotspotRight) hotspotRight.addEventListener('click', () => navegarFoto(1));
 
   // Botón cerrar robusto + salir de fullscreen si está activo
   if (closeBtn) {
@@ -289,7 +289,7 @@ function configurarEventosModal() {
     });
   }
 
-  // Fallback: por si algo pisa el handler del botón cerrar (captura en fase de captura)
+  // Fallback: por si algo pisa el handler del botón cerrar (fase de captura)
   modal.addEventListener('click', (e) => {
     const btn = e.target.closest('.close-modal');
     if (btn) {
@@ -302,13 +302,13 @@ function configurarEventosModal() {
   }, true);
 
   // Flechas
-  if (prevBtn) prevBtn.onclick = (e) => { e.stopPropagation(); navegarFoto(-1); };
-  if (nextBtn) nextBtn.onclick = (e) => { e.stopPropagation(); navegarFoto(1); };
+  if (prevBtn) prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navegarFoto(-1); });
+  if (nextBtn) nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navegarFoto(1); });
 
   // Fullscreen toggle
   if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-  // Chip "Ver sección" robusto (desde carrusel -> Home en history, luego abre sección)
+  // Chip "Ver sección" robusto
   if (chip) {
     chip.addEventListener('click', (e) => {
       e.preventDefault();
@@ -322,7 +322,7 @@ function configurarEventosModal() {
 
       if (modalSource === 'carrusel') {
         history.replaceState({ view: 'home' }, '');
-        closeModal();
+        closeModal(); // con unlock parcheado, sin salto de scroll en desktop
         mostrarSeccion(sec, { push: true });
       } else {
         closeModal();
@@ -373,8 +373,7 @@ function configurarEventosModal() {
   modal.addEventListener('wheel', function (e) {
     e.preventDefault();
 
-    // Alinea con tus límites de zoom
-    const ZOOM_MIN = 1, ZOOM_MAX = 5; // si subiste el tope del click a 3.4, puedes poner 3.4 aquí
+    const ZOOM_MIN = 1, ZOOM_MAX = 5; // alinéalo con tu límite de clic si quieres
     const BASE_SENS = 0.0015;
     let sens = BASE_SENS;
 
@@ -419,7 +418,7 @@ function configurarEventosModal() {
   };
   document.addEventListener('keydown', keydownHandler);
 
-  // Zoom por click: solo escritorio, “cover suave x5”
+  // Zoom por clic (solo escritorio): “cover suave x5”
   function doClickToggle() {
     if (currentScale > 1) {
       currentScale = 1;
@@ -437,7 +436,7 @@ function configurarEventosModal() {
             const iw = currentImage.clientWidth, ih = currentImage.clientHeight; // a escala 1
             const base = Math.max(cw / iw, ch / ih) * 0.97; // cover moderado
             scale = 1 + (base - 1) * 5;                      // x5 del “poquito”
-            scale = Math.min(3.0, Math.max(1.2, scale));     // límites (ajusta si quieres)
+            scale = Math.min(3.0, Math.max(1.2, scale));     // límites
           }
         }
         currentScale = scale;
@@ -464,22 +463,24 @@ function configurarEventosModal() {
     // Mover ratón => muestra Cerrar y rearma timer
     modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
 
-    // Hotspots muestran UI
-    hotspotTop?.addEventListener('mouseenter', () => { show(closeBtn); resetTimer(); });
-    hotspotLeft?.addEventListener('mouseenter', () => { show(prevBtn); resetTimer(); });
-    hotspotRight?.addEventListener('mouseenter', () => { show(nextBtn); resetTimer(); });
-    hotspotBottom?.addEventListener('mouseenter', () => { show(infoPanel); show(fsBtn); resetTimer(); });
+    // Hotspots muestran UI (sin optional chaining)
+    if (hotspotTop) hotspotTop.addEventListener('mouseenter', () => { show(closeBtn); resetTimer(); });
+    if (hotspotLeft) hotspotLeft.addEventListener('mouseenter', () => { show(prevBtn); resetTimer(); });
+    if (hotspotRight) hotspotRight.addEventListener('mouseenter', () => { show(nextBtn); resetTimer(); });
+    if (hotspotBottom) hotspotBottom.addEventListener('mouseenter', () => { show(infoPanel); if (fsBtn) show(fsBtn); resetTimer(); });
 
     // Mantener visible mientras el cursor está sobre el propio elemento
     [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(el => {
-      el?.addEventListener('mouseenter', () => { show(el); clearTimeout(autoHideId); });
-      el?.addEventListener('mouseleave', () => { resetTimer(); });
+      if (!el) return;
+      el.addEventListener('mouseenter', () => { show(el); clearTimeout(autoHideId); });
+      el.addEventListener('mouseleave', () => { resetTimer(); });
     });
   } else {
     // Móvil: sin auto-ocultar
     try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
   }
 }
+  
 
 function precacheAround(index) {
   const list = getModalList() || [];
