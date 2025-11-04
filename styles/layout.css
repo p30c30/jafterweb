@@ -35,20 +35,19 @@
 #inspiration-section img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; border-radius: 8px; transition: transform .4s ease-out; }
 #inspiration-section > div:hover img { transform: scale(1.05); }
 
-/* Logo separado, a la izquierda del título (sin tocar #logoHome) */
+/* Logo “foto” a la izquierda del título (sin tocar #logoHome) */
 .title-logo {
-  display: inline-block;
-  height: 22px;          /* más pequeño que el título */
-  width: auto;
-  margin-right: 12px;    /* separación con el texto */
+  display: inline-block !important;
+  height: 22px !important;     /* más pequeño que el título */
+  width: auto !important;       /* evita width:100% global */
+  max-width: none !important;   /* por si hay max-width global */
+  margin-right: 12px;           /* separación con el texto */
   vertical-align: middle;
   opacity: .96;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22));  /* sutil en cabeceras claras */
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22)); /* sutil en cabeceras claras */
   transition: transform .15s ease, opacity .15s ease;
 }
 .title-logo:hover { transform: translateY(-1px); opacity: 1; }
 
-/* SOLO si ves que el logo salta a otra línea porque #logoHome es block:
-   descomenta esta línea, no cambia la tipografía ni el tamaño del título. */
-/* #logoHome { display: inline-block; vertical-align: middle; } */
-
+/* Si #logoHome es block y se te va a otra línea, activa esto: */
+#logoHome { display: inline-block; vertical-align: middle; }
