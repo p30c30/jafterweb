@@ -78,21 +78,37 @@
 }
 
 /* Logo: tamaño correcto y sin width:100% globales */
+.site-header {
+display: flex !important;
+align-items: center !important;
+justify-content: flex-start !important;
+gap: 14px; /* separación entre logo y título /
+padding-inline: 16px; / leve respiración lateral */
+}
+
 .site-header .title-logo {
-  display: inline-block !important;
-  height: 28px !important;   /* ajústalo a 24–28px si lo prefieres */
-  width: auto !important;
-  max-width: none !important;
-  margin-right: 12px;
-  vertical-align: middle;
-  opacity: .98;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22)); /* sutil en headers claros */
-  transition: transform .15s ease, opacity .15s ease;
+display: inline-block !important;
+height: 28px !important; /* ajústalo a 24–28px si lo prefieres /
+width: auto !important;
+max-width: none !important; / anula max-width:100% globales /
+margin-right: 12px;
+vertical-align: middle;
+opacity: .98;
+filter: drop-shadow(0 1px 1px rgba(0,0,0,.22)); / sutil en header claro */
+transition: transform .15s ease, opacity .15s ease;
 }
 .site-header .title-logo:hover { transform: translateY(-1px); opacity: 1; }
 
-/* Asegura que el título no haga salto de línea (no toca su tipografía/color) */
-#logoHome { display: inline-block; vertical-align: middle; }
+/* Evita salto de línea del título sin tocar su fuente/color */
+#logoHome { display: inline-block !important; vertical-align: middle; }
 
-/* (Opcional) Si antes el título se estilaba con .site-brand, mantenla para no perder su estilo */
-.site-brand { /* no redefinimos, solo aseguramos que existe la clase; tus estilos actuales siguen aplicando */ }
+/* Si tu estilo del título dependía de site-brand, defínelo aquí (sin cambiar su aspecto actual).
+Si ya está en otra hoja, no hace falta. Puedes ajustar color/fuente si te hace falta. /
+.site-brand {
+/ ejemplo: descomenta si lo necesitas
+font-family:'Bodoni Moda','Times New Roman',Georgia,serif;
+font-weight:700;
+color: var(--accent);
+text-shadow: 0 0 20px rgba(253,184,19,.3);
+*/
+}
