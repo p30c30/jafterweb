@@ -83,18 +83,42 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
   overflow: hidden;
 }
 
-/* Miniaturas: franja más fina y fondo más transparente */
+/* Miniaturas: franja más fina, muy transparente y oculta por defecto */
+.fotos-grid .foto-item {
+  position: relative;
+  overflow: hidden;
+}
 .fotos-grid .foto-item .thumb-caption {
-  padding: 6px 10px; /* antes 8px 10px -> franja más pequeña */
-  background: rgba(0, 0, 0, 0.22) !important; /* más transparente */
-  backdrop-filter: blur(2px) saturate(110%);
-  -webkit-backdrop-filter: blur(2px) saturate(110%);
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 4px 8px;                  /* franja aún más pequeña */
+  background: rgba(0, 0, 0, 0.12) !important; /* más transparente, casi imperceptible */
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+
+  /* Oculto por defecto (forzamos por si hay estilos previos) */
+  transform: translateY(100%) !important;
+  opacity: 0 !important;
+
+  transition: transform .2s ease, opacity .2s ease;
+  pointer-events: none;
+  backdrop-filter: blur(2px) saturate(105%);
+  -webkit-backdrop-filter: blur(2px) saturate(105%);
+  z-index: 1;
+}
+.fotos-grid .foto-item .thumb-caption span {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.88rem;                /* un poco más pequeño para reducir altura */
+  text-shadow: 0 1px 1px rgba(0,0,0,0.25); /* sombrita sutil */
 }
 
-.fotos-grid .foto-item .thumb-caption span {
-  font-size: 0.9rem;                 /* un pelín más pequeño para reducir altura */
-  text-shadow: 0 1px 1px rgba(0,0,0,0.35); /* sombra más sutil */
-}
+
 
 
 
