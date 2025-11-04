@@ -69,3 +69,26 @@
   }
 }
 
+/* Header en una sola línea: LOGO + título */
+.site-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-start;      /* evita space-between si lo hubiera */
+}
+
+/* El logo no debe ocupar todo el ancho */
+.site-header .title-logo {
+  display: block !important;
+  height: 28px !important;          /* ajústalo: 24–28px queda bien */
+  width: auto !important;
+  max-width: none !important;
+  margin-right: 12px;
+}
+
+/* Evita que el título fuerce salto de línea */
+.site-header #logoHome {
+  display: inline-block;            /* no cambia su tipografía ni color */
+  vertical-align: middle;
+}
+
