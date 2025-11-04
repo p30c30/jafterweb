@@ -77,32 +77,45 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
 .section-cards .card-image { display:block; }
 .section-cards .card-content { flex: 0 0 auto; }
 
-/* Miniaturas: base del caption en barra inferior translúcida */
+/* Miniaturas: caption centrado, fondo más sutil y leve sombreado del texto */
 .fotos-grid .foto-item {
   position: relative;
-  overflow: hidden; /* evita que la barra se salga del recorte */
+  overflow: hidden;
 }
+
 .fotos-grid .foto-item .thumb-caption {
   position: absolute;
   left: 0; right: 0; bottom: 0;
   padding: 8px 10px;
-  background: rgba(0, 0, 0, 0.55);
+  /* Fondo más sutil */
+  background: rgba(0, 0, 0, 0.35) !important;
   color: #fff;
-  font-size: 0.95rem;
-  line-height: 1.2;
-  transform: translateY(100%); /* oculta por defecto */
+  /* Centrado y verticalmente alineado */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center !important;
+
+  transform: translateY(100%);
   opacity: 0;
   transition: transform .22s ease, opacity .22s ease;
-  pointer-events: none; /* no bloquea el click de la miniatura */
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  pointer-events: none;
+  /* Un poco de glass sutil */
+  backdrop-filter: blur(3px) saturate(110%);
+  -webkit-backdrop-filter: blur(3px) saturate(110%);
   z-index: 1;
 }
+
 .fotos-grid .foto-item .thumb-caption span {
   display: block;
+  width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: center !important;
+  /* Sombreado mínimo para mejorar lectura */
+  text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+  font-weight: 500; /* opcional, da un pelín más de presencia */
 }
 
 
