@@ -69,26 +69,30 @@
   }
 }
 
-/* Header en una sola línea: LOGO + título */
+/* Header: logo + título en una sola línea, sin empujones */
 .site-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  justify-content: flex-start;      /* evita space-between si lo hubiera */
+  gap: 12px;                 /* separación entre logo y título */
+  justify-content: flex-start;
 }
 
-/* El logo no debe ocupar todo el ancho */
+/* Logo: tamaño correcto y sin width:100% globales */
 .site-header .title-logo {
-  display: block !important;
-  height: 28px !important;          /* ajústalo: 24–28px queda bien */
+  display: inline-block !important;
+  height: 28px !important;   /* ajústalo a 24–28px si lo prefieres */
   width: auto !important;
   max-width: none !important;
   margin-right: 12px;
-}
-
-/* Evita que el título fuerce salto de línea */
-.site-header #logoHome {
-  display: inline-block;            /* no cambia su tipografía ni color */
   vertical-align: middle;
+  opacity: .98;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22)); /* sutil en headers claros */
+  transition: transform .15s ease, opacity .15s ease;
 }
+.site-header .title-logo:hover { transform: translateY(-1px); opacity: 1; }
 
+/* Asegura que el título no haga salto de línea (no toca su tipografía/color) */
+#logoHome { display: inline-block; vertical-align: middle; }
+
+/* (Opcional) Si antes el título se estilaba con .site-brand, mantenla para no perder su estilo */
+.site-brand { /* no redefinimos, solo aseguramos que existe la clase; tus estilos actuales siguen aplicando */ }
