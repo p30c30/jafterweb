@@ -71,7 +71,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
 
   modal.innerHTML = `
-    <div class="modal-hotspot top"></div>
     <div class="modal-hotspot left"></div>
     <div class="modal-hotspot right"></div>
     <div class="modal-hotspot bottom"></div>
@@ -112,7 +111,8 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     configurarEventosModal();
     precacheAround(currentFotoIndex);
 
-    const uiElements = modal.querySelectorAll('.nav-button, .close-modal, .modal-info, .fullscreen-toggle');
+    // LÓGICA DE VISIBILIDAD INICIAL: Mostrar flechas e info por 1 segundo
+    const uiElements = modal.querySelectorAll('.nav-button, .modal-info');
     uiElements.forEach(el => el.classList.add('visible'));
     setTimeout(() => {
       uiElements.forEach(el => el.classList.remove('visible'));
@@ -139,17 +139,14 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     const fsBtn = modal.querySelector('.fullscreen-toggle');
     const chip = modal.querySelector('.section-chip');
     
-    const hotspotTop = modal.querySelector('.modal-hotspot.top');
     const hotspotLeft = modal.querySelector('.modal-hotspot.left');
     const hotspotRight = modal.querySelector('.modal-hotspot.right');
     const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
     
     let uiTimers = {};
-    function showUI(element) { if (element) { const key = element.className.split(' ')[0]; clearTimeout(uiTimers[key]); element.classList.add('visible'); } }
-    function hideUI(element, delay = 50) { if (element) { const key = element.className.split(' ')[0]; uiTimers[key] = setTimeout(() => { element.classList.remove('visible'); }, delay); } }
+    function showUI(element) { if (element) { clearTimeout(uiTimers[element.className]); element.classList.add('visible'); } }
+    function hideUI(element) { if (element) { uiTimers[element.className] = setTimeout(() => { element.classList.remove('visible'); }, 50); } }
 
-    hotspotTop.addEventListener('mouseenter', () => showUI(closeBtn));
-    hotspotTop.addEventListener('mouseleave', () => hideUI(closeBtn));
     hotspotLeft.addEventListener('mouseenter', () => showUI(prevBtn));
     hotspotLeft.addEventListener('mouseleave', () => hideUI(prevBtn));
     hotspotRight.addEventListener('mouseenter', () => showUI(nextBtn));
@@ -157,13 +154,22 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     hotspotBottom.addEventListener('mouseenter', () => showUI(infoPanel));
     hotspotBottom.addEventListener('mouseleave', () => hideUI(infoPanel));
 
-    hotspotLeft.onclick = () => navegarFoto(-1);
-    hotspotRight.onclick = () => navegarFoto(1);
+    // CORRECCIÓN 2: Evitamos la propagación del clic en los botones
+    function navegarYParar(direccion, event) {
+      event.stopPropagation();
+      navegarFoto(direccion);
+    }
+    
+    hotspotLeft.onclick = (e) => navegarYParar(-1, e);
+    hotspotRight.onclick = (e) => navegarYParar(1, e);
 
     if (closeBtn) closeBtn.onclick = goBackOneStep;
-    if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
-    if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
+    if (prevBtn) prevBtn.onclick = (e) => navegarYParar(-1, e);
+    if (nextBtn) nextBtn.onclick = (e) => navegarYParar(1, e);
     if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
+    
+    
+// ... (Aquí va todo el resto de tu script original, desde `precacheAround` hasta el final. No lo borres)    
     
     if (chip && chip.dataset.seccionId) {
       chip.addEventListener('click', (e) => {
