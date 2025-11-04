@@ -1,8 +1,8 @@
 // ===================================================================
-// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v35)           ==
+// ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v38)           ==
 // ===================================================================
 
-console.log('✅ script.js v35 CARGADO');
+console.log('✅ script.js v38 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -16,6 +16,7 @@ let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselR
 let velX = 0, velY = 0, inertiaId = null;
 const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
 let __scrollLockY = 0;
+let uiHideTimer = null; // Temporizador para la UI del modal
 
 // ===== Funciones Helper =====
 function refreshScrollTop() { if (!scrollTopBtn) return; const y = window.scrollY || document.documentElement.scrollTop || 0; scrollTopBtn.classList.toggle('visible', y > 300); }
@@ -61,6 +62,31 @@ function configurarInteraccionCarrusel() { const carrusel = document.querySelect
 function abrirModalDesdeCarrusel(index = carruselActualIndex) { if (!carruselFotos?.length) return; modalSource = 'carrusel'; const f = carruselFotos[index]; mostrarModal(f.url, f.texto, index, { push: true, source: 'carrusel' }); }
 
 // ===== Modal (Parte 2/2) =====
+
+// Variable global para el temporizador de la UI
+let uiHideTimer = null;
+
+// Función para mostrar la UI y reiniciar el temporizador
+function showUIAndSetTimer() {
+  const modal = document.getElementById('modal');
+  if (!modal || !isModalOpen) return;
+
+  // Muestra toda la UI
+  modal.classList.remove('ui-hidden');
+
+  // Limpia el temporizador anterior
+  clearTimeout(uiHideTimer);
+
+  // Pone un nuevo temporizador para ocultar la UI
+  uiHideTimer = setTimeout(() => {
+    // Solo oculta si no estamos haciendo zoom o arrastrando
+    if (!modal.classList.contains('is-zoomed') && !modal.classList.contains('is-gesturing')) {
+      modal.classList.add('ui-hidden');
+    }
+  }, 3000); // 3 segundos de inactividad
+}
+
+
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
   const modal = document.getElementById('modal');
   currentFotoIndex = fotoIndex; isModalOpen = true;
@@ -110,9 +136,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     document.body.classList.add('modal-open');
     configurarEventosModal();
     precacheAround(currentFotoIndex);
-    
-    // Mostramos la UI por 1 segundo al abrir
-    showUITemporarily();
+    showUIAndSetTimer(); // Inicia la lógica de visibilidad
   };
   
   const img = new Image();
@@ -139,28 +163,17 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     const hotspotRight = modal.querySelector('.modal-hotspot.right');
     const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
     
-    let uiTimers = {};
-    function showUI(element) { if (element) { const key = element.className.split(' ')[0]; clearTimeout(uiTimers[key]); element.classList.add('visible'); } }
-    function hideUI(element) { if (element) { const key = element.className.split(' ')[0]; uiTimers[key] = setTimeout(() => { element.classList.remove('visible'); }, 50); } }
+    // Al mover el ratón en cualquier parte, se reinicia el temporizador
+    modal.addEventListener('mousemove', showUIAndSetTimer);
 
-    hotspotLeft.addEventListener('mouseenter', () => showUI(prevBtn));
-    hotspotLeft.addEventListener('mouseleave', () => hideUI(prevBtn));
-    hotspotRight.addEventListener('mouseenter', () => showUI(nextBtn));
-    hotspotRight.addEventListener('mouseleave', () => hideUI(nextBtn));
-    hotspotBottom.addEventListener('mouseenter', () => showUI(infoPanel));
-    hotspotBottom.addEventListener('mouseleave', () => hideUI(infoPanel));
-
-    function navegarYPrevenir(direccion, event) {
-      event.stopPropagation();
-      navegarFoto(direccion);
-    }
+    // Los hotspots ahora solo se encargan del clic
+    hotspotLeft.onclick = (e) => { e.stopPropagation(); navegarFoto(-1); };
+    hotspotRight.onclick = (e) => { e.stopPropagation(); navegarFoto(1); };
     
-    hotspotLeft.onclick = (e) => navegarYPrevenir(-1, e);
-    hotspotRight.onclick = (e) => navegarYPrevenir(1, e);
-
+    // Los clics en los botones también navegan (y el evento se propaga al modal, reiniciando el timer)
     if (closeBtn) closeBtn.onclick = goBackOneStep;
-    if (prevBtn) prevBtn.onclick = (e) => navegarYPrevenir(-1, e);
-    if (nextBtn) nextBtn.onclick = (e) => navegarYPrevenir(1, e);
+    if (prevBtn) prevBtn.onclick = () => navegarFoto(-1);
+    if (nextBtn) nextBtn.onclick = () => navegarFoto(1);
     if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
     
     if (chip && chip.dataset.seccionId) {
@@ -188,20 +201,13 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
     fullscreenChangeHandler = () => { const active = !!document.fullscreenElement; modal.classList.toggle('fs-active', active); const b = modal.querySelector('.fullscreen-toggle'); if (b) b.classList.toggle('is-active', active); };
     document.addEventListener('fullscreenchange', fullscreenChangeHandler);
-    keydownHandler = function (ev) { switch (ev.key) { case 'Escape': goBackOneStep(); break; case 'ArrowLeft': navegarFoto(-1); break; case 'ArrowRight': navegarFoto(1); break; } };
+    keydownHandler = function (ev) {
+      showUIAndSetTimer(); // El teclado también muestra la UI
+      switch (ev.key) { case 'Escape': goBackOneStep(); break; case 'ArrowLeft': navegarFoto(-1); break; case 'ArrowRight': navegarFoto(1); break; }
+    };
     document.addEventListener('keydown', keydownHandler);
     function doClickToggle() { if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; } else { currentScale = defaultClickZoom; } aplicarZoom(); }
   }
-}
-
-function showUITemporarily() {
-  const modal = document.getElementById('modal');
-  if (!modal) return;
-  const uiElements = modal.querySelectorAll('.nav-button, .modal-info');
-  uiElements.forEach(el => el.classList.add('visible'));
-  setTimeout(() => {
-    uiElements.forEach(el => el.classList.remove('visible'));
-  }, 1000);
 }
 
 function precacheAround(index) { const list = getModalList() || []; if (!list.length) return; const n = list.length; [ (index + 1) % n, (index - 1 + n) % n ].forEach(i => { const im = new Image(); im.src = list[i].url; }); }
@@ -220,7 +226,7 @@ function clampPan() { const { maxX, maxY } = getPanBounds(); if (Math.abs(transl
 function aplicarZoom(noTransition = false) { if (!currentImage) return; if (noTransition) currentImage.style.transition = 'none'; else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease'; clampPan(); currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`; currentImage.style.transformOrigin = 'center center'; const modalEl = document.getElementById('modal'); if (currentScale > 1) { currentImage.classList.add('zoomed'); currentImage.style.cursor = isDragging ? 'grabbing' : 'move'; modalEl?.classList.add('is-zoomed'); } else { currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default'; translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed'); currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`; } }
 function resetZoom() { currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; } if (currentImage) { currentImage.style.transition = ''; currentImage.style.transform = 'scale(1) translate3d(0px, 0px, 0)'; currentImage.classList.remove('zoomed', 'grabbing'); currentImage.style.cursor = 'default'; } const modalEl = document.getElementById('modal'); if (modalEl) modalEl.classList.remove('is-zoomed'); }
 function getModalList() { return modalSource === 'carrusel' ? carruselFotos : todasLasFotos; }
-function navegarFoto(direccion) { const list = getModalList(); if (!list?.length) return; let idx = currentFotoIndex + direccion; if (idx < 0) idx = list.length - 1; else if (idx >= list.length) idx = 0; currentFotoIndex = idx; const nueva = list[currentFotoIndex]; const modal = document.getElementById('modal'); if (!modal) return; const modalImg = modal.querySelector('#modal-img'); const contador = modal.querySelector('.foto-counter'); const titulo = modal.querySelector('.foto-title'); const chip = modal.querySelector('.section-chip'); resetZoom(); const im = new Image(); im.onload = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`; if (titulo) titulo.textContent = nueva.texto; if (chip) { if (modalSource === 'carrusel') { chip.dataset.seccionId = nueva.seccionId || ''; chip.querySelector('.chip-name').textContent = nueva.seccionTitulo || 'Ver sección'; chip.disabled = !nueva.seccionId; } else if (currentSeccion) { chip.dataset.seccionId = currentSeccion.id; chip.querySelector('.chip-name').textContent = currentSeccion.titulo; chip.disabled = false; } } if (!isHandlingPopstate && history.state?.view === 'modal') { const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex }; if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id; history.replaceState(state, ''); } showUITemporarily(); precacheAround(currentFotoIndex); }; im.onerror = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; showUITemporarily(); }; im.src = nueva.url; }
+function navegarFoto(direccion) { const list = getModalList(); if (!list?.length) return; let idx = currentFotoIndex + direccion; if (idx < 0) idx = list.length - 1; else if (idx >= list.length) idx = 0; currentFotoIndex = idx; const nueva = list[currentFotoIndex]; const modal = document.getElementById('modal'); if (!modal) return; const modalImg = modal.querySelector('#modal-img'); const contador = modal.querySelector('.foto-counter'); const titulo = modal.querySelector('.foto-title'); const chip = modal.querySelector('.section-chip'); resetZoom(); const im = new Image(); im.onload = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`; if (titulo) titulo.textContent = nueva.texto; if (chip) { if (modalSource === 'carrusel') { chip.dataset.seccionId = nueva.seccionId || ''; chip.querySelector('.chip-name').textContent = nueva.seccionTitulo || 'Ver sección'; chip.disabled = !nueva.seccionId; } else if (currentSeccion) { chip.dataset.seccionId = currentSeccion.id; chip.querySelector('.chip-name').textContent = currentSeccion.titulo; chip.disabled = false; } } if (!isHandlingPopstate && history.state?.view === 'modal') { const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex }; if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id; history.replaceState(state, ''); } showUIAndSetTimer(); precacheAround(currentFotoIndex); }; im.onerror = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; showUIAndSetTimer(); }; im.src = nueva.url; }
 function attachSwipeToModal(modal) { const container = modal.querySelector('.modal-img-container'); if (!container) return; let sx = 0, sy = 0, st = 0, blockVertical = false, swipeLock = false; function onStart(e) { if (currentScale > 1) return; const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); blockVertical = false; modal.classList.add('is-gesturing'); } function onMove(e) { if (currentScale > 1) return; const t = e.touches[0]; const dx = t.clientX - sx; const dy = t.clientY - sy; if (!blockVertical && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) { blockVertical = true; modal.classList.remove('is-gesturing'); } } function onEnd(e) { modal.classList.remove('is-gesturing'); if (currentScale > 1 || blockVertical || swipeLock) return; const t = e.changedTouches[0]; const dx = t.clientX - sx; const dt = Date.now() - st; const threshold = 60; const fast = Math.abs(dx) / dt > 0.5; if (Math.abs(dx) > threshold || fast) { swipeLock = true; ignoreNextClick = true; dx < 0 ? navegarFoto(1) : navegarFoto(-1); setTimeout(() => { swipeLock = false; }, 300); setTimeout(() => { ignoreNextClick = false; }, 300); } } container.addEventListener('touchstart', onStart, { passive: true }); container.addEventListener('touchmove', onMove, { passive: true }); container.addEventListener('touchend', onEnd, { passive: true }); }
 function attachBottomSheet(modal) { const isMobile = window.matchMedia('(max-width: 1024px)').matches; if (!isMobile) return; const imgContainer = modal.querySelector('.modal-img-container'); const info = modal.querySelector('.modal-info'); const handle = modal.querySelector('.info-handle'); if (!imgContainer || !info || !handle) return; lockBodyScroll(); modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); modal.addEventListener('wheel', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false }); function stopScrollBounce(el) { el.addEventListener('wheel', (e) => { const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) e.preventDefault(); }, { passive: false }); let tsY = 0; el.addEventListener('touchstart', (e) => { if (e.touches.length !== 1) return; tsY = e.touches[0].clientY; }, { passive: true }); el.addEventListener('touchmove', (e) => { if (e.touches.length !== 1) return; const dy = e.touches[0].clientY - tsY; const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((dy > 0 && atTop) || (dy < 0 && atBottom)) e.preventDefault(); }, { passive: false }); } stopScrollBounce(info); function getCollapsed() { return window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh'; } function getExpanded() { return '60dvh'; } function setInfoHeight(v) { modal.style.setProperty('--info-height', v); } setInfoHeight(getCollapsed()); let startY = 0, deltaY = 0; imgContainer.addEventListener('touchstart', (e) => { if (currentScale > 1) return; const t = e.touches[0]; startY = t.clientY; deltaY = 0; modal.classList.add('is-gesturing'); }, { passive: true }); imgContainer.addEventListener('touchmove', (e) => { if (currentScale > 1) return; const t = e.touches[0]; deltaY = t.clientY - startY; }, { passive: true }); imgContainer.addEventListener('touchend', () => { modal.classList.remove('is-gesturing'); if (currentScale > 1) return; if (Math.abs(deltaY) > 40) { ignoreNextClick = true; if (deltaY < 0) setInfoHeight(getExpanded()); else setInfoHeight(getCollapsed()); setTimeout(() => { ignoreNextClick = false; }, 250); } }, { passive: true }); let dragging = false, dragStartY = 0, startHeightPx = 0; function vhToPx(v) { const m = String(v).match(/([\d.]+)d?vh/); const n = m ? parseFloat(m[1]) : 0; return (n / 100) * window.innerHeight; } function pxToVh(px) { return (px / window.innerHeight) * 100; } handle.addEventListener('touchstart', (e) => { const t = e.touches[0]; dragging = true; dragStartY = t.clientY; startHeightPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); modal.classList.add('is-gesturing'); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchmove', (e) => { if (!dragging) return; const t = e.touches[0]; const dy = t.clientY - dragStartY; let newHeightPx = startHeightPx - dy; const minPx = vhToPx(getCollapsed()), maxPx = vhToPx(getExpanded()); newHeightPx = Math.max(minPx, Math.min(maxPx, newHeightPx)); const newVh = pxToVh(newHeightPx).toFixed(2) + 'dvh'; setInfoHeight(newVh); e.preventDefault(); }, { passive: false }); handle.addEventListener('touchend', () => { if (!dragging) return; dragging = false; modal.classList.remove('is-gesturing'); const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const midPx = (vhToPx(getCollapsed()) + vhToPx(getExpanded())) / 2; setInfoHeight(curPx >= midPx ? getExpanded() : getCollapsed()); ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); }); window.addEventListener('resize', () => { if (!isModalOpen) return; const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height')); const collapsedPx = vhToPx(getCollapsed()); const expandedPx = vhToPx(getExpanded()); const target = Math.abs(curPx - expandedPx) < Math.abs(curPx - collapsedPx) ? getExpanded() : getCollapsed(); setInfoHeight(target); }); }
 function toggleFullscreen() { const modal = document.getElementById('modal'); const btn = modal?.querySelector('.fullscreen-toggle'); const restorePanel = () => { modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed'); currentScale = 1; translateX = 0; translateY = 0; const info = modal.querySelector('.modal-info'); if (info) info.style.display = ''; modal.style.removeProperty('--info-height'); aplicarZoom(true); }; if (!document.fullscreenElement) { if (modal?.requestFullscreen) { modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); }); } else { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); } } else { if (document.exitFullscreen) document.exitFullscreen(); restorePanel(); if (btn) btn.classList.remove('is-active'); } }
