@@ -110,7 +110,7 @@
 
 /* Tamaño del logo por breakpoint */
 .site-header .title-logo {
-  height: 50px !important;   /* antes 36px */
+  height: 60px !important;   /* antes 36px */
   width: auto !important;
   max-width: none !important;
 }
