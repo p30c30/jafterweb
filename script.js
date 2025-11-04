@@ -2,7 +2,7 @@
 // ==        SCRIPT.JS - VERSIÓN FINAL Y COMPLETA (v36.4)         ==
 // ===================================================================
 
-console.log('✅ script.js v36.5 CARGADO');
+console.log('✅ script.js v36.4 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -28,112 +28,125 @@ function scrollToTopHard() { requestAnimationFrame(() => { requestAnimationFrame
 function forceSectionTop(containerEl) { const toTop = () => { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }; toTop(); requestAnimationFrame(() => toTop()); setTimeout(toTop, 50); setTimeout(toTop, 200); setTimeout(toTop, 500); if (containerEl) { const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12); imgs.forEach(img => { if (!img.complete) { const bump = () => toTop(); img.addEventListener('load', bump, { once: true }); img.addEventListener('error', bump, { once: true }); } }); } }
 
 function iniciar() {
-  const logo = document.getElementById('logoHome');
-  if (logo) { logo.addEventListener('click', () => { if (currentView !== 'home') { history.pushState({ view: 'home' }, ''); aplicarEstado({ view: 'home' }); } }); }
-  crearBotonScrollTop();
-  setTimeout(() => { const container = document.getElementById('secciones-container'); if (container) { cargarDatos(container); } else { setTimeout(iniciar, 1000); } }, 600);
-  initMobileRotationHandler();
-  initHistoryHandler();
+const logo = document.getElementById('logoHome');
+if (logo) { logo.addEventListener('click', () => { if (currentView !== 'home') { history.pushState({ view: 'home' }, ''); aplicarEstado({ view: 'home' }); } }); }
+crearBotonScrollTop();
+setTimeout(() => { const container = document.getElementById('secciones-container'); if (container) { cargarDatos(container); } else { setTimeout(iniciar, 1000); } }, 600);
+initMobileRotationHandler();
+initHistoryHandler();
 }
 function crearBotonScrollTop() { scrollTopBtn = document.querySelector('.scroll-to-top'); if (!scrollTopBtn) { scrollTopBtn = document.createElement('button'); scrollTopBtn.className = 'scroll-to-top'; scrollTopBtn.innerHTML = '↑'; scrollTopBtn.setAttribute('aria-label', 'Volver arriba'); document.body.appendChild(scrollTopBtn); } scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' }); window.addEventListener('scroll', refreshScrollTop, { passive: true }); window.addEventListener('resize', refreshScrollTop, { passive: true }); window.addEventListener('load', refreshScrollTop, { once: true }); refreshScrollTop(); }
 function initHistoryHandler() { if (!history.state) history.replaceState({ view: 'home' }, ''); window.addEventListener('popstate', (e) => { const state = e.state || { view: 'home' }; aplicarEstado(state); }); }
 
 // MODIFICADO: no hacer scroll al cerrar modal abierto desde portada
 function aplicarEstado(state) {
-  isHandlingPopstate = true;
+isHandlingPopstate = true;
 
-  // Si salimos del modal, ciérralo primero
-  if (state.view !== 'modal' && isModalOpen) {
-    closeModal();
-    // Si el destino es Home y el modal venía del carrusel de portada,
-    // no tocar la vista Home (ni scroll)
-    if (state.view === 'home' && modalFromHomeCarousel) {
-      modalFromHomeCarousel = false;
-      currentView = 'home';
-      isHandlingPopstate = false;
-      return;
-    }
-  }
+// Si salimos del modal, ciérralo primero
+if (state.view !== 'modal' && isModalOpen) {
+closeModal();
+// Si el destino es Home y el modal venía del carrusel de portada,
+// no tocar la vista Home (ni scroll)
+if (state.view === 'home' && modalFromHomeCarousel) {
+modalFromHomeCarousel = false;
+currentView = 'home';
+isHandlingPopstate = false;
+return;
+}
+}
 
-  if (state.view === 'home') {
-    // Solo reconstruir Home si veníamos de una sección
-    if (currentView !== 'home') {
-      volverAGaleriaInternal();
-    }
-  } else if (state.view === 'seccion') {
-    if (datosGlobales) {
-      const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
-      sec ? mostrarSeccion(sec, { push: false }) : volverAGaleriaInternal();
-    } else {
-      volverAGaleriaInternal();
-    }
-  } else if (state.view === 'modal') {
-    if (state.source === 'carrusel') {
-      if (!carruselFotos?.length && datosGlobales) { carruselFotos = obtenerFotosParaCarrusel(datosGlobales); }
-      const f = carruselFotos[state.fotoIndex];
-      if (f) { modalSource = 'carrusel'; mostrarModal(f.url, f.texto, state.fotoIndex, { push: false }); }
-      else { volverAGaleriaInternal(); }
-    } else {
-      if (datosGlobales) {
-        const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
-        if (sec) {
-          mostrarSeccion(sec, { push: false });
-          const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
-          if (foto) { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false }); }
-        } else { volverAGaleriaInternal(); }
-      } else {
-        volverAGaleriaInternal();
-      }
-    }
-  }
+if (state.view === 'home') {
+// Solo reconstruir Home si veníamos de una sección
+if (currentView !== 'home') {
+volverAGaleriaInternal();
+}
+} else if (state.view === 'seccion') {
+if (datosGlobales) {
+const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
+sec ? mostrarSeccion(sec, { push: false }) : volverAGaleriaInternal();
+} else {
+volverAGaleriaInternal();
+}
+} else if (state.view === 'modal') {
+if (state.source === 'carrusel') {
+if (!carruselFotos?.length && datosGlobales) { carruselFotos = obtenerFotosParaCarrusel(datosGlobales); }
+const f = carruselFotos[state.fotoIndex];
+if (f) { modalSource = 'carrusel'; mostrarModal(f.url, f.texto, state.fotoIndex, { push: false }); }
+else { volverAGaleriaInternal(); }
+} else {
+if (datosGlobales) {
+const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
+if (sec) {
+mostrarSeccion(sec, { push: false });
+const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
+if (foto) { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false }); }
+} else { volverAGaleriaInternal(); }
+} else {
+volverAGaleriaInternal();
+}
+}
+}
 
-  isHandlingPopstate = false;
+isHandlingPopstate = false;
 }
 
 function goBackOneStep() {
-  try {
-    const st = history.state || {};
+try {
+const st = history.state || {};
 
-    // Si hay modal abierto, prioriza cerrarlo
-    if (isModalOpen) {
-      if (st.view === 'modal' && history.length > 1) {
-        history.back();
-        setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
-      } else {
-        closeModal();
-      }
-      return;
-    }
+// Si hay modal abierto, prioriza cerrarlo
+if (isModalOpen) {
+if (st.view === 'modal' && history.length > 1) {
+history.back();
+setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
+} else {
+closeModal();
+}
+return;
+}
 
-    // Si estamos en una sección, intenta back y si no, fuerza Home
-    if (currentView === 'seccion') {
-      if (st.view === 'seccion' && history.length > 1) {
-        history.back();
-        setTimeout(() => {
-          if (currentView !== 'home') {
-            aplicarEstado({ view: 'home' });
-            history.replaceState({ view: 'home' }, '');
-          }
-        }, 150);
-      } else {
-        aplicarEstado({ view: 'home' });
-        history.replaceState({ view: 'home' }, '');
-      }
-      return;
-    }
+// Si estamos en una sección, intenta back y si no, fuerza Home
+if (currentView === 'seccion') {
+if (st.view === 'seccion' && history.length > 1) {
+history.back();
+setTimeout(() => {
+if (currentView !== 'home') {
+aplicarEstado({ view: 'home' });
+history.replaceState({ view: 'home' }, '');
+}
+}, 150);
+} else {
+aplicarEstado({ view: 'home' });
+history.replaceState({ view: 'home' }, '');
+}
+return;
+}
 
-    // Fallback general a Home
-    aplicarEstado({ view: 'home' });
-    history.replaceState({ view: 'home' }, '');
-  } catch (e) {
-    console.warn('goBackOneStep fallback', e);
-    if (isModalOpen) closeModal();
-    else { aplicarEstado({ view: 'home' }); history.replaceState({ view: 'home' }, ''); }
-  }
+// Fallback general a Home
+aplicarEstado({ view: 'home' });
+history.replaceState({ view: 'home' }, '');
+} catch (e) {
+console.warn('goBackOneStep fallback', e);
+if (isModalOpen) closeModal();
+else { aplicarEstado({ view: 'home' }); history.replaceState({ view: 'home' }, ''); }
+}
 }
 
 async function cargarDatos(container) { try { const res = await fetch('data.json?v=' + Date.now()); if (!res.ok) throw new Error(`Error HTTP: ${res.status}`); const data = await res.json(); datosGlobales = data; if (!data?.secciones?.length) throw new Error('Estructura de datos inválida'); container.innerHTML = ''; data.secciones.forEach(seccion => { const card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<img src="${seccion.preview}" alt="${seccion.titulo}" class="card-image"><div class="card-content"><h3>${seccion.titulo}</h3><p>${seccion.descripcion}</p></div>`; card.addEventListener('click', () => mostrarSeccion(seccion)); container.appendChild(card); }); cargarCarrusel(data); } catch (e) { console.error('Error cargando datos:', e); container.innerHTML = `<div class="error-message"><h3>Error al cargar</h3><p>${e.message}</p><button onclick="location.reload()">Reintentar</button></div>`; } }
 function mostrarSeccion(seccion, opts = { push: true }) { currentSeccion = seccion; modalSource = 'seccion'; if (!Array.isArray(seccion.fotos)) return; todasLasFotos = seccion.fotos; const home = document.getElementById('home-view'); if (home) home.style.display = 'none'; const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none'; let view = document.getElementById('seccion-view'); if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); } view.innerHTML = `<header class="seccion-header"><button class="back-button" title="Volver">←</button><div class="seccion-title-container"><h1>${seccion.titulo}</h1><p class="seccion-descripcion">${seccion.descripcion}</p></div></header><div class="fotos-grid" id="fotos-container"></div>`; view.style.display = 'block'; const back = view.querySelector('.back-button'); if (back) back.addEventListener('click', () => goBackOneStep()); const fotosContainer = document.getElementById('fotos-container'); if (fotosContainer) { fotosContainer.innerHTML = ''; 
+       seccion.fotos.forEach((foto, i) => { 
+       if (!foto.miniatura || !foto.texto || !foto.url) return; 
+       const el = document.createElement('div'); 
+       el.className = 'foto-item'; 
+       el.innerHTML = `
+          <img src="${foto.miniatura}" alt="${foto.texto}" class="foto-miniatura" loading="lazy">`; 
+          <div class="thumb-caption"><span>${foto.texto}</span></div>
+       el.addEventListener('click', () => { 
+          modalSource = 'seccion'; 
+          mostrarModal(foto.url, foto.texto, i); 
+       }); 
+         fotosContainer.appendChild(el); 
+       }); 
        
   seccion.fotos.forEach((foto, i) => {
      if (!foto.miniatura || !foto.texto || !foto.url) return;
@@ -164,7 +177,7 @@ function mostrarSeccion(seccion, opts = { push: true }) { currentSeccion = secci
 
   fotosContainer.appendChild(el);
 }); 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          if (typeof forceSectionTop === 'function') forceSectionTop(fotosContainer); if (typeof refreshScrollTop === 'function') refreshScrollTop(); } currentView = 'seccion'; if (opts.push && !isHandlingPopstate) { history.pushState({ view: 'seccion', seccionId: seccion.id }, ''); } }
+if (typeof forceSectionTop === 'function') forceSectionTop(fotosContainer); if (typeof refreshScrollTop === 'function') refreshScrollTop(); } currentView = 'seccion'; if (opts.push && !isHandlingPopstate) { history.pushState({ view: 'seccion', seccionId: seccion.id }, ''); } }
 function cargarCarrusel(data) { const inner = document.getElementById('ultimas-fotos-carrusel'); const dots = document.getElementById('carrusel-dots'); if (!inner) return; carruselFotos = obtenerFotosParaCarrusel(data); mostrarCarruselFotos(carruselFotos, inner, dots); iniciarAutoPlay(); configurarInteraccionCarrusel(); }
 function obtenerFotosParaCarrusel(data) { const planas = []; data.secciones.forEach(sec => { if (Array.isArray(sec.fotos)) { sec.fotos.forEach((foto, i) => planas.push({ ...foto, seccionId: sec.id, seccionTitulo: sec.titulo, indiceEnSeccion: i })); } }); return planas.slice(-20).reverse(); }
 function mostrarCarruselFotos(fotos, container, dotsContainer) { container.innerHTML = ''; if (dotsContainer) dotsContainer.innerHTML = ''; if (!fotos.length) { container.innerHTML = '<div class="carrusel-item"><p class="no-fotos">No hay fotos recientes</p></div>'; return; } fotos.forEach(f => { const item = document.createElement('div'); item.className = 'carrusel-item'; item.innerHTML = `<img src="${f.url}" alt="${f.texto}" class="carrusel-img"><div class="carrusel-info"><div class="carrusel-desc">${f.texto}</div></div>`; container.appendChild(item); }); if (dotsContainer) { fotos.forEach((_, idx) => { const dot = document.createElement('button'); dot.className = `carrusel-dot ${idx === 0 ? 'active' : ''}`; dot.addEventListener('click', () => { pausarCarrusel(); moverCarruselA(idx, { delayAfterMs: carouselUserPauseMs }); }); dotsContainer.appendChild(dot); }); } setupCarruselInfinito(container); configurarBotonesCarrusel(); container.addEventListener('click', () => abrirModalDesdeCarrusel(carruselActualIndex)); actualizarCarrusel(); }
@@ -180,316 +193,349 @@ function configurarInteraccionCarrusel() { const carrusel = document.querySelect
 
 // MODIFICADO: abrir modal desde carrusel sin perder posición
 function abrirModalDesdeCarrusel(index = carruselActualIndex) {
-  if (!carruselFotos?.length) return;
-  modalSource = 'carrusel';
-  modalFromHomeCarousel = true;       // marcar origen
-  stopCarouselAutoplay();             // congelar carrusel mientras está el modal
-  const f = carruselFotos[index];
-  mostrarModal(f.url, f.texto, index, { push: true, source: 'carrusel' });
+if (!carruselFotos?.length) return;
+modalSource = 'carrusel';
+modalFromHomeCarousel = true;       // marcar origen
+stopCarouselAutoplay();             // congelar carrusel mientras está el modal
+const f = carruselFotos[index];
+mostrarModal(f.url, f.texto, index, { push: true, source: 'carrusel' });
 }
 
 // ===== Modal (Parte 2/2) =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
-  const modal = document.getElementById('modal');
-  currentFotoIndex = fotoIndex; isModalOpen = true;
+const modal = document.getElementById('modal');
+currentFotoIndex = fotoIndex; isModalOpen = true;
 
-  const list = getModalList();
-  const item = list[currentFotoIndex] || { url: imageUrl, texto: title };
-  const sectionId = modalSource === 'carrusel' ? item.seccionId : (currentSeccion ? currentSeccion.id : '');
-  const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
+const list = getModalList();
+const item = list[currentFotoIndex] || { url: imageUrl, texto: title };
+const sectionId = modalSource === 'carrusel' ? item.seccionId : (currentSeccion ? currentSeccion.id : '');
+const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
 
-  modal.innerHTML = `
-    <div class="modal-hotspot top"></div>
-    <div class="modal-hotspot left"></div>
-    <div class="modal-hotspot right"></div>
-    <div class="modal-hotspot bottom"></div>
-    <div id="modal-content-wrapper">
-      <div class="close-modal" title="Cerrar">×</div>
-      <div class="nav-button prev-button" title="Anterior">‹</div>
-      <div class="nav-button next-button" title="Siguiente">›</div>
-      <div class="modal-content">
-        <div class="modal-img-container">
-          <img src="" alt="${title}" class="modal-img" id="modal-img">
-          <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g>
-              <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="modal-info">
-        <div class="info-handle" aria-hidden="true"></div>
-        <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div>
-        <div class="foto-title">${title}</div>
-        <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'}>
-          <span class="chip-label">Ver sección:</span>
-          <span class="chip-name">${sectionTitle || ''}</span>
-          <span class="chip-arrow">→</span>
-        </button>
-      </div>
-    </div>`;
+modal.innerHTML = `
+   <div class="modal-hotspot top"></div>
+   <div class="modal-hotspot left"></div>
+   <div class="modal-hotspot right"></div>
+   <div class="modal-hotspot bottom"></div>
+   <div id="modal-content-wrapper">
+     <div class="close-modal" title="Cerrar">×</div>
+     <div class="nav-button prev-button" title="Anterior">‹</div>
+     <div class="nav-button next-button" title="Siguiente">›</div>
+     <div class="modal-content">
+       <div class="modal-img-container">
+         <img src="" alt="${title}" class="modal-img" id="modal-img">
+         <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+             <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g>
+             <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g>
+           </svg>
+         </button>
+       </div>
+     </div>
+     <div class="modal-info">
+       <div class="info-handle" aria-hidden="true"></div>
+       <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div>
+       <div class="foto-title">${title}</div>
+       <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'}>
+         <span class="chip-label">Ver sección:</span>
+         <span class="chip-name">${sectionTitle || ''}</span>
+         <span class="chip-arrow">→</span>
+       </button>
+     </div>
+   </div>`;
 
-  const modalImg = document.getElementById('modal-img');
+const modalImg = document.getElementById('modal-img');
 
-  const onImageLoad = function () {
-    modalImg.src = imageUrl; currentImage = modalImg;
-    resetZoom();
-    modal.classList.add('active');
-    document.body.classList.add('modal-open');
+const onImageLoad = function () {
+modalImg.src = imageUrl; currentImage = modalImg;
+resetZoom();
+modal.classList.add('active');
+document.body.classList.add('modal-open');
 
-    configurarEventosModal();
-    precacheAround(currentFotoIndex);
+configurarEventosModal();
+precacheAround(currentFotoIndex);
 
-    // Desktop: muestra UI 3s al abrir (si el hook existe)
-    if (typeof window.triggerUiAfterPhotoChange === 'function') {
-      window.triggerUiAfterPhotoChange();
-    }
-  };
+// Desktop: muestra UI 3s al abrir (si el hook existe)
+if (typeof window.triggerUiAfterPhotoChange === 'function') {
+window.triggerUiAfterPhotoChange();
+}
+};
 
-  const img = new Image();
-  img.onload = onImageLoad;
-  img.onerror = onImageLoad;
-  img.src = imageUrl;
+const img = new Image();
+img.onload = onImageLoad;
+img.onerror = onImageLoad;
+img.src = imageUrl;
 
-  currentView = 'modal';
-  if (opts.push && !isHandlingPopstate) {
-    const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
-    if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
-    history.pushState(state, '');
-  }
+currentView = 'modal';
+if (opts.push && !isHandlingPopstate) {
+const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
+if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
+history.pushState(state, '');
+}
 
 function configurarEventosModal() {
-  const closeBtn = modal.querySelector('.close-modal');
-  const prevBtn = modal.querySelector('.prev-button');
-  const nextBtn = modal.querySelector('.next-button');
-  const infoPanel = modal.querySelector('.modal-info');
-  const fsBtn = modal.querySelector('.fullscreen-toggle');
-  const chip = modal.querySelector('.section-chip');
+const closeBtn = modal.querySelector('.close-modal');
+const prevBtn = modal.querySelector('.prev-button');
+const nextBtn = modal.querySelector('.next-button');
+const infoPanel = modal.querySelector('.modal-info');
+const fsBtn = modal.querySelector('.fullscreen-toggle');
+const chip = modal.querySelector('.section-chip');
 
-  const hotspotTop = modal.querySelector('.modal-hotspot.top');
-  const hotspotLeft = modal.querySelector('.modal-hotspot.left');
-  const hotspotRight = modal.querySelector('.modal-hotspot.right');
-  const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
+const hotspotTop = modal.querySelector('.modal-hotspot.top');
+const hotspotLeft = modal.querySelector('.modal-hotspot.left');
+const hotspotRight = modal.querySelector('.modal-hotspot.right');
+const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
 
-  const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
+const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
 
-  // Navegación por hotspots
-  if (hotspotLeft) hotspotLeft.addEventListener('click', () => navegarFoto(-1));
-  if (hotspotRight) hotspotRight.addEventListener('click', () => navegarFoto(1));
+// Hotspots navegación
+if (hotspotLeft) hotspotLeft.onclick = () => navegarFoto(-1);
+if (hotspotRight) hotspotRight.onclick = () => navegarFoto(1);
 
-  // Botón cerrar robusto + salir de fullscreen si está activo
-  if (closeBtn) {
-    closeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (document.fullscreenElement) {
-        try { document.exitFullscreen().catch(() => {}); } catch(_) {}
-      }
-      goBackOneStep();
-    });
-  }
-
-  // Fallback: por si algo pisa el handler del botón cerrar (fase de captura)
-  modal.addEventListener('click', (e) => {
-    const btn = e.target.closest('.close-modal');
-    if (btn) {
-      e.stopPropagation();
-      if (document.fullscreenElement) {
-        try { document.exitFullscreen().catch(() => {}); } catch(_) {}
-      }
-      goBackOneStep();
+// Botón cerrar robusto + salir de fullscreen si está activo
+if (closeBtn) {
+  closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (document.fullscreenElement) {
+      try { document.exitFullscreen().catch(() => {}); } catch(_) {}
     }
-  }, true);
-
-  // Flechas
-  if (prevBtn) prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navegarFoto(-1); });
-  if (nextBtn) nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navegarFoto(1); });
-
-  // Fullscreen toggle
-  if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
-
-  // Chip "Ver sección" robusto
-  if (chip) {
-    chip.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const sid = chip.dataset.seccionId;
-      if (!sid) { goBackOneStep(); return; }
-
-      const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-      if (!sec) return;
-
-      if (modalSource === 'carrusel') {
-        history.replaceState({ view: 'home' }, '');
-        closeModal(); // con unlock parcheado, sin salto de scroll en desktop
-        mostrarSeccion(sec, { push: true });
-      } else {
-        closeModal();
-      }
-    });
-  }
-
-  // Cerrar clicando fuera (overlay)
-  modal.addEventListener('click', function (event) {
-    if (event.target === modal) {
-      if (ignoreNextClick) { ignoreNextClick = false; return; }
-      goBackOneStep();
-    }
+    goBackOneStep();
   });
-
-  // Tap rápido en imagen => toggle zoom
-  let tapStartX = 0, tapStartY = 0, tapStartT = 0;
-  modalImg.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      tapStartX = e.touches[0].clientX;
-      tapStartY = e.touches[0].clientY;
-      tapStartT = Date.now();
-    }
-  }, { passive: true });
-  modalImg.addEventListener('touchend', (e) => {
-    if (ignoreNextClick) { ignoreNextClick = false; return; }
-    if (e.changedTouches.length === 1) {
-      const dx = e.changedTouches[0].clientX - tapStartX;
-      const dy = e.changedTouches[0].clientY - tapStartY;
-      const dt = Date.now() - tapStartT;
-      if (Math.hypot(dx, dy) < 12 && dt < 250) {
-        doClickToggle();
-        ignoreNextClick = true;
-        setTimeout(() => { ignoreNextClick = false; }, 250);
-      }
-    }
-  }, { passive: true });
-
-  // Click en imagen => toggle zoom
-  modalImg.addEventListener('click', function (event) {
-    if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
-    doClickToggle();
-    event.stopPropagation();
-  });
-  modalImg.addEventListener('dblclick', (e) => e.preventDefault());
-
-  // Zoom con rueda (suave y proporcional)
-  modal.addEventListener('wheel', function (e) {
-    e.preventDefault();
-
-    const ZOOM_MIN = 1, ZOOM_MAX = 5; // alinéalo con tu límite de clic si quieres
-    const BASE_SENS = 0.0015;
-    let sens = BASE_SENS;
-
-    if (e.deltaMode === 1) sens = 0.02;   // por líneas
-    else if (e.deltaMode === 2) sens = 0.1; // por páginas
-
-    const factor = Math.exp(-e.deltaY * sens);
-    let newScale = currentScale * factor;
-    newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newScale));
-
-    if (Math.abs(newScale - currentScale) > 0.0001) {
-      currentScale = newScale;
-      aplicarZoom();
-    }
-  }, { passive: false });
-
-  // Drag/Pan y pinch
-  modalImg.addEventListener('mousedown', startDrag);
-  modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
-
-  // Gestos adicionales
-  attachSwipeToModal(modal);
-  attachBottomSheet(modal);
-
-  // Fullscreen state
-  if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-  fullscreenChangeHandler = () => {
-    const active = !!document.fullscreenElement;
-    modal.classList.toggle('fs-active', active);
-    const b = modal.querySelector('.fullscreen-toggle');
-    if (b) b.classList.toggle('is-active', active);
-  };
-  document.addEventListener('fullscreenchange', fullscreenChangeHandler);
-
-  // Teclado
-  keydownHandler = function (ev) {
-    switch (ev.key) {
-      case 'Escape': goBackOneStep(); break;
-      case 'ArrowLeft': navegarFoto(-1); break;
-      case 'ArrowRight': navegarFoto(1); break;
-    }
-  };
-  document.addEventListener('keydown', keydownHandler);
-
-  // Zoom por clic (solo escritorio): “cover suave x5”
-  function doClickToggle() {
-    if (currentScale > 1) {
-      currentScale = 1;
-      translateX = 0;
-      translateY = 0;
-    } else {
-      if (isMobileViewport) {
-        currentScale = defaultClickZoom; // móvil: igual que antes
-      } else {
-        let scale = 1.25; // fallback
-        if (currentImage) {
-          const container = currentImage.closest('.modal-img-container');
-          if (container) {
-            const cw = container.clientWidth, ch = container.clientHeight;
-            const iw = currentImage.clientWidth, ih = currentImage.clientHeight; // a escala 1
-            const base = Math.max(cw / iw, ch / ih) * 0.97; // cover moderado
-            scale = 1 + (base - 1) * 5;                      // x5 del “poquito”
-            scale = Math.min(3.0, Math.max(1.2, scale));     // límites
-          }
-        }
-        currentScale = scale;
-      }
-    }
-    aplicarZoom();
-  }
-
-  // === SOLO ESCRITORIO: auto-ocultar + hotspots ===
-  if (!isMobileViewport) {
-    const AUTO_HIDE_MS = 3000;
-    let autoHideId = null;
-
-    function show(el) { if (el) { el.classList.add('visible'); el.style.pointerEvents = 'auto'; } }
-    function hide(el) { if (el) { el.classList.remove('visible'); el.style.pointerEvents = ''; } }
-    function hideAll() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(hide); }
-    function resetTimer() { clearTimeout(autoHideId); autoHideId = setTimeout(hideAll, AUTO_HIDE_MS); }
-    function showAllAndArmTimer() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(show); resetTimer(); }
-    function showCloseAndArmTimer() { show(closeBtn); resetTimer(); }
-
-    // Hook para reiniciar ciclo tras cambiar de foto
-    window.triggerUiAfterPhotoChange = () => showAllAndArmTimer();
-
-    // Mover ratón => muestra Cerrar y rearma timer
-    modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
-
-    // Hotspots muestran UI (sin optional chaining)
-    if (hotspotTop) hotspotTop.addEventListener('mouseenter', () => { show(closeBtn); resetTimer(); });
-    if (hotspotLeft) hotspotLeft.addEventListener('mouseenter', () => { show(prevBtn); resetTimer(); });
-    if (hotspotRight) hotspotRight.addEventListener('mouseenter', () => { show(nextBtn); resetTimer(); });
-    if (hotspotBottom) hotspotBottom.addEventListener('mouseenter', () => { show(infoPanel); if (fsBtn) show(fsBtn); resetTimer(); });
-
-    // Mantener visible mientras el cursor está sobre el propio elemento
-    [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(el => {
-      if (!el) return;
-      el.addEventListener('mouseenter', () => { show(el); clearTimeout(autoHideId); });
-      el.addEventListener('mouseleave', () => { resetTimer(); });
-    });
-  } else {
-    // Móvil: sin auto-ocultar
-    try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
-  }
 }
-  
+
+// Fallback: captura el clic en el contenedor del modal por si algún handler se perdiera
+modal.addEventListener('click', (e) => {
+  const btn = e.target.closest('.close-modal');
+  if (btn) {
+    e.stopPropagation();
+    if (document.fullscreenElement) {
+      try { document.exitFullscreen().catch(() => {}); } catch(_) {}
+    }
+    goBackOneStep();
+  }
+}, true);
+
+// Salir de pantalla completa si está activo
+if (document.fullscreenElement) {
+try { document.exitFullscreen().catch(() => {}); } catch(_) {}
+}
+
+modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
+document.body.classList.remove('modal-open');
+isModalOpen = false;
+ignoreNextClick = false;
+resetZoom();
+if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
+if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
+modal.innerHTML = '';
+unlockBodyScroll();
+if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
+refreshScrollTop();
+
+// Ajusta currentView tras cerrar, según origen del modal
+if (currentView === 'modal') {
+currentView = (modalSource === 'carrusel') ? 'home' : (modalSource === 'seccion' ? 'seccion' : 'home');
+}
+// Limpia flag de origen carrusel de portada
+modalFromHomeCarousel = false;
+
+if (window.triggerUiAfterPhotoChange) {
+try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
+}
+}
+// Flechas
+if (prevBtn) prevBtn.onclick = (e) => { e.stopPropagation(); navegarFoto(-1); };
+if (nextBtn) nextBtn.onclick = (e) => { e.stopPropagation(); navegarFoto(1); };
+
+// Fullscreen
+if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
+
+// Chip "Ver sección" robusto
+if (chip) {
+chip.addEventListener('click', (e) => {
+e.preventDefault();
+e.stopPropagation();
+
+const sid = chip.dataset.seccionId;
+if (!sid) { goBackOneStep(); return; }
+
+const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+if (!sec) return;
+
+if (modalSource === 'carrusel') {
+// Sustituye el estado del modal por Home, así "Volver" te lleva a portada
+history.replaceState({ view: 'home' }, '');
+closeModal();             // con unlockBodyScroll parcheado no hace scroll en desktop
+mostrarSeccion(sec, { push: true });
+} else {
+// Si ya estás en la sección detrás, solo cierra
+closeModal();
+}
+});
+}
+
+// Cerrar clicando fuera (overlay)
+modal.addEventListener('click', function (event) {
+if (event.target === modal) {
+if (ignoreNextClick) { ignoreNextClick = false; return; }
+goBackOneStep();
+}
+});
+
+// Tap rápido en imagen => toggle zoom
+let tapStartX = 0, tapStartY = 0, tapStartT = 0;
+modalImg.addEventListener('touchstart', (e) => {
+if (e.touches.length === 1) {
+tapStartX = e.touches[0].clientX;
+tapStartY = e.touches[0].clientY;
+tapStartT = Date.now();
+}
+}, { passive: true });
+modalImg.addEventListener('touchend', (e) => {
+if (ignoreNextClick) { ignoreNextClick = false; return; }
+if (e.changedTouches.length === 1) {
+const dx = e.changedTouches[0].clientX - tapStartX;
+const dy = e.changedTouches[0].clientY - tapStartY;
+const dt = Date.now() - tapStartT;
+if (Math.hypot(dx, dy) < 12 && dt < 250) {
+doClickToggle();
+ignoreNextClick = true;
+setTimeout(() => { ignoreNextClick = false; }, 250);
+}
+}
+}, { passive: true });
+
+// Click en imagen => toggle zoom
+modalImg.addEventListener('click', function (event) {
+if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
+doClickToggle();
+event.stopPropagation();
+});
+modalImg.addEventListener('dblclick', (e) => e.preventDefault());
+
+// Zoom con rueda (suave y proporcional)
+modal.addEventListener('wheel', function (e) {
+e.preventDefault();
+
+const ZOOM_MIN = 1, ZOOM_MAX = 5;        // ajusta ZOOM_MAX si quieres limitar más
+const BASE_SENS = 0.0015;                // sensibilidad base (deltaMode 0 = pixels)
+let sens = BASE_SENS;
+
+// Ajusta según el deltaMode del evento (varía entre dispositivos/navegadores)
+if (e.deltaMode === 1) sens = 0.02;      // por líneas (ruedas “clásicas”)
+else if (e.deltaMode === 2) sens = 0.1;  // por páginas (raro)
+
+// Factor exponencial => cambios suaves y consistentes
+const factor = Math.exp(-e.deltaY * sens);
+let newScale = currentScale * factor;
+newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newScale));
+
+if (Math.abs(newScale - currentScale) > 0.0001) {
+currentScale = newScale;
+aplicarZoom();
+}
+}, { passive: false });
+
+// Drag/Pan y pinch
+modalImg.addEventListener('mousedown', startDrag);
+modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
+
+// Gestos adicionales
+attachSwipeToModal(modal);
+attachBottomSheet(modal);
+
+// Fullscreen state
+if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
+fullscreenChangeHandler = () => {
+const active = !!document.fullscreenElement;
+modal.classList.toggle('fs-active', active);
+const b = modal.querySelector('.fullscreen-toggle');
+if (b) b.classList.toggle('is-active', active);
+};
+document.addEventListener('fullscreenchange', fullscreenChangeHandler);
+
+// Teclado
+keydownHandler = function (ev) {
+switch (ev.key) {
+case 'Escape': goBackOneStep(); break;
+case 'ArrowLeft': navegarFoto(-1); break;
+case 'ArrowRight': navegarFoto(1); break;
+}
+};
+document.addEventListener('keydown', keydownHandler);
+
+// Zoom de clic: inline (solo escritorio)
+function doClickToggle() {
+if (currentScale > 1) {
+currentScale = 1;
+translateX = 0;
+translateY = 0;
+} else {
+if (isMobileViewport) {
+// En móvil, comportamiento previo
+currentScale = defaultClickZoom;
+} else {
+// Desktop: zoom “cover suave x4”
+let scale = 1.25; // fallback
+if (currentImage) {
+const container = currentImage.closest('.modal-img-container');
+if (container) {
+const cw = container.clientWidth, ch = container.clientHeight;
+const iw = currentImage.clientWidth, ih = currentImage.clientHeight; // a escala 1
+const base = Math.max(cw / iw, ch / ih) * 0.97; // cover moderado
+scale = 1 + (base - 1) * 6;                     // x4 del “poquito”
+scale = Math.min(3.0, Math.max(1.2, scale));    // límites
+}
+}
+currentScale = scale;
+}
+}
+aplicarZoom();
+}
+
+// === SOLO ESCRITORIO: auto-ocultar + hotspots ===
+if (!isMobileViewport) {
+const AUTO_HIDE_MS = 3000;
+let autoHideId = null;
+
+function show(el) { if (el) { el.classList.add('visible'); el.style.pointerEvents = 'auto'; } }
+function hide(el) { if (el) { el.classList.remove('visible'); el.style.pointerEvents = ''; } }
+function hideAll() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(hide); }
+function resetTimer() { clearTimeout(autoHideId); autoHideId = setTimeout(hideAll, AUTO_HIDE_MS); }
+function showAllAndArmTimer() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(show); resetTimer(); }
+function showCloseAndArmTimer() { show(closeBtn); resetTimer(); }
+
+// Hook para reiniciar ciclo tras cambiar de foto
+window.triggerUiAfterPhotoChange = () => showAllAndArmTimer();
+
+// Mover ratón en cualquier parte => muestra Cerrar y rearma timer
+modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
+
+// Hotspots muestran UI
+hotspotTop?.addEventListener('mouseenter', () => { show(closeBtn); resetTimer(); });
+hotspotLeft?.addEventListener('mouseenter', () => { show(prevBtn); resetTimer(); });
+hotspotRight?.addEventListener('mouseenter', () => { show(nextBtn); resetTimer(); });
+hotspotBottom?.addEventListener('mouseenter', () => { show(infoPanel); show(fsBtn); resetTimer(); });
+
+// Mantener visible mientras el cursor está sobre el propio elemento
+[closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(el => {
+el?.addEventListener('mouseenter', () => { show(el); clearTimeout(autoHideId); });
+el?.addEventListener('mouseleave', () => { resetTimer(); });
+});
+} else {
+// Móvil: sin auto-ocultar
+try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
+}
+}
+}
 
 function precacheAround(index) {
-  const list = getModalList() || [];
-  if (!list.length) return;
-  const n = list.length;
-  [ (index + 1) % n, (index - 1 + n) % n ].forEach((i) => {
-    const im = new Image();
-    im.src = list[i].url;
-  });
+const list = getModalList() || [];
+if (!list.length) return;
+const n = list.length;
+[ (index + 1) % n, (index - 1 + n) % n ].forEach((i) => {
+const im = new Image();
+im.src = list[i].url;
+});
 }
 function onTouchStartImg(e) { if (e.touches.length === 2) { isPinching = true; pinchStartDistance = getTouchesDistance(e.touches[0], e.touches[1]); pinchStartScale = currentScale; if (currentImage) currentImage.style.transition = 'none'; document.addEventListener('touchmove', onTouchMoveImg, { passive: false }); document.addEventListener('touchend', onTouchEndImg); e.preventDefault(); e.stopPropagation(); return; } }
 function onTouchMoveImg(e) { if (isPinching && e.touches.length === 2) { e.preventDefault(); const newDistance = getTouchesDistance(e.touches[0], e.touches[1]); let newScale = pinchStartScale * (newDistance / pinchStartDistance); newScale = Math.max(1, Math.min(5, newScale)); currentScale = newScale; aplicarZoom(true); } }
@@ -512,73 +558,73 @@ function attachBottomSheet(modal) { const isMobile = window.matchMedia('(max-wid
 function toggleFullscreen() { const modal = document.getElementById('modal'); const btn = modal?.querySelector('.fullscreen-toggle'); const restorePanel = () => { modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed'); currentScale = 1; translateX = 0; translateY = 0; const info = modal.querySelector('.modal-info'); if (info) info.style.display = ''; modal.style.removeProperty('--info-height'); aplicarZoom(true); }; if (!document.fullscreenElement) { if (modal?.requestFullscreen) { modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); }); } else { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); } } else { if (document.exitFullscreen) document.exitFullscreen(); restorePanel(); if (btn) btn.classList.remove('is-active'); } }
 function initMobileRotationHandler() { let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'; window.addEventListener('resize', () => { const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'; if (last !== now && isModalOpen) {} last = now; }); }
 function lockBodyScroll() {
-  __scrollLockY = window.scrollY || document.documentElement.scrollTop || 0;
-  isBodyLocked = true;
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${__scrollLockY}px`;
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.body.style.width = '100%';
-  document.body.classList.add('modal-open');
+__scrollLockY = window.scrollY || document.documentElement.scrollTop || 0;
+isBodyLocked = true;
+document.body.style.position = 'fixed';
+document.body.style.top = `-${__scrollLockY}px`;
+document.body.style.left = '0';
+document.body.style.right = '0';
+document.body.style.width = '100%';
+document.body.classList.add('modal-open');
 }
 function unlockBodyScroll() {
-  document.body.classList.remove('modal-open');
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
-  document.body.style.width = '';
-  if (isBodyLocked) {
-    window.scrollTo(0, __scrollLockY || 0);
-  }
-  isBodyLocked = false;
+document.body.classList.remove('modal-open');
+document.body.style.position = '';
+document.body.style.top = '';
+document.body.style.left = '';
+document.body.style.right = '';
+document.body.style.width = '';
+if (isBodyLocked) {
+window.scrollTo(0, __scrollLockY || 0);
+}
+isBodyLocked = false;
 }
 
 function closeModal() {
-  const modal = document.getElementById('modal');
-  if (!modal) return;
-  modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
-  document.body.classList.remove('modal-open');
-  isModalOpen = false;
-  ignoreNextClick = false;
-  resetZoom();
-  if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
-  if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-  modal.innerHTML = '';
-  unlockBodyScroll();
-  if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
-  refreshScrollTop();
+const modal = document.getElementById('modal');
+if (!modal) return;
+modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
+document.body.classList.remove('modal-open');
+isModalOpen = false;
+ignoreNextClick = false;
+resetZoom();
+if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
+if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
+modal.innerHTML = '';
+unlockBodyScroll();
+if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
+refreshScrollTop();
 
-  // Ajusta currentView tras cerrar, según origen del modal
-  if (currentView === 'modal') {
-    currentView = (modalSource === 'carrusel') ? 'home' : (modalSource === 'seccion' ? 'seccion' : 'home');
-  }
-  // Limpia flag de origen carrusel de portada
-  modalFromHomeCarousel = false;
+// Ajusta currentView tras cerrar, según origen del modal
+if (currentView === 'modal') {
+currentView = (modalSource === 'carrusel') ? 'home' : (modalSource === 'seccion' ? 'seccion' : 'home');
+}
+// Limpia flag de origen carrusel de portada
+modalFromHomeCarousel = false;
 
-  if (window.triggerUiAfterPhotoChange) {
-    try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
-  }
+if (window.triggerUiAfterPhotoChange) {
+try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
+}
 }
 function volverAGaleriaInternal() {
-  currentSeccion = null; currentFotoIndex = 0; todasLasFotos = []; isModalOpen = false;
-  const home = document.getElementById('home-view'); if (home) home.style.display = 'block';
-  const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'block';
-  const view = document.getElementById('seccion-view'); if (view) view.style.display = 'none';
-  const modal = document.getElementById('modal');
-  if (modal) {
-    modal.innerHTML = '';
-    modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
-    document.body.classList.remove('modal-open'); resetZoom();
-    if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-  }
-  unlockBodyScroll();
-  window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-  currentView = 'home';
-  refreshScrollTop();
+currentSeccion = null; currentFotoIndex = 0; todasLasFotos = []; isModalOpen = false;
+const home = document.getElementById('home-view'); if (home) home.style.display = 'block';
+const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'block';
+const view = document.getElementById('seccion-view'); if (view) view.style.display = 'none';
+const modal = document.getElementById('modal');
+if (modal) {
+modal.innerHTML = '';
+modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
+document.body.classList.remove('modal-open'); resetZoom();
+if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
+}
+unlockBodyScroll();
+window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+currentView = 'home';
+refreshScrollTop();
 }
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', iniciar, { once: true });
+document.addEventListener('DOMContentLoaded', iniciar, { once: true });
 } else {
-  iniciar();
+iniciar();
 }
