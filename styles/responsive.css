@@ -88,7 +88,7 @@
   display: block !important;
 
   /* tamaño del logo (grande y visible) */
-  height: 36px !important;  /* ajusta a 32–40px a tu gusto */
+  height: 40px !important;  /* ajusta a 32–40px a tu gusto */
   width: auto !important;
   max-width: none !important;
 
@@ -110,7 +110,7 @@
 
 /* Tamaño del logo por breakpoint */
 .site-header .title-logo {
-  height: 800px !important;   /* antes 36px */
+  height: 40px !important;   /* antes 36px */
   width: auto !important;
   max-width: none !important;
 }
