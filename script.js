@@ -133,67 +133,85 @@ else { aplicarEstado({ view: 'home' }); history.replaceState({ view: 'home' }, '
 }
 
 async function cargarDatos(container) { try { const res = await fetch('data.json?v=' + Date.now()); if (!res.ok) throw new Error(`Error HTTP: ${res.status}`); const data = await res.json(); datosGlobales = data; if (!data?.secciones?.length) throw new Error('Estructura de datos inválida'); container.innerHTML = ''; data.secciones.forEach(seccion => { const card = document.createElement('div'); card.className = 'card'; card.innerHTML = `<img src="${seccion.preview}" alt="${seccion.titulo}" class="card-image"><div class="card-content"><h3>${seccion.titulo}</h3><p>${seccion.descripcion}</p></div>`; card.addEventListener('click', () => mostrarSeccion(seccion)); container.appendChild(card); }); cargarCarrusel(data); } catch (e) { console.error('Error cargando datos:', e); container.innerHTML = `<div class="error-message"><h3>Error al cargar</h3><p>${e.message}</p><button onclick="location.reload()">Reintentar</button></div>`; } }
-function mostrarSeccion(seccion, opts = { push: true }) { currentSeccion = seccion; modalSource = 'seccion'; if (!Array.isArray(seccion.fotos)) return; todasLasFotos = seccion.fotos; const home = document.getElementById('home-view'); if (home) home.style.display = 'none'; const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none'; let view = document.getElementById('seccion-view'); if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); } view.innerHTML = `<header class="seccion-header"><button class="back-button" title="Volver">←</button><div class="seccion-title-container"><h1>${seccion.titulo}</h1><p class="seccion-descripcion">${seccion.descripcion}</p></div></header><div class="fotos-grid" id="fotos-container"></div>`; view.style.display = 'block'; const back = view.querySelector('.back-button'); if (back) back.addEventListener('click', () => goBackOneStep()); const fotosContainer = document.getElementById('fotos-container'); if (fotosContainer) { fotosContainer.innerHTML = ''; 
-  seccion.fotos.forEach((foto, i) => {
-  if (!foto.miniatura || !foto.texto || !foto.url) return;
 
-  const el = document.createElement('div');
-  el.className = 'foto-item';
+function mostrarSeccion(seccion, opts = { push: true }) {
+  currentSeccion = seccion;
+  modalSource = 'seccion';
+  if (!Array.isArray(seccion.fotos)) return;
+  todasLasFotos = seccion.fotos;
 
-  const img = document.createElement('img');
-  img.src = foto.miniatura;
-  img.alt = foto.texto || '';
-  img.className = 'foto-miniatura';
-  img.loading = 'lazy';
+  const home = document.getElementById('home-view');
+  if (home) home.style.display = 'none';
+  const insp = document.getElementById('inspiration-section');
+  if (insp) insp.style.display = 'none';
 
-  const caption = document.createElement('div');
-  caption.className = 'thumb-caption';
+  let view = document.getElementById('seccion-view');
+  if (!view) {
+    view = document.createElement('div');
+    view.id = 'seccion-view';
+    view.className = 'seccion-view';
+    document.getElementById('content').appendChild(view);
+  }
 
-  const span = document.createElement('span');
-  span.textContent = foto.texto || ''; // seguro ante comillas/caracteres raros
+  view.innerHTML = `
+    <header class="seccion-header">
+      <button class="back-button" title="Volver">←</button>
+      <div class="seccion-title-container">
+        <h1>${seccion.titulo}</h1>
+        <p class="seccion-descripcion">${seccion.descripcion}</p>
+      </div>
+    </header>
+    <div class="fotos-grid" id="fotos-container"></div>
+  `;
+  view.style.display = 'block';
 
-  caption.appendChild(span);
-  el.appendChild(img);
-  el.appendChild(caption);
+  const back = view.querySelector('.back-button');
+  if (back) back.addEventListener('click', () => goBackOneStep());
 
-  el.addEventListener('click', () => {
-    modalSource = 'seccion';
-    mostrarModal(foto.url, foto.texto, i);
-  });
+  const fotosContainer = document.getElementById('fotos-container');
+  if (fotosContainer) {
+    fotosContainer.innerHTML = '';
 
-  fotosContainer.appendChild(el);
-}); 
-       
-  seccion.fotos.forEach((foto, i) => {
-     if (!foto.miniatura || !foto.texto || !foto.url) return;
+    // Opción A: crear nodos (seguro ante comillas/caracteres raros)
+    seccion.fotos.forEach((foto, i) => {
+      if (!foto.miniatura || !foto.texto || !foto.url) return;
 
-  const el = document.createElement('div');
-  el.className = 'foto-item';
+      const el = document.createElement('div');
+      el.className = 'foto-item';
 
-  const img = document.createElement('img');
-  img.src = foto.miniatura;
-  img.alt = foto.texto || '';
-  img.className = 'foto-miniatura';
-  img.loading = 'lazy';
+      const img = document.createElement('img');
+      img.src = foto.miniatura;
+      img.alt = foto.texto || '';
+      img.className = 'foto-miniatura';
+      img.loading = 'lazy';
 
-  const caption = document.createElement('div');
-  caption.className = 'thumb-caption';
+      const caption = document.createElement('div');
+      caption.className = 'thumb-caption';
 
-  const span = document.createElement('span');
-  span.textContent = foto.texto || ''; // seguro ante comillas/caracteres raros
+      const span = document.createElement('span');
+      span.textContent = foto.texto || '';
 
-  caption.appendChild(span);
-  el.appendChild(img);
-  el.appendChild(caption);
+      caption.appendChild(span);
+      el.appendChild(img);
+      el.appendChild(caption);
 
-  el.addEventListener('click', () => {
-    modalSource = 'seccion';
-    mostrarModal(foto.url, foto.texto, i);
-  });
+      el.addEventListener('click', () => {
+        modalSource = 'seccion';
+        mostrarModal(foto.url, foto.texto, i);
+      });
 
-  fotosContainer.appendChild(el);
-}); 
-if (typeof forceSectionTop === 'function') forceSectionTop(fotosContainer); if (typeof refreshScrollTop === 'function') refreshScrollTop(); } currentView = 'seccion'; if (opts.push && !isHandlingPopstate) { history.pushState({ view: 'seccion', seccionId: seccion.id }, ''); } }
+      fotosContainer.appendChild(el);
+    });
+
+    if (typeof forceSectionTop === 'function') forceSectionTop(fotosContainer);
+    if (typeof refreshScrollTop === 'function') refreshScrollTop();
+  }
+
+  currentView = 'seccion';
+  if (opts.push && !isHandlingPopstate) {
+    history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
+  }
+}
 function cargarCarrusel(data) { const inner = document.getElementById('ultimas-fotos-carrusel'); const dots = document.getElementById('carrusel-dots'); if (!inner) return; carruselFotos = obtenerFotosParaCarrusel(data); mostrarCarruselFotos(carruselFotos, inner, dots); iniciarAutoPlay(); configurarInteraccionCarrusel(); }
 function obtenerFotosParaCarrusel(data) { const planas = []; data.secciones.forEach(sec => { if (Array.isArray(sec.fotos)) { sec.fotos.forEach((foto, i) => planas.push({ ...foto, seccionId: sec.id, seccionTitulo: sec.titulo, indiceEnSeccion: i })); } }); return planas.slice(-20).reverse(); }
 function mostrarCarruselFotos(fotos, container, dotsContainer) { container.innerHTML = ''; if (dotsContainer) dotsContainer.innerHTML = ''; if (!fotos.length) { container.innerHTML = '<div class="carrusel-item"><p class="no-fotos">No hay fotos recientes</p></div>'; return; } fotos.forEach(f => { const item = document.createElement('div'); item.className = 'carrusel-item'; item.innerHTML = `<img src="${f.url}" alt="${f.texto}" class="carrusel-img"><div class="carrusel-info"><div class="carrusel-desc">${f.texto}</div></div>`; container.appendChild(item); }); if (dotsContainer) { fotos.forEach((_, idx) => { const dot = document.createElement('button'); dot.className = `carrusel-dot ${idx === 0 ? 'active' : ''}`; dot.addEventListener('click', () => { pausarCarrusel(); moverCarruselA(idx, { delayAfterMs: carouselUserPauseMs }); }); dotsContainer.appendChild(dot); }); } setupCarruselInfinito(container); configurarBotonesCarrusel(); container.addEventListener('click', () => abrirModalDesdeCarrusel(carruselActualIndex)); actualizarCarrusel(); }
