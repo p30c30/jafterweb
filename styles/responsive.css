@@ -117,7 +117,6 @@ cursor: pointer;
 .site-title { font-size: clamp(1.5rem, 5vw, 1.9rem); }
 }
 
-
 /* Cursor/ayudas de enlace */
 @media (hover:hover) { .site-title:hover { cursor: pointer; } }
 .site-title:hover { text-decoration: underline; }
