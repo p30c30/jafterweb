@@ -828,6 +828,62 @@ function volverAGaleriaInternal() {
   refreshScrollTop();
 }
 
+(function initCardAnim() {
+  // Solo aplicamos el hover si el dispositivo soporta hover (desktop)
+  const canHover = window.matchMedia('(hover:hover)').matches;
+
+  function attachToFirstCard() {
+    const card = document.querySelector('.section-cards .card');
+    if (!card || card.querySelector('video.card-anim')) return false;
+
+    // Usa la miniatura de la tarjeta como poster (si existe)
+    const img = card.querySelector('img');
+    const poster = img?.src || '';
+
+    // Crea el video
+    const video = document.createElement('video');
+    video.className = 'card-anim';
+    video.muted = true;           // autoplay permitido
+    video.playsInline = true;     // iOS
+    video.loop = true;
+    video.preload = 'none';       // no cargar hasta hover
+    if (poster) video.poster = poster;
+
+    // Solo MP4 (ya lo subiste). Si más adelante generas WebM, añade otro <source>
+    video.innerHTML = `
+      <source src="/assets/anim/virgen.mp4" type="video/mp4">
+    `;
+
+    card.appendChild(video);
+
+    if (canHover) {
+      card.addEventListener('mouseenter', () => {
+        if (video.preload === 'none') video.preload = 'metadata';
+        video.play().catch(() => {});
+      });
+      card.addEventListener('mouseleave', () => {
+        video.pause();
+      });
+      // Pausa si cambias de pestaña
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) video.pause();
+      });
+    }
+    return true;
+  }
+
+  // Intenta enganchar al cargar
+  window.addEventListener('load', () => {
+    if (attachToFirstCard()) return;
+    // Si aún no se ha pintado la grid, reintenta unos segundos
+    const t0 = Date.now();
+    const timer = setInterval(() => {
+      if (attachToFirstCard() || (Date.now() - t0) > 4000) clearInterval(timer);
+    }, 300);
+  });
+})();
+
+
 // ===== Boot =====
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', iniciar, { once: true }); }
 else { iniciar(); }
