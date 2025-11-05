@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v36.7)               ==
 // ===================================================================
-console.log('✅ script.js v37.4 CARGADO');
+console.log('✅ script.js v37.5 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -830,23 +830,33 @@ function volverAGaleriaInternal() {
 
  // =========VIDEO EN TARJETA========
 
-(function initCardAnim_DesktopHover_MobileDrag_TVLongPress() {
-  const mqHover   = window.matchMedia('(hover:hover)');
-  const mqReduce  = window.matchMedia('(prefers-reduced-motion: reduce)');
+// Animación de tarjeta: Hover en desktop (incl. Opera), long-press en TV, drag en móvil.
+// Reproduce UNA vez en móvil/TV y vuelve al estado inicial. En desktop hace loop.
+(function initCardAnim_FinalPlatformAware() {
+  const mqHover  = window.matchMedia('(hover:hover)');
+  const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (mqReduce.matches) return;
+
+  const isHoverDevice = mqHover.matches;
+  const isTVUA = /TV|Tizen|Web0S|WebOS|Smart-?TV|BRAVIA|AFT|Shield|AppleTV/i.test(navigator.userAgent);
+  const isOperaDesktop = isHoverDevice && /\bOPR\/|Opera/i.test(navigator.userAgent) && !/Mobile|Android|TV/i.test(navigator.userAgent);
 
   function mountOnFirstCard() {
     const card = document.querySelector('.section-cards .card');
     if (!card) return false;
     if (card.querySelector('video.card-anim')) return true;
 
-    // Crea el vídeo overlay a toda la tarjeta
+    // Crear <video> overlay
     const video = document.createElement('video');
     video.className = 'card-anim';
-    video.muted = true;        video.setAttribute('muted','');
-    video.playsInline = true;  video.setAttribute('playsinline','');
-    video.loop = mqHover.matches;     // loop solo en desktop (hover); móvil/TV = 1 sola pasada
-    video.preload = mqHover.matches ? 'metadata' : 'auto'; // TV necesita precarga más agresiva
+    // Propiedades/atributos antes de cargar fuentes
+    video.muted = true;         video.setAttribute('muted','');
+    video.playsInline = true;   video.setAttribute('playsinline','');
+    // Loop SOLO en desktop; móvil/TV = reproducción única
+    video.loop = isHoverDevice;
+    // Opera/TV prefieren precarga un poco más agresiva
+    video.preload = (isHoverDevice && !isOperaDesktop) ? 'metadata' : 'auto';
+
     const poster = card.querySelector('img')?.src || '';
     if (poster) video.poster = poster;
 
@@ -855,125 +865,132 @@ function volverAGaleriaInternal() {
     `;
     card.appendChild(video);
 
-    // Priming: play->pause para primer arranque fiable (Opera/TV)
+    // Priming: deja el vídeo listo para arrancar sin “varios intentos”
     const prime = () => {
       video.play().then(() => { video.pause(); try { video.currentTime = 0; } catch(_){} }).catch(()=>{});
     };
     if (video.readyState >= 2) prime();
     else video.addEventListener('canplay', prime, { once:true });
 
-    // Helpers
-    const showOnce = () => {
-      // En móvil/TV reproducimos una vez y volvemos al estado inicial
+    // Helpers de reproducción
+    const startLoopHover = () => {
       try { video.currentTime = 0; } catch(_) {}
       card.classList.add('is-over');
-      // Asegura no loop en este modo
-      if (!mqHover.matches) video.loop = false;
+      video.loop = true;
       video.play().catch(()=>{});
+    };
+    const stopHover = () => {
+      video.pause();
+      card.classList.remove('is-over');
+      try { video.currentTime = 0; } catch(_) {}
+    };
 
-      const onEnd = () => {
+    // Reproducción única (móvil/TV)
+    let playingOneShot = false;
+    const playOnce = () => {
+      if (playingOneShot) return;
+      playingOneShot = true;
+      video.loop = false; video.removeAttribute('loop');
+      try { video.currentTime = 0; } catch(_) {}
+      card.classList.add('is-over');
+      const finish = () => {
         video.pause();
         card.classList.remove('is-over');
         try { video.currentTime = 0; } catch(_) {}
-        video.removeEventListener('ended', onEnd);
+        playingOneShot = false;
+        video.removeEventListener('ended', finish);
       };
-
-      if (!mqHover.matches) {
-        // móvil/TV: parar al terminar
+      // Arranca y espera al final; si no hay duración aún, fallback
+      video.play().then(() => {
         if (isFinite(video.duration) && video.duration > 0) {
-          video.addEventListener('ended', onEnd, { once:true });
+          video.addEventListener('ended', finish, { once:true });
         } else {
-          // Fallback por si no hay duration aún
-          setTimeout(() => {
-            video.pause();
-            card.classList.remove('is-over');
-            try { video.currentTime = 0; } catch(_) {}
-          }, 3000);
+          // Fallback por si la duración llega tarde
+          setTimeout(finish, 3500);
         }
-      }
+      }).catch(()=>{ setTimeout(finish, 2000); });
     };
 
-    const pauseHide = () => {
-      video.pause();
-      card.classList.remove('is-over');
-      if (mqHover.matches) try { video.currentTime = 0; } catch(_) {}
-    };
+    // DESKTOP (incl. Opera): hover con doble fallback
+    if (isHoverDevice) {
+      // CSS ya muestra por :hover; además forzamos play/pause por eventos (Opera)
+      const onEnter = () => startLoopHover();
+      const onLeave = () => stopHover();
 
-    // DESKTOP (hover): reproducción por hover como antes
-    if (mqHover.matches) {
-      const onEnter = () => { try { video.currentTime = 0; } catch(_) {} video.play().catch(()=>{}); };
-      const onLeave = () => pauseHide();
+      // Ambos para máxima compatibilidad
       card.addEventListener('pointerenter', onEnter);
       card.addEventListener('pointerleave', onLeave);
-      document.addEventListener('visibilitychange', () => { if (document.hidden) pauseHide(); });
+      card.addEventListener('mouseenter', onEnter);
+      card.addEventListener('mouseleave', onLeave);
+
+      document.addEventListener('visibilitychange', () => { if (document.hidden) stopHover(); });
       return true;
     }
 
-    // SIN HOVER (móvil/TV):
-    // Diferenciamos por pointerType en eventos y el comportamiento solicitado.
-    // 1) TV: long-press para reproducir una vez (click normal sigue navegando)
-    // 2) Móvil: “pulsación + arrastre”: mover el dedo activa la animación (sin long-press)
-
+    // SIN HOVER (móvil / TV)
+    // TV: long-press para reproducir UNA vez (clic normal navega)
+    // Móvil: “pulsación + arrastre” para reproducir UNA vez (evita menú contextual)
     let pressTimer = null;
     let suppressNextClick = false;
 
-    // TV / “ratón” sin hover: long-press
+    // Long-press TV
     const LONG_MS = 550;
-
     card.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'mouse') {
-        // Long-press
+      const tvPointer = (e.pointerType === 'mouse') || isTVUA;
+      if (tvPointer) {
         if (pressTimer) clearTimeout(pressTimer);
         pressTimer = setTimeout(() => {
-          suppressNextClick = true;   // cancelamos solo este click
-          showOnce();
+          suppressNextClick = true;   // no navegues en ese clic
+          playOnce();
         }, LONG_MS);
       }
-      // En móvil no hacemos long-press para evitar menú contextual
+      // en móvil no disparamos long-press para evitar menú contextual
     });
+    const clearPress = () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } };
+    card.addEventListener('pointerup', clearPress);
+    card.addEventListener('pointercancel', clearPress);
+    card.addEventListener('pointerleave', clearPress);
 
-    card.addEventListener('pointerup', () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } });
-    card.addEventListener('pointercancel', () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } });
-    card.addEventListener('pointerleave', () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } });
-
-    // Cancela el click si vino de long-press (TV). En móvil no entra aquí (pointerType ≠ mouse)
+    // Cancela solo el clic que viene del long-press (permite navegar en clic corto)
     card.addEventListener('click', (e) => {
       if (suppressNextClick) {
-        e.preventDefault();
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         suppressNextClick = false;
       }
     }, true);
 
-    // Móvil (touch): activación por “pulsación + arrastre” (touchmove)
-    let startedDrag = false;
-    let startX = 0, startY = 0;
-
+    // MÓVIL: “pulsación + arrastre” (touchmove con algo de desplazamiento) → playOnce
+    let startX = 0, startY = 0, dragged = false;
     card.addEventListener('touchstart', (e) => {
       const t = e.touches[0];
-      startX = t.clientX; startY = t.clientY;
-      startedDrag = false;
+      startX = t.clientX; startY = t.clientY; dragged = false;
     }, { passive: true });
-
     card.addEventListener('touchmove', (e) => {
       const t = e.touches[0];
       const dx = Math.abs(t.clientX - startX);
       const dy = Math.abs(t.clientY - startY);
-      if (!startedDrag && (dx > 8 || dy > 8)) {
-        startedDrag = true;
-        // Inicia una reproducción única y vuelve al estado inicial al terminar
-        showOnce();
+      if (!dragged && (dx > 8 || dy > 8)) {
+        dragged = true;
+        playOnce();
       }
     }, { passive: true });
 
-    // Si cambias de pestaña/app, oculta
-    document.addEventListener('visibilitychange', () => { if (document.hidden) pauseHide(); });
+    // Pausa/oculta al cambiar de pestaña/app
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        video.pause();
+        card.classList.remove('is-over');
+        try { video.currentTime = 0; } catch(_) {}
+        playingOneShot = false;
+      }
+    });
 
     return true;
   }
 
   window.addEventListener('load', () => {
     if (mountOnFirstCard()) return;
+    // Por si la grid tarda en pintarse
     const t0 = Date.now();
     const timer = setInterval(() => {
       if (mountOnFirstCard() || (Date.now() - t0) > 4000) clearInterval(timer);
