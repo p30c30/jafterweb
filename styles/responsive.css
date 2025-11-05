@@ -211,11 +211,23 @@
 
 /* ====TARJETAS VIDEO==== para que el vídeo solo ocupe su área */
 
-/* Vídeo cubre TODA la tarjeta */
+/* La tarjeta crea el contexto */
 .section-cards .card {
   position: relative;
   overflow: hidden;
 }
+
+/* Imagen de la tarjeta: por debajo del vídeo */
+.section-cards .card img,
+.section-cards .card .card-image {
+  position: relative;
+  z-index: 1;   /* imagen al fondo */
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Vídeo superpuesto a TODA la tarjeta (por encima de la imagen) */
 .section-cards .card .card-anim {
   position: absolute;
   inset: 0;
@@ -223,14 +235,15 @@
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  z-index: 1;               /* debajo del texto */
+  z-index: 9;   /* por encima de la imagen */
   pointer-events: none;
   transition: opacity .25s ease;
 }
-/* Contenido de la tarjeta (títulos/descripción) por encima del vídeo */
+
+/* Contenido (título/desc) por encima del vídeo */
 .section-cards .card .card-content {
   position: relative;
-  z-index: 2;
+  z-index: 10;  /* texto por encima de todo */
 }
 
 /* Solo en dispositivos con hover (desktop) */
