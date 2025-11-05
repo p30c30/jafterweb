@@ -346,8 +346,8 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
         <div class="info-handle" aria-hidden="true"></div>
         <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div>
         <div class="foto-title">${title}</div>
-        <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'}>
-          <span class="chip-label">Ver sección:</span>
+        <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'} aria-label="${chipPrefix} ${sectionTitle || ''}">
+          <span class="chip-label">${chipPrefix}</span>
           <span class="chip-name">${sectionTitle || ''}</span>
           <span class="chip-arrow">→</span>
         </button>
