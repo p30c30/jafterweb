@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v36.6)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v36.7)               ==
 // ===================================================================
-console.log('✅ script36.js v36.6 CARGADO');
+console.log('✅ script36.js v36.7 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -16,7 +16,7 @@ let velX = 0, velY = 0, inertiaId = null;
 const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
 let __scrollLockY = 0, isBodyLocked = false;
 let modalFromHomeCarousel = false;
-let __pushedModal = false; // <- modal empujado a history por nosotros
+let __pushedModal = false; // modal empujado a history por nosotros
 
 // ===== Helpers =====
 function refreshScrollTop() { if (!scrollTopBtn) return; const y = window.scrollY || document.documentElement.scrollTop || 0; scrollTopBtn.classList.toggle('visible', y > 300); }
@@ -89,13 +89,9 @@ function goBackOneStep() {
         closeModal();
         if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
       } else {
-        const canBack = __pushedModal && st.view === 'modal' && history.length > 1;
-        if (canBack) {
-          history.back();
-          setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
-        } else {
-          closeModal();
-        }
+        const seccionId = currentSeccion?.id;
+        closeModal();
+        if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
       }
       return;
     }
@@ -324,7 +320,8 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   const item = list[currentFotoIndex] || { url: imageUrl, texto: title };
   const sectionId = modalSource === 'carrusel' ? item.seccionId : (currentSeccion ? currentSeccion.id : '');
   const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
-
+  const chipPrefix = (modalSource === 'carrusel') ? 'Ir a' : 'Volver a';
+  
   modal.innerHTML = `
     <div class="modal-hotspot top"></div>
     <div class="modal-hotspot left"></div>
@@ -360,6 +357,9 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   const modalImg = document.getElementById('modal-img');
 
   const onImageLoad = function () {
+    // Restaura visibilidad por si lo dejamos hard-hidden al cerrar
+    modal.style.display = '';
+
     modalImg.src = imageUrl; currentImage = modalImg;
     resetZoom();
     modal.classList.add('active');
@@ -407,44 +407,40 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     if (hotspotLeft) hotspotLeft.addEventListener('click', () => navegarFoto(-1));
     if (hotspotRight) hotspotRight.addEventListener('click', () => navegarFoto(1));
 
-    // Botón cerrar robusto (sale también de fullscreen)
+    // Botón cerrar (siempre sale de fullscreen y cierra según origen)
     if (closeBtn) {
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         exitFullscreenSafe();
+
         if (modalSource === 'carrusel') {
           closeModal();
           if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
           return;
         }
-        const canBack = __pushedModal && history.state?.view === 'modal' && history.length > 1;
-        if (canBack) {
-          history.back();
-          setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
-        } else {
-          closeModal();
-        }
+
+        const seccionId = currentSeccion?.id;
+        closeModal();
+        if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
       });
     }
 
     // Cerrar clicando fuera (overlay)
     modal.addEventListener('click', function (event) {
-      if (event.target === modal) {
-        if (ignoreNextClick) { ignoreNextClick = false; return; }
-        exitFullscreenSafe();
-        if (modalSource === 'carrusel') {
-          closeModal();
-          if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
-          return;
-        }
-        const canBack = __pushedModal && history.state?.view === 'modal' && history.length > 1;
-        if (canBack) {
-          history.back();
-          setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
-        } else {
-          closeModal();
-        }
+      if (event.target !== modal) return;
+      if (ignoreNextClick) { ignoreNextClick = false; return; }
+
+      exitFullscreenSafe();
+
+      if (modalSource === 'carrusel') {
+        closeModal();
+        if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+        return;
       }
+
+      const seccionId = currentSeccion?.id;
+      closeModal();
+      if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
     });
 
     // Flechas
@@ -462,6 +458,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
         if (!sid) { goBackOneStep(); return; }
         const sec = datosGlobales?.secciones?.find(s => s.id === sid);
         if (!sec) return;
+
         if (modalSource === 'carrusel') {
           history.replaceState({ view: 'home' }, '');
           closeModal();
@@ -539,13 +536,9 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
             closeModal();
             if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
           } else {
-            const canBack = __pushedModal && history.state?.view === 'modal' && history.length > 1;
-            if (canBack) {
-              history.back();
-              setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
-            } else {
-              closeModal();
-            }
+            const seccionId = currentSeccion?.id;
+            closeModal();
+            if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
           }
           break;
         case 'ArrowLeft': navegarFoto(-1); break;
@@ -627,8 +620,85 @@ function clampPan() { const { maxX, maxY } = getPanBounds(); if (Math.abs(transl
 function aplicarZoom(noTransition = false) { if (!currentImage) return; if (noTransition) currentImage.style.transition = 'none'; else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease'; clampPan(); currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`; currentImage.style.transformOrigin = 'center center'; const modalEl = document.getElementById('modal'); if (currentScale > 1) { currentImage.classList.add('zoomed'); currentImage.style.cursor = 'move'; modalEl?.classList.add('is-zoomed'); } else { currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default'; translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed'); currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`; } }
 function resetZoom() { currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; } if (currentImage) { currentImage.style.transition = ''; currentImage.style.transform = 'scale(1) translate3d(0px, 0px, 0)'; currentImage.classList.remove('zoomed', 'grabbing'); currentImage.style.cursor = 'default'; } const modalEl = document.getElementById('modal'); if (modalEl) modalEl.classList.remove('is-zoomed'); }
 function getModalList() { return modalSource === 'carrusel' ? carruselFotos : todasLasFotos; }
-function navegarFoto(direccion) { const list = getModalList(); if (!list?.length) return; let idx = currentFotoIndex + direccion; if (idx < 0) idx = list.length - 1; else if (idx >= list.length) idx = 0; currentFotoIndex = idx; const nueva = list[currentFotoIndex]; const modal = document.getElementById('modal'); if (!modal) return; const modalImg = modal.querySelector('#modal-img'); const contador = modal.querySelector('.foto-counter'); const titulo = modal.querySelector('.foto-title'); const chip = modal.querySelector('.section-chip'); resetZoom(); const im = new Image(); im.onload = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`; if (titulo) titulo.textContent = nueva.texto; if (chip) { if (modalSource === 'carrusel') { chip.dataset.seccionId = nueva.seccionId || ''; chip.querySelector('.chip-name').textContent = nueva.seccionTitulo || 'Ver sección'; chip.disabled = !nueva.seccionId; } else if (currentSeccion) { chip.dataset.seccionId = currentSeccion.id; chip.querySelector('.chip-name').textContent = currentSeccion.titulo; chip.disabled = false; } } if (!isHandlingPopstate && history.state?.view === 'modal') { const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex }; if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id; history.replaceState(state, ''); } precacheAround(currentFotoIndex); if (typeof window.triggerUiAfterPhotoChange === 'function') { window.triggerUiAfterPhotoChange(); } }; im.onerror = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; }; im.src = nueva.url; }
+function navegarFoto(direccion) {
+  const list = getModalList();
+  if (!list?.length) return;
 
+  let idx = currentFotoIndex + direccion;
+  if (idx < 0) idx = list.length - 1;
+  else if (idx >= list.length) idx = 0;
+  currentFotoIndex = idx;
+
+  const nueva = list[currentFotoIndex];
+  const modal = document.getElementById('modal');
+  if (!modal) return;
+
+  const modalImg = modal.querySelector('#modal-img');
+  const contador = modal.querySelector('.foto-counter');
+  const titulo = modal.querySelector('.foto-title');
+  const chip = modal.querySelector('.section-chip');
+
+  resetZoom();
+
+  const im = new Image();
+  im.onload = function () {
+    // Imagen y textos
+    modalImg.src = nueva.url;
+    modalImg.alt = nueva.texto;
+    currentImage = modalImg;
+
+    if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`;
+    if (titulo) titulo.textContent = nueva.texto;
+
+    // Chip dinámico: “Ir a” (desde carrusel) / “Volver a” (desde sección)
+    if (chip) {
+      let seccionId = '';
+      let sectionName = '';
+
+      if (modalSource === 'carrusel') {
+        seccionId = nueva.seccionId || '';
+        sectionName = nueva.seccionTitulo || '';
+        chip.disabled = !seccionId;
+        chip.dataset.seccionId = seccionId;
+      } else if (currentSeccion) {
+        seccionId = currentSeccion.id;
+        sectionName = currentSeccion.titulo || '';
+        chip.disabled = false;
+        chip.dataset.seccionId = seccionId;
+      }
+
+      const prefix = (modalSource === 'carrusel') ? 'Ir a' : 'Volver a';
+      const chipLabelEl = chip.querySelector('.chip-label');
+      const chipNameEl  = chip.querySelector('.chip-name');
+
+      if (chipLabelEl) chipLabelEl.textContent = prefix;
+      if (chipNameEl)  chipNameEl.textContent = sectionName;
+
+      chip.setAttribute('aria-label', `${prefix} ${sectionName}`.trim());
+    }
+
+    // Mantener estado del historial del modal
+    if (!isHandlingPopstate && history.state?.view === 'modal') {
+      const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
+      if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
+      history.replaceState(state, '');
+    }
+
+    // Precarga y UI
+    precacheAround(currentFotoIndex);
+    if (typeof window.triggerUiAfterPhotoChange === 'function') {
+      window.triggerUiAfterPhotoChange();
+    }
+  };
+
+  im.onerror = function () {
+    modalImg.src = nueva.url;
+    modalImg.alt = nueva.texto;
+    currentImage = modalImg;
+  };
+
+  im.src = nueva.url;
+}
 // ===== Móvil: bottom sheet / scroll lock =====
 function attachSwipeToModal(modal) {
   const container = modal.querySelector('.modal-img-container'); if (!container) return;
@@ -720,6 +790,9 @@ function closeModal() {
   if (!modal) return;
 
   exitFullscreenSafe();
+
+  // Hard-hide para evitar flash de frames residuales
+  modal.style.display = 'none';
 
   modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
   document.body.classList.remove('modal-open');
