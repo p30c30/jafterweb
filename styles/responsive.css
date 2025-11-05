@@ -211,23 +211,26 @@
 
 /* ====TARJETAS VIDEO==== para que el vídeo solo ocupe su área */
 
-/* La tarjeta debe ser relativa para superponer el vídeo */
+/* Vídeo cubre TODA la tarjeta */
 .section-cards .card {
   position: relative;
   overflow: hidden;
 }
-
-/* Vídeo cubre TODO (imagen + texto) y queda por encima */
 .section-cards .card .card-anim {
   position: absolute;
-  inset: 0;                 /* top:0; right:0; bottom:0; left:0 */
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  z-index: 999;             /* asegura que no lo tape el contenido de la tarjeta */
-  pointer-events: none;     /* no bloquea el click */
+  z-index: 1;               /* debajo del texto */
+  pointer-events: none;
   transition: opacity .25s ease;
+}
+/* Contenido de la tarjeta (títulos/descripción) por encima del vídeo */
+.section-cards .card .card-content {
+  position: relative;
+  z-index: 2;
 }
 
 /* Solo en dispositivos con hover (desktop) */
