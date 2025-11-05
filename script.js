@@ -828,61 +828,76 @@ function volverAGaleriaInternal() {
   refreshScrollTop();
 }
 
+ // =========VIDEO EN TARJETA========
 (function initCardAnim() {
-  // Solo aplicamos el hover si el dispositivo soporta hover (desktop)
   const canHover = window.matchMedia('(hover:hover)').matches;
 
-  function attachToFirstCard() {
+  function mountOnFirstCard() {
     const card = document.querySelector('.section-cards .card');
-    if (!card || card.querySelector('video.card-anim')) return false;
+    if (!card) return false;
 
-    // Usa la miniatura de la tarjeta como poster (si existe)
-    const img = card.querySelector('img');
-    const poster = img?.src || '';
+    // Encuentra la imagen de la tarjeta que pintas en cargarDatos
+    const img = card.querySelector('img, .card-image');
+    if (!img) return false;
 
-    // Crea el video
+    // Evita duplicar si ya está montado
+    if (card.querySelector('video.card-anim')) return true;
+
+    // Crea wrapper .card-media alrededor de la imagen (sin tocar tu HTML de origen)
+    let media = img.parentElement;
+    if (!media || !media.classList.contains('card-media')) {
+      media = document.createElement('div');
+      media.className = 'card-media';
+      img.insertAdjacentElement('beforebegin', media);
+      media.appendChild(img);
+    }
+
+    // Crea el vídeo dentro de .card-media
     const video = document.createElement('video');
     video.className = 'card-anim';
-    video.muted = true;           // autoplay permitido
-    video.playsInline = true;     // iOS
+    video.setAttribute('muted', '');      // atributo + propiedad para mayor compatibilidad
+    video.muted = true;
+    video.setAttribute('playsinline', '');
+    video.playsInline = true;
     video.loop = true;
-    video.preload = 'none';       // no cargar hasta hover
-    if (poster) video.poster = poster;
+    video.preload = 'none';
+    if (img.src) video.poster = img.src;
 
-    // Solo MP4 (ya lo subiste). Si más adelante generas WebM, añade otro <source>
     video.innerHTML = `
       <source src="/assets/anim/virgen.mp4" type="video/mp4">
     `;
-
-    card.appendChild(video);
+    media.appendChild(video);
 
     if (canHover) {
-      card.addEventListener('mouseenter', () => {
-        if (video.preload === 'none') video.preload = 'metadata';
+      const playVideo = () => {
+        if (video.preload === 'none') {
+          video.preload = 'metadata';
+          video.load(); // prepara el buffer
+        }
+        video.currentTime = 0; // arranca desde el inicio
         video.play().catch(() => {});
-      });
-      card.addEventListener('mouseleave', () => {
-        video.pause();
-      });
-      // Pausa si cambias de pestaña
+      };
+      const pauseVideo = () => { video.pause(); };
+
+      card.addEventListener('mouseenter', playVideo);
+      card.addEventListener('mouseleave', pauseVideo);
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) video.pause();
       });
     }
+
     return true;
   }
 
-  // Intenta enganchar al cargar
+  // Monta al cargar; si la grid aún no está, reintenta un poco
   window.addEventListener('load', () => {
-    if (attachToFirstCard()) return;
-    // Si aún no se ha pintado la grid, reintenta unos segundos
+    if (mountOnFirstCard()) return;
     const t0 = Date.now();
     const timer = setInterval(() => {
-      if (attachToFirstCard() || (Date.now() - t0) > 4000) clearInterval(timer);
+      if (mountOnFirstCard() || (Date.now() - t0) > 4000) clearInterval(timer);
     }, 300);
   });
 })();
-
 
 // ===== Boot =====
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', iniciar, { once: true }); }
