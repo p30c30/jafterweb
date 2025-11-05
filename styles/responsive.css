@@ -72,140 +72,82 @@
 
 
 /* =====LOGO CABEZERA===Header centrado: logo 1fr | auto - titulo  | 1fr */
+/* === Header (Jafterpic + redes) === */
 
+/* Grid: izq vacía | título (centro) | redes (derecha) */
 .site-header {
   display: grid !important;
-  grid-template-columns: 1fr auto 1fr;  /* título en la columna central */
+  grid-template-columns: 1fr auto 1fr;
   align-items: center !important;
   justify-content: stretch;
-  column-gap: 8px;                      /* distancia logo ↔ título */
-  padding-inline: 16px;
-}
-
-/* Logo: viaja hacia el centro y tamaño forzado (válido con o sin wrapper) */
-.site-header .title-logo {
-  /* coloca el logo en la columna izquierda y “pegado” al centro */
-  grid-column: 1;
-  justify-self: end;
-  display: inline-block !important;
-
-  /* TAMAÑO: súbelo aquí */
-  height: 64px !important;              /* cámbialo a 56/64/72 según prefieras */
-  width: auto !important;
-  max-width: none !important;
-  max-height: none !important;          /* neutraliza límites ocultos */
-
-  margin-right: 0 !important;
-  vertical-align: middle;
-  opacity: .98;
-  filter: drop-shadow(0 1px 1px rgba(0,0,0,.22));
-  transition: transform .15s ease, opacity .15s ease;
-}
-.site-header .title-logo:hover { transform: translateY(-1px); opacity: 1; }
-
-/* Título: centrado matemático (sin tocar su tipografía/color) */
-#logoHome {
-  grid-column: 2;
-  justify-self: center;
-  display: inline-block !important;
-  vertical-align: middle;
-}
-
-/* Breakpoints (ajusta si quieres) */
-@media (max-width: 1024px) {
-  .site-header .title-logo { height: 48px !important; }
-}
-@media (max-width: 768px) {
-  .site-header .title-logo { height: 36px !important; }
-}
-@media (max-width: 480px) {
-  .site-header .title-logo { height: 28px !important; }
-  .site-header { column-gap: 6px; padding-inline: 12px; }
-}
-/* Cursor de enlace (mano) al pasar por "Galería Jafter" */
-@media (hover:hover) {
-  .site-header #logoHome:hover {
-    cursor: pointer !important;
-  }
-}
-
-/* (Opcional) pista visual de enlace en hover y foco teclado */
-.site-header #logoHome:hover {
-  text-decoration: underline;
-}
-.site-header #logoHome:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  cursor: pointer !important;
-}
-
-/* ========REDES SOCIALES=======Columna derecha del Grid (1fr | auto | 1fr) */
-
-.site-header {
-  display: grid !important;
-  grid-template-columns: 1fr auto 1fr;  /* izq | título | dcha */
-  align-items: center !important;
-  justify-content: stretch;
-  grid-auto-rows: auto;
   column-gap: 10px;
   padding-inline: 16px;
-  text-align: initial; /* neutraliza el center del header para los items */
+  text-align: initial;
 }
 
-/* Logo izquierda (viaja hacia el centro) */
-.site-header .title-logo {
-  grid-column: 1;
-  grid-row: 1;
-  justify-self: end;
-}
-
-/* Título centrado matemáticamente */
-.site-header #logoHome {
+/* Título: misma fuente que secciones, un poco más grande */
+.site-title {
   grid-column: 2;
-  grid-row: 1;
   justify-self: center;
-  display: inline-block;  /* evita salto de línea */
+  display: inline-block;
+  font-family: inherit;           /* usa la misma que secciones */
+  font-weight: 700;
+  color: var(--accent, #FDB813);
+  text-shadow: 0 0 20px rgba(253,184,19,.3);
+  letter-spacing: .5px;
+  line-height: 1.1;
+  cursor: pointer;
 }
 
-/* Barra de redes: columna derecha, misma fila, con margen del borde */
-.site-header .header-social {
+/* Tamaño del título (ligeramente mayor que h1 de sección) */
+@media (min-width: 1025px) { .site-title { font-size: 2.45rem; } }
+@media (min-width: 769px) and (max-width: 1024px) { .site-title { font-size: 2.2rem; } }
+@media (max-width: 768px) { .site-title { font-size: clamp(1.6rem, 5.2vw, 2rem); } }
+
+/* Cursor/ayudas de enlace */
+@media (hover:hover) { .site-title:hover { cursor: pointer; } }
+.site-title:hover { text-decoration: underline; }
+.site-title:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  cursor: pointer;
+}
+
+/* Redes a la derecha (desktop) */
+.header-social {
   grid-column: 3;
-  grid-row: 1;
   justify-self: end;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-right: clamp(18px, 2vw, 28px);
+  padding-right: clamp(18px, 2.5vw, 32px); /* un poco de margen derecho */
 }
-
-/* Iconos más grandes en desktop */
-.site-header .header-social .social-icon {
-  width: 30px;
-  height: 30px;
-  display: block;
-  color: #fff;
-  opacity: .95;
+.header-social .social-icon {
+  width: 30px; height: 30px;
+  display: block; color: #fff; opacity: .95;
   transition: opacity .15s, transform .15s, color .2s, filter .2s;
   filter: drop-shadow(0 1px 1px rgba(0,0,0,.18));
 }
-.site-header .header-social .social-link:hover .social-icon {
-  opacity: 1;
-  transform: translateY(-1px);
+.header-social .social-link:hover .social-icon {
+  opacity: 1; transform: translateY(-1px);
   color: var(--accent, #FDB813);
   filter: drop-shadow(0 1px 2px rgba(253,184,19,.25));
 }
 
-/* Responsivo */
-@media (max-width: 1024px) {
-  .site-header .header-social .social-icon { width: 26px; height: 26px; }
-}
+/* Móvil: mantener a la derecha, solo un poco más baja */
 @media (max-width: 768px) {
-  .site-header .header-social .social-icon { width: 22px; height: 22px; }
-  .site-header { column-gap: 8px; }
+  .site-header { column-gap: 8px; padding-inline: 12px; }
+  .header-social {
+    align-self: end;              /* “bájala” dentro de la fila */
+    transform: translateY(6px);
+    padding-right: 12px;
+    gap: 10px;
+  }
+  .header-social .social-icon { width: 24px; height: 24px; }
 }
 @media (max-width: 480px) {
-  .site-header .header-social .social-icon { width: 20px; height: 20px; }
-  .site-header .header-social { gap: 8px; padding-right: 12px; }
+  .header-social { transform: translateY(8px); padding-right: 10px; gap: 8px; }
+  .header-social .social-icon { width: 22px; height: 22px; }
 }
 
 
