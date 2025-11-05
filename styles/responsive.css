@@ -72,7 +72,7 @@
 
 
 /* =====LOGO CABEZERA===Header centrado: logo 1fr | auto - titulo  | 1fr */
-/* === Header (Jafterpic + redes) === */
+/* === Header (Jafterpic + redes) limpio y único === */
 
 /* Grid: izq vacía | título (centro) | redes (derecha) */
 .site-header {
@@ -82,43 +82,40 @@
   justify-content: stretch;
   column-gap: 10px;
   padding-inline: 16px;
-  text-align: initial;
+  text-align: initial; /* neutraliza un posible center global del header */
 }
 
-/* Título Jafterpic: igual que los h1 de sección /
-.site-title {
-grid-column: 2; / centrado en la columna central del Grid */
-justify-self: center;
-display: inline-block;
+/* Título: MISMO estilo que h1 de sección (font inherit + 600) */
+.site-title,
+#logoHome.site-title {              /* por si el selector anterior no aplica */
+  grid-column: 2;
+  justify-self: center;
+  display: inline-block;
 
-/* MISMO estilo que .seccion-header h1 /
-font-family: inherit; / igual que secciones (hereda del body) /
-font-weight: 600; / igual que secciones */
-letter-spacing: .5px;
-line-height: 1.2;
-color: var(--accent, #FDB813);
-text-shadow: 0 0 20px rgba(253,184,19,.3);
+  font-family: inherit;             /* igual que las secciones */
+  font-weight: 600;                 /* igual que .seccion-header h1 */
+  letter-spacing: .5px;
+  line-height: 1.2;
 
-/* Suavizado para evitar sensación de “más grueso” en algunos navegadores */
--webkit-font-smoothing: antialiased;
--moz-osx-font-smoothing: grayscale;
+  color: var(--accent, #FDB813) !important;  /* amarillo en todas las vistas */
+  text-shadow: 0 0 20px rgba(253,184,19,.3);
 
-/* MISMO tamaño que Spotting (2.2rem) */
-font-size: 2.2rem;
-cursor: pointer;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Tamaño igual que h1 de sección (2.2rem) */
+  font-size: 2.2rem;
+  cursor: pointer;
 }
 
-/* Opcional (+2% respecto a 2.2rem, si luego lo quieres “apenas” más grande) /
-/ @media (min-width: 1025px) { .site-title { font-size: 2.25rem; } } */
-
-/* Redes a la derecha (desktop) */
+/* Redes a la derecha (desktop), en una fila */
 .header-social {
   grid-column: 3;
   justify-self: end;
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-right: clamp(18px, 2.5vw, 32px); /* un poco de margen derecho */
+  padding-right: clamp(18px, 2.5vw, 32px);
 }
 .header-social .social-icon {
   width: 30px; height: 30px;
@@ -132,11 +129,23 @@ cursor: pointer;
   filter: drop-shadow(0 1px 2px rgba(253,184,19,.25));
 }
 
-/* Móvil: mantener a la derecha, solo un poco más baja */
+/* Desktop: si quieres 2% más grande que el h1 de sección, descomenta */
+@media (min-width: 1025px) {
+  /* .site-title { font-size: 2.25rem; } */
+}
+
+/* Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .site-title { font-size: 2.2rem; }
+}
+
+/* Móvil: fuente correcta + color amarillo + redes a la derecha un pelín más bajas */
 @media (max-width: 768px) {
-  .site-header { column-gap: 8px; padding-inline: 12px; }
+  .site-title { font-size: clamp(1.5rem, 5vw, 1.9rem); }
   .header-social {
-    align-self: end;              /* “bájala” dentro de la fila */
+    grid-column: 3;                 /* se mantiene a la derecha */
+    justify-self: end;
+    align-self: end;                /* un poco más abajo en la fila */
     transform: translateY(6px);
     padding-right: 12px;
     gap: 10px;
@@ -147,6 +156,11 @@ cursor: pointer;
   .header-social { transform: translateY(8px); padding-right: 10px; gap: 8px; }
   .header-social .social-icon { width: 22px; height: 22px; }
 }
+
+/* Ayudas de enlace */
+@media (hover:hover) { .site-title:hover { cursor: pointer; text-decoration: underline; } }
+.site-title:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; cursor: pointer; }
+
 
 
 /* ====TARJETAS VIDEO==== para que el vídeo solo ocupe su área */
