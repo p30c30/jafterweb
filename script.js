@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v36.7)               ==
 // ===================================================================
-console.log('✅ script.js v37.3 CARGADO');
+console.log('✅ script.js v37.4 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -830,11 +830,12 @@ function volverAGaleriaInternal() {
 
  // =========VIDEO EN TARJETA========
 
-(function initCardAnim_LongPressOnly() {
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduceMotion) return;
+(function initCardAnim_DesktopHover_MobileDrag_TVLongPress() {
+  const mqHover   = window.matchMedia('(hover:hover)');
+  const mqReduce  = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (mqReduce.matches) return;
 
-  function mount() {
+  function mountOnFirstCard() {
     const card = document.querySelector('.section-cards .card');
     if (!card) return false;
     if (card.querySelector('video.card-anim')) return true;
@@ -842,90 +843,140 @@ function volverAGaleriaInternal() {
     // Crea el vídeo overlay a toda la tarjeta
     const video = document.createElement('video');
     video.className = 'card-anim';
-    video.muted = true;            video.setAttribute('muted','');
-    video.playsInline = true;      video.setAttribute('playsinline','');
-    video.loop = true;
-    video.preload = 'auto';        // precarga para arranque fiable (TV/Opera)
-
+    video.muted = true;        video.setAttribute('muted','');
+    video.playsInline = true;  video.setAttribute('playsinline','');
+    video.loop = mqHover.matches;     // loop solo en desktop (hover); móvil/TV = 1 sola pasada
+    video.preload = mqHover.matches ? 'metadata' : 'auto'; // TV necesita precarga más agresiva
     const poster = card.querySelector('img')?.src || '';
     if (poster) video.poster = poster;
 
-    // Fuentes (añade webm si lo tienes)
     video.innerHTML = `
       <source src="/assets/anim/virgen.mp4" type="video/mp4">
     `;
     card.appendChild(video);
 
-    // Priming: play→pause al estar listo, queda preparado para primer arranque
+    // Priming: play->pause para primer arranque fiable (Opera/TV)
     const prime = () => {
-      video.play()
-        .then(() => { video.pause(); try { video.currentTime = 0; } catch(_){} })
-        .catch(()=>{});
+      video.play().then(() => { video.pause(); try { video.currentTime = 0; } catch(_){} }).catch(()=>{});
     };
     if (video.readyState >= 2) prime();
-    else video.addEventListener('canplay', prime, { once: true });
+    else video.addEventListener('canplay', prime, { once:true });
 
-    // ----- LONG PRESS TOGGLE -----
-    const LONG_PRESS_MS = 550;
-    let pressTimer = null;
-    let suppressNextClick = false; // cancela solo el click que viene del long-press
-
-    const start = () => {
+    // Helpers
+    const showOnce = () => {
+      // En móvil/TV reproducimos una vez y volvemos al estado inicial
       try { video.currentTime = 0; } catch(_) {}
-      video.play().catch(()=>{});
       card.classList.add('is-over');
+      // Asegura no loop en este modo
+      if (!mqHover.matches) video.loop = false;
+      video.play().catch(()=>{});
+
+      const onEnd = () => {
+        video.pause();
+        card.classList.remove('is-over');
+        try { video.currentTime = 0; } catch(_) {}
+        video.removeEventListener('ended', onEnd);
+      };
+
+      if (!mqHover.matches) {
+        // móvil/TV: parar al terminar
+        if (isFinite(video.duration) && video.duration > 0) {
+          video.addEventListener('ended', onEnd, { once:true });
+        } else {
+          // Fallback por si no hay duration aún
+          setTimeout(() => {
+            video.pause();
+            card.classList.remove('is-over');
+            try { video.currentTime = 0; } catch(_) {}
+          }, 3000);
+        }
+      }
     };
-    const stop = () => {
+
+    const pauseHide = () => {
       video.pause();
       card.classList.remove('is-over');
-    };
-    const toggle = () => {
-      if (card.classList.contains('is-over')) stop();
-      else start();
+      if (mqHover.matches) try { video.currentTime = 0; } catch(_) {}
     };
 
-    // Inicia temporizador en “down” y decide en “up/cancel”
-    const onDown = (e) => {
-      // evita que iOS saque el callout en pulsación larga (ya añadimos CSS arriba)
-      if (pressTimer) clearTimeout(pressTimer);
-      pressTimer = setTimeout(() => {
-        suppressNextClick = true;  // cancelaremos solo este click
-        toggle();                  // activa/desactiva la animación
-      }, LONG_PRESS_MS);
-    };
-    const clearPress = () => {
-      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-    };
+    // DESKTOP (hover): reproducción por hover como antes
+    if (mqHover.matches) {
+      const onEnter = () => { try { video.currentTime = 0; } catch(_) {} video.play().catch(()=>{}); };
+      const onLeave = () => pauseHide();
+      card.addEventListener('pointerenter', onEnter);
+      card.addEventListener('pointerleave', onLeave);
+      document.addEventListener('visibilitychange', () => { if (document.hidden) pauseHide(); });
+      return true;
+    }
 
-    card.addEventListener('pointerdown', onDown);
-    card.addEventListener('pointerup', clearPress);
-    card.addEventListener('pointercancel', clearPress);
-    card.addEventListener('pointerleave', clearPress);
+    // SIN HOVER (móvil/TV):
+    // Diferenciamos por pointerType en eventos y el comportamiento solicitado.
+    // 1) TV: long-press para reproducir una vez (click normal sigue navegando)
+    // 2) Móvil: “pulsación + arrastre”: mover el dedo activa la animación (sin long-press)
 
-    // Cancela el click si vino de un long-press (no navegues en ese caso)
+    let pressTimer = null;
+    let suppressNextClick = false;
+
+    // TV / “ratón” sin hover: long-press
+    const LONG_MS = 550;
+
+    card.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') {
+        // Long-press
+        if (pressTimer) clearTimeout(pressTimer);
+        pressTimer = setTimeout(() => {
+          suppressNextClick = true;   // cancelamos solo este click
+          showOnce();
+        }, LONG_MS);
+      }
+      // En móvil no hacemos long-press para evitar menú contextual
+    });
+
+    card.addEventListener('pointerup', () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } });
+    card.addEventListener('pointercancel', () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } });
+    card.addEventListener('pointerleave', () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } });
+
+    // Cancela el click si vino de long-press (TV). En móvil no entra aquí (pointerType ≠ mouse)
     card.addEventListener('click', (e) => {
       if (suppressNextClick) {
         e.preventDefault();
         e.stopPropagation();
         suppressNextClick = false;
       }
-      // si no hay suppressNextClick, el click navega normal (abre la sección)
-    }, true); // captura: aseguramos que cancele antes que otros listeners
+    }, true);
 
-    // Pausa al perder visibilidad (cambio de pestaña/app)
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) stop();
-    });
+    // Móvil (touch): activación por “pulsación + arrastre” (touchmove)
+    let startedDrag = false;
+    let startX = 0, startY = 0;
+
+    card.addEventListener('touchstart', (e) => {
+      const t = e.touches[0];
+      startX = t.clientX; startY = t.clientY;
+      startedDrag = false;
+    }, { passive: true });
+
+    card.addEventListener('touchmove', (e) => {
+      const t = e.touches[0];
+      const dx = Math.abs(t.clientX - startX);
+      const dy = Math.abs(t.clientY - startY);
+      if (!startedDrag && (dx > 8 || dy > 8)) {
+        startedDrag = true;
+        // Inicia una reproducción única y vuelve al estado inicial al terminar
+        showOnce();
+      }
+    }, { passive: true });
+
+    // Si cambias de pestaña/app, oculta
+    document.addEventListener('visibilitychange', () => { if (document.hidden) pauseHide(); });
 
     return true;
   }
 
-  // Monta al cargar (reintenta si la grid aún no está en el DOM)
   window.addEventListener('load', () => {
-    if (mount()) return;
+    if (mountOnFirstCard()) return;
     const t0 = Date.now();
     const timer = setInterval(() => {
-      if (mount() || (Date.now() - t0) > 4000) clearInterval(timer);
+      if (mountOnFirstCard() || (Date.now() - t0) > 4000) clearInterval(timer);
     }, 300);
   });
 })();
