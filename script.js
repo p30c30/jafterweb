@@ -829,68 +829,73 @@ function volverAGaleriaInternal() {
 }
 
  // =========VIDEO EN TARJETA========
-(function initCardAnimFullOverlay() {
+(function initCardAnims() {
   const canHover = window.matchMedia('(hover:hover)').matches;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
 
-  function mountOnFirstCard() {
-    const card = document.querySelector('.section-cards .card');
-    if (!card) return false;
-    if (card.querySelector('video.card-anim')) return true;
+  // Precarga cuando la tarjeta se acerca al viewport
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(({ isIntersecting, target }) => {
+      if (!isIntersecting) return;
+      const video = target.querySelector('video.card-anim');
+      if (video && video.preload === 'none') {
+        video.preload = 'metadata';
+        video.load();
+      }
+      io.unobserve(target);
+    });
+  }, { rootMargin: '300px' });
 
-    // Crea el video y lo superpone a toda la tarjeta
+  // Montar vídeo en cada tarjeta que tenga data-anim
+  document.querySelectorAll('.section-cards .card[data-anim]').forEach(card => {
+    if (card.querySelector('video.card-anim')) return;
+
+    const srcMp4  = card.dataset.anim || '';
+    const srcWebm = card.dataset.animWebm || ''; // opcional: data-anim-webm
+    if (!srcMp4 && !srcWebm) return;
+
+    // Asegura posicionamiento relativo
+    card.style.position = card.style.position || 'relative';
+
+    // Poster = primera imagen de la tarjeta (si existe)
+    const img = card.querySelector('img');
+    const poster = img?.src || '';
+
     const video = document.createElement('video');
     video.className = 'card-anim';
-    video.setAttribute('muted', '');       // atributo + propiedad (más compatible)
-    video.muted = true;
-    video.setAttribute('playsinline', '');
-    video.playsInline = true;
+    video.setAttribute('muted', ''); video.muted = true;
+    video.setAttribute('playsinline', ''); video.playsInline = true;
     video.loop = true;
-    video.preload = 'none';                // lo cambiamos en hover
-    // (Opcional) poster = primera imagen de la tarjeta
-    const posterImg = card.querySelector('img');
-    if (posterImg?.src) video.poster = posterImg.src;
+    video.preload = 'none';
+    if (poster) video.poster = poster;
 
+    // Fuentes (WebM primero si lo tienes)
     video.innerHTML = `
-      <source src="/assets/anim/virgen.mp4" type="video/mp4">
+      ${srcWebm ? `<source src="${srcWebm}" type="video/webm">` : ''}
+      ${srcMp4  ? `<source src="${srcMp4}"  type="video/mp4">`  : ''}
     `;
-
     card.appendChild(video);
 
+    // Precarga suave al acercarse
+    io.observe(card);
+
+    // Reproducir/pausar en hover (solo desktop)
     if (canHover) {
-      const tryPlay = () => video.play().catch(() => {});
-      const onEnter = () => {
-        if (video.preload === 'none') {
-          video.preload = 'auto';
-          video.load();                    // “precalienta” el buffer
-        }
-        video.currentTime = 0;             // empieza desde el inicio cada hover
-        if (video.readyState >= 2) {
-          tryPlay();
-        } else {
-          // Reproduce en cuanto pueda, con fallback por si tarda
-          video.addEventListener('canplay', tryPlay, { once: true });
+      const tryPlay = () => video.play().catch(()=>{});
+      card.addEventListener('mouseenter', () => {
+        video.currentTime = 0;
+        if (video.readyState >= 2) tryPlay();
+        else {
+          const onCanPlay = () => { tryPlay(); video.removeEventListener('canplay', onCanPlay); };
+          video.addEventListener('canplay', onCanPlay);
+          // fallback por si tarda
           setTimeout(tryPlay, 800);
         }
-      };
-      const onLeave = () => { video.pause(); };
-
-      card.addEventListener('mouseenter', onEnter);
-      card.addEventListener('mouseleave', onLeave);
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) video.pause();
       });
+      card.addEventListener('mouseleave', () => video.pause());
+      document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); });
     }
-
-    return true;
-  }
-
-  // Monta al cargar (y reintenta si la grid tarda en pintarse)
-  window.addEventListener('load', () => {
-    if (mountOnFirstCard()) return;
-    const t0 = Date.now();
-    const timer = setInterval(() => {
-      if (mountOnFirstCard() || (Date.now() - t0) > 4000) clearInterval(timer);
-    }, 300);
   });
 })();
 
