@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v36.7)               ==
 // ===================================================================
-console.log('✅ script.js v36.8 CARGADO');
+console.log('✅ script.js v36.9 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -829,75 +829,76 @@ function volverAGaleriaInternal() {
 }
 
  // =========VIDEO EN TARJETA========
-(function initCardAnims() {
+(function initCardAnimFullCard() {
   const canHover = window.matchMedia('(hover:hover)').matches;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) return;
 
-  // Precarga cuando la tarjeta se acerca al viewport
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(({ isIntersecting, target }) => {
-      if (!isIntersecting) return;
-      const video = target.querySelector('video.card-anim');
-      if (video && video.preload === 'none') {
-        video.preload = 'metadata';
-        video.load();
-      }
-      io.unobserve(target);
-    });
-  }, { rootMargin: '300px' });
+  function mount() {
+    const card = document.querySelector('.section-cards .card');
+    if (!card) return false;
+    if (card.querySelector('video.card-anim')) return true;
 
-  // Montar vídeo en cada tarjeta que tenga data-anim
-  document.querySelectorAll('.section-cards .card[data-anim]').forEach(card => {
-    if (card.querySelector('video.card-anim')) return;
-
-    const srcMp4  = card.dataset.anim || '';
-    const srcWebm = card.dataset.animWebm || ''; // opcional: data-anim-webm
-    if (!srcMp4 && !srcWebm) return;
-
-    // Asegura posicionamiento relativo
-    card.style.position = card.style.position || 'relative';
-
-    // Poster = primera imagen de la tarjeta (si existe)
-    const img = card.querySelector('img');
-    const poster = img?.src || '';
-
+    // Crea el video superpuesto a toda la tarjeta
     const video = document.createElement('video');
     video.className = 'card-anim';
-    video.setAttribute('muted', ''); video.muted = true;
-    video.setAttribute('playsinline', ''); video.playsInline = true;
-    video.loop = true;
-    video.preload = 'none';
-    if (poster) video.poster = poster;
 
-    // Fuentes (WebM primero si lo tienes)
+    // Estas propiedades/atributos deben ponerse ANTES de cargar fuentes
+    video.muted = true;
+    video.setAttribute('muted', '');
+    video.playsInline = true;
+    video.setAttribute('playsinline', '');
+    video.loop = true;
+    video.preload = 'metadata';     // precalienta un poco
+    const posterImg = card.querySelector('img');
+    if (posterImg?.src) video.poster = posterImg.src;
+
+    // Fuentes (si más adelante añades .webm, ponlo primero)
     video.innerHTML = `
-      ${srcWebm ? `<source src="${srcWebm}" type="video/webm">` : ''}
-      ${srcMp4  ? `<source src="${srcMp4}"  type="video/mp4">`  : ''}
+      <source src="/assets/anim/virgen.mp4" type="video/mp4">
     `;
+
+    // Coloca el vídeo dentro de la tarjeta (cubre toda el área)
     card.appendChild(video);
 
-    // Precarga suave al acercarse
-    io.observe(card);
+    // Forzar buffer inicial
+    try { video.load(); } catch (_) {}
 
-    // Reproducir/pausar en hover (solo desktop)
     if (canHover) {
       const tryPlay = () => video.play().catch(()=>{});
-      card.addEventListener('mouseenter', () => {
-        video.currentTime = 0;
-        if (video.readyState >= 2) tryPlay();
-        else {
+      const onEnter = () => {
+        // Arranca siempre desde el inicio
+        try {
+          video.currentTime = 0;
+        } catch (_) {}
+        if (video.readyState >= 2) {
+          tryPlay();
+        } else {
+          // Reproduce cuando tenga datos; añade un pequeño fallback
           const onCanPlay = () => { tryPlay(); video.removeEventListener('canplay', onCanPlay); };
           video.addEventListener('canplay', onCanPlay);
-          // fallback por si tarda
-          setTimeout(tryPlay, 800);
+          setTimeout(tryPlay, 500);
         }
-      });
-      card.addEventListener('mouseleave', () => video.pause());
+      };
+      const onLeave = () => video.pause();
+
+      card.addEventListener('mouseenter', onEnter);
+      card.addEventListener('mouseleave', onLeave);
       document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); });
     }
+    return true;
+  }
+
+  // Monta al cargar; reintenta si la grid tarda en pintarse
+  window.addEventListener('load', () => {
+    if (mount()) return;
+    const t0 = Date.now();
+    const timer = setInterval(() => {
+      if (mount() || (Date.now() - t0) > 4000) clearInterval(timer);
+    }, 300);
   });
 })();
+
 
 // ===== Boot =====
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', iniciar, { once: true }); }
