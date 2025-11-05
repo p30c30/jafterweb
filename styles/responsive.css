@@ -122,3 +122,20 @@
   .site-header .title-logo { height: 28px !important; }
   .site-header { column-gap: 6px; padding-inline: 12px; }
 }
+/* Cursor de enlace (mano) al pasar por "Galería Jafter" */
+@media (hover:hover) {
+  .site-header #logoHome:hover {
+    cursor: pointer !important;
+  }
+}
+
+/* (Opcional) pista visual de enlace en hover y foco teclado */
+.site-header #logoHome:hover {
+  text-decoration: underline;
+}
+.site-header #logoHome:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  cursor: pointer !important;
+}
+
