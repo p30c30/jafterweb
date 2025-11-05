@@ -255,3 +255,45 @@
 @media (prefers-reduced-motion: reduce) {
   .section-cards .card .card-anim { display: none !important; }
 }
+/* La tarjeta crea el contexto (ya lo tienes, lo repito por claridad) */
+.section-cards .card { position: relative; overflow: hidden; }
+
+/* Vídeo superpuesto por encima de la imagen y por debajo del texto */
+.section-cards .card .card-anim {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  z-index: 9;              /* sobre la imagen */
+  pointer-events: none;
+  transition: opacity .25s ease;
+}
+
+/* Texto por encima de todo */
+.section-cards .card .card-content { position: relative; z-index: 10; }
+
+/* Desktop: hover */
+@media (hover:hover) {
+  .section-cards .card:hover .card-anim { opacity: 1; }
+}
+
+/* TV/móviles (no hay hover): muestra el vídeo con foco o clase */
+@media (hover:none) {
+  .section-cards .card:focus .card-anim,
+  .section-cards .card:focus-within .card-anim,
+  .section-cards .card.is-over .card-anim {
+    opacity: 1;
+  }
+  /* foco visible para D‑pad (opcional) */
+  .section-cards .card:focus-visible {
+    outline: 2px solid var(--accent, #FDB813);
+    outline-offset: 3px;
+  }
+}
+
+/* Respeta reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .section-cards .card .card-anim { display: none !important; }
+}
