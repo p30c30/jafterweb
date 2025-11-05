@@ -71,7 +71,7 @@
 
 
 
-/* Header centrado: logo 1fr | auto - titulo  | 1fr */
+/* =====LOGO CABEZERA===Header centrado: logo 1fr | auto - titulo  | 1fr */
 
 .site-header {
   display: grid !important;
@@ -139,3 +139,41 @@
   cursor: pointer !important;
 }
 
+/* ========REDES SOCIALES=======Columna derecha del Grid (1fr | auto | 1fr) */
+.header-social {
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-right: 16px;
+}
+
+/* Iconos inline SVG (heredan color) */
+.header-social .social-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
+  color: #ffffff;
+  opacity: .95;
+  transition: opacity .15s ease, transform .15s ease, color .2s ease, filter .2s ease;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.18));
+}
+.header-social .social-link:hover .social-icon {
+  opacity: 1;
+  transform: translateY(-1px);
+  color: var(--accent, #FDB813);
+  filter: drop-shadow(0 1px 2px rgba(253,184,19,.25));
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-social .social-icon { width: 20px; height: 20px; }
+  .header-social { gap: 10px; padding-right: 12px; }
+}
+@media (max-width: 480px) {
+  .header-social .social-icon { width: 18px; height: 18px; }
+  .header-social { gap: 8px; padding-right: 10px; }
+  /* Si te quedas sin espacio: oculta a partir del 4º, por ejemplo
+     .header-social a:nth-child(n+4) { display: none; } */
+}
