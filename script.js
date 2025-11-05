@@ -875,34 +875,80 @@ function volverAGaleriaInternal() {
       card.addEventListener('pointerenter', onEnter);
       card.addEventListener('pointerleave', onLeave);
       document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); });
-    } else {
-      // TV / sin hover: foco y puntero del mando
-      // 1) permite foco con el D‑pad
-      if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
+    // TV / sin hover: foco + puntero + long-press (sin romper el click de navegación)
+} else {
+  // Permitir foco con D‑pad
+  if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
 
-      const play = () => { try { video.currentTime = 0; } catch(_) {} video.play().catch(()=>{}); };
-      const pause = () => video.pause();
+  let lockedPlay = false;        // si está bloqueada la reproducción (toggle con long-press)
+  let hoverTimer = null;
+  let pressTimer = null;
+  let suppressNextClick = false; // cancelar solo el click que produjo el long-press
 
-      // 2) focus/blur (D‑pad) → reproducir/pausar
-      card.addEventListener('focusin', () => { card.classList.add('is-over'); play(); });
-      card.addEventListener('focusout', () => { card.classList.remove('is-over'); pause(); });
+  const start = () => {
+    try { video.currentTime = 0; } catch(_) {}
+    video.play().catch(()=>{});
+    card.classList.add('is-over');
+  };
+  const stop = () => {
+    video.pause();
+    card.classList.remove('is-over');
+    if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
+  };
+  const toggleLock = () => {
+    lockedPlay = !lockedPlay;
+    if (lockedPlay) start(); else stop();
+  };
 
-      // 3) puntero del mando: “hover” simulado con pointermove/pointerdown
-      const markOver = () => { card.classList.add('is-over'); play(); };
-      const unmarkOver = () => { card.classList.remove('is-over'); pause(); };
+  // Foco con D‑pad: previsualiza mientras tiene foco (si no está bloqueado)
+  card.addEventListener('focusin', () => { if (!lockedPlay) start(); });
+  card.addEventListener('focusout', () => { lockedPlay = false; stop(); });
 
-      card.addEventListener('pointermove', markOver);
-      card.addEventListener('pointerdown', markOver);
-      // algunos navegadores TV no emiten pointerleave; añadimos mouseleave por si acaso
-      card.addEventListener('pointerleave', unmarkOver);
-      card.addEventListener('mouseleave', unmarkOver);
-
-      // 4) cuando la pestaña pierde foco
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) { card.classList.remove('is-over'); pause(); }
-      });
+  // “Hover” simulado con puntero del mando
+  card.addEventListener('pointermove', () => {
+    if (!lockedPlay) {
+      start();
+      if (hoverTimer) clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(() => { if (!lockedPlay) stop(); }, 1800);
     }
+  });
+  card.addEventListener('pointerleave', () => { if (!lockedPlay) stop(); });
+  card.addEventListener('mouseleave',   () => { if (!lockedPlay) stop(); });
 
+  // Long‑press para bloquear/desbloquear preview (sin navegar)
+  const LONG_PRESS_MS = 550;
+  card.addEventListener('pointerdown', () => {
+    if (pressTimer) clearTimeout(pressTimer);
+    pressTimer = setTimeout(() => {
+      suppressNextClick = true;  // cancelaremos el click que viene de esta pulsación prolongada
+      toggleLock();              // alterna reproducción bloqueada
+    }, LONG_PRESS_MS);
+  });
+  card.addEventListener('pointerup', () => {
+    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+  });
+  card.addEventListener('pointercancel', () => {
+    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+  });
+
+  // Capturamos el click solo si viene de un long‑press (para NO navegar en ese caso)
+  card.addEventListener('click', (e) => {
+    if (suppressNextClick) {
+      e.preventDefault();
+      e.stopPropagation();
+      suppressNextClick = false;
+    }
+    // si no hay suppressNextClick, el click navega como siempre
+  }, true); // en fase de captura para asegurar que se cancela a tiempo
+
+  // Pausar al cambiar de pestaña
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { lockedPlay = false; stop(); }
+  });
+
+  // Opcional: si quieres que Space sirva de toggle en TV/teclado
+  // card.addEventListener('keydown', (e) => { if (e.key === ' ') { e.preventDefault(); toggleLock(); } });
+}
     return true;
   }
 
