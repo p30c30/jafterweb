@@ -85,46 +85,31 @@
   text-align: initial;
 }
 
-/* Título Jafterpic: igual que los h1 de sección, un poco más grande */
+/* Título Jafterpic: igual que los h1 de sección /
 .site-title {
-grid-column: 2;
+grid-column: 2; / centrado en la columna central del Grid */
 justify-self: center;
 display: inline-block;
 
-/* mismo “look” que .seccion-header h1 /
-font-family: inherit;
-font-weight: 600; / igual que h1 de sección (antes 700) */
+/* MISMO estilo que .seccion-header h1 /
+font-family: inherit; / igual que secciones (hereda del body) /
+font-weight: 600; / igual que secciones */
 letter-spacing: .5px;
 line-height: 1.2;
 color: var(--accent, #FDB813);
 text-shadow: 0 0 20px rgba(253,184,19,.3);
 
-/* suavizado (por si notas grosor en algunos navegadores) */
+/* Suavizado para evitar sensación de “más grueso” en algunos navegadores */
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 
+/* MISMO tamaño que Spotting (2.2rem) */
+font-size: 2.2rem;
 cursor: pointer;
 }
 
-/* Tamaño: un poco mayor que 2.2rem de las secciones /
-@media (min-width: 1025px) {
-.site-title { font-size: 2.35rem; } / ~+7% sobre 2.2rem /
-}
-@media (min-width: 769px) and (max-width: 1024px) {
-.site-title { font-size: 2.05rem; } / ligeramente mayor que en sección */
-}
-@media (max-width: 768px) {
-.site-title { font-size: clamp(1.5rem, 5vw, 1.9rem); }
-}
-
-/* Cursor/ayudas de enlace */
-@media (hover:hover) { .site-title:hover { cursor: pointer; } }
-.site-title:hover { text-decoration: underline; }
-.site-title:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  cursor: pointer;
-}
+/* Opcional (+2% respecto a 2.2rem, si luego lo quieres “apenas” más grande) /
+/ @media (min-width: 1025px) { .site-title { font-size: 2.25rem; } } */
 
 /* Redes a la derecha (desktop) */
 .header-social {
