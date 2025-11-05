@@ -1,8 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN FINAL Y COMPLETA (v36.5)       ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v36.6)               ==
 // ===================================================================
-
-console.log('✅ script36.js v36.5 CARGADO');
+console.log('✅ script36.js v36.6 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -15,19 +14,16 @@ const carouselAutoDelay = 20000, carouselUserPauseMs = 60000;
 let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
 let velX = 0, velY = 0, inertiaId = null;
 const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
-let __scrollLockY = 0;
-let isBodyLocked = false;
-
-// Flag: modal abierto desde carrusel de portada
+let __scrollLockY = 0, isBodyLocked = false;
 let modalFromHomeCarousel = false;
+let __pushedModal = false; // <- modal empujado a history por nosotros
 
 // ===== Helpers =====
 function refreshScrollTop() { if (!scrollTopBtn) return; const y = window.scrollY || document.documentElement.scrollTop || 0; scrollTopBtn.classList.toggle('visible', y > 300); }
 if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
 function scrollToTopHard() { requestAnimationFrame(() => { requestAnimationFrame(() => { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }); }); }
 function forceSectionTop(containerEl) { const toTop = () => { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }; toTop(); requestAnimationFrame(() => toTop()); setTimeout(toTop, 50); setTimeout(toTop, 200); setTimeout(toTop, 500); if (containerEl) { const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12); imgs.forEach(img => { if (!img.complete) { const bump = () => toTop(); img.addEventListener('load', bump, { once: true }); img.addEventListener('error', bump, { once: true }); } }); } }
-// Helper seguro fullscreen (Safari incluido)
-function exitFullscreenSafe() { const d = document; try { if (d.fullscreenElement && d.exitFullscreen) return d.exitFullscreen(); if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen(); } catch(e) {} }
+function exitFullscreenSafe() { const d = document; try { if (d.fullscreenElement && d.exitFullscreen) return d.exitFullscreen(); if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen(); } catch (e) {} }
 
 // ===== Inicio =====
 function iniciar() {
@@ -41,7 +37,7 @@ function iniciar() {
 function crearBotonScrollTop() { scrollTopBtn = document.querySelector('.scroll-to-top'); if (!scrollTopBtn) { scrollTopBtn = document.createElement('button'); scrollTopBtn.className = 'scroll-to-top'; scrollTopBtn.innerHTML = '↑'; scrollTopBtn.setAttribute('aria-label', 'Volver arriba'); document.body.appendChild(scrollTopBtn); } scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' }); window.addEventListener('scroll', refreshScrollTop, { passive: true }); window.addEventListener('resize', refreshScrollTop, { passive: true }); window.addEventListener('load', refreshScrollTop, { once: true }); refreshScrollTop(); }
 function initHistoryHandler() { if (!history.state) history.replaceState({ view: 'home' }, ''); window.addEventListener('popstate', (e) => { const state = e.state || { view: 'home' }; aplicarEstado(state); }); }
 
-// No subir en portada al cerrar modal del carrusel
+// ===== Estado / navegación SPA =====
 function aplicarEstado(state) {
   isHandlingPopstate = true;
 
@@ -83,16 +79,24 @@ function aplicarEstado(state) {
   isHandlingPopstate = false;
 }
 
-// Volver robusto
 function goBackOneStep() {
   try {
     const st = history.state || {};
 
     if (isModalOpen) {
-      if (st.view === 'modal' && history.length > 1) {
-        history.back();
-        setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
-      } else { closeModal(); }
+      exitFullscreenSafe();
+      if (modalSource === 'carrusel') {
+        closeModal();
+        if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+      } else {
+        const canBack = __pushedModal && st.view === 'modal' && history.length > 1;
+        if (canBack) {
+          history.back();
+          setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
+        } else {
+          closeModal();
+        }
+      }
       return;
     }
 
@@ -116,12 +120,11 @@ function goBackOneStep() {
     history.replaceState({ view: 'home' }, '');
   } catch (e) {
     console.warn('goBackOneStep fallback', e);
-    if (isModalOpen) closeModal();
-    else { aplicarEstado({ view: 'home' }); history.replaceState({ view: 'home' }, ''); }
+    if (isModalOpen) closeModal(); else { aplicarEstado({ view: 'home' }); history.replaceState({ view: 'home' }, ''); }
   }
 }
 
-// Datos y vistas
+// ===== Datos y vistas =====
 async function cargarDatos(container) {
   try {
     const res = await fetch('data.json?v=' + Date.now());
@@ -155,12 +158,7 @@ function mostrarSeccion(seccion, opts = { push: true }) {
   const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none';
 
   let view = document.getElementById('seccion-view');
-  if (!view) {
-    view = document.createElement('div');
-    view.id = 'seccion-view';
-    view.className = 'seccion-view';
-    document.getElementById('content').appendChild(view);
-  }
+  if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); }
 
   view.innerHTML = `
     <header class="seccion-header">
@@ -181,7 +179,6 @@ function mostrarSeccion(seccion, opts = { push: true }) {
   if (fotosContainer) {
     fotosContainer.innerHTML = '';
 
-    // Miniaturas (creando nodos, seguro ante comillas)
     seccion.fotos.forEach((foto, i) => {
       if (!foto.miniatura || !foto.texto || !foto.url) return;
 
@@ -196,11 +193,10 @@ function mostrarSeccion(seccion, opts = { push: true }) {
 
       const caption = document.createElement('div');
       caption.className = 'thumb-caption';
-
       const span = document.createElement('span');
       span.textContent = foto.texto || '';
-
       caption.appendChild(span);
+
       el.appendChild(img);
       el.appendChild(caption);
 
@@ -222,7 +218,7 @@ function mostrarSeccion(seccion, opts = { push: true }) {
   }
 }
 
-// Carrusel portada
+// ===== Carrusel portada =====
 function cargarCarrusel(data) { const inner = document.getElementById('ultimas-fotos-carrusel'); const dots = document.getElementById('carrusel-dots'); if (!inner) return; carruselFotos = obtenerFotosParaCarrusel(data); mostrarCarruselFotos(carruselFotos, inner, dots); iniciarAutoPlay(); configurarInteraccionCarrusel(); }
 function obtenerFotosParaCarrusel(data) { const planas = []; data.secciones.forEach(sec => { if (Array.isArray(sec.fotos)) { sec.fotos.forEach((foto, i) => planas.push({ ...foto, seccionId: sec.id, seccionTitulo: sec.titulo, indiceEnSeccion: i })); } }); return planas.slice(-20).reverse(); }
 function mostrarCarruselFotos(fotos, container, dotsContainer) {
@@ -310,8 +306,6 @@ function configurarInteraccionCarrusel() {
   inner.addEventListener('touchend', onEnd, { passive: true });
   inner.addEventListener('mousedown', onStart); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onEnd);
 }
-
-// Abrir modal desde carrusel sin perder posición
 function abrirModalDesdeCarrusel(index = carruselActualIndex) {
   if (!carruselFotos?.length) return;
   modalSource = 'carrusel';
@@ -389,6 +383,9 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
     if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
     history.pushState(state, '');
+    __pushedModal = true;
+  } else {
+    __pushedModal = false;
   }
 
   function configurarEventosModal() {
@@ -406,26 +403,49 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
 
     const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
 
-    // Hotspots navegación
+    // Navegación por hotspots
     if (hotspotLeft) hotspotLeft.addEventListener('click', () => navegarFoto(-1));
     if (hotspotRight) hotspotRight.addEventListener('click', () => navegarFoto(1));
 
-    // Botón cerrar + salir de fullscreen si está activo
+    // Botón cerrar robusto (sale también de fullscreen)
     if (closeBtn) {
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         exitFullscreenSafe();
-        goBackOneStep();
+        if (modalSource === 'carrusel') {
+          closeModal();
+          if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+          return;
+        }
+        const canBack = __pushedModal && history.state?.view === 'modal' && history.length > 1;
+        if (canBack) {
+          history.back();
+          setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
+        } else {
+          closeModal();
+        }
       });
     }
-    // Fallback: captura el click sobre .close-modal en fase de captura
-    modal.addEventListener('click', (e) => {
-      const btn = e.target.closest('.close-modal');
-      if (!btn) return;
-      e.stopPropagation();
-      exitFullscreenSafe();
-      goBackOneStep();
-    }, true);
+
+    // Cerrar clicando fuera (overlay)
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) {
+        if (ignoreNextClick) { ignoreNextClick = false; return; }
+        exitFullscreenSafe();
+        if (modalSource === 'carrusel') {
+          closeModal();
+          if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+          return;
+        }
+        const canBack = __pushedModal && history.state?.view === 'modal' && history.length > 1;
+        if (canBack) {
+          history.back();
+          setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
+        } else {
+          closeModal();
+        }
+      }
+    });
 
     // Flechas
     if (prevBtn) prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navegarFoto(-1); });
@@ -442,7 +462,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
         if (!sid) { goBackOneStep(); return; }
         const sec = datosGlobales?.secciones?.find(s => s.id === sid);
         if (!sec) return;
-
         if (modalSource === 'carrusel') {
           history.replaceState({ view: 'home' }, '');
           closeModal();
@@ -453,22 +472,10 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       });
     }
 
-    // Cerrar clicando fuera (overlay)
-    modal.addEventListener('click', function (event) {
-      if (event.target === modal) {
-        if (ignoreNextClick) { ignoreNextClick = false; return; }
-        goBackOneStep();
-      }
-    });
-
-    // Toque rápido => toggle zoom
+    // Tap rápido en imagen => toggle zoom
     let tapStartX = 0, tapStartY = 0, tapStartT = 0;
     modalImg.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) {
-        tapStartX = e.touches[0].clientX;
-        tapStartY = e.touches[0].clientY;
-        tapStartT = Date.now();
-      }
+      if (e.touches.length === 1) { tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now(); }
     }, { passive: true });
     modalImg.addEventListener('touchend', (e) => {
       if (ignoreNextClick) { ignoreNextClick = false; return; }
@@ -478,8 +485,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
         const dt = Date.now() - tapStartT;
         if (Math.hypot(dx, dy) < 12 && dt < 250) {
           doClickToggle();
-          ignoreNextClick = true;
-          setTimeout(() => { ignoreNextClick = false; }, 250);
+          ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
         }
       }
     }, { passive: true });
@@ -500,14 +506,10 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       let sens = BASE_SENS;
       if (e.deltaMode === 1) sens = 0.02;
       else if (e.deltaMode === 2) sens = 0.1;
-
       const factor = Math.exp(-e.deltaY * sens);
       let newScale = currentScale * factor;
       newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newScale));
-      if (Math.abs(newScale - currentScale) > 0.0001) {
-        currentScale = newScale;
-        aplicarZoom();
-      }
+      if (Math.abs(newScale - currentScale) > 0.0001) { currentScale = newScale; aplicarZoom(); }
     }, { passive: false });
 
     // Drag/Pan y pinch
@@ -531,30 +533,42 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     // Teclado
     keydownHandler = function (ev) {
       switch (ev.key) {
-        case 'Escape': goBackOneStep(); break;
+        case 'Escape':
+          exitFullscreenSafe();
+          if (modalSource === 'carrusel') {
+            closeModal();
+            if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+          } else {
+            const canBack = __pushedModal && history.state?.view === 'modal' && history.length > 1;
+            if (canBack) {
+              history.back();
+              setTimeout(() => { if (isModalOpen) closeModal(); }, 150);
+            } else {
+              closeModal();
+            }
+          }
+          break;
         case 'ArrowLeft': navegarFoto(-1); break;
         case 'ArrowRight': navegarFoto(1); break;
       }
     };
     document.addEventListener('keydown', keydownHandler);
 
-    // Zoom por clic: escritorio “cover suave x5”
+    // Click-zoom (desktop): cover suave x5
     function doClickToggle() {
-      if (currentScale > 1) {
-        currentScale = 1; translateX = 0; translateY = 0;
-      } else {
-        if (isMobileViewport) {
-          currentScale = defaultClickZoom;
-        } else {
-          let scale = 1.25; // fallback
+      if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; }
+      else {
+        if (isMobileViewport) { currentScale = defaultClickZoom; }
+        else {
+          let scale = 1.25;
           if (currentImage) {
             const container = currentImage.closest('.modal-img-container');
             if (container) {
               const cw = container.clientWidth, ch = container.clientHeight;
               const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
-              const base = Math.max(cw / iw, ch / ih) * 0.97; // cover moderado
-              scale = 1 + (base - 1) * 5;                      // x5
-              scale = Math.min(3.0, Math.max(1.2, scale));     // límites
+              const base = Math.max(cw / iw, ch / ih) * 0.97;
+              scale = 1 + (base - 1) * 5;
+              scale = Math.min(3.0, Math.max(1.2, scale));
             }
           }
           currentScale = scale;
@@ -563,31 +577,21 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       aplicarZoom();
     }
 
-    // === SOLO ESCRITORIO: auto-ocultar + hotspots ===
+    // Auto-ocultar UI (solo desktop)
     if (!isMobileViewport) {
-      const AUTO_HIDE_MS = 3000;
-      let autoHideId = null;
-
+      const AUTO_HIDE_MS = 3000; let autoHideId = null;
       function show(el) { if (el) { el.classList.add('visible'); el.style.pointerEvents = 'auto'; } }
       function hide(el) { if (el) { el.classList.remove('visible'); el.style.pointerEvents = ''; } }
       function hideAll() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(hide); }
       function resetTimer() { clearTimeout(autoHideId); autoHideId = setTimeout(hideAll, AUTO_HIDE_MS); }
       function showAllAndArmTimer() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(show); resetTimer(); }
       function showCloseAndArmTimer() { show(closeBtn); resetTimer(); }
-
-      // Hook al cambiar de foto
       window.triggerUiAfterPhotoChange = () => showAllAndArmTimer();
-
-      // Mover ratón => muestra Cerrar
       modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
-
-      // Hotspots muestran UI
       if (hotspotTop) hotspotTop.addEventListener('mouseenter', () => { show(closeBtn); resetTimer(); });
       if (hotspotLeft) hotspotLeft.addEventListener('mouseenter', () => { show(prevBtn); resetTimer(); });
       if (hotspotRight) hotspotRight.addEventListener('mouseenter', () => { show(nextBtn); resetTimer(); });
       if (hotspotBottom) hotspotBottom.addEventListener('mouseenter', () => { show(infoPanel); if (fsBtn) show(fsBtn); resetTimer(); });
-
-      // Mantener visible si está encima
       [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(el => {
         if (!el) return;
         el.addEventListener('mouseenter', () => { show(el); clearTimeout(autoHideId); });
@@ -599,7 +603,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   }
 }
 
-// Precarga vecinos
+// ===== Precarga y gestos =====
 function precacheAround(index) {
   const list = getModalList() || [];
   if (!list.length) return;
@@ -609,8 +613,6 @@ function precacheAround(index) {
     im.src = list[i].url;
   });
 }
-
-// Gestos/zoom
 function onTouchStartImg(e) { if (e.touches.length === 2) { isPinching = true; pinchStartDistance = getTouchesDistance(e.touches[0], e.touches[1]); pinchStartScale = currentScale; if (currentImage) currentImage.style.transition = 'none'; document.addEventListener('touchmove', onTouchMoveImg, { passive: false }); document.addEventListener('touchend', onTouchEndImg); e.preventDefault(); e.stopPropagation(); return; } }
 function onTouchMoveImg(e) { if (isPinching && e.touches.length === 2) { e.preventDefault(); const newDistance = getTouchesDistance(e.touches[0], e.touches[1]); let newScale = pinchStartScale * (newDistance / pinchStartDistance); newScale = Math.max(1, Math.min(5, newScale)); currentScale = newScale; aplicarZoom(true); } }
 function onTouchEndImg(e) { if (isPinching && e.touches.length < 2) { isPinching = false; if (currentImage) currentImage.style.transition = ''; ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); document.removeEventListener('touchmove', onTouchMoveImg); document.removeEventListener('touchend', onTouchEndImg); } }
@@ -622,12 +624,12 @@ function stopDrag() { if (!isDragging) return; isDragging = false; if (animation
 function startInertia() { if (inertiaId) cancelAnimationFrame(inertiaId); function step() { translateX += velX; translateY += velY; const { maxX, maxY } = getPanBounds(); if (Math.abs(translateX) > maxX) velX -= (translateX - Math.sign(translateX)*maxX) * edgeResistance; if (Math.abs(translateY) > maxY) velY -= (translateY - Math.sign(translateY)*maxY) * edgeResistance; velX *= dragFriction; velY *= dragFriction; if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) { clampPan(); aplicarZoom(true); inertiaId = null; return; } aplicarZoom(true); inertiaId = requestAnimationFrame(step); } inertiaId = requestAnimationFrame(step); }
 function getPanBounds() { if (!currentImage) return { maxX: 0, maxY: 0 }; const container = currentImage.closest('.modal-img-container'); if (!container) return { maxX: 0, maxY: 0 }; const cw = container.clientWidth, ch = container.clientHeight; const iw = currentImage.clientWidth, ih = currentImage.clientHeight; const scaledW = iw * currentScale, scaledH = ih * currentScale; return { maxX: Math.max(0, (scaledW - cw) / 2), maxY: Math.max(0, (scaledH - ch) / 2) }; }
 function clampPan() { const { maxX, maxY } = getPanBounds(); if (Math.abs(translateX) > maxX) translateX = Math.sign(translateX) * maxX; if (Math.abs(translateY) > maxY) translateY = Math.sign(translateY) * maxY; }
-function aplicarZoom(noTransition = false) { if (!currentImage) return; if (noTransition) currentImage.style.transition = 'none'; else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease'; clampPan(); currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`; currentImage.style.transformOrigin = 'center center'; const modalEl = document.getElementById('modal'); if (currentScale > 1) { currentImage.classList.add('zoomed'); currentImage.style.cursor = isDragging ? 'grabbing' : 'move'; modalEl?.classList.add('is-zoomed'); } else { currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default'; translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed'); currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`; } }
+function aplicarZoom(noTransition = false) { if (!currentImage) return; if (noTransition) currentImage.style.transition = 'none'; else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease'; clampPan(); currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`; currentImage.style.transformOrigin = 'center center'; const modalEl = document.getElementById('modal'); if (currentScale > 1) { currentImage.classList.add('zoomed'); currentImage.style.cursor = 'move'; modalEl?.classList.add('is-zoomed'); } else { currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default'; translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed'); currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`; } }
 function resetZoom() { currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; } if (currentImage) { currentImage.style.transition = ''; currentImage.style.transform = 'scale(1) translate3d(0px, 0px, 0)'; currentImage.classList.remove('zoomed', 'grabbing'); currentImage.style.cursor = 'default'; } const modalEl = document.getElementById('modal'); if (modalEl) modalEl.classList.remove('is-zoomed'); }
 function getModalList() { return modalSource === 'carrusel' ? carruselFotos : todasLasFotos; }
 function navegarFoto(direccion) { const list = getModalList(); if (!list?.length) return; let idx = currentFotoIndex + direccion; if (idx < 0) idx = list.length - 1; else if (idx >= list.length) idx = 0; currentFotoIndex = idx; const nueva = list[currentFotoIndex]; const modal = document.getElementById('modal'); if (!modal) return; const modalImg = modal.querySelector('#modal-img'); const contador = modal.querySelector('.foto-counter'); const titulo = modal.querySelector('.foto-title'); const chip = modal.querySelector('.section-chip'); resetZoom(); const im = new Image(); im.onload = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`; if (titulo) titulo.textContent = nueva.texto; if (chip) { if (modalSource === 'carrusel') { chip.dataset.seccionId = nueva.seccionId || ''; chip.querySelector('.chip-name').textContent = nueva.seccionTitulo || 'Ver sección'; chip.disabled = !nueva.seccionId; } else if (currentSeccion) { chip.dataset.seccionId = currentSeccion.id; chip.querySelector('.chip-name').textContent = currentSeccion.titulo; chip.disabled = false; } } if (!isHandlingPopstate && history.state?.view === 'modal') { const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex }; if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id; history.replaceState(state, ''); } precacheAround(currentFotoIndex); if (typeof window.triggerUiAfterPhotoChange === 'function') { window.triggerUiAfterPhotoChange(); } }; im.onerror = function () { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; }; im.src = nueva.url; }
 
-// Móvil: bottom sheet, bloqueo scroll
+// ===== Móvil: bottom sheet / scroll lock =====
 function attachSwipeToModal(modal) {
   const container = modal.querySelector('.modal-img-container'); if (!container) return;
   let sx = 0, sy = 0, st = 0, blockVertical = false, swipeLock = false;
@@ -690,6 +692,7 @@ function attachBottomSheet(modal) {
   });
 }
 
+// ===== Fullscreen / scroll lock =====
 function toggleFullscreen() {
   const modal = document.getElementById('modal');
   const btn = modal?.querySelector('.fullscreen-toggle');
@@ -702,22 +705,16 @@ function toggleFullscreen() {
   };
   if (!document.fullscreenElement) {
     if (modal?.requestFullscreen) {
-      modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => {
-        modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active');
-      });
-    } else {
-      modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active');
-    }
+      modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); });
+    } else { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); }
   } else {
     if (document.exitFullscreen) document.exitFullscreen();
     restorePanel(); if (btn) btn.classList.remove('is-active');
   }
 }
-
 function initMobileRotationHandler() { let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'; window.addEventListener('resize', () => { const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'; if (last !== now && isModalOpen) {} last = now; }); }
 function lockBodyScroll() { __scrollLockY = window.scrollY || document.documentElement.scrollTop || 0; isBodyLocked = true; document.body.style.position = 'fixed'; document.body.style.top = `-${__scrollLockY}px`; document.body.style.left = '0'; document.body.style.right = '0'; document.body.style.width = '100%'; document.body.classList.add('modal-open'); }
 function unlockBodyScroll() { document.body.classList.remove('modal-open'); document.body.style.position = ''; document.body.style.top = ''; document.body.style.left = ''; document.body.style.right = ''; document.body.style.width = ''; if (isBodyLocked) { window.scrollTo(0, __scrollLockY || 0); } isBodyLocked = false; }
-
 function closeModal() {
   const modal = document.getElementById('modal');
   if (!modal) return;
@@ -736,6 +733,7 @@ function closeModal() {
 
   if (currentView === 'modal') currentView = (modalSource === 'carrusel') ? 'home' : (modalSource === 'seccion' ? 'seccion' : 'home');
   modalFromHomeCarousel = false;
+  __pushedModal = false;
 
   if (window.triggerUiAfterPhotoChange) { try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; } }
 }
@@ -757,8 +755,6 @@ function volverAGaleriaInternal() {
   refreshScrollTop();
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', iniciar, { once: true });
-} else {
-  iniciar();
-}
+// ===== Boot =====
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', iniciar, { once: true }); }
+else { iniciar(); }
