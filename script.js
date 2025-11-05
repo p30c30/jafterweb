@@ -829,58 +829,53 @@ function volverAGaleriaInternal() {
 }
 
  // =========VIDEO EN TARJETA========
-(function initCardAnim() {
+(function initCardAnimFullOverlay() {
   const canHover = window.matchMedia('(hover:hover)').matches;
 
   function mountOnFirstCard() {
     const card = document.querySelector('.section-cards .card');
     if (!card) return false;
-
-    // Encuentra la imagen de la tarjeta que pintas en cargarDatos
-    const img = card.querySelector('img, .card-image');
-    if (!img) return false;
-
-    // Evita duplicar si ya está montado
     if (card.querySelector('video.card-anim')) return true;
 
-    // Crea wrapper .card-media alrededor de la imagen (sin tocar tu HTML de origen)
-    let media = img.parentElement;
-    if (!media || !media.classList.contains('card-media')) {
-      media = document.createElement('div');
-      media.className = 'card-media';
-      img.insertAdjacentElement('beforebegin', media);
-      media.appendChild(img);
-    }
-
-    // Crea el vídeo dentro de .card-media
+    // Crea el video y lo superpone a toda la tarjeta
     const video = document.createElement('video');
     video.className = 'card-anim';
-    video.setAttribute('muted', '');      // atributo + propiedad para mayor compatibilidad
+    video.setAttribute('muted', '');       // atributo + propiedad (más compatible)
     video.muted = true;
     video.setAttribute('playsinline', '');
     video.playsInline = true;
     video.loop = true;
-    video.preload = 'none';
-    if (img.src) video.poster = img.src;
+    video.preload = 'none';                // lo cambiamos en hover
+    // (Opcional) poster = primera imagen de la tarjeta
+    const posterImg = card.querySelector('img');
+    if (posterImg?.src) video.poster = posterImg.src;
 
     video.innerHTML = `
       <source src="/assets/anim/virgen.mp4" type="video/mp4">
     `;
-    media.appendChild(video);
+
+    card.appendChild(video);
 
     if (canHover) {
-      const playVideo = () => {
+      const tryPlay = () => video.play().catch(() => {});
+      const onEnter = () => {
         if (video.preload === 'none') {
-          video.preload = 'metadata';
-          video.load(); // prepara el buffer
+          video.preload = 'auto';
+          video.load();                    // “precalienta” el buffer
         }
-        video.currentTime = 0; // arranca desde el inicio
-        video.play().catch(() => {});
+        video.currentTime = 0;             // empieza desde el inicio cada hover
+        if (video.readyState >= 2) {
+          tryPlay();
+        } else {
+          // Reproduce en cuanto pueda, con fallback por si tarda
+          video.addEventListener('canplay', tryPlay, { once: true });
+          setTimeout(tryPlay, 800);
+        }
       };
-      const pauseVideo = () => { video.pause(); };
+      const onLeave = () => { video.pause(); };
 
-      card.addEventListener('mouseenter', playVideo);
-      card.addEventListener('mouseleave', pauseVideo);
+      card.addEventListener('mouseenter', onEnter);
+      card.addEventListener('mouseleave', onLeave);
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) video.pause();
       });
@@ -889,7 +884,7 @@ function volverAGaleriaInternal() {
     return true;
   }
 
-  // Monta al cargar; si la grid aún no está, reintenta un poco
+  // Monta al cargar (y reintenta si la grid tarda en pintarse)
   window.addEventListener('load', () => {
     if (mountOnFirstCard()) return;
     const t0 = Date.now();
