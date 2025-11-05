@@ -5,94 +5,92 @@
   <title>Galería Jafter - Fotografía Inspiradora</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-  <!-- Tipografía para el logo/título (si la usas en tus estilos) -->
+  <!-- Tipografía para el logo/título -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@600;700&display=swap" rel="stylesheet">
 
   <!-- CSS (responsive el último) -->
   <link rel="stylesheet" href="styles/main.css?v=40">
-  <link rel="stylesheet" href="styles/layout.css?v=40" />
-  <link rel="stylesheet" href="styles/components.css?v=40" />
-  <link rel="stylesheet" href="styles/carrusel.css?v=40" />
-  <link rel="stylesheet" href="styles/modal.css?v=40" />
-  <link rel="stylesheet" href="styles/responsive.css?v=40" />
-</head>
+  <link rel="stylesheet" href="styles/layout.css?v=40">
+  <link rel="stylesheet" href="styles/components.css?v=40">
+  <link rel="stylesheet" href="styles/carrusel.css?v=40">
+  <link rel="stylesheet" href="styles/modal.css?v=40">
+  <link rel="stylesheet" href="styles/responsive.css?v=40">
+
   <!-- Favicon moderno (SVG) + fallback ICO -->
-<link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
-<link rel="icon" href="/assets/icons/favicon.ico" sizes="any"> <!-- fallback multi-tamaños -->
+  <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/assets/icons/favicon.ico" sizes="any">
 
-<!-- Apple Touch Icon (iPhone/iPad) -->
-<link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+  <!-- Apple Touch Icon (iPhone/iPad) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
 
-<!-- Safari pinned tab (usa tu SVG si es monocromo) -->
-<link rel="mask-icon" href="/assets/icons/favicon.svg" color="#FDB813">
+  <!-- Safari pinned tab (usa tu SVG si es monocromo) -->
+  <link rel="mask-icon" href="/assets/icons/favicon.svg" color="#FDB813">
 
-<!-- Manifest PWA -->
-<link rel="manifest" href="/assets/icons/site.webmanifest">
+  <!-- Manifest PWA -->
+  <link rel="manifest" href="/assets/icons/site.webmanifest">
 
-<!-- Color de UI del navegador -->
-<meta name="theme-color" content="#000000">
-<meta name="msapplication-TileColor" content="#000000">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000">  
+  <!-- Colores de UI del navegador -->
+  <meta name="theme-color" content="#000000">
+  <meta name="msapplication-TileColor" content="#000000">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#000000">
+</head>
+<body>
+  <!-- Header en Grid: 1fr | auto | 1fr -->
+  <header class="site-header">
+    <img class="title-logo" src="https://jafterpic.com/assets/logos/jafter-blanco.svg" alt="Jafter">
+    <div id="logoHome" class="logo logo--editorial brand-gold-text">Galería Jafter</div>
 
-  <body>
-  <!-- Header -->
- <<header class="site-header">
-  <img class="title-logo" src="https://jafterpic.com/assets/logos/jafter-blanco.svg" alt="Jafter">
-  <div id="logoHome" class="logo logo--editorial brand-gold-text">Galería Jafter</div>
-</header>
+    <!-- Barra de redes (columna derecha del Grid) -->
+    <nav class="header-social" aria-label="Redes sociales">
+      <!-- Facebook -->
+      <a class="social-link facebook"
+         href="https://www.facebook.com/profile.php?id=61571917450059&locale=es_ES"
+         target="_blank" rel="noopener" aria-label="Facebook">
+        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.988H7.898v-2.89h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.261c-1.243 0-1.63.771-1.63 1.562v1.875h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
+        </svg>
+      </a>
 
- <nav class="header-social" aria-label="Redes sociales">
-  <!-- Facebook -->
-  <a class="social-link facebook"
-     href="https://www.facebook.com/profile.php?id=61571917450059&locale=es_ES"
-     target="_blank" rel="noopener" aria-label="Facebook">
-    <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="currentColor" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.988H7.898v-2.89h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.261c-1.243 0-1.63.771-1.63 1.562v1.875h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/>
-    </svg>
-  </a>
+      <!-- Flickr -->
+      <a class="social-link flickr"
+         href="https://flickr.com/photos/195749588@N02"
+         target="_blank" rel="noopener" aria-label="Flickr">
+        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="8" cy="12" r="5" fill="currentColor"/>
+          <circle cx="16" cy="12" r="5" fill="currentColor"/>
+        </svg>
+      </a>
 
-  <!-- Flickr -->
-  <a class="social-link flickr"
-     href="https://flickr.com/photos/195749588@N02"
-     target="_blank" rel="noopener" aria-label="Flickr">
-    <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="8" cy="12" r="5" fill="currentColor"/>
-      <circle cx="16" cy="12" r="5" fill="currentColor"/>
-    </svg>
-  </a>
+      <!-- Instagram -->
+      <a class="social-link instagram"
+         href="https://www.instagram.com/jose.a.fernandez_?igsh=MXFkZnZxZHBuZHJtYg=="
+         target="_blank" rel="noopener" aria-label="Instagram">
+        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="5" ry="5"
+                fill="none" stroke="currentColor" stroke-width="2"/>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
+                fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="17.5" cy="6.5" r="0.9" fill="currentColor"/>
+        </svg>
+      </a>
 
-  <!-- Instagram -->
-  <a class="social-link instagram"
-     href="https://www.instagram.com/jose.a.fernandez_?igsh=MXFkZnZxZHBuZHJtYg=="
-     target="_blank" rel="noopener" aria-label="Instagram">
-    <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="5" ry="5"
-            fill="none" stroke="currentColor" stroke-width="2"/>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
-            fill="none" stroke="currentColor" stroke-width="2"/>
-      <circle cx="17.5" cy="6.5" r="0.9" fill="currentColor"/>
-    </svg>
-  </a>
+      <!-- Email -->
+      <a class="social-link email"
+         href="mailto:jafterphoto@gmail.com"
+         aria-label="Enviar email">
+        <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
 
-  <!-- Email -->
-  <a class="social-link email"
-     href="mailto:jafterphoto@gmail.com"
-     aria-label="Enviar email">
-    <svg class="social-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5v2z"/>
-    </svg>
-  </a>
-</nav>
-   
-   
-   
-   <main id="content" class="container">
+  <main id="content" class="container">
     <!-- Vista principal -->
     <div id="home-view" class="home-view">
-      <!-- Secciones/tarjetas se cargarán aquí -->
       <div id="secciones-container" class="section-cards"></div>
 
       <!-- Sección Últimas Fotos CON CARRUSEL -->
@@ -133,12 +131,14 @@
       Contacto: <a href="mailto:jafterphoto@gmail.com">jafterphoto@gmail.com</a> /
       <a href="https://www.facebook.com/profile.php?id=61571917450059&locale=es_ES">Facebook</a>
     </div>
-    <!-- Última línea centrada en solitario -->
     <div class="site-copy" style="text-align:center;margin-top:10px;">
       © 2025 Galería Jafter
     </div>
   </footer>
 
+  <!-- Asegúrate de enlazar el script correcto -->
+  <!-- Si estás usando el archivo que te pasé, sería: -->
+  <!-- <script src="script36.js?v=40" defer></script> -->
   <script src="script.js?v=40" defer></script>
 </body>
 </html>
