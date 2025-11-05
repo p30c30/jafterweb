@@ -829,7 +829,8 @@ function volverAGaleriaInternal() {
 }
 
  // =========VIDEO EN TARJETA========
-(function initCardAnimFullCard() {
+
+(function initCardAnimFullCard_OperaFix() {
   const canHover = window.matchMedia('(hover:hover)').matches;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) return;
@@ -839,17 +840,16 @@ function volverAGaleriaInternal() {
     if (!card) return false;
     if (card.querySelector('video.card-anim')) return true;
 
-    // Crea el video superpuesto a toda la tarjeta
+    // Crea el video superpuesto a TODA la tarjeta
     const video = document.createElement('video');
     video.className = 'card-anim';
 
-    // Estas propiedades/atributos deben ponerse ANTES de cargar fuentes
-    video.muted = true;
-    video.setAttribute('muted', '');
-    video.playsInline = true;
-    video.setAttribute('playsinline', '');
+    // Set de compatibilidad: poner antes de cargar fuentes
+    video.muted = true;                video.setAttribute('muted', '');
+    video.playsInline = true;          video.setAttribute('playsinline', '');
     video.loop = true;
-    video.preload = 'metadata';     // precalienta un poco
+    video.preload = 'auto';            // precargar para “primar” el arranque
+
     const posterImg = card.querySelector('img');
     if (posterImg?.src) video.poster = posterImg.src;
 
@@ -858,38 +858,40 @@ function volverAGaleriaInternal() {
       <source src="/assets/anim/virgen.mp4" type="video/mp4">
     `;
 
-    // Coloca el vídeo dentro de la tarjeta (cubre toda el área)
     card.appendChild(video);
 
-    // Forzar buffer inicial
-    try { video.load(); } catch (_) {}
+    // PRIMING: reproduce y pausa en cuanto pueda (Opera/Chromium queda listo)
+    const prime = () => {
+      video.play()
+        .then(() => {
+          video.pause();
+          try { video.currentTime = 0; } catch(_) {}
+        })
+        .catch(() => { /* ignore */ });
+    };
+    if (video.readyState >= 2) prime();
+    else video.addEventListener('canplay', prime, { once: true });
 
     if (canHover) {
-      const tryPlay = () => video.play().catch(()=>{});
       const onEnter = () => {
-        // Arranca siempre desde el inicio
-        try {
-          video.currentTime = 0;
-        } catch (_) {}
-        if (video.readyState >= 2) {
-          tryPlay();
-        } else {
-          // Reproduce cuando tenga datos; añade un pequeño fallback
-          const onCanPlay = () => { tryPlay(); video.removeEventListener('canplay', onCanPlay); };
-          video.addEventListener('canplay', onCanPlay);
-          setTimeout(tryPlay, 500);
-        }
+        try { video.currentTime = 0; } catch(_) {}
+        video.play().catch(() => {});
       };
       const onLeave = () => video.pause();
 
-      card.addEventListener('mouseenter', onEnter);
-      card.addEventListener('mouseleave', onLeave);
-      document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); });
+      // Usa pointerenter/leave (más fiable que mouseenter en algunos navegadores)
+      card.addEventListener('pointerenter', onEnter);
+      card.addEventListener('pointerleave', onLeave);
+
+      // Pausa si cambia de pestaña
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) video.pause();
+      });
     }
     return true;
   }
 
-  // Monta al cargar; reintenta si la grid tarda en pintarse
+  // Monta al cargar y reintenta si la grid tarda en renderizar
   window.addEventListener('load', () => {
     if (mount()) return;
     const t0 = Date.now();
