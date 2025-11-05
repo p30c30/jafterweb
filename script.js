@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v36.7)               ==
 // ===================================================================
-console.log('✅ script.js v37.1 CARGADO');
+console.log('✅ script.js v37.2 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -830,128 +830,97 @@ function volverAGaleriaInternal() {
 
  // =========VIDEO EN TARJETA========
 
-(function initCardAnim_TVSupport() {
-  const mqHover = window.matchMedia('(hover:hover)');
-  const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const canHover = mqHover.matches;
-  if (mqReduce.matches) return;
+(function initCardAnim_LongPressOnly() {
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
 
   function mount() {
     const card = document.querySelector('.section-cards .card');
     if (!card) return false;
     if (card.querySelector('video.card-anim')) return true;
 
-    // Crea video overlay
+    // Crea el vídeo overlay a toda la tarjeta
     const video = document.createElement('video');
     video.className = 'card-anim';
-
-    // Props antes de cargar
-    video.muted = true; video.setAttribute('muted','');
-    video.playsInline = true; video.setAttribute('playsinline','');
+    video.muted = true;            video.setAttribute('muted','');
+    video.playsInline = true;      video.setAttribute('playsinline','');
     video.loop = true;
-    video.preload = 'auto';      // precarga para primer play fiable (Opera/TV)
+    video.preload = 'auto';        // precarga para arranque fiable (TV/Opera)
+
     const poster = card.querySelector('img')?.src || '';
     if (poster) video.poster = poster;
 
+    // Fuentes (añade webm si lo tienes)
     video.innerHTML = `
       <source src="/assets/anim/virgen.mp4" type="video/mp4">
     `;
-
     card.appendChild(video);
 
-    // Priming: play->pause cuando pueda (queda listo para el primer arranque)
+    // Priming: play→pause al estar listo, queda preparado para primer arranque
     const prime = () => {
       video.play()
-        .then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} })
-        .catch(() => {});
+        .then(() => { video.pause(); try { video.currentTime = 0; } catch(_){} })
+        .catch(()=>{});
     };
     if (video.readyState >= 2) prime();
     else video.addEventListener('canplay', prime, { once: true });
 
-    // Desktop: hover “normal”
-    if (canHover) {
-      const onEnter = () => { try { video.currentTime = 0; } catch(_) {} video.play().catch(()=>{}); };
-      const onLeave = () => video.pause();
-      card.addEventListener('pointerenter', onEnter);
-      card.addEventListener('pointerleave', onLeave);
-      document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); });
-    // TV / sin hover: foco + puntero + long-press (sin romper el click de navegación)
-} else {
-  // Permitir foco con D‑pad
-  if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
+    // ----- LONG PRESS TOGGLE -----
+    const LONG_PRESS_MS = 550;
+    let pressTimer = null;
+    let suppressNextClick = false; // cancela solo el click que viene del long-press
 
-  let lockedPlay = false;        // si está bloqueada la reproducción (toggle con long-press)
-  let hoverTimer = null;
-  let pressTimer = null;
-  let suppressNextClick = false; // cancelar solo el click que produjo el long-press
+    const start = () => {
+      try { video.currentTime = 0; } catch(_) {}
+      video.play().catch(()=>{});
+      card.classList.add('is-over');
+    };
+    const stop = () => {
+      video.pause();
+      card.classList.remove('is-over');
+    };
+    const toggle = () => {
+      if (card.classList.contains('is-over')) stop();
+      else start();
+    };
 
-  const start = () => {
-    try { video.currentTime = 0; } catch(_) {}
-    video.play().catch(()=>{});
-    card.classList.add('is-over');
-  };
-  const stop = () => {
-    video.pause();
-    card.classList.remove('is-over');
-    if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
-  };
-  const toggleLock = () => {
-    lockedPlay = !lockedPlay;
-    if (lockedPlay) start(); else stop();
-  };
+    // Inicia temporizador en “down” y decide en “up/cancel”
+    const onDown = (e) => {
+      // evita que iOS saque el callout en pulsación larga (ya añadimos CSS arriba)
+      if (pressTimer) clearTimeout(pressTimer);
+      pressTimer = setTimeout(() => {
+        suppressNextClick = true;  // cancelaremos solo este click
+        toggle();                  // activa/desactiva la animación
+      }, LONG_PRESS_MS);
+    };
+    const clearPress = () => {
+      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    };
 
-  // Foco con D‑pad: previsualiza mientras tiene foco (si no está bloqueado)
-  card.addEventListener('focusin', () => { if (!lockedPlay) start(); });
-  card.addEventListener('focusout', () => { lockedPlay = false; stop(); });
+    card.addEventListener('pointerdown', onDown);
+    card.addEventListener('pointerup', clearPress);
+    card.addEventListener('pointercancel', clearPress);
+    card.addEventListener('pointerleave', clearPress);
 
-  // “Hover” simulado con puntero del mando
-  card.addEventListener('pointermove', () => {
-    if (!lockedPlay) {
-      start();
-      if (hoverTimer) clearTimeout(hoverTimer);
-      hoverTimer = setTimeout(() => { if (!lockedPlay) stop(); }, 1800);
-    }
-  });
-  card.addEventListener('pointerleave', () => { if (!lockedPlay) stop(); });
-  card.addEventListener('mouseleave',   () => { if (!lockedPlay) stop(); });
+    // Cancela el click si vino de un long-press (no navegues en ese caso)
+    card.addEventListener('click', (e) => {
+      if (suppressNextClick) {
+        e.preventDefault();
+        e.stopPropagation();
+        suppressNextClick = false;
+      }
+      // si no hay suppressNextClick, el click navega normal (abre la sección)
+    }, true); // captura: aseguramos que cancele antes que otros listeners
 
-  // Long‑press para bloquear/desbloquear preview (sin navegar)
-  const LONG_PRESS_MS = 550;
-  card.addEventListener('pointerdown', () => {
-    if (pressTimer) clearTimeout(pressTimer);
-    pressTimer = setTimeout(() => {
-      suppressNextClick = true;  // cancelaremos el click que viene de esta pulsación prolongada
-      toggleLock();              // alterna reproducción bloqueada
-    }, LONG_PRESS_MS);
-  });
-  card.addEventListener('pointerup', () => {
-    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-  });
-  card.addEventListener('pointercancel', () => {
-    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-  });
+    // Pausa al perder visibilidad (cambio de pestaña/app)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop();
+    });
 
-  // Capturamos el click solo si viene de un long‑press (para NO navegar en ese caso)
-  card.addEventListener('click', (e) => {
-    if (suppressNextClick) {
-      e.preventDefault();
-      e.stopPropagation();
-      suppressNextClick = false;
-    }
-    // si no hay suppressNextClick, el click navega como siempre
-  }, true); // en fase de captura para asegurar que se cancela a tiempo
-
-  // Pausar al cambiar de pestaña
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { lockedPlay = false; stop(); }
-  });
-
-  // Opcional: si quieres que Space sirva de toggle en TV/teclado
-  // card.addEventListener('keydown', (e) => { if (e.key === ' ') { e.preventDefault(); toggleLock(); } });
-}
     return true;
   }
 
+  // Monta al cargar (reintenta si la grid aún no está en el DOM)
   window.addEventListener('load', () => {
     if (mount()) return;
     const t0 = Date.now();
