@@ -208,13 +208,22 @@
   .site-header .header-social { gap: 8px; padding-right: 12px; }
 }
 
-/* Tarjetas: permitir superponer el vídeo */
-.section-cards .card {
+
+/* ====TARJETAS VIDEO==== para que el vídeo solo ocupe su área */
+.section-cards .card .card-media {
   position: relative;
   overflow: hidden;
+  border-radius: inherit;       /* si tus tarjetas tienen bordes redondeados */
 }
 
-/* Vídeo de la “escena viva” (encima de la miniatura) */
+/* Asegura que la imagen ocupa el contenedor */
+.section-cards .card .card-media > img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Vídeo superpuesto SOLO sobre la imagen */
 .section-cards .card .card-anim {
   position: absolute;
   inset: 0;
@@ -222,12 +231,11 @@
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  pointer-events: none;            /* no bloquea el click */
+  pointer-events: none;         /* no bloquea el click de la tarjeta */
   transition: opacity .25s ease;
-  border-radius: inherit;          /* por si tus tarjetas tienen bordes redondeados */
 }
 
-/* Solo en dispositivos con hover (desktop) */
+/* Solo desktop (hover) */
 @media (hover:hover) {
   .section-cards .card:hover .card-anim { opacity: 1; }
 }
