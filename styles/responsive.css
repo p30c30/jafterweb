@@ -215,19 +215,18 @@
 .section-cards .card {
   position: relative;
   overflow: hidden;
+  -webkit-touch-callout: none;   /* evita menú largo en iOS/Android */
+  user-select: none;
 }
 
-/* Imagen de la tarjeta: por debajo del vídeo */
+/* Imagen al fondo (si quieres garantizar el stacking) */
 .section-cards .card img,
 .section-cards .card .card-image {
   position: relative;
-  z-index: 1;   /* imagen al fondo */
-  display: block;
-  width: 100%;
-  height: auto;
+  z-index: 1;
 }
 
-/* Vídeo superpuesto a TODA la tarjeta (por encima de la imagen) */
+/* Vídeo overlay por encima de la imagen y por debajo del texto */
 .section-cards .card .card-anim {
   position: absolute;
   inset: 0;
@@ -235,65 +234,23 @@
   height: 100%;
   object-fit: cover;
   opacity: 0;
-  z-index: 9;   /* por encima de la imagen */
-  pointer-events: none;
-  transition: opacity .25s ease;
-}
-
-/* Contenido (título/desc) por encima del vídeo */
-.section-cards .card .card-content {
-  position: relative;
-  z-index: 10;  /* texto por encima de todo */
-}
-
-/* Solo en dispositivos con hover (desktop) */
-@media (hover:hover) {
-  .section-cards .card:hover .card-anim { opacity: 1; }
-}
-
-/* Respeta usuarios con reduce-motion */
-@media (prefers-reduced-motion: reduce) {
-  .section-cards .card .card-anim { display: none !important; }
-}
-/* La tarjeta crea el contexto (ya lo tienes, lo repito por claridad) */
-.section-cards .card { position: relative; overflow: hidden; }
-
-/* Vídeo superpuesto por encima de la imagen y por debajo del texto */
-.section-cards .card .card-anim {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  z-index: 9;              /* sobre la imagen */
+  z-index: 9;     /* sobre la imagen */
   pointer-events: none;
   transition: opacity .25s ease;
 }
 
 /* Texto por encima de todo */
-.section-cards .card .card-content { position: relative; z-index: 10; }
-
-/* Desktop: hover */
-@media (hover:hover) {
-  .section-cards .card:hover .card-anim { opacity: 1; }
+.section-cards .card .card-content {
+  position: relative;
+  z-index: 10;
 }
 
-/* TV/móviles (no hay hover): muestra el vídeo con foco o clase */
-@media (hover:none) {
-  .section-cards .card:focus .card-anim,
-  .section-cards .card:focus-within .card-anim,
-  .section-cards .card.is-over .card-anim {
-    opacity: 1;
-  }
-  /* foco visible para D‑pad (opcional) */
-  .section-cards .card:focus-visible {
-    outline: 2px solid var(--accent, #FDB813);
-    outline-offset: 3px;
-  }
+/* Mostrar vídeo SOLO cuando la tarjeta esté “bloqueada” por long-press */
+.section-cards .card.is-over .card-anim {
+  opacity: 1;
 }
 
-/* Respeta reduce motion */
+/* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
   .section-cards .card .card-anim { display: none !important; }
 }
