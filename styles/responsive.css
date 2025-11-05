@@ -211,46 +211,32 @@
 
 /* ====TARJETAS VIDEO==== para que el vídeo solo ocupe su área */
 
-/* La tarjeta crea el contexto */
-.section-cards .card {
-  position: relative;
-  overflow: hidden;
-  -webkit-touch-callout: none;   /* evita menú largo en iOS/Android */
-  user-select: none;
-}
+.section-cards .card { position: relative; overflow: hidden; -webkit-touch-callout: none; user-select: none; }
 
-/* Imagen al fondo (si quieres garantizar el stacking) */
 .section-cards .card img,
-.section-cards .card .card-image {
-  position: relative;
-  z-index: 1;
-}
+.section-cards .card .card-image { position: relative; z-index: 1; }
 
-/* Vídeo overlay por encima de la imagen y por debajo del texto */
 .section-cards .card .card-anim {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
   object-fit: cover;
   opacity: 0;
-  z-index: 9;     /* sobre la imagen */
+  z-index: 9;                   /* sobre la imagen */
   pointer-events: none;
   transition: opacity .25s ease;
 }
 
-/* Texto por encima de todo */
-.section-cards .card .card-content {
-  position: relative;
-  z-index: 10;
+.section-cards .card .card-content { position: relative; z-index: 10; }
+
+/* Mostrar vídeo por hover (solo dispositivos con hover) */
+@media (hover:hover) {
+  .section-cards .card:hover .card-anim { opacity: 1; }
 }
 
-/* Mostrar vídeo SOLO cuando la tarjeta esté “bloqueada” por long-press */
-.section-cards .card.is-over .card-anim {
-  opacity: 1;
-}
+/* Mostrar vídeo cuando activamos la clase (TV/móvil) */
+.section-cards .card.is-over .card-anim { opacity: 1; }
 
-/* Reduce motion */
+/* Respeta reduce motion */
 @media (prefers-reduced-motion: reduce) {
   .section-cards .card .card-anim { display: none !important; }
 }
