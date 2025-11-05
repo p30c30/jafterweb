@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v36.7)               ==
 // ===================================================================
-console.log('✅ script.js v36.9 CARGADO');
+console.log('✅ script.js v37.0 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -830,68 +830,82 @@ function volverAGaleriaInternal() {
 
  // =========VIDEO EN TARJETA========
 
-(function initCardAnimFullCard_OperaFix() {
-  const canHover = window.matchMedia('(hover:hover)').matches;
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduceMotion) return;
+(function initCardAnim_TVSupport() {
+  const mqHover = window.matchMedia('(hover:hover)');
+  const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const canHover = mqHover.matches;
+  if (mqReduce.matches) return;
 
   function mount() {
     const card = document.querySelector('.section-cards .card');
     if (!card) return false;
     if (card.querySelector('video.card-anim')) return true;
 
-    // Crea el video superpuesto a TODA la tarjeta
+    // Crea video overlay
     const video = document.createElement('video');
     video.className = 'card-anim';
 
-    // Set de compatibilidad: poner antes de cargar fuentes
-    video.muted = true;                video.setAttribute('muted', '');
-    video.playsInline = true;          video.setAttribute('playsinline', '');
+    // Props antes de cargar
+    video.muted = true; video.setAttribute('muted','');
+    video.playsInline = true; video.setAttribute('playsinline','');
     video.loop = true;
-    video.preload = 'auto';            // precargar para “primar” el arranque
+    video.preload = 'auto';      // precarga para primer play fiable (Opera/TV)
+    const poster = card.querySelector('img')?.src || '';
+    if (poster) video.poster = poster;
 
-    const posterImg = card.querySelector('img');
-    if (posterImg?.src) video.poster = posterImg.src;
-
-    // Fuentes (si más adelante añades .webm, ponlo primero)
     video.innerHTML = `
       <source src="/assets/anim/virgen.mp4" type="video/mp4">
     `;
 
     card.appendChild(video);
 
-    // PRIMING: reproduce y pausa en cuanto pueda (Opera/Chromium queda listo)
+    // Priming: play->pause cuando pueda (queda listo para el primer arranque)
     const prime = () => {
       video.play()
-        .then(() => {
-          video.pause();
-          try { video.currentTime = 0; } catch(_) {}
-        })
-        .catch(() => { /* ignore */ });
+        .then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} })
+        .catch(() => {});
     };
     if (video.readyState >= 2) prime();
     else video.addEventListener('canplay', prime, { once: true });
 
+    // Desktop: hover “normal”
     if (canHover) {
-      const onEnter = () => {
-        try { video.currentTime = 0; } catch(_) {}
-        video.play().catch(() => {});
-      };
+      const onEnter = () => { try { video.currentTime = 0; } catch(_) {} video.play().catch(()=>{}); };
       const onLeave = () => video.pause();
-
-      // Usa pointerenter/leave (más fiable que mouseenter en algunos navegadores)
       card.addEventListener('pointerenter', onEnter);
       card.addEventListener('pointerleave', onLeave);
+      document.addEventListener('visibilitychange', () => { if (document.hidden) video.pause(); });
+    } else {
+      // TV / sin hover: foco y puntero del mando
+      // 1) permite foco con el D‑pad
+      if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex', '0');
 
-      // Pausa si cambia de pestaña
+      const play = () => { try { video.currentTime = 0; } catch(_) {} video.play().catch(()=>{}); };
+      const pause = () => video.pause();
+
+      // 2) focus/blur (D‑pad) → reproducir/pausar
+      card.addEventListener('focusin', () => { card.classList.add('is-over'); play(); });
+      card.addEventListener('focusout', () => { card.classList.remove('is-over'); pause(); });
+
+      // 3) puntero del mando: “hover” simulado con pointermove/pointerdown
+      const markOver = () => { card.classList.add('is-over'); play(); };
+      const unmarkOver = () => { card.classList.remove('is-over'); pause(); };
+
+      card.addEventListener('pointermove', markOver);
+      card.addEventListener('pointerdown', markOver);
+      // algunos navegadores TV no emiten pointerleave; añadimos mouseleave por si acaso
+      card.addEventListener('pointerleave', unmarkOver);
+      card.addEventListener('mouseleave', unmarkOver);
+
+      // 4) cuando la pestaña pierde foco
       document.addEventListener('visibilitychange', () => {
-        if (document.hidden) video.pause();
+        if (document.hidden) { card.classList.remove('is-over'); pause(); }
       });
     }
+
     return true;
   }
 
-  // Monta al cargar y reintenta si la grid tarda en renderizar
   window.addEventListener('load', () => {
     if (mount()) return;
     const t0 = Date.now();
@@ -900,7 +914,6 @@ function volverAGaleriaInternal() {
     }, 300);
   });
 })();
-
 
 // ===== Boot =====
 if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', iniciar, { once: true }); }
