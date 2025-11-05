@@ -291,14 +291,19 @@
                "texto":"El Coliseo"
             },
             {
-               "miniatura":"https://live.staticflickr.com/65535/54903742034_0c9fed4d69_b.jpg",
-               "url":"https://i.ibb.co/FkZX4Qt0/En-carrito-beb-por-Antequerar-1800.jpg",
-               "texto":"En Antequera"
+               "miniatura":"https://live.staticflickr.com/65535/54903816700_167ae46ed5_b.jpg",
+               "url":"https://i.ibb.co/39Nc7F9Q/Un-cigarrillo-1800.jpg",
+               "texto":"Un cigarrillo"
             },
             {
                "miniatura":"https://live.staticflickr.com/65535/54902633152_456d2b63b7_b.jpg",
                "url":"https://i.ibb.co/vCDXvzHf/Fantasmas-en-el-metro-1800.jpg",
                "texto":"Fantasmas en el metro"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54903509871_b4349b4eae_b.jpg",
+               "url":"https://i.ibb.co/ZRYXN3SR/Por-la-luz-1800.jpg",
+               "texto":"Un rayo de luz"
             }
          ]
       },
