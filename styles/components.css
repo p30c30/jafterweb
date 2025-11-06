@@ -373,26 +373,27 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
    (opcional; aplica a todo el header) */
 
 
-/* Móvil/Tablet: oculta SIEMPRE la barra horizontal para que no empuje el título */
+/* Móvil/Tablet: hamburguesa de 3 barritas HORIZONTALES */
 @media (max-width: 1024px) {
-  header.site-header .site-nav,
-  .site-nav-wrap .site-nav { display: none !important; }
-
+  .site-nav { display: none !important; }  /* barra horizontal oculta en móvil */
   .site-nav-wrap { gap: 0 !important; padding-left: 0 !important; }
 
-  /* Hamburguesa vertical (3 barras) */
-  .nav-trigger { display: inline-flex !important; width: 44px; height: 44px; align-items: center; justify-content: center; }
-  .nav-trigger span { width: 2px !important; height: 18px !important; margin: 0 3px !important; background: #fff !important; border-radius: 2px; }
+  .nav-trigger {
+    display: inline-flex !important;
+    width: 44px; height: 44px;
+    align-items: center; justify-content: center;
+    padding: 0; margin: 0;
+  }
+
+  /* 3 barritas HORIZONTALES */
+  .nav-trigger span {
+    width: 22px !important;   /* ancho de la barra */
+    height: 2px !important;   /* grosor de la barra */
+    margin: 4px 0 !important; /* separación vertical entre barras */
+    background: #fff !important;
+    border-radius: 2px;
+  }
 }
-
-/* Panel: normaliza enlaces (nada de azul ni subrayado) */
-#nav-panel .nav-link { color: #eee !important; text-decoration: none !important; font-weight: 500; }
-#nav-panel .nav-link:visited { color: #eee !important; }
-#nav-panel .nav-link[aria-current="page"] { color: var(--accent, #FDB813) !important; background: rgba(253,184,19,.08); }
-
-/* “Secciones” es clicable */
-.nav-panel__header strong { cursor: pointer; user-select: none; }
-
 @media (min-width: 1600px) {
   .site-nav { gap: 18px; }
   .site-nav .nav-link { font-size: 1.12rem; }
