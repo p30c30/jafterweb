@@ -157,6 +157,7 @@ function initResponsiveSocialBar() {
 
 // ===== Inicio =====
 function iniciar() {
+  initHeaderNavUI();
   const logo = document.getElementById('logoHome');
   if (logo) {
     logo.addEventListener('click', (e) => {
@@ -203,28 +204,36 @@ function aplicarEstado(state) {
     }
   }
 
-  if (state.view === 'home') {
-    if (currentView !== 'home') { volverAGaleriaInternal(); }
-  } else if (state.view === 'seccion') {
+if (state.view === 'home') {
+  if (currentView !== 'home') {
+    volverAGaleriaInternal();                 // ya limpia activo y cierra panel
+  } else {
+    // Estabas en Home: asegúrate de limpiar activo y cerrar panel igualmente
+    if (typeof updateHeaderNavActive === 'function') updateHeaderNavActive(null);
+    if (typeof closeNavPanel === 'function')        closeNavPanel();
+  }
+  isHandlingPopstate = false;
+  return;
+} else if (state.view === 'seccion') {
+  if (datosGlobales) {
+    const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
+    sec ? mostrarSeccion(sec, { push: false }) : volverAGaleriaInternal();
+  } else { volverAGaleriaInternal(); }
+} else if (state.view === 'modal') {
+  if (state.source === 'carrusel') {
+    if (!carruselFotos?.length && datosGlobales) { carruselFotos = obtenerFotosParaCarrusel(datosGlobales); }
+    const f = carruselFotos[state.fotoIndex];
+    if (f) { modalSource = 'carrusel'; mostrarModal(f.url, f.texto, state.fotoIndex, { push: false }); }
+    else { volverAGaleriaInternal(); }
+  } else {
     if (datosGlobales) {
       const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
-      sec ? mostrarSeccion(sec, { push: false }) : volverAGaleriaInternal();
-    } else { volverAGaleriaInternal(); }
-  } else if (state.view === 'modal') {
-    if (state.source === 'carrusel') {
-      if (!carruselFotos?.length && datosGlobales) { carruselFotos = obtenerFotosParaCarrusel(datosGlobales); }
-      const f = carruselFotos[state.fotoIndex];
-      if (f) { modalSource = 'carrusel'; mostrarModal(f.url, f.texto, state.fotoIndex, { push: false }); }
-      else { volverAGaleriaInternal(); }
-    } else {
-      if (datosGlobales) {
-        const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
-        if (sec) {
-          mostrarSeccion(sec, { push: false });
-          const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
-          if (foto) { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false }); }
-        } else { volverAGaleriaInternal(); }
+      if (sec) {
+        mostrarSeccion(sec, { push: false });
+        const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
+        if (foto) { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false }); }
       } else { volverAGaleriaInternal(); }
+    } else { volverAGaleriaInternal(); }
     }
   }
 
@@ -291,15 +300,19 @@ async function cargarDatos(container) {
     });
 
     cargarCarrusel(data);
+    buildHeaderNav(data);
+    updateHeaderNavActive(null); // en Home no marcamos sección
   } catch (e) {
     console.error('Error cargando datos:', e);
     container.innerHTML = `<div class="error-message"><h3>Error al cargar</h3><p>${e.message}</p><button onclick="location.reload()">Reintentar</button></div>`;
   }
+  
 }
 
 function mostrarSeccion(seccion, opts = { push: true }) {
   if (typeof pauseAndResetAllCardVideos === 'function') pauseAndResetAllCardVideos();
   currentSeccion = seccion; modalSource = 'seccion';
+  updateHeaderNavActive?.(seccion.id);
   if (!Array.isArray(seccion.fotos)) return;
   todasLasFotos = seccion.fotos;
 
@@ -392,21 +405,21 @@ function buildHeaderNav(data) {
   });
 
   // Delegación de click (escritorio + panel)
-  const handleClick = (e) => {
-    const a = e.target.closest('a.nav-link');
-    if (!a) return;
-    e.preventDefault();
-    closeNavPanel(); // por si venía del panel
+const handleClick = (e) => {
+  const a = e.target.closest('a.nav-link');
+  if (!a) return;
+  e.preventDefault();
+  closeNavPanel?.(); // por si venía del panel
 
-    const id = a.dataset.seccionId;
-    const sec = datosGlobales?.secciones?.find(s => s.id === id);
-    if (sec) {
-      mostrarSeccion(sec);
-      updateHeaderNavActive(id);
-    }
-  };
-  navDesk.addEventListener('click', handleClick);
-  panelList.addEventListener('click', handleClick);
+  const id = a.dataset.seccionId;
+  const sec = datosGlobales?.secciones?.find(s => s.id === id);
+  if (sec) {
+    mostrarSeccion(sec);
+    updateHeaderNavActive?.(id);
+  }
+};
+navDesk.addEventListener('click', handleClick);
+panelList.addEventListener('click', handleClick);
 }
 
 // Marca activo el enlace (en Home se limpia)
@@ -1298,6 +1311,8 @@ function volverAGaleriaInternal() {
   unlockBodyScroll();
   window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
   currentView = 'home';
+  if (typeof updateHeaderNavActive === 'function') updateHeaderNavActive(null);
+  if (typeof closeNavPanel === 'function') closeNavPanel();
   refreshScrollTop();
 }
 
