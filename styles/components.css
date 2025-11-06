@@ -367,33 +367,8 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
   }
 }
 
-/* Nota: si aún quieres la barra más a la izquierda,
-   puedes bajar el padding del propio header:
-   .site-header { padding-inline: 12px; } 
-   (opcional; aplica a todo el header) */
 
-
-/* Móvil/Tablet: hamburguesa de 3 barritas HORIZONTALES */
-@media (max-width: 1024px) {
-  .site-nav { display: none !important; }  /* barra horizontal oculta en móvil */
-  .site-nav-wrap { gap: 0 !important; padding-left: 0 !important; }
-
-  .nav-trigger {
-    display: inline-flex !important;
-    width: 44px; height: 44px;
-    align-items: center; justify-content: center;
-    padding: 0; margin: 0;
-  }
-
-  /* 3 barritas HORIZONTALES */
-  .nav-trigger span {
-    width: 22px !important;   /* ancho de la barra */
-    height: 2px !important;   /* grosor de la barra */
-    margin: 4px 0 !important; /* separación vertical entre barras */
-    background: #fff !important;
-    border-radius: 2px;
-  }
-}
+/* ===Barra de secciones en monitores o tv grandes === */
 @media (min-width: 1600px) {
   .site-nav { gap: 18px; }
   .site-nav .nav-link { font-size: 1.12rem; }
