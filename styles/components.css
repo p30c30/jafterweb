@@ -377,19 +377,44 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
   /* Opcional: un poco más de aire a todo el header */
   /* .site-header { padding-inline: 20px; } */
 }
-/* === Móvil: etiqueta "spotting" centrada debajo del icono (solo móvil) === */
+
+
+/* === Móvil: pill amarillo "spotting" centrado bajo el icono de Flickr Spotting === */
 @media (max-width: 768px) {
-  /* Por si en algún caso el bloque no se mueve al footer, cubrimos ambos contenedores */
+  /* Por si el bloque no se mueve al footer en algún caso, cubrimos ambos contenedores */
   .site-footer .footer-social .social-link.flickr-spotting,
   .header-social .social-link.flickr-spotting {
     position: relative;
-    margin-bottom: 10px; /* deja aire para el texto bajo el icono */
+    /* deja aire bajo el icono para que quepa la etiqueta */
+    margin-bottom: 14px;
   }
 
-  /* Oculta cualquier halo/aro en móvil */
+  /* Oculta halo/aro en móvil (si existiera) */
   .site-footer .footer-social .social-link.flickr-spotting::before,
   .header-social .social-link.flickr-spotting::before {
     display: none !important;
   }
 
-
+  /* Pill amarillo centrado bajo el icono */
+  .site-footer .footer-social .social-link.flickr-spotting::after,
+  .header-social .social-link.flickr-spotting::after {
+    content: 'spotting';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: calc(100% + 6px);           /* separación bajo el icono */
+    /* Estilo pill */
+    background: var(--accent, #FDB813);
+    color: #000;
+    font-size: 10px;                  /* 9–11 según gusto */
+    font-weight: 700;
+    line-height: 1;
+    padding: 3px 8px;                 /* pastilla */
+    border-radius: 999px;
+    letter-spacing: .3px;
+    white-space: nowrap;
+    pointer-events: none;
+    /* Ajuste fino de centrado óptico (mueve un pelín a la izq.) */
+    margin-left: -2px;                /* prueba -1px/-3px si lo ves necesario */
+  }
+}
