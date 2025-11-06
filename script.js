@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v36.7)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v)               ==
 // ===================================================================
-console.log('✅ script.js v37.7 CARGADO');
+console.log('✅ script.js v37.8 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -41,6 +41,16 @@ if (typeof window.crearBotonScrollTop !== 'function') {
     window.addEventListener('resize', refreshScrollTop, { passive: true });
     window.addEventListener('load', refreshScrollTop, { once: true });
     refreshScrollTop();
+  };
+}
+/* === FIX: asegurar initHistoryHandler existe === */
+if (typeof window.initHistoryHandler !== 'function') {
+  window.initHistoryHandler = function () {
+    if (!history.state) history.replaceState({ view: 'home' }, '');
+    window.addEventListener('popstate', (e) => {
+      const state = e.state || { view: 'home' };
+      aplicarEstado(state);
+    });
   };
 }
 
