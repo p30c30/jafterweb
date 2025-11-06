@@ -284,6 +284,19 @@
   transition: box-shadow .18s ease, opacity .18s ease, transform .18s ease;
 }
 
+/* Móvil: quitar halo y dejar solo el badge SP */
+@media (max-width: 768px) {
+  .site-footer .footer-social .social-link.flickr-spotting::before,
+  .header-social .social-link.flickr-spotting::before { /* por si no se moviera al footer */
+    display: none !important;
+  }
+  .site-footer .footer-social .social-link.flickr-spotting::after,
+  .header-social .social-link.flickr-spotting::after {
+    right: -2px; bottom: -2px;
+    font-size: 8px; padding: 2px 4px;
+  }
+}
+
 /* Badge SP */
 .header-social .social-link.flickr-spotting::after {
   content: 'SP';
@@ -318,6 +331,34 @@
     right: -3px; bottom: -3px; font-size: 8px; padding: 2px 4px;
   }
 }
+
+/* Móvil: centrar realmente la barra social en el footer */
+@media (max-width: 768px) {
+  /* Asegura el contenedor a ancho completo y centrado */
+  .site-footer .footer-social {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  /* Resetea el nav que movemos al footer (arrastraba padding-right del header) */
+  .site-footer .footer-social .header-social {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 12px;                   /* tu separación */
+    padding: 0 !important;       /* clave: sin padding lateral heredado */
+    margin: 0 auto !important;
+  }
+
+  /* Coloca el badge SP dentro del icono para no “sacar” ópticamente a la derecha */
+  .site-footer .footer-social .social-link.flickr-spotting::after,
+  .header-social .social-link.flickr-spotting::after {
+    right: 0; bottom: 0;         /* antes -2/-3px */
+  }
+}
+
 
 
 /* ====TARJETAS VIDEO==== para que el vídeo solo ocupe su área */
