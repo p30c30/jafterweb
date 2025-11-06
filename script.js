@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.4)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.5)               ==
 // ===================================================================
-console.log('✅ script.js v38.4 CARGADO');
+console.log('✅ script.js v38.5 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -1207,7 +1207,7 @@ function volverAGaleriaInternal() {
 
 // ========= VIDEO EN TARJETA =========
 // Multi-tarjeta, misma lógica (hover loop en desktop, one‑shot en móvil/TV)
-// + primado en primer toque (Opera/iOS) + solo un vídeo a la vez
+// + primado por gesto (Opera/iOS/TV) + reintentos + solo un vídeo a la vez
 (function initCardAnims_AllCards() {
   const mqHover  = window.matchMedia('(hover:hover)');
   const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -1217,7 +1217,7 @@ function volverAGaleriaInternal() {
   const isTVUA          = /TV|Tizen|Web0S|WebOS|Smart-?TV|BRAVIA|AFT|Shield|AppleTV/i.test(navigator.userAgent);
   const isOperaDesktop  = isHoverDevice && /\bOPR\/|Opera/i.test(navigator.userAgent) && !/Mobile|Android|TV/i.test(navigator.userAgent);
 
-  // Orden de fallback por posición si no encontramos por título o dataset
+  // Orden de fallback por posición si no encontramos por título o dataset (ajústalo a tu grid)
   const FALLBACK = ['virgen.mp4','spotting.mp4','calles.mp4','paisaje.mp4','naturaleza.mp4','artisticas.mp4'];
 
   function getAnimSrcForCard(card, idx) {
@@ -1258,23 +1258,27 @@ function volverAGaleriaInternal() {
     video.appendChild(sourceEl);
     card.appendChild(video);
 
-    // Priming (pre-autorización de reproducción)
-    const prime = () => { video.play().then(() => { video.pause(); try{ video.currentTime = 0; }catch(_){} }).catch(()=>{}); };
+    // Priming (pre-autorización) al cargar
+    const prime = () => {
+      video.play().then(() => {
+        video.pause(); try { video.currentTime = 0; } catch(_) {}
+      }).catch(()=>{});
+    };
     if (video.readyState >= 2) prime();
     else video.addEventListener('canplay', prime, { once:true });
 
-    // PRIMADO por gesto (Opera móvil / iOS): primer toque desbloquea la reproducción
+    // PRIMADO por gesto (Opera móvil / iOS / TV): primer toque desbloquea la reproducción
     const primeOnGesture = () => {
       if (video._userPrimed) return;
       video._userPrimed = true;
       video.play()
         .then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} })
-        .catch(() => { video._userPrimed = false; }); // reintenta en el siguiente gesto
+        .catch(() => { video._userPrimed = false; }); // si falla, reintenta en el siguiente gesto
     };
     card.addEventListener('touchstart', primeOnGesture, { passive: true });
-    card.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') primeOnGesture(); }, { passive: true });
+    card.addEventListener('pointerdown', primeOnGesture, { passive: true });
 
-    // (Opcional) que solo haya un vídeo de tarjeta reproduciéndose a la vez
+    // Solo un vídeo de tarjeta reproduciéndose a la vez
     window.__cardPlayingVideo ??= null;
     function claimPlayback() {
       if (window.__cardPlayingVideo && window.__cardPlayingVideo !== video) {
@@ -1285,13 +1289,16 @@ function volverAGaleriaInternal() {
       window.__cardPlayingVideo = video;
     }
 
-    // Helpers de reproducción (idéntico a tu patrón + claimPlayback)
+    // Helpers de reproducción (con reintento si el navegador bloquea)
     const startLoopHover = () => {
       try { video.currentTime = 0; } catch(_) {}
       claimPlayback();
       card.classList.add('is-over');
       video.loop = true;
-      video.play().catch(()=>{});
+      video.play().catch(() => {
+        primeOnGesture();
+        setTimeout(() => video.play().catch(()=>{}), 0);
+      });
     };
     const stopHover = () => {
       video.pause();
@@ -1320,7 +1327,19 @@ function volverAGaleriaInternal() {
         } else {
           setTimeout(finish, 3500);
         }
-      }).catch(()=>{ setTimeout(finish, 2000); });
+      }).catch(() => {
+        // Último empujón para Opera/iOS/TV: prime y reintento inmediato
+        primeOnGesture();
+        setTimeout(() => {
+          video.play().then(() => {
+            if (isFinite(video.duration) && video.duration > 0) {
+              video.addEventListener('ended', finish, { once:true });
+            } else {
+              setTimeout(finish, 3500);
+            }
+          }).catch(() => setTimeout(finish, 1200));
+        }, 0);
+      });
     };
 
     if (isHoverDevice) {
@@ -1407,6 +1426,31 @@ function volverAGaleriaInternal() {
     const mo = new MutationObserver(() => mountOnAllCards());
     mo.observe(container, { childList: true, subtree: true });
   }
+
+  // PRIMADO GLOBAL: en la primera interacción del usuario, autoriza todos los vídeos
+  (function primeAllCardVideosOnce() {
+    if (window.__cardVideosPrimedGlobally) return;
+    window.__cardVideosPrimedGlobally = true;
+
+    const handler = () => {
+      const vids = document.querySelectorAll('.section-cards video.card-anim');
+      vids.forEach(v => {
+        try {
+          v.muted = true; v.setAttribute('muted','');
+          v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
+          v.play().then(() => { v.pause(); try { v.currentTime = 0; } catch(_) {} })
+                  .catch(()=>{});
+        } catch(_) {}
+      });
+      ['pointerdown','touchstart','keydown','click'].forEach(ev => {
+        window.removeEventListener(ev, handler, true);
+      });
+    };
+
+    ['pointerdown','touchstart','keydown','click'].forEach(ev => {
+      window.addEventListener(ev, handler, { once: true, capture: true, passive: true });
+    });
+  })();
 })();
 
 
