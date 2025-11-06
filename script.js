@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.8)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v38.8 CARGADO');
+console.log('✅ script.js v38.9 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -19,6 +19,18 @@ let modalFromHomeCarousel = false;
 let __pushedModal = false;
 
 // ===== Helpers =====
+// Animaciones Pausa y resetea todas las animaciones de portada
+function pauseAndResetAllCardVideos() {
+  const vids = document.querySelectorAll('.section-cards video.card-anim');
+  vids.forEach(v => {
+    try { v.pause(); } catch(_) {}
+    try { v.currentTime = 0; } catch(_) {}
+    v._oneShotPlaying = false;
+    const c = v.closest('.card');
+    if (c) c.classList.remove('is-over');
+  });
+  window.__cardPlayingVideo = null;
+}
 /* === Animaciones por sección (id o título slug) === */
 const CARD_ANIM_MAP = {
   artisticas: '/assets/anim/artisticas.mp4',
@@ -286,6 +298,7 @@ async function cargarDatos(container) {
 }
 
 function mostrarSeccion(seccion, opts = { push: true }) {
+  if (typeof pauseAndResetAllCardVideos === 'function') pauseAndResetAllCardVideos();
   currentSeccion = seccion; modalSource = 'seccion';
   if (!Array.isArray(seccion.fotos)) return;
   todasLasFotos = seccion.fotos;
@@ -492,6 +505,7 @@ function abrirModalDesdeCarrusel(index = carruselActualIndex) {
 
 // ===== Modal =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
+  if (typeof pauseAndResetAllCardVideos === 'function') pauseAndResetAllCardVideos();
   const modal = document.getElementById('modal');
   currentFotoIndex = fotoIndex; isModalOpen = true;
 
@@ -1207,8 +1221,7 @@ function volverAGaleriaInternal() {
 
 // ========= VIDEO EN TARJETA =========
 // Multi-tarjeta (hover loop en desktop, one‑shot en móvil/TV)
-// TV: fuerza rama sin hover (no se corta al soltar).
-// Móvil: play en touchend y solo se bloquea el “click sintético” inmediato del propio navegador.
+// TV: sin hover. Móvil: play en touchend. Bloqueo de click solo el sintético.
 // + primado por gesto + reintentos + solo un vídeo a la vez + primado global.
 (function initCardAnims_AllCards() {
   const mqHover  = window.matchMedia('(hover:hover)');
@@ -1217,15 +1230,13 @@ function volverAGaleriaInternal() {
 
   const isHoverDeviceRaw = mqHover.matches;
   const isTVUA = /TV|Tizen|Web0S|WebOS|Smart-?TV|BRAVIA|AFT|Shield|AppleTV/i.test(navigator.userAgent);
-  // En TV nunca usamos la rama hover aunque reporte hover:hover
   const useHoverBranch = isHoverDeviceRaw && !isTVUA;
   const isOperaDesktop = useHoverBranch && /\bOPR\/|Opera/i.test(navigator.userAgent) && !/Mobile|Android|TV/i.test(navigator.userAgent);
 
-  // Ajusta a tu grid actual
   const FALLBACK = ['virgen.mp4','spotting.mp4','calles.mp4','paisaje.mp4','naturaleza.mp4','artisticas.mp4'];
 
   function getAnimSrcForCard(card, idx) {
-    const ds = (card.dataset && card.dataset.animSrc) ? card.dataset.animSrc : null;
+    const ds = card.dataset?.animSrc;
     if (ds) return ds;
     const title = card.querySelector('.card-content h3')?.textContent || '';
     const id = slugify(title);
@@ -1244,12 +1255,12 @@ function volverAGaleriaInternal() {
     video.className = 'card-anim';
     video.muted = true;         video.setAttribute('muted','');
     video.playsInline = true;   video.setAttribute('playsinline','');
-    video.setAttribute('webkit-playsinline',''); // iOS
+    video.setAttribute('webkit-playsinline','');
     video.loop = useHoverBranch;
     video.preload = (useHoverBranch && !isOperaDesktop) ? 'metadata' : 'auto';
 
     try { video.setAttribute('disablepictureinpicture',''); video.disablePictureInPicture = true; } catch(_) {}
-    try { video.disableRemotePlayback = true; video.setAttribute('controlsList', 'nodownload noplaybackrate noremoteplayback nofullscreen'); } catch(_) {}
+    try { video.disableRemotePlayback = true; video.setAttribute('controlsList','nodownload noplaybackrate noremoteplayback nofullscreen'); } catch(_) {}
 
     const poster = card.querySelector('img')?.src || '';
     if (poster) video.poster = poster;
@@ -1263,16 +1274,14 @@ function volverAGaleriaInternal() {
     const prime = () => {
       video.play().then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} }).catch(()=>{});
     };
-    if (video.readyState >= 2) prime();
-    else video.addEventListener('canplay', prime, { once:true });
+    if (video.readyState >= 2) prime(); else video.addEventListener('canplay', prime, { once:true });
 
-    // Primado por gesto (móvil/TV/Opera/iOS)
+    // Primado por gesto
     const primeOnGesture = () => {
       if (video._userPrimed) return;
       video._userPrimed = true;
-      video.play()
-        .then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} })
-        .catch(() => { video._userPrimed = false; });
+      video.play().then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} })
+                  .catch(() => { video._userPrimed = false; });
     };
     card.addEventListener('touchstart', primeOnGesture, { passive: true });
     card.addEventListener('pointerdown', primeOnGesture, { passive: true });
@@ -1282,13 +1291,15 @@ function volverAGaleriaInternal() {
     function claimPlayback() {
       if (window.__cardPlayingVideo && window.__cardPlayingVideo !== video) {
         try { window.__cardPlayingVideo.pause(); } catch(_) {}
+        // Libera el estado one-shot del anterior
+        window.__cardPlayingVideo._oneShotPlaying = false;
         const prevCard = window.__cardPlayingVideo.closest('.card');
         if (prevCard) prevCard.classList.remove('is-over');
       }
       window.__cardPlayingVideo = video;
     }
 
-    // Helpers con reintentos
+    // Helpers
     const startLoopHover = () => {
       try { video.currentTime = 0; } catch(_) {}
       claimPlayback();
@@ -1305,21 +1316,22 @@ function volverAGaleriaInternal() {
       try { video.currentTime = 0; } catch(_) {}
     };
 
-    let playingOneShot = false;
     const playOnce = () => {
-      if (playingOneShot) return;
-      playingOneShot = true;
+      if (video._oneShotPlaying) return;
+      video._oneShotPlaying = true;
       video.loop = false; video.removeAttribute('loop');
       try { video.currentTime = 0; } catch(_) {}
       claimPlayback();
       card.classList.add('is-over');
+
       const finish = () => {
         video.pause();
+        video._oneShotPlaying = false;
         card.classList.remove('is-over');
         try { video.currentTime = 0; } catch(_) {}
-        playingOneShot = false;
         video.removeEventListener('ended', finish);
       };
+
       video.play().then(() => {
         if (isFinite(video.duration) && video.duration > 0) {
           video.addEventListener('ended', finish, { once:true });
@@ -1340,6 +1352,11 @@ function volverAGaleriaInternal() {
       });
     };
 
+    // Si el vídeo se pausa por cualquier motivo, libera el estado one-shot
+    video.addEventListener('pause', () => { if (!video.loop) video._oneShotPlaying = false; });
+    video.addEventListener('emptied', () => { video._oneShotPlaying = false; });
+    video.addEventListener('error',   () => { video._oneShotPlaying = false; });
+
     if (useHoverBranch) {
       // Desktop/hover
       const onEnter = () => startLoopHover();
@@ -1354,7 +1371,7 @@ function volverAGaleriaInternal() {
       const LONG_MS = 550;
       let pressTimer = null;
 
-      // Suprime SOLO el click sintético inmediato (ventana por tiempo)
+      // Click sintético: ventanas cortas por tarjeta
       let suppressUntil = 0;
       function blockClickNext(ms = 180) {
         suppressUntil = performance.now() + ms;
@@ -1380,7 +1397,7 @@ function volverAGaleriaInternal() {
       card.addEventListener('pointercancel', clearPress);
       card.addEventListener('pointerleave', clearPress);
 
-      // TV: teclado (Enter/Space)
+      // TV teclado
       if (isTVUA) {
         if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex','0');
         card.addEventListener('keydown', (e) => {
@@ -1393,7 +1410,7 @@ function volverAGaleriaInternal() {
         });
       }
 
-      // Móvil: drag leve → reproducir en touchend (activación válida)
+      // Móvil: arrastras un poco y sueltas => play en touchend
       let sx = 0, sy = 0, moved = false, willPlayOnRelease = false;
       card.addEventListener('touchstart', (e) => {
         const t = e.touches[0];
@@ -1406,41 +1423,36 @@ function volverAGaleriaInternal() {
         const dx = Math.abs(t.clientX - sx);
         const dy = Math.abs(t.clientY - sy);
         if (!moved && (dx > 8 || dy > 8)) {
-          moved = true;
-          willPlayOnRelease = true;
+          moved = true; willPlayOnRelease = true;
         }
       }, { passive: true });
 
       card.addEventListener('touchend', () => {
         if (willPlayOnRelease) {
           primeOnGesture();
-          blockClickNext(220);       // bloquea SOLO el click generado por ese drag
+          blockClickNext(220);
           setTimeout(() => playOnce(), 0);
           willPlayOnRelease = false;
         }
       }, { passive: true });
 
-      card.addEventListener('touchcancel', () => {
-        moved = false; willPlayOnRelease = false;
-        suppressUntil = 0;
-      }, { passive: true });
+      card.addEventListener('touchcancel', () => { moved = false; willPlayOnRelease = false; suppressUntil = 0; }, { passive: true });
 
-      // Captura de click: si está dentro de la ventana suprimimos; si no, dejamos navegar
       card.addEventListener('click', (e) => {
         if (performance.now() < suppressUntil) {
           e.preventDefault(); e.stopPropagation();
-          suppressUntil = 0; // desbloquea tras suprimir el sintético
+          suppressUntil = 0;
         }
-        // Si NO se suprime, el click de navegación de la tarjeta (que ya tienes) seguirá su curso
+        // Si NO está suprimido, el click navega a la sección (tu handler existente)
       }, true);
 
-      // Pausa/estado al cambiar de pestaña/app
+      // Si cambias de pestaña/app, libera estado
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
           video.pause();
+          video._oneShotPlaying = false;
           card.classList.remove('is-over');
           try { video.currentTime = 0; } catch(_) {}
-          playingOneShot = false;
         }
       });
     }
@@ -1492,8 +1504,6 @@ function volverAGaleriaInternal() {
     });
   })();
 })();
-
-
 
 
 // ===== Boot =====
