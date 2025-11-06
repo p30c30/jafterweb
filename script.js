@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.1)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.2)               ==
 // ===================================================================
-console.log('✅ script.js v38.1 CARGADO');
+console.log('✅ script.js v38.2 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -984,18 +984,30 @@ function attachSwipeToModal(modal) {
   container.addEventListener('touchend', onEnd, { passive: true });
 }
 function attachBottomSheet(modal) {
-  const isMobile = window.matchMedia('(max-width: 1024px)').matches; if (!isMobile) return;
-  const imgContainer = modal.querySelector('.modal-img-container'); const info = modal.querySelector('.modal-info'); const handle = modal.querySelector('.info-handle'); if (!imgContainer || !info || !handle) return;
+  const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+  if (!isMobile) return;
+
+  const imgContainer = modal.querySelector('.modal-img-container');
+  const info        = modal.querySelector('.modal-info');
+  const dragHandle  = modal.querySelector('.info-handle'); // <— renombrado
+  if (!imgContainer || !info || !dragHandle) return;
+
   lockBodyScroll();
+
   modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
   modal.addEventListener('wheel', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
+
   function stopScrollBounce(el) {
     el.addEventListener('wheel', (e) => {
       const atTop = el.scrollTop <= 0;
       const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight;
       if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) e.preventDefault();
     }, { passive: false });
-    let tsY = 0; el.addEventListener('touchstart', (e) => { if (e.touches.length !== 1) return; tsY = e.touches[0].clientY; }, { passive: true });
+    let tsY = 0;
+    el.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      tsY = e.touches[0].clientY;
+    }, { passive: true });
     el.addEventListener('touchmove', (e) => {
       if (e.touches.length !== 1) return;
       const dy = e.touches[0].clientY - tsY;
@@ -1005,28 +1017,56 @@ function attachBottomSheet(modal) {
     }, { passive: false });
   }
   stopScrollBounce(info);
+
   function getCollapsed() { return window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh'; }
-  function getExpanded() { return '60dvh'; }
+  function getExpanded()  { return '60dvh'; }
   function setInfoHeight(v) { modal.style.setProperty('--info-height', v); }
   setInfoHeight(getCollapsed());
 
   let startY = 0, deltaY = 0;
-  imgContainer.addEventListener('touchstart', (e) => { if (currentScale > 1) return; const t = e.touches[0]; startY = t.clientY; deltaY = 0; modal.classList.add('is-gesturing'); }, { passive: true });
-  imgContainer.addEventListener('touchmove', (e) => { if (currentScale > 1) return; const t = e.touches[0]; deltaY = t.clientY - startY; }, { passive: true });
-  imgContainer.addEventListener('touchend', () => { modal.classList.remove('is-gesturing'); if (currentScale > 1) return; if (Math.abs(deltaY) > 40) { ignoreNextClick = true; if (deltaY < 0) setInfoHeight(getExpanded()); else setInfoHeight(getCollapsed()); setTimeout(() => { ignoreNextClick = false; }, 250); } }, { passive: true });
+  imgContainer.addEventListener('touchstart', (e) => {
+    if (currentScale > 1) return;
+    const t = e.touches[0];
+    startY = t.clientY; deltaY = 0;
+    modal.classList.add('is-gesturing');
+  }, { passive: true });
+  imgContainer.addEventListener('touchmove', (e) => {
+    if (currentScale > 1) return;
+    const t = e.touches[0];
+    deltaY = t.clientY - startY;
+  }, { passive: true });
+  imgContainer.addEventListener('touchend', () => {
+    modal.classList.remove('is-gesturing');
+    if (currentScale > 1) return;
+    if (Math.abs(deltaY) > 40) {
+      ignoreNextClick = true;
+      if (deltaY < 0) setInfoHeight(getExpanded());
+      else setInfoHeight(getCollapsed());
+      setTimeout(() => { ignoreNextClick = false; }, 250);
+    }
+  }, { passive: true });
 
+  // Draggable del handle
   let dragging = false, dragStartY = 0, startHeightPx = 0;
-  function vhToPx(v) { const m = String(v).match(/([\d.]+)d?vh/); const n = m ? parseFloat(m[1]) : 0; return (n / 100) * window.innerHeight; }
+  function vhToPx(v) {
+    const m = String(v).match(/([\d.]+)d?vh/);
+    const n = m ? parseFloat(m[1]) : 0;
+    return (n / 100) * window.innerHeight;
+  }
   function pxToVh(px) { return (px / window.innerHeight) * 100; }
   const vhToPxCollapsed = () => vhToPx(getCollapsed());
-  const vhToPxExpanded = () => vhToPx(getExpanded());
-  const pxToVhStr = (px) => (pxToVh(px).toFixed(2) + 'dvh');
+  const vhToPxExpanded  = () => vhToPx(getExpanded());
+  const pxToVhStr       = (px) => (pxToVh(px).toFixed(2) + 'dvh');
 
-  const handle = modal.querySelector('.info-handle');
-  handle.addEventListener('touchstart', (e) => {
-    const t = e.touches[0]; dragging = true; dragStartY = t.clientY; startHeightPx = vhToPxCollapsed(); modal.classList.add('is-gesturing'); e.preventDefault();
+  dragHandle.addEventListener('touchstart', (e) => {
+    const t = e.touches[0];
+    dragging = true; dragStartY = t.clientY;
+    startHeightPx = vhToPxCollapsed();
+    modal.classList.add('is-gesturing');
+    e.preventDefault();
   }, { passive: false });
-  handle.addEventListener('touchmove', (e) => {
+
+  dragHandle.addEventListener('touchmove', (e) => {
     if (!dragging) return;
     const t = e.touches[0];
     const dy = t.clientY - dragStartY;
@@ -1036,13 +1076,17 @@ function attachBottomSheet(modal) {
     setInfoHeight(pxToVhStr(newHeightPx));
     e.preventDefault();
   }, { passive: false });
-  handle.addEventListener('touchend', () => {
-    if (!dragging) return; dragging = false; modal.classList.remove('is-gesturing');
+
+  dragHandle.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    modal.classList.remove('is-gesturing');
     const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
     const midPx = (vhToPxCollapsed() + vhToPxExpanded()) / 2;
     setInfoHeight(curPx >= midPx ? getExpanded() : getCollapsed());
     ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
   });
+
   window.addEventListener('resize', () => {
     if (!isModalOpen) return;
     const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
