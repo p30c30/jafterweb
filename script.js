@@ -25,6 +25,26 @@ function scrollToTopHard() { requestAnimationFrame(() => { requestAnimationFrame
 function forceSectionTop(containerEl) { const toTop = () => { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }; toTop(); requestAnimationFrame(() => toTop()); setTimeout(toTop, 50); setTimeout(toTop, 200); setTimeout(toTop, 500); if (containerEl) { const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12); imgs.forEach(img => { if (!img.complete) { const bump = () => toTop(); img.addEventListener('load', bump, { once: true }); img.addEventListener('error', bump, { once: true }); } }); } }
 function exitFullscreenSafe() { const d = document; try { if (d.fullscreenElement && d.exitFullscreen) return d.exitFullscreen(); if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen(); } catch (e) {} }
 
+/* === FIX: asegurar crearBotonScrollTop existe === */
+if (typeof window.crearBotonScrollTop !== 'function') {
+  window.crearBotonScrollTop = function () {
+    scrollTopBtn = document.querySelector('.scroll-to-top');
+    if (!scrollTopBtn) {
+      scrollTopBtn = document.createElement('button');
+      scrollTopBtn.className = 'scroll-to-top';
+      scrollTopBtn.innerHTML = '↑';
+      scrollTopBtn.setAttribute('aria-label', 'Volver arriba');
+      document.body.appendChild(scrollTopBtn);
+    }
+    scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.addEventListener('scroll', refreshScrollTop, { passive: true });
+    window.addEventListener('resize', refreshScrollTop, { passive: true });
+    window.addEventListener('load', refreshScrollTop, { once: true });
+    refreshScrollTop();
+  };
+}
+
+
 /* === CAMBIO INICIO: iniciar() con soporte logo <a> + social bar móvil === */
 function iniciar() {
 const logo = document.getElementById('logoHome');
