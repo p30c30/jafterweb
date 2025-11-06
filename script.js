@@ -44,9 +44,7 @@ if (typeof window.crearBotonScrollTop !== 'function') {
   };
 }
 
-// Mover redes al contenedor móvil cuando toque
-initResponsiveSocialBar();
-}
+
 /* === CAMBIO INICIO: iniciar() con soporte logo <a> + social bar móvil === */
 function iniciar() {
 const logo = document.getElementById('logoHome');
@@ -109,7 +107,9 @@ else window.addEventListener('resize', relocate);
 
 
 /* === CAMBIO FIN === */
-
+// Mover redes al contenedor móvil cuando toque
+initResponsiveSocialBar();
+}
 // ===== Estado / navegación SPA =====
 function aplicarEstado(state) {
   isHandlingPopstate = true;
