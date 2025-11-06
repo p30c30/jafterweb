@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v36.7)               ==
 // ===================================================================
-console.log('✅ script.js v37.5 CARGADO');
+console.log('✅ script.js v37.6 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -25,17 +25,70 @@ function scrollToTopHard() { requestAnimationFrame(() => { requestAnimationFrame
 function forceSectionTop(containerEl) { const toTop = () => { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }; toTop(); requestAnimationFrame(() => toTop()); setTimeout(toTop, 50); setTimeout(toTop, 200); setTimeout(toTop, 500); if (containerEl) { const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12); imgs.forEach(img => { if (!img.complete) { const bump = () => toTop(); img.addEventListener('load', bump, { once: true }); img.addEventListener('error', bump, { once: true }); } }); } }
 function exitFullscreenSafe() { const d = document; try { if (d.fullscreenElement && d.exitFullscreen) return d.exitFullscreen(); if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen(); } catch (e) {} }
 
-// ===== Inicio =====
+/* === CAMBIO INICIO: iniciar() con soporte logo <a> + social bar móvil === */
 function iniciar() {
-  const logo = document.getElementById('logoHome');
-  if (logo) { logo.addEventListener('click', () => { if (currentView !== 'home') { history.pushState({ view: 'home' }, ''); aplicarEstado({ view: 'home' }); } }); }
-  crearBotonScrollTop();
-  setTimeout(() => { const container = document.getElementById('secciones-container'); if (container) { cargarDatos(container); } else { setTimeout(iniciar, 1000); } }, 600);
-  initMobileRotationHandler();
-  initHistoryHandler();
+const logo = document.getElementById('logoHome');
+if (logo) {
+logo.addEventListener('click', (e) => {
+// Si es un <a>, evita recargar salvo click con modificadores
+if (logo.tagName.toLowerCase() === 'a') {
+const hasModifier = e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0);
+if (!hasModifier) e.preventDefault();
 }
-function crearBotonScrollTop() { scrollTopBtn = document.querySelector('.scroll-to-top'); if (!scrollTopBtn) { scrollTopBtn = document.createElement('button'); scrollTopBtn.className = 'scroll-to-top'; scrollTopBtn.innerHTML = '↑'; scrollTopBtn.setAttribute('aria-label', 'Volver arriba'); document.body.appendChild(scrollTopBtn); } scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' }); window.addEventListener('scroll', refreshScrollTop, { passive: true }); window.addEventListener('resize', refreshScrollTop, { passive: true }); window.addEventListener('load', refreshScrollTop, { once: true }); refreshScrollTop(); }
-function initHistoryHandler() { if (!history.state) history.replaceState({ view: 'home' }, ''); window.addEventListener('popstate', (e) => { const state = e.state || { view: 'home' }; aplicarEstado(state); }); }
+if (currentView !== 'home') {
+history.pushState({ view: 'home' }, '');
+aplicarEstado({ view: 'home' });
+} else {
+// si ya estás en home, sube arriba suavemente
+window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+});
+}
+
+crearBotonScrollTop();
+
+setTimeout(() => {
+const container = document.getElementById('secciones-container');
+if (container) {
+cargarDatos(container);
+} else {
+setTimeout(iniciar, 1000);
+}
+}, 600);
+
+initMobileRotationHandler();
+initHistoryHandler();
+/* === CAMBIO INICIO: barra de redes responsiva (móvil) === */
+function initResponsiveSocialBar() {
+const mq = window.matchMedia('(max-width: 768px)');
+const header = document.querySelector('.site-header');
+const social = document.querySelector('.header-social');
+const mobileBar = document.getElementById('mobile-social-bar');
+
+if (!header || !social) return;
+
+function relocate() {
+if (!mobileBar) return;
+if (mq.matches) {
+// En móvil, mueve la barra al contenedor dedicado
+if (social.parentElement !== mobileBar) mobileBar.appendChild(social);
+} else {
+// En escritorio/tablet vuelve al header
+if (social.parentElement !== header) header.appendChild(social);
+}
+}
+
+// Inicial y en cambios de viewport
+relocate();
+if (mq.addEventListener) mq.addEventListener('change', relocate);
+else if (mq.addListener) mq.addListener(relocate); // Safari antiguo
+else window.addEventListener('resize', relocate);
+}
+/* === CAMBIO FIN === */
+// Mover redes al contenedor móvil cuando toque
+initResponsiveSocialBar();
+}
+/* === CAMBIO FIN === */
 
 // ===== Estado / navegación SPA =====
 function aplicarEstado(state) {
