@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.6)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.7)               ==
 // ===================================================================
-console.log('✅ script.js v38.6 CARGADO');
+console.log('✅ script.js v38.7 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
