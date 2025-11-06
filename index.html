@@ -41,7 +41,15 @@
   <!-- Header en Grid: 1fr | auto | 1fr -->
   <header class="site-header">
     
-   <a id="logoHome" class="site-title" href="/" rel="home">Jafterpic</a>
+   <!-- Navegación: hamburguesa + barra (barra visible solo en escritorio) -->
+<div class="site-nav-wrap">
+  <button class="nav-trigger" aria-label="Abrir menú de secciones" aria-expanded="false" aria-controls="nav-panel">
+    <span></span><span></span><span></span>
+  </button>
+  <nav class="site-nav" aria-label="Secciones"></nav>
+</div>
+    
+    <a id="logoHome" class="site-title" href="/" rel="home">Jafterpic</a>
 
     <!-- Barra de redes (columna derecha del Grid) -->
     <nav class="header-social" aria-label="Redes sociales">
@@ -138,6 +146,18 @@
       <div id="mobile-social-bar" aria-label="Redes sociales (móvil)"></div> 
   </main>  
 
+ <!-- Panel lateral de navegación -->
+<div id="nav-panel" class="nav-panel" aria-hidden="true">
+  <div class="nav-panel__backdrop" data-close></div>
+  <nav class="nav-panel__drawer" role="dialog" aria-label="Menú principal">
+    <div class="nav-panel__header">
+      <strong>Secciones</strong>
+      <button class="nav-panel__close" data-close aria-label="Cerrar menú">×</button>
+    </div>
+    <div class="nav-panel__list"></div>
+  </nav>
+</div>
+  
   <!-- Modal para fotos -->
   <div id="modal" class="modal"></div>
   
