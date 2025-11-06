@@ -409,8 +409,7 @@ const handleClick = (e) => {
   const a = e.target.closest('a.nav-link');
   if (!a) return;
   e.preventDefault();
-  closeNavPanel?.(); // por si venía del panel
-
+  closeNavPanel?.();
   const id = a.dataset.seccionId;
   const sec = datosGlobales?.secciones?.find(s => s.id === id);
   if (sec) {
