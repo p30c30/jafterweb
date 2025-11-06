@@ -346,24 +346,26 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
   background: rgba(253,184,19,.08);
 }
 
-/* === NAV: escritorio sin hamburguesa, barra más a la izquierda y tipografía mayor === */
+/* Móvil/Tablet: hamburguesa 3 barras HORIZONTALES apiladas */
+@media (max-width: 1024px) {
+  .site-nav { display: none !important; }   /* barra oculta en móvil */
+  .site-nav-wrap { gap: 0 !important; padding-left: 0 !important; }
 
-/* Escritorio (≥1025px): oculta hamburguesa y muestra barra */
-@media (min-width: 1025px) {
-  .nav-trigger { display: none !important; }
-  .site-nav { display: flex !important; }
-
-  /* Contenedor de nav (columna izquierda) más pegado a la izquierda */
-  .site-nav-wrap {
-    gap: 10px;                 /* sin espacio “extra” por la hamburguesa oculta */
-    padding-left: 0 !important;/* quita acolchado extra del contenedor */
+  .nav-trigger {
+    display: inline-flex !important;
+    align-items: center; justify-content: center;
+    width: 44px; height: 44px;
+    padding: 0; margin: 0;
+    flex-direction: column !important;  /* CLAVE: apila las barras */
+    gap: 6px !important;                /* separación entre barras */
   }
 
-  /* Enlaces un pelín más grandes, elegantes */
-  .site-nav .nav-link {
-    font-size: clamp(1rem, 1.05vw, 1.15rem) !important;
-    font-weight: 500;
-    opacity: .95;
+  .nav-trigger span {
+    width: 28px !important;             /* largo de la barra */
+    height: 4px !important;             /* grosor */
+    margin: 0 !important;               /* evita márgenes laterales heredados */
+    background: #fff !important;
+    border-radius: 999px !important;    /* puntas redondeadas */
   }
 }
 
