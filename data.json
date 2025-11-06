@@ -433,6 +433,11 @@
                "texto":"Susuro difuso"
             },
             {
+               "miniatura":"https://live.staticflickr.com/65535/54906767803_09c362f01c_b.jpg",
+               "url":"https://i.ibb.co/Lhg9QMBs/Margarita-1900.jpg",
+               "texto":"Entre brumas y pétalos"
+            },
+            {
                "miniatura":"https://live.staticflickr.com/65535/54887737077_d961678a4e_b.jpg",
                "url":"https://i.ibb.co/9mTdw9z8/azucenas.jpg",
                "texto":"Colores en flor"
@@ -446,6 +451,11 @@
                "miniatura":"https://live.staticflickr.com/65535/54888905174_0d41c416cc_b.jpg",
                "url":"https://i.ibb.co/yzVGSr4/rosa.jpg",
                "texto":"La magia de la rosa"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54906767983_63d1643010_b.jpg",
+               "url":"https://i.ibb.co/MDrGNTXW/margaritas-1800.jpg",
+               "texto":"Margaritas flotando en bokeh"
             }
          ]
       },
