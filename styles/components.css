@@ -118,6 +118,61 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
   text-shadow: 0 1px 1px rgba(0,0,0,0.25); /* sombrita sutil */
 }
 
+/* === Masonry compacto y uniforme (fila = columna) === */
+:root { --masonry-gap: .55rem; } /* ajusta aquí: .45rem, .5rem, .6rem según gusto */
+
+/* Igualamos hueco horizontal y vertical */
+.fotos-grid { column-gap: var(--masonry-gap) !important; }
+.fotos-grid .foto-item { margin: 0 0 var(--masonry-gap) 0 !important; }
+
+/* Limpiamos borde/fondo del ítem para que el hueco no “parezca” mayor */
+.fotos-grid .foto-item {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Hover sutil: solo sombra (sin añadir borde fijo) */
+.fotos-grid .foto-item:hover {
+  transform: translateY(-3px) scale(1.015);
+  box-shadow: 0 12px 28px rgba(0,0,0,.35), 0 0 14px rgba(253,184,19,.22);
+  border: 0 !important;
+}
+
+
+/* === Miniaturas (escritorio): sin fondo, solo texto en hover === */
+@media (min-width: 1025px) {
+  /* Quita fondo/blur de la franja; mantenemos la posición abajo */
+  .fotos-grid .foto-item .thumb-caption {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 0 .35rem 0;      /* un pelín de aire abajo */
+    pointer-events: none;        /* el clic pasa a la foto */
+  }
+
+  /* Solo el texto, con leve sombra para legibilidad sobre la foto */
+  .fotos-grid .foto-item .thumb-caption span {
+    display: inline-block;
+    background: transparent !important;
+    color: #fff;
+    font-weight: 500;
+    padding: 0 .5rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,.55), 0 0 14px rgba(0,0,0,.35);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+  }
+
+  /* Por si en algún CSS falta el “show on hover”, lo reforzamos */
+  .fotos-grid .foto-item:hover .thumb-caption {
+    transform: translateY(0) !important;
+    opacity: 1 !important;
+  }
+}
 
 
 
