@@ -302,3 +302,38 @@ body.modal-open{ overflow:hidden; }
     overflow-y: auto !important;
   }
 }
+
+/* ===== Panel info del modal: fondo biselado sutil y sin marcos ===== /
+#modal .modal-info {
+position: relative;
+/ Muy sutil y casi transparente para leer justo lo necesario */
+background: linear-gradient(to top, rgba(0,0,0,0.20) 0%, rgba(0,0,0,0.10) 100%);
+backdrop-filter: blur(3px) saturate(120%);
+-webkit-backdrop-filter: blur(3px) saturate(120%);
+border: 0 !important;
+box-shadow: none !important;
+}
+
+/* Bisel sutil en el borde superior (no es un marco, solo un brillo muy leve) */
+#modal .modal-info::before {
+content: "";
+position: absolute;
+top: 0; left: 0; right: 0; height: 10px;
+background: linear-gradient(to top, rgba(255,255,255,0.08), rgba(255,255,255,0));
+pointer-events: none;
+}
+
+/* Legibilidad del título */
+#modal .modal-info .foto-title {
+color: #ffffff;
+opacity: .95;
+text-shadow: 0 1px 1px rgba(0,0,0,0.4);
+}
+
+/* Si el navegador no soporta backdrop-filter, subimos un poco la opacidad */
+@supports not (backdrop-filter: blur(2px)) {
+#modal .modal-info {
+background: linear-gradient(to top, rgba(0,0,0,0.26) 0%, rgba(0,0,0,0.14) 100%);
+}
+}
+
