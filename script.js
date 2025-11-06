@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.7)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.8)               ==
 // ===================================================================
-console.log('✅ script.js v38.7 CARGADO');
+console.log('✅ script.js v38.8 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -1207,7 +1207,8 @@ function volverAGaleriaInternal() {
 
 // ========= VIDEO EN TARJETA =========
 // Multi-tarjeta (hover loop en desktop, one‑shot en móvil/TV)
-// TV: fuerza rama sin hover (no se corta al soltar). Móvil: play en touchend.
+// TV: fuerza rama sin hover (no se corta al soltar).
+// Móvil: play en touchend y solo se bloquea el “click sintético” inmediato del propio navegador.
 // + primado por gesto + reintentos + solo un vídeo a la vez + primado global.
 (function initCardAnims_AllCards() {
   const mqHover  = window.matchMedia('(hover:hover)');
@@ -1216,11 +1217,11 @@ function volverAGaleriaInternal() {
 
   const isHoverDeviceRaw = mqHover.matches;
   const isTVUA = /TV|Tizen|Web0S|WebOS|Smart-?TV|BRAVIA|AFT|Shield|AppleTV/i.test(navigator.userAgent);
-  // Importante: en TV no usamos la rama hover aunque reporte hover:hover
+  // En TV nunca usamos la rama hover aunque reporte hover:hover
   const useHoverBranch = isHoverDeviceRaw && !isTVUA;
-
   const isOperaDesktop = useHoverBranch && /\bOPR\/|Opera/i.test(navigator.userAgent) && !/Mobile|Android|TV/i.test(navigator.userAgent);
 
+  // Ajusta a tu grid actual
   const FALLBACK = ['virgen.mp4','spotting.mp4','calles.mp4','paisaje.mp4','naturaleza.mp4','artisticas.mp4'];
 
   function getAnimSrcForCard(card, idx) {
@@ -1258,12 +1259,14 @@ function volverAGaleriaInternal() {
     video.appendChild(sourceEl);
     card.appendChild(video);
 
+    // Primado inicial
     const prime = () => {
       video.play().then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} }).catch(()=>{});
     };
     if (video.readyState >= 2) prime();
     else video.addEventListener('canplay', prime, { once:true });
 
+    // Primado por gesto (móvil/TV/Opera/iOS)
     const primeOnGesture = () => {
       if (video._userPrimed) return;
       video._userPrimed = true;
@@ -1271,8 +1274,10 @@ function volverAGaleriaInternal() {
         .then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} })
         .catch(() => { video._userPrimed = false; });
     };
+    card.addEventListener('touchstart', primeOnGesture, { passive: true });
+    card.addEventListener('pointerdown', primeOnGesture, { passive: true });
 
-    // Solo un vídeo reproduciéndose a la vez
+    // Solo un vídeo activo
     window.__cardPlayingVideo ??= null;
     function claimPlayback() {
       if (window.__cardPlayingVideo && window.__cardPlayingVideo !== video) {
@@ -1348,16 +1353,23 @@ function volverAGaleriaInternal() {
       // Móvil / TV
       const LONG_MS = 550;
       let pressTimer = null;
-      let suppressNextClick = false;
 
-      // TV: long-press y Enter/Space
+      // Suprime SOLO el click sintético inmediato (ventana por tiempo)
+      let suppressUntil = 0;
+      function blockClickNext(ms = 180) {
+        suppressUntil = performance.now() + ms;
+        setTimeout(() => {
+          if (performance.now() >= suppressUntil) suppressUntil = 0;
+        }, ms + 60);
+      }
+
+      // Long‑press TV
       card.addEventListener('pointerdown', (e) => {
-        // En TV algunos remotos reportan pointerType "mouse"
         const isTvPointer = isTVUA && (e.pointerType === 'mouse' || e.pointerType === 'pen' || e.pointerType === 'touch' || e.pointerType === 'unknown');
         if (isTvPointer) {
           if (pressTimer) clearTimeout(pressTimer);
           pressTimer = setTimeout(() => {
-            suppressNextClick = true;
+            blockClickNext(220);
             primeOnGesture();
             playOnce();
           }, LONG_MS);
@@ -1368,20 +1380,20 @@ function volverAGaleriaInternal() {
       card.addEventListener('pointercancel', clearPress);
       card.addEventListener('pointerleave', clearPress);
 
-      // TV: teclado (Enter/Space) como gesto válido
+      // TV: teclado (Enter/Space)
       if (isTVUA) {
         if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex','0');
         card.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.code === 'Enter' || e.key === ' ' || e.code === 'Space') {
             e.preventDefault(); e.stopPropagation();
-            suppressNextClick = true;
+            blockClickNext(220);
             primeOnGesture();
             playOnce();
           }
         });
       }
 
-      // Móvil: “pulsación + arrastre” ⇒ play en touchend (cuenta como activación)
+      // Móvil: drag leve → reproducir en touchend (activación válida)
       let sx = 0, sy = 0, moved = false, willPlayOnRelease = false;
       card.addEventListener('touchstart', (e) => {
         const t = e.touches[0];
@@ -1396,24 +1408,30 @@ function volverAGaleriaInternal() {
         if (!moved && (dx > 8 || dy > 8)) {
           moved = true;
           willPlayOnRelease = true;
-          suppressNextClick = true;
         }
       }, { passive: true });
 
       card.addEventListener('touchend', () => {
         if (willPlayOnRelease) {
-          primeOnGesture();          // activa al navegador justo antes de reproducir
+          primeOnGesture();
+          blockClickNext(220);       // bloquea SOLO el click generado por ese drag
           setTimeout(() => playOnce(), 0);
           willPlayOnRelease = false;
         }
       }, { passive: true });
 
-      // Cancela solo el clic que viene del long-press/drag (no rompe navegación normal)
+      card.addEventListener('touchcancel', () => {
+        moved = false; willPlayOnRelease = false;
+        suppressUntil = 0;
+      }, { passive: true });
+
+      // Captura de click: si está dentro de la ventana suprimimos; si no, dejamos navegar
       card.addEventListener('click', (e) => {
-        if (suppressNextClick) {
+        if (performance.now() < suppressUntil) {
           e.preventDefault(); e.stopPropagation();
-          suppressNextClick = false;
+          suppressUntil = 0; // desbloquea tras suprimir el sintético
         }
+        // Si NO se suprime, el click de navegación de la tarjeta (que ya tienes) seguirá su curso
       }, true);
 
       // Pausa/estado al cambiar de pestaña/app
@@ -1452,7 +1470,7 @@ function volverAGaleriaInternal() {
     mo.observe(container, { childList: true, subtree: true });
   }
 
-  // PRIMADO GLOBAL: primera interacción del usuario autoriza todos los vídeos
+  // PRIMADO GLOBAL: primera interacción autoriza todos los vídeos
   (function primeAllCardVideosOnce() {
     if (window.__cardVideosPrimedGlobally) return;
     window.__cardVideosPrimedGlobally = true;
@@ -1474,6 +1492,7 @@ function volverAGaleriaInternal() {
     });
   })();
 })();
+
 
 
 
