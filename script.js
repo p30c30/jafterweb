@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.2)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.3)               ==
 // ===================================================================
-console.log('✅ script.js v38.2 CARGADO');
+console.log('✅ script.js v38.3 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -506,7 +506,9 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       </div>
       <div class="modal-info">
         <div class="info-handle" aria-hidden="true"></div>
-        <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div>
+  // ===== Contador de fotos comentado por si lo quiero volver a poner solo quitar flecha =====
+        <!-- <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div> -->
+
         <div class="foto-title">${title}</div>
         <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'} aria-label="${chipPrefix} ${sectionTitle || ''}">
           <span class="chip-label">${chipPrefix}</span>
