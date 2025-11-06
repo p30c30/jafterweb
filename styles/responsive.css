@@ -266,6 +266,58 @@
   }
 }
 
+/* Flickr Spotting: aro dorado + badge SP */
+.header-social .social-link.flickr-spotting {
+  position: relative;
+  border-radius: 50%;
+}
+
+/* Aro dorado sutil alrededor */
+.header-social .social-link.flickr-spotting::before {
+  content: '';
+  position: absolute;
+  inset: -4px;                /* ajusta según tamaño del icono */
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(253,184,19,.5);
+  opacity: .9;
+  pointer-events: none;
+  transition: box-shadow .18s ease, opacity .18s ease, transform .18s ease;
+}
+
+/* Badge SP */
+.header-social .social-link.flickr-spotting::after {
+  content: 'SP';
+  position: absolute;
+  right: -4px; bottom: -4px;
+  font-size: 9px; line-height: 1;
+  padding: 2px 5px;
+  border-radius: 10px;
+  background: var(--accent, #FDB813);
+  color: #000; font-weight: 700; letter-spacing: .3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  pointer-events: none;
+}
+
+/* Hover en desktop */
+@media (hover:hover) {
+  .header-social .social-link.flickr-spotting:hover::before {
+    box-shadow: 0 0 0 3px rgba(253,184,19,.75), 0 2px 10px rgba(253,184,19,.25);
+  }
+  .header-social .social-link.flickr-spotting:hover .social-icon {
+    color: var(--accent, #FDB813);
+  }
+}
+
+/* Ajustes cuando se mueven al footer en móvil */
+@media (max-width: 768px) {
+  .site-footer .footer-social .social-link.flickr-spotting::before {
+    inset: -3px;
+    box-shadow: 0 0 0 2px rgba(253,184,19,.45);
+  }
+  .site-footer .footer-social .social-link.flickr-spotting::after {
+    right: -3px; bottom: -3px; font-size: 8px; padding: 2px 4px;
+  }
+}
 
 
 /* ====TARJETAS VIDEO==== para que el vídeo solo ocupe su área */
