@@ -506,9 +506,8 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       </div>
       <div class="modal-info">
         <div class="info-handle" aria-hidden="true"></div>
-  // ===== Contador de fotos comentado por si lo quiero volver a poner solo quitar flecha =====
+  
         <!-- <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div> -->
-
         <div class="foto-title">${title}</div>
         <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'} aria-label="${chipPrefix} ${sectionTitle || ''}">
           <span class="chip-label">${chipPrefix}</span>
