@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.0)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.1)               ==
 // ===================================================================
-console.log('✅ script.js v38.0 CARGADO');
+console.log('✅ script.js v38.1 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -16,7 +16,7 @@ let velX = 0, velY = 0, inertiaId = null;
 const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
 let __scrollLockY = 0, isBodyLocked = false;
 let modalFromHomeCarousel = false;
-let __pushedModal = false; // modal empujado a history por nosotros
+let __pushedModal = false;
 
 // ===== Helpers =====
 function refreshScrollTop() {
@@ -90,33 +90,31 @@ function initHistoryHandler() {
   });
 }
 
-// Redes responsivas (móvil)
+// Redes responsivas: mover al footer en móvil (≤768px)
 function initResponsiveSocialBar() {
   const mq = window.matchMedia('(max-width: 768px)');
   const header = document.querySelector('.site-header');
+  const footer = document.querySelector('.site-footer');
   const social = document.querySelector('.header-social');
-  if (!header || !social) return;
+  if (!header || !footer || !social) return;
 
-  function ensureMobileBar() {
-    let mobileBar = document.getElementById('mobile-social-bar');
-    if (!mobileBar) {
-      const footer = document.querySelector('.site-footer');
-      mobileBar = document.createElement('div');
-      mobileBar.id = 'mobile-social-bar';
-      mobileBar.setAttribute('aria-label', 'Redes sociales (móvil)');
-      if (footer && footer.parentNode) {
-        footer.parentNode.insertBefore(mobileBar, footer);
-      } else {
-        document.body.appendChild(mobileBar);
-      }
+  function ensureFooterSlot() {
+    let slot = footer.querySelector('.footer-social');
+    if (!slot) {
+      slot = document.createElement('div');
+      slot.className = 'footer-social';
+      const copy = footer.querySelector('.site-copy');
+      // Coloca las redes encima de la línea de copyright
+      if (copy && copy.parentNode) footer.insertBefore(slot, copy);
+      else footer.appendChild(slot);
     }
-    return mobileBar;
+    return slot;
   }
 
   function relocate() {
-    const mobileBar = ensureMobileBar();
     if (mq.matches) {
-      if (social.parentElement !== mobileBar) mobileBar.appendChild(social);
+      const slot = ensureFooterSlot();
+      if (social.parentElement !== slot) slot.appendChild(social);
     } else {
       if (social.parentElement !== header) header.appendChild(social);
     }
@@ -153,7 +151,6 @@ function iniciar() {
     if (container) {
       cargarDatos(container);
     } else {
-      // Reintento por si el DOM aún no ha montado esa zona
       setTimeout(iniciar, 1000);
     }
   }, 600);
@@ -566,11 +563,9 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
 
     const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
 
-    // Navegación por hotspots
     if (hotspotLeft) hotspotLeft.addEventListener('click', () => navegarFoto(-1));
     if (hotspotRight) hotspotRight.addEventListener('click', () => navegarFoto(1));
 
-    // Botón cerrar
     if (closeBtn) {
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -588,7 +583,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       });
     }
 
-    // Cerrar clicando en overlay
     modal.addEventListener('click', function (event) {
       if (event.target !== modal) return;
       if (ignoreNextClick) { ignoreNextClick = false; return; }
@@ -606,14 +600,11 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
     });
 
-    // Flechas
     if (prevBtn) prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navegarFoto(-1); });
     if (nextBtn) nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navegarFoto(1); });
 
-    // Fullscreen toggle
     if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-    // Chip "Ver sección"
     if (chip) {
       chip.addEventListener('click', (e) => {
         e.preventDefault(); e.stopPropagation();
@@ -632,7 +623,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       });
     }
 
-    // Tap rápido => toggle zoom
+    // Tap rápido → toggle zoom
     let tapStartX = 0, tapStartY = 0, tapStartT = 0;
     modalImg.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) { tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now(); }
@@ -650,7 +641,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       }
     }, { passive: true });
 
-    // Click => toggle zoom
+    // Click → toggle zoom
     modalImg.addEventListener('click', function (event) {
       if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
       doClickToggle();
@@ -658,7 +649,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     });
     modalImg.addEventListener('dblclick', (e) => e.preventDefault());
 
-    // Zoom con rueda
+    // Zoom rueda
     modal.addEventListener('wheel', function (e) {
       e.preventDefault();
       const ZOOM_MIN = 1, ZOOM_MAX = 5;
@@ -710,7 +701,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     };
     document.addEventListener('keydown', keydownHandler);
 
-    // Click-zoom (desktop): cover suave x5
+    // Click-zoom
     function doClickToggle() {
       if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; }
       else {
@@ -734,7 +725,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       aplicarZoom();
     }
 
-    // Auto-ocultar UI (solo desktop)
     if (!isMobileViewport) {
       const AUTO_HIDE_MS = 3000; let autoHideId = null;
       function show(el) { if (el) { el.classList.add('visible'); el.style.pointerEvents = 'auto'; } }
@@ -1032,6 +1022,7 @@ function attachBottomSheet(modal) {
   const vhToPxExpanded = () => vhToPx(getExpanded());
   const pxToVhStr = (px) => (pxToVh(px).toFixed(2) + 'dvh');
 
+  const handle = modal.querySelector('.info-handle');
   handle.addEventListener('touchstart', (e) => {
     const t = e.touches[0]; dragging = true; dragStartY = t.clientY; startHeightPx = vhToPxCollapsed(); modal.classList.add('is-gesturing'); e.preventDefault();
   }, { passive: false });
@@ -1117,10 +1108,7 @@ function closeModal() {
   if (!modal) return;
 
   exitFullscreenSafe();
-
-  // Hard-hide para evitar flash de frames residuales
   modal.style.display = 'none';
-
   modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
   document.body.classList.remove('modal-open');
   isModalOpen = false; ignoreNextClick = false; resetZoom();
