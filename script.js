@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.3)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.4)               ==
 // ===================================================================
-console.log('✅ script.js v38.3 CARGADO');
+console.log('✅ script.js v38.4 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -1217,7 +1217,7 @@ function volverAGaleriaInternal() {
   const isOperaDesktop = isHoverDevice && /\bOPR\/|Opera/i.test(navigator.userAgent) && !/Mobile|Android|TV/i.test(navigator.userAgent);
 
   // Orden de fallback por posición si no encontramos por título
-  const FALLBACK = ['virgen.mp4','artisticas.mp4','calles.mp4','naturaleza.mp4','paisaje.mp4','spotting.mp4'];
+  const FALLBACK = ['virgen.mp4','spotting.mp4','calles.mp4','paisaje.mp4','naturaleza.mp4','artisticas.mp4'];
 
   function getAnimSrcForCard(card, idx) {
     // 1) si el card tiene data-anim-src, úsalo
