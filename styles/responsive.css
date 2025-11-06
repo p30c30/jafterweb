@@ -299,3 +299,28 @@
 @media (prefers-reduced-motion: reduce) {
   .section-cards .card .card-anim { display: none !important; }
 }
+
+/* === Masonry compacto también en móvil === */
+@media (max-width: 767px) {
+  :root { --masonry-gap: .5rem; } /* un pelín más de aire en pantallas pequeñas */
+
+  body .fotos-grid {
+    -webkit-column-gap: var(--masonry-gap) !important;
+    -moz-column-gap: var(--masonry-gap) !important;
+    column-gap: var(--masonry-gap) !important;
+    padding: 0 var(--masonry-gap) !important;
+  }
+  body .fotos-grid .foto-item { margin: 0 0 var(--masonry-gap) 0 !important; }
+}
+
+@media (max-width: 480px) {
+  :root { --masonry-gap: .48rem; } /* opcional, aún más compacto en móviles pequeños */
+  body .fotos-grid {
+    -webkit-column-gap: var(--masonry-gap) !important;
+    -moz-column-gap: var(--masonry-gap) !important;
+    column-gap: var(--masonry-gap) !important;
+    padding: 0 var(--masonry-gap) !important;
+  }
+  body .fotos-grid .foto-item { margin: 0 0 var(--masonry-gap) 0 !important; }
+}
+/* === FINAL DE Masonry compacto  === */
