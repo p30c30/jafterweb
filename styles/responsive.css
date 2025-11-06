@@ -151,7 +151,7 @@
 /* CAMBIO: ocultamos redes en el header (se mostrarán en #mobile-social-bar) */
 @media (max-width: 768px) {
   .site-title { font-size: clamp(1.5rem, 5vw, 1.9rem); }
-  .header-social { display: none !important; }
+  
 }
 @media (max-width: 480px) {
   /* (sin cambios para .header-social aquí porque ya se oculta en móvil) */
@@ -214,6 +214,51 @@
   }
 }
 
+/* === Footer en móvil: solo redes centradas + copyright debajo === */
+@media (max-width: 768px) {
+  /* Oculta el texto "Contacto" en móvil */
+  .site-footer .contact-info { display: none !important; }
+
+  /* Slot de redes en el footer (el script crea .footer-social y mete ahí .header-social) */
+  .site-footer .footer-social {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin: 1rem auto .35rem;
+    padding: 0;
+    width: 100%;
+  }
+  .site-footer .footer-social .social-icon {
+    width: 28px; height: 28px;
+  }
+
+  /* Asegúrate de que las redes del header no ocupen el header en móvil */
+  .site-header .header-social { display: none !important; }
+
+  /* Línea de copyright */
+  .site-footer .site-copy {
+    text-align: center !important;
+    margin-top: .25rem !important;
+    opacity: .9;
+    font-size: .95rem;
+  }
+
+  /* Opcional: sutil línea superior en el footer */
+  .site-footer {
+    border-top: 1px solid rgba(253,184,19,.25);
+    padding-top: 1rem;
+  }
+}
+
+/* Hover para iconos en dispositivos con hover */
+@media (hover:hover) {
+  .site-footer .footer-social .social-link:hover .social-icon {
+    opacity: 1; transform: translateY(-1px);
+    color: var(--accent, #FDB813);
+    filter: drop-shadow(0 1px 2px rgba(253,184,19,.25));
+  }
+}
 
 
 /* ====TARJETAS VIDEO==== para que el vídeo solo ocupe su área */
