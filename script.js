@@ -367,6 +367,88 @@ function mostrarSeccion(seccion, opts = { push: true }) {
   }
 }
 
+// ==============BARRA DE SECCIONES======== Construye la barra y el panel con las secciones (sin "Inicio")
+function buildHeaderNav(data) {
+  const navDesk   = document.querySelector('.site-nav');
+  const panelList = document.querySelector('#nav-panel .nav-panel__list');
+  if (!data?.secciones || !navDesk || !panelList) return;
+
+  // Limpia y crea enlaces
+  navDesk.innerHTML = '';
+  panelList.innerHTML = '';
+
+  data.secciones.forEach(sec => {
+    if (!sec?.id || !sec?.titulo) return;
+
+    const aDesk = document.createElement('a');
+    aDesk.className = 'nav-link';
+    aDesk.textContent = sec.titulo;
+    aDesk.href = '#';
+    aDesk.dataset.seccionId = sec.id;
+    navDesk.appendChild(aDesk);
+
+    const aMob = aDesk.cloneNode(true);
+    panelList.appendChild(aMob);
+  });
+
+  // Delegación de click (escritorio + panel)
+  const handleClick = (e) => {
+    const a = e.target.closest('a.nav-link');
+    if (!a) return;
+    e.preventDefault();
+    closeNavPanel(); // por si venía del panel
+
+    const id = a.dataset.seccionId;
+    const sec = datosGlobales?.secciones?.find(s => s.id === id);
+    if (sec) {
+      mostrarSeccion(sec);
+      updateHeaderNavActive(id);
+    }
+  };
+  navDesk.addEventListener('click', handleClick);
+  panelList.addEventListener('click', handleClick);
+}
+
+// Marca activo el enlace (en Home se limpia)
+function updateHeaderNavActive(seccionIdOrNull) {
+  const links = document.querySelectorAll('.site-nav .nav-link, #nav-panel .nav-link');
+  links.forEach(a => a.removeAttribute('aria-current'));
+  if (!seccionIdOrNull) return;
+  document.querySelectorAll(`.nav-link[data-seccion-id="${seccionIdOrNull}"]`)
+    .forEach(a => a.setAttribute('aria-current', 'page'));
+}
+
+// UI del panel hamburguesa (abre/cierra)
+function initHeaderNavUI() {
+  const trigger = document.querySelector('.nav-trigger');
+  const panel   = document.getElementById('nav-panel');
+  if (!trigger || !panel) return;
+
+  const open = () => {
+    panel.classList.add('is-open');
+    panel.setAttribute('aria-hidden', 'false');
+    trigger.setAttribute('aria-expanded', 'true');
+    setTimeout(() => panel.querySelector('.nav-link')?.focus(), 10);
+  };
+  const close = () => {
+    panel.classList.remove('is-open');
+    panel.setAttribute('aria-hidden', 'true');
+    trigger.setAttribute('aria-expanded', 'false');
+  };
+  window.closeNavPanel = close;
+
+  trigger.addEventListener('click', () => {
+    panel.classList.contains('is-open') ? close() : open();
+  });
+  panel.addEventListener('click', (e) => {
+    if (e.target.matches('[data-close], .nav-panel__backdrop')) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && panel.classList.contains('is-open')) close();
+  });
+}
+
+
 // ===== Carrusel portada =====
 function cargarCarrusel(data) {
   const inner = document.getElementById('ultimas-fotos-carrusel');
