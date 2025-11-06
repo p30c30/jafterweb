@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v36.7)               ==
 // ===================================================================
-console.log('✅ script.js v37.6 CARGADO');
+console.log('✅ script.js v37.7 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -44,7 +44,9 @@ if (typeof window.crearBotonScrollTop !== 'function') {
   };
 }
 
-
+// Mover redes al contenedor móvil cuando toque
+initResponsiveSocialBar();
+}
 /* === CAMBIO INICIO: iniciar() con soporte logo <a> + social bar móvil === */
 function iniciar() {
 const logo = document.getElementById('logoHome');
@@ -104,10 +106,8 @@ if (mq.addEventListener) mq.addEventListener('change', relocate);
 else if (mq.addListener) mq.addListener(relocate); // Safari antiguo
 else window.addEventListener('resize', relocate);
 }
-/* === CAMBIO FIN === */
-// Mover redes al contenedor móvil cuando toque
-initResponsiveSocialBar();
-}
+
+
 /* === CAMBIO FIN === */
 
 // ===== Estado / navegación SPA =====
