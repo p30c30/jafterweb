@@ -377,3 +377,38 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
   /* Opcional: un poco más de aire a todo el header */
   /* .site-header { padding-inline: 20px; } */
 }
+/* === Móvil: etiqueta "spotting" centrada debajo del icono (solo móvil) === */
+@media (max-width: 768px) {
+  /* Por si en algún caso el bloque no se mueve al footer, cubrimos ambos contenedores */
+  .site-footer .footer-social .social-link.flickr-spotting,
+  .header-social .social-link.flickr-spotting {
+    position: relative;
+    margin-bottom: 10px; /* deja aire para el texto bajo el icono */
+  }
+
+  /* Oculta cualquier halo/aro en móvil */
+  .site-footer .footer-social .social-link.flickr-spotting::before,
+  .header-social .social-link.flickr-spotting::before {
+    display: none !important;
+  }
+
+  /* Muestra texto "spotting" bajo el icono, centrado */
+  .site-footer .footer-social .social-link.flickr-spotting::after,
+  .header-social .social-link.flickr-spotting::after {
+    content: 'spotting';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: calc(100% + 3px);
+    font-size: 9px;
+    line-height: 1;
+    color: #eaeaea;
+    letter-spacing: .3px;
+    white-space: nowrap;
+    background: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    pointer-events: none;
+  }
+}
