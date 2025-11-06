@@ -392,23 +392,4 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
     display: none !important;
   }
 
-  /* Muestra texto "spotting" bajo el icono, centrado */
-  .site-footer .footer-social .social-link.flickr-spotting::after,
-  .header-social .social-link.flickr-spotting::after {
-    content: 'spotting';
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    top: calc(100% + 3px);
-    font-size: 9px;
-    line-height: 1;
-    color: #eaeaea;
-    letter-spacing: .3px;
-    white-space: nowrap;
-    background: transparent !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    pointer-events: none;
-  }
-}
+
