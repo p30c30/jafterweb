@@ -304,14 +304,13 @@ body.modal-open{ overflow:hidden; }
 }
 
 /* ===== Modal: panel info invisible (solo texto + botón sección) ===== */
-
 #modal .modal-info {
-background: transparent !important;
-backdrop-filter: none !important;
--webkit-backdrop-filter: none !important;
-border: 0 !important;
-box-shadow: none !important;
-padding: .55rem .9rem .7rem;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: .55rem .9rem .7rem;
 }
 
 /* Sin bisel/sombras extra */
@@ -319,85 +318,86 @@ padding: .55rem .9rem .7rem;
 
 /* Título legible y discreto */
 #modal .modal-info .foto-title {
-color: #fff;
-opacity: .95;
-text-shadow: 0 1px 2px rgba(0,0,0,.55);
-margin: 0 0 .35rem 0;
-line-height: 1.35;
+  color: #fff;
+  opacity: .95;
+  text-shadow: 0 1px 2px rgba(0,0,0,.55);
+  margin: 0 0 .35rem 0;
+  line-height: 1.35;
 }
 
-/* Botón sección: estilo enlace limpio y sutil /
+/* Botón sección: enlace limpio, sin fondo/borde ni subrayado */
 #modal .modal-info .section-chip {
-background: transparent !important;
-border: 0 !important;
-box-shadow: none !important;
-padding: 0 !important;
-color: var(--accent, #FDB813);
-display: inline-flex;
-align-items: center;
-gap: .4rem;
-font-weight: 500;
-line-height: 1.25;
-cursor: pointer;
-touch-action: manipulation;
-text-decoration: none;
-text-underline-offset: 3px; / para cuando aparezca el subrayado en hover */
+  appearance: none; -webkit-appearance: none;
+  background: transparent !important;
+  border: 0 !important; box-shadow: none !important;
+  padding: 0 !important; margin: 0; min-height: 0;
+  color: var(--accent, #FDB813);
+  font: inherit; font-weight: 500; line-height: 1.35;
+  display: inline-flex; align-items: center; gap: .4rem;
+  cursor: pointer; text-decoration: none !important;
+  border-radius: 0 !important;
+  touch-action: manipulation;
 }
 
-/* Arrow sutil al pasar */
+/* Flecha sutil */
 #modal .modal-info .section-chip .chip-arrow {
-transform: translateX(0);
-transition: transform .2s ease, opacity .2s ease;
-opacity: .95;
+  transform: translateX(0);
+  transition: transform .2s ease, opacity .2s ease, color .2s ease;
+  opacity: .95;
 }
 
-/* Hover solo en dispositivos con hover (en móvil no molestamos) */
+/* Hover solo en dispositivos con hover: sin subrayado, leve cambio de color y flecha sutil */
 @media (hover:hover) {
-#modal .modal-info .section-chip:hover {
-text-decoration: underline;
-}
-#modal .modal-info .section-chip:hover .chip-arrow {
-transform: translateX(2px);
-}
+  #modal .modal-info .section-chip:hover {
+    text-decoration: none !important;
+    color: #ffd36b; /* acento un poco más claro */
+  }
+  #modal .modal-info .section-chip:hover .chip-arrow {
+    transform: translateX(2px);
+  }
 }
 
 /* Accesibilidad: foco visible (teclado) */
 #modal .modal-info .section-chip:focus-visible {
-outline: 2px solid var(--accent, #FDB813);
-outline-offset: 2px;
-border-radius: 3px;
+  outline: 2px solid var(--accent, #FDB813);
+  outline-offset: 2px;
+  border-radius: 3px;
 }
 
-/* Handle invisible (gestos siguen funcionando) /
+/* Handle invisible (gestos siguen funcionando) */
 #modal .modal-info .info-handle {
-width: 40px; height: 10px;
-margin: 2px auto 6px;
-border-radius: 999px;
-background: transparent !important;
-opacity: 0;
-pointer-events: auto; / mantiene el drag del bottom sheet */
+  width: 40px; height: 10px;
+  margin: 2px auto 6px;
+  border-radius: 999px;
+  background: transparent !important;
+  opacity: 0;
+  pointer-events: auto; /* mantiene el drag del bottom sheet */
 }
 
-/* Ocultar contador (ya lo comente en JS) 
-#modal .modal-info .foto-counter { display: none !important; } */
+/* (El contador ya lo comentaste en JS, si hiciera falta ocultarlo por CSS, descomenta la línea de abajo) */
+/* #modal .modal-info .foto-counter { display: none !important; } */
+
 
 /* ===== OPCIÓN ALTERNATIVA: panel ultra-sutil (descomenta para usar) =====
 #modal .modal-info {
-background: linear-gradient(to top, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.02) 100%) !important;
-backdrop-filter: blur(2px) saturate(115%);
--webkit-backdrop-filter: blur(2px) saturate(115%);
-border: 0 !important;
-box-shadow: none !important;
-padding: .6rem .9rem .75rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.02) 100%) !important;
+  backdrop-filter: blur(2px) saturate(115%);
+  -webkit-backdrop-filter: blur(2px) saturate(115%);
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: .6rem .9rem .75rem;
 }
 #modal .modal-info::before { display: none !important; }
 #modal .modal-info .foto-title {
-color: #fff; opacity: .95; text-shadow: 0 1px 2px rgba(0,0,0,.45);
+  color: #fff; opacity: .95; text-shadow: 0 1px 2px rgba(0,0,0,.45);
 }
 #modal .modal-info .section-chip {
-background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important;
-color: var(--accent, #FDB813); display: inline-flex; align-items: center; gap: .4rem; font-weight: 500; line-height: 1.25;
+  background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important;
+  color: var(--accent, #FDB813); display: inline-flex; align-items: center; gap: .4rem; font-weight: 500; line-height: 1.25;
 }
-#modal .modal-info .info-handle { width: 40px; height: 10px; margin: 2px auto 6px; opacity: .25; background: rgba(255,255,255,.15); border-radius: 999px; }
+#modal .modal-info .info-handle {
+  width: 40px; height: 10px; margin: 2px auto 6px;
+  opacity: .25; background: rgba(255,255,255,.15); border-radius: 999px;
+}
 #modal .modal-info .foto-counter { display: none !important; }
 */
