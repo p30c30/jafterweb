@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.0)               ==
 // ===================================================================
-console.log('✅ script.js v37.8 CARGADO');
+console.log('✅ script.js v38.0 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -19,107 +19,150 @@ let modalFromHomeCarousel = false;
 let __pushedModal = false; // modal empujado a history por nosotros
 
 // ===== Helpers =====
-function refreshScrollTop() { if (!scrollTopBtn) return; const y = window.scrollY || document.documentElement.scrollTop || 0; scrollTopBtn.classList.toggle('visible', y > 300); }
+function refreshScrollTop() {
+  if (!scrollTopBtn) return;
+  const y = window.scrollY || document.documentElement.scrollTop || 0;
+  scrollTopBtn.classList.toggle('visible', y > 300);
+}
 if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
-function scrollToTopHard() { requestAnimationFrame(() => { requestAnimationFrame(() => { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }); }); }
-function forceSectionTop(containerEl) { const toTop = () => { window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); document.documentElement.scrollTop = 0; document.body.scrollTop = 0; }; toTop(); requestAnimationFrame(() => toTop()); setTimeout(toTop, 50); setTimeout(toTop, 200); setTimeout(toTop, 500); if (containerEl) { const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12); imgs.forEach(img => { if (!img.complete) { const bump = () => toTop(); img.addEventListener('load', bump, { once: true }); img.addEventListener('error', bump, { once: true }); } }); } }
-function exitFullscreenSafe() { const d = document; try { if (d.fullscreenElement && d.exitFullscreen) return d.exitFullscreen(); if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen(); } catch (e) {} }
-
-/* === FIX: asegurar crearBotonScrollTop existe === */
-if (typeof window.crearBotonScrollTop !== 'function') {
-  window.crearBotonScrollTop = function () {
-    scrollTopBtn = document.querySelector('.scroll-to-top');
-    if (!scrollTopBtn) {
-      scrollTopBtn = document.createElement('button');
-      scrollTopBtn.className = 'scroll-to-top';
-      scrollTopBtn.innerHTML = '↑';
-      scrollTopBtn.setAttribute('aria-label', 'Volver arriba');
-      document.body.appendChild(scrollTopBtn);
-    }
-    scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-    window.addEventListener('scroll', refreshScrollTop, { passive: true });
-    window.addEventListener('resize', refreshScrollTop, { passive: true });
-    window.addEventListener('load', refreshScrollTop, { once: true });
-    refreshScrollTop();
-  };
-}
-/* === FIX: asegurar initHistoryHandler existe === */
-if (typeof window.initHistoryHandler !== 'function') {
-  window.initHistoryHandler = function () {
-    if (!history.state) history.replaceState({ view: 'home' }, '');
-    window.addEventListener('popstate', (e) => {
-      const state = e.state || { view: 'home' };
-      aplicarEstado(state);
+function scrollToTopHard() {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
     });
+  });
+}
+function forceSectionTop(containerEl) {
+  const toTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
   };
+  toTop();
+  requestAnimationFrame(() => toTop());
+  setTimeout(toTop, 50);
+  setTimeout(toTop, 200);
+  setTimeout(toTop, 500);
+  if (containerEl) {
+    const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12);
+    imgs.forEach(img => {
+      if (!img.complete) {
+        const bump = () => toTop();
+        img.addEventListener('load', bump, { once: true });
+        img.addEventListener('error', bump, { once: true });
+      }
+    });
+  }
+}
+function exitFullscreenSafe() {
+  const d = document;
+  try {
+    if (d.fullscreenElement && d.exitFullscreen) return d.exitFullscreen();
+    if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen();
+  } catch (e) {}
 }
 
-
-/* === CAMBIO INICIO: iniciar() con soporte logo <a> + social bar móvil === */
-function iniciar() {
-const logo = document.getElementById('logoHome');
-if (logo) {
-logo.addEventListener('click', (e) => {
-// Si es un <a>, evita recargar salvo click con modificadores
-if (logo.tagName.toLowerCase() === 'a') {
-const hasModifier = e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0);
-if (!hasModifier) e.preventDefault();
-}
-if (currentView !== 'home') {
-history.pushState({ view: 'home' }, '');
-aplicarEstado({ view: 'home' });
-} else {
-// si ya estás en home, sube arriba suavemente
-window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-});
+// Botón scroll-to-top
+function crearBotonScrollTop() {
+  scrollTopBtn = document.querySelector('.scroll-to-top');
+  if (!scrollTopBtn) {
+    scrollTopBtn = document.createElement('button');
+    scrollTopBtn.className = 'scroll-to-top';
+    scrollTopBtn.innerHTML = '↑';
+    scrollTopBtn.setAttribute('aria-label', 'Volver arriba');
+    document.body.appendChild(scrollTopBtn);
+  }
+  scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.addEventListener('scroll', refreshScrollTop, { passive: true });
+  window.addEventListener('resize', refreshScrollTop, { passive: true });
+  window.addEventListener('load', refreshScrollTop, { once: true });
+  refreshScrollTop();
 }
 
-crearBotonScrollTop();
-
-setTimeout(() => {
-const container = document.getElementById('secciones-container');
-if (container) {
-cargarDatos(container);
-} else {
-setTimeout(iniciar, 1000);
+// Historial SPA
+function initHistoryHandler() {
+  if (!history.state) history.replaceState({ view: 'home' }, '');
+  window.addEventListener('popstate', (e) => {
+    const state = e.state || { view: 'home' };
+    aplicarEstado(state);
+  });
 }
-}, 600);
 
-initMobileRotationHandler();
-initHistoryHandler();
-/* === CAMBIO INICIO: barra de redes responsiva (móvil) === */
+// Redes responsivas (móvil)
 function initResponsiveSocialBar() {
-const mq = window.matchMedia('(max-width: 768px)');
-const header = document.querySelector('.site-header');
-const social = document.querySelector('.header-social');
-const mobileBar = document.getElementById('mobile-social-bar');
+  const mq = window.matchMedia('(max-width: 768px)');
+  const header = document.querySelector('.site-header');
+  const social = document.querySelector('.header-social');
+  if (!header || !social) return;
 
-if (!header || !social) return;
+  function ensureMobileBar() {
+    let mobileBar = document.getElementById('mobile-social-bar');
+    if (!mobileBar) {
+      const footer = document.querySelector('.site-footer');
+      mobileBar = document.createElement('div');
+      mobileBar.id = 'mobile-social-bar';
+      mobileBar.setAttribute('aria-label', 'Redes sociales (móvil)');
+      if (footer && footer.parentNode) {
+        footer.parentNode.insertBefore(mobileBar, footer);
+      } else {
+        document.body.appendChild(mobileBar);
+      }
+    }
+    return mobileBar;
+  }
 
-function relocate() {
-if (!mobileBar) return;
-if (mq.matches) {
-// En móvil, mueve la barra al contenedor dedicado
-if (social.parentElement !== mobileBar) mobileBar.appendChild(social);
-} else {
-// En escritorio/tablet vuelve al header
-if (social.parentElement !== header) header.appendChild(social);
+  function relocate() {
+    const mobileBar = ensureMobileBar();
+    if (mq.matches) {
+      if (social.parentElement !== mobileBar) mobileBar.appendChild(social);
+    } else {
+      if (social.parentElement !== header) header.appendChild(social);
+    }
+  }
+
+  relocate();
+  if (mq.addEventListener) mq.addEventListener('change', relocate);
+  else if (mq.addListener) mq.addListener(relocate); // Safari antiguo
+  else window.addEventListener('resize', relocate);
 }
+
+// ===== Inicio =====
+function iniciar() {
+  const logo = document.getElementById('logoHome');
+  if (logo) {
+    logo.addEventListener('click', (e) => {
+      if (logo.tagName.toLowerCase() === 'a') {
+        const hasModifier = e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0);
+        if (!hasModifier) e.preventDefault();
+      }
+      if (currentView !== 'home') {
+        history.pushState({ view: 'home' }, '');
+        aplicarEstado({ view: 'home' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
+
+  crearBotonScrollTop();
+
+  setTimeout(() => {
+    const container = document.getElementById('secciones-container');
+    if (container) {
+      cargarDatos(container);
+    } else {
+      // Reintento por si el DOM aún no ha montado esa zona
+      setTimeout(iniciar, 1000);
+    }
+  }, 600);
+
+  initMobileRotationHandler();
+  initHistoryHandler();
+  initResponsiveSocialBar();
 }
 
-// Inicial y en cambios de viewport
-relocate();
-if (mq.addEventListener) mq.addEventListener('change', relocate);
-else if (mq.addListener) mq.addListener(relocate); // Safari antiguo
-else window.addEventListener('resize', relocate);
-}
-
-
-/* === CAMBIO FIN === */
-// Mover redes al contenedor móvil cuando toque
-initResponsiveSocialBar();
-}
 // ===== Estado / navegación SPA =====
 function aplicarEstado(state) {
   isHandlingPopstate = true;
@@ -298,19 +341,52 @@ function mostrarSeccion(seccion, opts = { push: true }) {
 }
 
 // ===== Carrusel portada =====
-function cargarCarrusel(data) { const inner = document.getElementById('ultimas-fotos-carrusel'); const dots = document.getElementById('carrusel-dots'); if (!inner) return; carruselFotos = obtenerFotosParaCarrusel(data); mostrarCarruselFotos(carruselFotos, inner, dots); iniciarAutoPlay(); configurarInteraccionCarrusel(); }
-function obtenerFotosParaCarrusel(data) { const planas = []; data.secciones.forEach(sec => { if (Array.isArray(sec.fotos)) { sec.fotos.forEach((foto, i) => planas.push({ ...foto, seccionId: sec.id, seccionTitulo: sec.titulo, indiceEnSeccion: i })); } }); return planas.slice(-20).reverse(); }
+function cargarCarrusel(data) {
+  const inner = document.getElementById('ultimas-fotos-carrusel');
+  const dots = document.getElementById('carrusel-dots');
+  if (!inner) return;
+  carruselFotos = obtenerFotosParaCarrusel(data);
+  mostrarCarruselFotos(carruselFotos, inner, dots);
+  iniciarAutoPlay();
+  configurarInteraccionCarrusel();
+}
+function obtenerFotosParaCarrusel(data) {
+  const planas = [];
+  data.secciones.forEach(sec => {
+    if (Array.isArray(sec.fotos)) {
+      sec.fotos.forEach((foto, i) => planas.push({ ...foto, seccionId: sec.id, seccionTitulo: sec.titulo, indiceEnSeccion: i }));
+    }
+  });
+  return planas.slice(-20).reverse();
+}
 function mostrarCarruselFotos(fotos, container, dotsContainer) {
-  container.innerHTML = ''; if (dotsContainer) dotsContainer.innerHTML = '';
-  if (!fotos.length) { container.innerHTML = '<div class="carrusel-item"><p class="no-fotos">No hay fotos recientes</p></div>'; return; }
+  container.innerHTML = '';
+  if (dotsContainer) dotsContainer.innerHTML = '';
+  if (!fotos.length) {
+    container.innerHTML = '<div class="carrusel-item"><p class="no-fotos">No hay fotos recientes</p></div>';
+    return;
+  }
   fotos.forEach(f => {
     const item = document.createElement('div');
     item.className = 'carrusel-item';
     item.innerHTML = `<img src="${f.url}" alt="${f.texto}" class="carrusel-img"><div class="carrusel-info"><div class="carrusel-desc">${f.texto}</div></div>`;
     container.appendChild(item);
   });
-  if (dotsContainer) { fotos.forEach((_, idx) => { const dot = document.createElement('button'); dot.className = `carrusel-dot ${idx === 0 ? 'active' : ''}`; dot.addEventListener('click', () => { pausarCarrusel(); moverCarruselA(idx, { delayAfterMs: carouselUserPauseMs }); }); dotsContainer.appendChild(dot); }); }
-  setupCarruselInfinito(container); configurarBotonesCarrusel(); container.addEventListener('click', () => abrirModalDesdeCarrusel(carruselActualIndex)); actualizarCarrusel();
+  if (dotsContainer) {
+    fotos.forEach((_, idx) => {
+      const dot = document.createElement('button');
+      dot.className = `carrusel-dot ${idx === 0 ? 'active' : ''}`;
+      dot.addEventListener('click', () => {
+        pausarCarrusel();
+        moverCarruselA(idx, { delayAfterMs: carouselUserPauseMs });
+      });
+      dotsContainer.appendChild(dot);
+    });
+  }
+  setupCarruselInfinito(container);
+  configurarBotonesCarrusel();
+  container.addEventListener('click', () => abrirModalDesdeCarrusel(carruselActualIndex));
+  actualizarCarrusel();
 }
 function setupCarruselInfinito(inner) {
   carruselInnerRef = inner;
@@ -348,9 +424,12 @@ function setupCarruselInfinito(inner) {
   };
   inner.addEventListener('transitionend', carruselTransitionHandler);
 }
-function actualizarCarrusel() { document.querySelectorAll('.carrusel-dot').forEach((d, i) => d.classList.toggle('active', i === carruselActualIndex)); }
+function actualizarCarrusel() {
+  document.querySelectorAll('.carrusel-dot').forEach((d, i) => d.classList.toggle('active', i === carruselActualIndex));
+}
 function moverCarruselA(nuevoIndex, opts = {}) {
-  const inner = carruselInnerRef || document.querySelector('.carrusel-inner'); if (!inner || !carruselRealLength) return;
+  const inner = carruselInnerRef || document.querySelector('.carrusel-inner');
+  if (!inner || !carruselRealLength) return;
   pendingAutoplayDelay = opts.delayAfterMs ?? carouselAutoDelay;
   if (nuevoIndex < 0) nuevoIndex = carruselRealLength - 1;
   if (nuevoIndex >= carruselRealLength) nuevoIndex = 0;
@@ -363,7 +442,10 @@ function moverCarruselA(nuevoIndex, opts = {}) {
   inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
   actualizarCarrusel();
 }
-function startCarouselAutoplay(delay = carouselAutoDelay) { clearTimeout(carouselTimer); carouselTimer = setTimeout(() => moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselAutoDelay, stepDirection: 1 }), delay); }
+function startCarouselAutoplay(delay = carouselAutoDelay) {
+  clearTimeout(carouselTimer);
+  carouselTimer = setTimeout(() => moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselAutoDelay, stepDirection: 1 }), delay);
+}
 function stopCarouselAutoplay() { clearTimeout(carouselTimer); carouselTimer = null; }
 function iniciarAutoPlay() { startCarouselAutoplay(carouselAutoDelay); }
 function pausarCarrusel() { startCarouselAutoplay(carouselUserPauseMs); }
@@ -440,9 +522,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
   const modalImg = document.getElementById('modal-img');
 
   const onImageLoad = function () {
-    // Restaura visibilidad por si lo dejamos hard-hidden al cerrar
     modal.style.display = '';
-
     modalImg.src = imageUrl; currentImage = modalImg;
     resetZoom();
     modal.classList.add('active');
@@ -490,7 +570,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     if (hotspotLeft) hotspotLeft.addEventListener('click', () => navegarFoto(-1));
     if (hotspotRight) hotspotRight.addEventListener('click', () => navegarFoto(1));
 
-    // Botón cerrar (siempre sale de fullscreen y cierra según origen)
+    // Botón cerrar
     if (closeBtn) {
       closeBtn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -508,7 +588,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       });
     }
 
-    // Cerrar clicando fuera (overlay)
+    // Cerrar clicando en overlay
     modal.addEventListener('click', function (event) {
       if (event.target !== modal) return;
       if (ignoreNextClick) { ignoreNextClick = false; return; }
@@ -552,7 +632,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       });
     }
 
-    // Tap rápido en imagen => toggle zoom
+    // Tap rápido => toggle zoom
     let tapStartX = 0, tapStartY = 0, tapStartT = 0;
     modalImg.addEventListener('touchstart', (e) => {
       if (e.touches.length === 1) { tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now(); }
@@ -570,7 +650,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       }
     }, { passive: true });
 
-    // Click en imagen => toggle zoom
+    // Click => toggle zoom
     modalImg.addEventListener('click', function (event) {
       if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
       doClickToggle();
@@ -578,7 +658,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     });
     modalImg.addEventListener('dblclick', (e) => e.preventDefault());
 
-    // Zoom con rueda (suave)
+    // Zoom con rueda
     modal.addEventListener('wheel', function (e) {
       e.preventDefault();
       const ZOOM_MIN = 1, ZOOM_MAX = 5;
@@ -634,8 +714,9 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     function doClickToggle() {
       if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; }
       else {
-        if (isMobileViewport) { currentScale = defaultClickZoom; }
-        else {
+        if (isMobileViewport) {
+          currentScale = defaultClickZoom;
+        } else {
           let scale = 1.25;
           if (currentImage) {
             const container = currentImage.closest('.modal-img-container');
@@ -689,19 +770,141 @@ function precacheAround(index) {
     im.src = list[i].url;
   });
 }
-function onTouchStartImg(e) { if (e.touches.length === 2) { isPinching = true; pinchStartDistance = getTouchesDistance(e.touches[0], e.touches[1]); pinchStartScale = currentScale; if (currentImage) currentImage.style.transition = 'none'; document.addEventListener('touchmove', onTouchMoveImg, { passive: false }); document.addEventListener('touchend', onTouchEndImg); e.preventDefault(); e.stopPropagation(); return; } }
-function onTouchMoveImg(e) { if (isPinching && e.touches.length === 2) { e.preventDefault(); const newDistance = getTouchesDistance(e.touches[0], e.touches[1]); let newScale = pinchStartScale * (newDistance / pinchStartDistance); newScale = Math.max(1, Math.min(5, newScale)); currentScale = newScale; aplicarZoom(true); } }
-function onTouchEndImg(e) { if (isPinching && e.touches.length < 2) { isPinching = false; if (currentImage) currentImage.style.transition = ''; ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250); document.removeEventListener('touchmove', onTouchMoveImg); document.removeEventListener('touchend', onTouchEndImg); } }
+function onTouchStartImg(e) {
+  if (e.touches.length === 2) {
+    isPinching = true; pinchStartDistance = getTouchesDistance(e.touches[0], e.touches[1]); pinchStartScale = currentScale;
+    if (currentImage) currentImage.style.transition = 'none';
+    document.addEventListener('touchmove', onTouchMoveImg, { passive: false });
+    document.addEventListener('touchend', onTouchEndImg);
+    e.preventDefault(); e.stopPropagation(); return;
+  }
+}
+function onTouchMoveImg(e) {
+  if (isPinching && e.touches.length === 2) {
+    e.preventDefault();
+    const newDistance = getTouchesDistance(e.touches[0], e.touches[1]);
+    let newScale = pinchStartScale * (newDistance / pinchStartDistance);
+    newScale = Math.max(1, Math.min(5, newScale));
+    currentScale = newScale; aplicarZoom(true);
+  }
+}
+function onTouchEndImg(e) {
+  if (isPinching && e.touches.length < 2) {
+    isPinching = false;
+    if (currentImage) currentImage.style.transition = '';
+    ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
+    document.removeEventListener('touchmove', onTouchMoveImg);
+    document.removeEventListener('touchend', onTouchEndImg);
+  }
+}
 function getTouchesDistance(t1, t2) { const dx = t2.clientX - t1.clientX, dy = t2.clientY - t1.clientY; return Math.hypot(dx, dy); }
-function startDrag(e) { if (currentScale <= 1) return; isDragging = true; if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; } startX = e.clientX - translateX; startY = e.clientY - translateY; lastX = e.clientX; lastY = e.clientY; currentImage?.classList.add('grabbing'); currentImage.style.cursor = 'grabbing'; document.addEventListener('mousemove', drag); document.addEventListener('mouseup', stopDrag); e.preventDefault(); e.stopPropagation(); }
-function drag(e) { if (!isDragging) return; if (animationFrameId) cancelAnimationFrame(animationFrameId); animationFrameId = requestAnimationFrame(() => { const dx = e.clientX - lastX, dy = e.clientY - lastY; lastX = e.clientX; lastY = e.clientY; velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx)); velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy)); translateX += velX; translateY += velY; aplicarZoom(true); }); }
-function dragTouch(e) { if (!isDragging) return; const t = e.touches[0]; if (animationFrameId) cancelAnimationFrame(animationFrameId); animationFrameId = requestAnimationFrame(() => { const dx = t.clientX - lastX, dy = t.clientY - lastY; lastX = t.clientX; lastY = t.clientY; velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx)); velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy)); translateX += velX; translateY += velY; aplicarZoom(true); }); e.preventDefault(); }
-function stopDrag() { if (!isDragging) return; isDragging = false; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } if (currentImage && currentScale > 1) { currentImage.style.cursor = 'move'; currentImage.classList.remove('grabbing'); startInertia(); } document.removeEventListener('mousemove', drag); document.removeEventListener('touchmove', dragTouch); document.removeEventListener('mouseup', stopDrag); document.removeEventListener('touchend', stopDrag); }
-function startInertia() { if (inertiaId) cancelAnimationFrame(inertiaId); function step() { translateX += velX; translateY += velY; const { maxX, maxY } = getPanBounds(); if (Math.abs(translateX) > maxX) velX -= (translateX - Math.sign(translateX)*maxX) * edgeResistance; if (Math.abs(translateY) > maxY) velY -= (translateY - Math.sign(translateY)*maxY) * edgeResistance; velX *= dragFriction; velY *= dragFriction; if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) { clampPan(); aplicarZoom(true); inertiaId = null; return; } aplicarZoom(true); inertiaId = requestAnimationFrame(step); } inertiaId = requestAnimationFrame(step); }
-function getPanBounds() { if (!currentImage) return { maxX: 0, maxY: 0 }; const container = currentImage.closest('.modal-img-container'); if (!container) return { maxX: 0, maxY: 0 }; const cw = container.clientWidth, ch = container.clientHeight; const iw = currentImage.clientWidth, ih = currentImage.clientHeight; const scaledW = iw * currentScale, scaledH = ih * currentScale; return { maxX: Math.max(0, (scaledW - cw) / 2), maxY: Math.max(0, (scaledH - ch) / 2) }; }
-function clampPan() { const { maxX, maxY } = getPanBounds(); if (Math.abs(translateX) > maxX) translateX = Math.sign(translateX) * maxX; if (Math.abs(translateY) > maxY) translateY = Math.sign(translateY) * maxY; }
-function aplicarZoom(noTransition = false) { if (!currentImage) return; if (noTransition) currentImage.style.transition = 'none'; else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease'; clampPan(); currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`; currentImage.style.transformOrigin = 'center center'; const modalEl = document.getElementById('modal'); if (currentScale > 1) { currentImage.classList.add('zoomed'); currentImage.style.cursor = 'move'; modalEl?.classList.add('is-zoomed'); } else { currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default'; translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed'); currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`; } }
-function resetZoom() { currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; } if (currentImage) { currentImage.style.transition = ''; currentImage.style.transform = 'scale(1) translate3d(0px, 0px, 0)'; currentImage.classList.remove('zoomed', 'grabbing'); currentImage.style.cursor = 'default'; } const modalEl = document.getElementById('modal'); if (modalEl) modalEl.classList.remove('is-zoomed'); }
+function startDrag(e) {
+  if (currentScale <= 1) return;
+  isDragging = true;
+  if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; }
+  startX = e.clientX - translateX; startY = e.clientY - translateY; lastX = e.clientX; lastY = e.clientY;
+  currentImage?.classList.add('grabbing'); currentImage.style.cursor = 'grabbing';
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', stopDrag);
+  e.preventDefault(); e.stopPropagation();
+}
+function drag(e) {
+  if (!isDragging) return;
+  if (animationFrameId) cancelAnimationFrame(animationFrameId);
+  animationFrameId = requestAnimationFrame(() => {
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx));
+    velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy));
+    translateX += velX; translateY += velY;
+    aplicarZoom(true);
+  });
+}
+function dragTouch(e) {
+  if (!isDragging) return;
+  const t = e.touches[0];
+  if (animationFrameId) cancelAnimationFrame(animationFrameId);
+  animationFrameId = requestAnimationFrame(() => {
+    const dx = t.clientX - lastX, dy = t.clientY - lastY;
+    lastX = t.clientX; lastY = t.clientY;
+    velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx));
+    velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy));
+    translateX += velX; translateY += velY;
+    aplicarZoom(true);
+  });
+  e.preventDefault();
+}
+function stopDrag() {
+  if (!isDragging) return;
+  isDragging = false;
+  if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+  if (currentImage && currentScale > 1) {
+    currentImage.style.cursor = 'move';
+    currentImage.classList.remove('grabbing');
+    startInertia();
+  }
+  document.removeEventListener('mousemove', drag);
+  document.removeEventListener('touchmove', dragTouch);
+  document.removeEventListener('mouseup', stopDrag);
+  document.removeEventListener('touchend', stopDrag);
+}
+function startInertia() {
+  if (inertiaId) cancelAnimationFrame(inertiaId);
+  function step() {
+    translateX += velX; translateY += velY;
+    const { maxX, maxY } = getPanBounds();
+    if (Math.abs(translateX) > maxX) velX -= (translateX - Math.sign(translateX)*maxX) * edgeResistance;
+    if (Math.abs(translateY) > maxY) velY -= (translateY - Math.sign(translateY)*maxY) * edgeResistance;
+    velX *= dragFriction; velY *= dragFriction;
+    if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) {
+      clampPan(); aplicarZoom(true); inertiaId = null; return;
+    }
+    aplicarZoom(true); inertiaId = requestAnimationFrame(step);
+  }
+  inertiaId = requestAnimationFrame(step);
+}
+function getPanBounds() {
+  if (!currentImage) return { maxX: 0, maxY: 0 };
+  const container = currentImage.closest('.modal-img-container');
+  if (!container) return { maxX: 0, maxY: 0 };
+  const cw = container.clientWidth, ch = container.clientHeight;
+  const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
+  const scaledW = iw * currentScale, scaledH = ih * currentScale;
+  return { maxX: Math.max(0, (scaledW - cw) / 2), maxY: Math.max(0, (scaledH - ch) / 2) };
+}
+function clampPan() {
+  const { maxX, maxY } = getPanBounds();
+  if (Math.abs(translateX) > maxX) translateX = Math.sign(translateX) * maxX;
+  if (Math.abs(translateY) > maxY) translateY = Math.sign(translateY) * maxY;
+}
+function aplicarZoom(noTransition = false) {
+  if (!currentImage) return;
+  if (noTransition) currentImage.style.transition = 'none';
+  else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease';
+  clampPan();
+  currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`;
+  currentImage.style.transformOrigin = 'center center';
+  const modalEl = document.getElementById('modal');
+  if (currentScale > 1) {
+    currentImage.classList.add('zoomed'); currentImage.style.cursor = 'move'; modalEl?.classList.add('is-zoomed');
+  } else {
+    currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default';
+    translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed');
+    currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`;
+  }
+}
+function resetZoom() {
+  currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false;
+  if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+  if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; }
+  if (currentImage) {
+    currentImage.style.transition = '';
+    currentImage.style.transform = 'scale(1) translate3d(0px, 0px, 0)';
+    currentImage.classList.remove('zoomed', 'grabbing');
+    currentImage.style.cursor = 'default';
+  }
+  const modalEl = document.getElementById('modal'); if (modalEl) modalEl.classList.remove('is-zoomed');
+}
 function getModalList() { return modalSource === 'carrusel' ? carruselFotos : todasLasFotos; }
 function navegarFoto(direccion) {
   const list = getModalList();
@@ -725,7 +928,6 @@ function navegarFoto(direccion) {
 
   const im = new Image();
   im.onload = function () {
-    // Imagen y textos
     modalImg.src = nueva.url;
     modalImg.alt = nueva.texto;
     currentImage = modalImg;
@@ -733,7 +935,6 @@ function navegarFoto(direccion) {
     if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`;
     if (titulo) titulo.textContent = nueva.texto;
 
-    // Chip dinámico: “Ir a” (desde carrusel) / “Volver a” (desde sección)
     if (chip) {
       let seccionId = '';
       let sectionName = '';
@@ -760,14 +961,12 @@ function navegarFoto(direccion) {
       chip.setAttribute('aria-label', `${prefix} ${sectionName}`.trim());
     }
 
-    // Mantener estado del historial del modal
     if (!isHandlingPopstate && history.state?.view === 'modal') {
       const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
       if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
       history.replaceState(state, '');
     }
 
-    // Precarga y UI
     precacheAround(currentFotoIndex);
     if (typeof window.triggerUiAfterPhotoChange === 'function') {
       window.triggerUiAfterPhotoChange();
@@ -782,6 +981,7 @@ function navegarFoto(direccion) {
 
   im.src = nueva.url;
 }
+
 // ===== Móvil: bottom sheet / scroll lock =====
 function attachSwipeToModal(modal) {
   const container = modal.querySelector('.modal-img-container'); if (!container) return;
@@ -800,9 +1000,19 @@ function attachBottomSheet(modal) {
   modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
   modal.addEventListener('wheel', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
   function stopScrollBounce(el) {
-    el.addEventListener('wheel', (e) => { const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) e.preventDefault(); }, { passive: false });
+    el.addEventListener('wheel', (e) => {
+      const atTop = el.scrollTop <= 0;
+      const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight;
+      if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) e.preventDefault();
+    }, { passive: false });
     let tsY = 0; el.addEventListener('touchstart', (e) => { if (e.touches.length !== 1) return; tsY = e.touches[0].clientY; }, { passive: true });
-    el.addEventListener('touchmove', (e) => { if (e.touches.length !== 1) return; const dy = e.touches[0].clientY - tsY; const atTop = el.scrollTop <= 0; const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight; if ((dy > 0 && atTop) || (dy < 0 && atBottom)) e.preventDefault(); }, { passive: false });
+    el.addEventListener('touchmove', (e) => {
+      if (e.touches.length !== 1) return;
+      const dy = e.touches[0].clientY - tsY;
+      const atTop = el.scrollTop <= 0;
+      const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight;
+      if ((dy > 0 && atTop) || (dy < 0 && atBottom)) e.preventDefault();
+    }, { passive: false });
   }
   stopScrollBounce(info);
   function getCollapsed() { return window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh'; }
@@ -826,7 +1036,14 @@ function attachBottomSheet(modal) {
     const t = e.touches[0]; dragging = true; dragStartY = t.clientY; startHeightPx = vhToPxCollapsed(); modal.classList.add('is-gesturing'); e.preventDefault();
   }, { passive: false });
   handle.addEventListener('touchmove', (e) => {
-    if (!dragging) return; const t = e.touches[0]; const dy = t.clientY - dragStartY; let newHeightPx = startHeightPx - dy; const minPx = vhToPxCollapsed(), maxPx = vhToPxExpanded(); newHeightPx = Math.max(minPx, Math.min(maxPx, newHeightPx)); setInfoHeight(pxToVhStr(newHeightPx)); e.preventDefault();
+    if (!dragging) return;
+    const t = e.touches[0];
+    const dy = t.clientY - dragStartY;
+    let newHeightPx = startHeightPx - dy;
+    const minPx = vhToPxCollapsed(), maxPx = vhToPxExpanded();
+    newHeightPx = Math.max(minPx, Math.min(maxPx, newHeightPx));
+    setInfoHeight(pxToVhStr(newHeightPx));
+    e.preventDefault();
   }, { passive: false });
   handle.addEventListener('touchend', () => {
     if (!dragging) return; dragging = false; modal.classList.remove('is-gesturing');
@@ -859,15 +1076,42 @@ function toggleFullscreen() {
   if (!document.fullscreenElement) {
     if (modal?.requestFullscreen) {
       modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); });
-    } else { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); }
+    } else {
+      modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active');
+    }
   } else {
     if (document.exitFullscreen) document.exitFullscreen();
     restorePanel(); if (btn) btn.classList.remove('is-active');
   }
 }
-function initMobileRotationHandler() { let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'; window.addEventListener('resize', () => { const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'; if (last !== now && isModalOpen) {} last = now; }); }
-function lockBodyScroll() { __scrollLockY = window.scrollY || document.documentElement.scrollTop || 0; isBodyLocked = true; document.body.style.position = 'fixed'; document.body.style.top = `-${__scrollLockY}px`; document.body.style.left = '0'; document.body.style.right = '0'; document.body.style.width = '100%'; document.body.classList.add('modal-open'); }
-function unlockBodyScroll() { document.body.classList.remove('modal-open'); document.body.style.position = ''; document.body.style.top = ''; document.body.style.left = ''; document.body.style.right = ''; document.body.style.width = ''; if (isBodyLocked) { window.scrollTo(0, __scrollLockY || 0); } isBodyLocked = false; }
+function initMobileRotationHandler() {
+  let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+  window.addEventListener('resize', () => {
+    const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+    if (last !== now && isModalOpen) {}
+    last = now;
+  });
+}
+function lockBodyScroll() {
+  __scrollLockY = window.scrollY || document.documentElement.scrollTop || 0;
+  isBodyLocked = true;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${__scrollLockY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  document.body.style.width = '100%';
+  document.body.classList.add('modal-open');
+}
+function unlockBodyScroll() {
+  document.body.classList.remove('modal-open');
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  document.body.style.width = '';
+  if (isBodyLocked) { window.scrollTo(0, __scrollLockY || 0); }
+  isBodyLocked = false;
+}
 function closeModal() {
   const modal = document.getElementById('modal');
   if (!modal) return;
@@ -911,10 +1155,7 @@ function volverAGaleriaInternal() {
   refreshScrollTop();
 }
 
- // =========VIDEO EN TARJETA========
-
-// Animación de tarjeta: Hover en desktop (incl. Opera), long-press en TV, drag en móvil.
-// Reproduce UNA vez en móvil/TV y vuelve al estado inicial. En desktop hace loop.
+// ========= VIDEO EN TARJETA =========
 (function initCardAnim_FinalPlatformAware() {
   const mqHover  = window.matchMedia('(hover:hover)');
   const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -929,15 +1170,11 @@ function volverAGaleriaInternal() {
     if (!card) return false;
     if (card.querySelector('video.card-anim')) return true;
 
-    // Crear <video> overlay
     const video = document.createElement('video');
     video.className = 'card-anim';
-    // Propiedades/atributos antes de cargar fuentes
     video.muted = true;         video.setAttribute('muted','');
     video.playsInline = true;   video.setAttribute('playsinline','');
-    // Loop SOLO en desktop; móvil/TV = reproducción única
     video.loop = isHoverDevice;
-    // Opera/TV prefieren precarga un poco más agresiva
     video.preload = (isHoverDevice && !isOperaDesktop) ? 'metadata' : 'auto';
 
     const poster = card.querySelector('img')?.src || '';
@@ -948,14 +1185,12 @@ function volverAGaleriaInternal() {
     `;
     card.appendChild(video);
 
-    // Priming: deja el vídeo listo para arrancar sin “varios intentos”
     const prime = () => {
       video.play().then(() => { video.pause(); try { video.currentTime = 0; } catch(_){} }).catch(()=>{});
     };
     if (video.readyState >= 2) prime();
     else video.addEventListener('canplay', prime, { once:true });
 
-    // Helpers de reproducción
     const startLoopHover = () => {
       try { video.currentTime = 0; } catch(_) {}
       card.classList.add('is-over');
@@ -968,7 +1203,6 @@ function volverAGaleriaInternal() {
       try { video.currentTime = 0; } catch(_) {}
     };
 
-    // Reproducción única (móvil/TV)
     let playingOneShot = false;
     const playOnce = () => {
       if (playingOneShot) return;
@@ -983,58 +1217,45 @@ function volverAGaleriaInternal() {
         playingOneShot = false;
         video.removeEventListener('ended', finish);
       };
-      // Arranca y espera al final; si no hay duración aún, fallback
       video.play().then(() => {
         if (isFinite(video.duration) && video.duration > 0) {
           video.addEventListener('ended', finish, { once:true });
         } else {
-          // Fallback por si la duración llega tarde
           setTimeout(finish, 3500);
         }
       }).catch(()=>{ setTimeout(finish, 2000); });
     };
 
-    // DESKTOP (incl. Opera): hover con doble fallback
     if (isHoverDevice) {
-      // CSS ya muestra por :hover; además forzamos play/pause por eventos (Opera)
       const onEnter = () => startLoopHover();
       const onLeave = () => stopHover();
-
-      // Ambos para máxima compatibilidad
       card.addEventListener('pointerenter', onEnter);
       card.addEventListener('pointerleave', onLeave);
       card.addEventListener('mouseenter', onEnter);
       card.addEventListener('mouseleave', onLeave);
-
       document.addEventListener('visibilitychange', () => { if (document.hidden) stopHover(); });
       return true;
     }
 
-    // SIN HOVER (móvil / TV)
-    // TV: long-press para reproducir UNA vez (clic normal navega)
-    // Móvil: “pulsación + arrastre” para reproducir UNA vez (evita menú contextual)
+    const LONG_MS = 550;
     let pressTimer = null;
     let suppressNextClick = false;
 
-    // Long-press TV
-    const LONG_MS = 550;
     card.addEventListener('pointerdown', (e) => {
       const tvPointer = (e.pointerType === 'mouse') || isTVUA;
       if (tvPointer) {
         if (pressTimer) clearTimeout(pressTimer);
         pressTimer = setTimeout(() => {
-          suppressNextClick = true;   // no navegues en ese clic
+          suppressNextClick = true;
           playOnce();
         }, LONG_MS);
       }
-      // en móvil no disparamos long-press para evitar menú contextual
     });
     const clearPress = () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } };
     card.addEventListener('pointerup', clearPress);
     card.addEventListener('pointercancel', clearPress);
     card.addEventListener('pointerleave', clearPress);
 
-    // Cancela solo el clic que viene del long-press (permite navegar en clic corto)
     card.addEventListener('click', (e) => {
       if (suppressNextClick) {
         e.preventDefault(); e.stopPropagation();
@@ -1042,7 +1263,6 @@ function volverAGaleriaInternal() {
       }
     }, true);
 
-    // MÓVIL: “pulsación + arrastre” (touchmove con algo de desplazamiento) → playOnce
     let startX = 0, startY = 0, dragged = false;
     card.addEventListener('touchstart', (e) => {
       const t = e.touches[0];
@@ -1058,7 +1278,6 @@ function volverAGaleriaInternal() {
       }
     }, { passive: true });
 
-    // Pausa/oculta al cambiar de pestaña/app
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         video.pause();
@@ -1073,7 +1292,6 @@ function volverAGaleriaInternal() {
 
   window.addEventListener('load', () => {
     if (mountOnFirstCard()) return;
-    // Por si la grid tarda en pintarse
     const t0 = Date.now();
     const timer = setInterval(() => {
       if (mountOnFirstCard() || (Date.now() - t0) > 4000) clearInterval(timer);
