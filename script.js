@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v41.5 CARGADO');
+console.log('✅ script.js v41.6 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -573,75 +573,78 @@ function bindGlobalDelegates() {
   if (window.__globalDelegatesBound) return;
   window.__globalDelegatesBound = true;
 
-  // Delegación de clicks (captura)
+  // Título (Home SPA)
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('#logoHome, .site-title');
+    if (!t) return;
+    e.preventDefault();
+    if (currentView !== 'home') {
+      history.pushState({ view: 'home' }, '');
+      // Si aplicarEstado falla por dependencias, usa fallback
+      try { aplicarEstado({ view: 'home' }); }
+      catch(_) { safeGoHome(); }
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, { capture: true });
+
+  // Botón volver de la sección (SPA)
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('.back-button');
+    if (!t) return;
+    e.preventDefault();
+    try { goBackOneStep(); } catch(_) { safeGoHome(); }
+  }, { capture: true });
+
+  // Controles del modal (X, prev, next, fullscreen, chip)
   document.addEventListener('click', (e) => {
     const modal = document.getElementById('modal');
-    const t = e.target;
-    const btn = t.closest(
-      '.close-modal, .prev-button, .next-button, .fullscreen-toggle, .section-chip, .back-button, #logoHome, .site-title'
-    );
+    if (!modal || !modal.classList.contains('active')) return;
+
+    const btn = e.target.closest('.close-modal, .prev-button, .next-button, .fullscreen-toggle, .section-chip');
     if (!btn) return;
 
-    // 1) Título (vuelve a Home por SPA)
-    if (btn.id === 'logoHome' || btn.classList.contains('site-title')) {
+    e.stopPropagation();
+    const cls = btn.classList;
+
+    // Cerrar (X)
+    if (cls.contains('close-modal')) {
       e.preventDefault();
-      if (currentView !== 'home') {
-        history.pushState({ view: 'home' }, '');
-        aplicarEstado({ view: 'home' });
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-      return;
-    }
-
-    // 2) Botón retroceder de la sección
-    if (btn.classList.contains('back-button')) {
-      e.preventDefault();
-      goBackOneStep();
-      return;
-    }
-
-    // A partir de aquí, solo controles dentro del modal
-    if (!modal || !modal.contains(btn)) return;
-
-    // 3) Cerrar modal (X)
-    if (btn.classList.contains('close-modal')) {
-      e.preventDefault(); e.stopPropagation();
-      exitFullscreenSafe();
+      exitFullscreenSafe?.();
       if (modalSource === 'carrusel') {
-        closeModal();
+        safeCloseModal();
         if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
       } else {
         const sid = currentSeccion?.id;
-        closeModal();
+        safeCloseModal();
         if (sid) history.replaceState({ view: 'seccion', seccionId: sid }, '');
       }
       return;
     }
 
-    // 4) Navegación
-    if (btn.classList.contains('prev-button')) { e.preventDefault(); e.stopPropagation(); navegarFoto(-1); return; }
-    if (btn.classList.contains('next-button')) { e.preventDefault(); e.stopPropagation(); navegarFoto(1);  return; }
+    // Prev/Next
+    if (cls.contains('prev-button')) { e.preventDefault(); try { navegarFoto(-1); } catch(_){} return; }
+    if (cls.contains('next-button')) { e.preventDefault(); try { navegarFoto(1);  } catch(_){} return; }
 
-    // 5) Fullscreen
-    if (btn.classList.contains('fullscreen-toggle')) {
-      e.preventDefault(); e.stopPropagation(); toggleFullscreen(); return;
+    // Fullscreen
+    if (cls.contains('fullscreen-toggle')) {
+      e.preventDefault(); try { toggleFullscreen(); } catch(_){} return;
     }
 
-    // 6) Chip “Ir a / Volver a”
-    if (btn.classList.contains('section-chip')) {
-      e.preventDefault(); e.stopPropagation();
+    // Chip “Ir a / Volver a”
+    if (cls.contains('section-chip')) {
+      e.preventDefault();
       const sid = btn.dataset.seccionId;
-      if (!sid) { goBackOneStep(); return; }
+      if (!sid) { try { goBackOneStep(); } catch(_) { safeGoHome(); } return; }
       const sec = datosGlobales?.secciones?.find(s => s.id === sid);
       if (!sec) return;
 
       if (modalSource === 'carrusel') {
         history.replaceState({ view: 'home' }, '');
-        closeModal();
-        mostrarSeccion(sec, { push: true });
+        safeCloseModal();
+        try { mostrarSeccion(sec, { push: true }); } catch(_) {}
       } else {
-        closeModal();
+        safeCloseModal();
       }
       return;
     }
@@ -651,13 +654,13 @@ function bindGlobalDelegates() {
   window.addEventListener('keydown', (ev) => {
     if (ev.key !== 'Escape' || !isModalOpen) return;
     ev.stopPropagation();
-    exitFullscreenSafe();
+    exitFullscreenSafe?.();
     if (modalSource === 'carrusel') {
-      closeModal();
+      safeCloseModal();
       if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
     } else {
       const sid = currentSeccion?.id;
-      closeModal();
+      safeCloseModal();
       if (sid) history.replaceState({ view: 'seccion', seccionId: sid }, '');
     }
   });
@@ -755,6 +758,42 @@ function bindGlobalDelegates() {
     }
   });
 }
+/* === SAFE CORE: wrappers robustos para cerrar modal y volver a Home === */
+if (typeof window.safeCloseModal !== 'function') {
+  function safeCloseModal() {
+    if (typeof closeModal === 'function') return closeModal();
+    // Fallback de cierre rápido
+    try { exitFullscreenSafe?.(); } catch(_) {}
+    const modal = document.getElementById('modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
+      modal.innerHTML = '';
+    }
+    document.body.classList.remove('modal-open');
+    isModalOpen = false; ignoreNextClick = false;
+    refreshScrollTop?.();
+  }
+}
+
+if (typeof window.safeGoHome !== 'function') {
+  function safeGoHome() {
+    // Usa tu función real si existe
+    if (typeof volverAGaleriaInternal === 'function') return volverAGaleriaInternal();
+
+    // Fallback: muestra portada y oculta vista de sección
+    currentSeccion = null; currentFotoIndex = 0; todasLasFotos = [];
+    const home = document.getElementById('home-view'); if (home) home.style.display = 'block';
+    const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'block';
+    const view = document.getElementById('seccion-view'); if (view) view.style.display = 'none';
+    safeCloseModal();
+    currentView = 'home';
+    updateHeaderNavActive?.(null);
+    closeNavPanel?.();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
 
 
 
@@ -859,52 +898,116 @@ initResponsiveSocialBar();
 
 // ===== Estado / navegación SPA =====
 function aplicarEstado(state) {
-isHandlingPopstate = true;
+  isHandlingPopstate = true;
 
-if (state.view !== 'modal' && isModalOpen) {
-closeModal();
-if (state.view === 'home' && modalFromHomeCarousel) {
-modalFromHomeCarousel = false;
-currentView = 'home';
-isHandlingPopstate = false;
-return;
-}
-}
+  // Helpers locales seguros
+  const closeM = () => {
+    if (typeof safeCloseModal === 'function') return safeCloseModal();
+    if (typeof closeModal === 'function')     return closeModal();
+    // Fallback mínimo
+    try { exitFullscreenSafe?.(); } catch(_) {}
+    const modal = document.getElementById('modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active','is-zoomed','is-gesturing','fs-active');
+      modal.innerHTML = '';
+    }
+    document.body.classList.remove('modal-open');
+    isModalOpen = false;
+    ignoreNextClick = false;
+  };
 
-if (state.view === 'home') {
-if (currentView !== 'home') {
-volverAGaleriaInternal();                 // ya limpia activo y cierra panel
-} else {
-// Estabas en Home: asegúrate de limpiar activo y cerrar panel igualmente
-if (typeof updateHeaderNavActive === 'function') updateHeaderNavActive(null);
-if (typeof closeNavPanel === 'function')        closeNavPanel();
-}
-isHandlingPopstate = false;
-return;
-} else if (state.view === 'seccion') {
-if (datosGlobales) {
-const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
-sec ? mostrarSeccion(sec, { push: false }) : volverAGaleriaInternal();
-} else { volverAGaleriaInternal(); }
-} else if (state.view === 'modal') {
-if (state.source === 'carrusel') {
-if (!carruselFotos?.length && datosGlobales) { carruselFotos = obtenerFotosParaCarrusel(datosGlobales); }
-const f = carruselFotos[state.fotoIndex];
-if (f) { modalSource = 'carrusel'; mostrarModal(f.url, f.texto, state.fotoIndex, { push: false }); }
-else { volverAGaleriaInternal(); }
-} else {
-if (datosGlobales) {
-const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
-if (sec) {
-mostrarSeccion(sec, { push: false });
-const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
-if (foto) { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false }); }
-} else { volverAGaleriaInternal(); }
-} else { volverAGaleriaInternal(); }
-}
-}
+  const goHome = () => {
+    if (typeof safeGoHome === 'function')     return safeGoHome();
+    if (typeof volverAGaleriaInternal === 'function') return volverAGaleriaInternal();
+    // Fallback mínimo: mostrar portada y ocultar sección
+    currentSeccion = null; currentFotoIndex = 0; todasLasFotos = []; isModalOpen = false;
+    const home = document.getElementById('home-view'); if (home) home.style.display = 'block';
+    const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'block';
+    const view = document.getElementById('seccion-view'); if (view) view.style.display = 'none';
+    const modal = document.getElementById('modal');
+    if (modal) {
+      modal.innerHTML = '';
+      modal.classList.remove('active','is-zoomed','is-gesturing','fs-active');
+    }
+    document.body.classList.remove('modal-open');
+    currentView = 'home';
+    updateHeaderNavActive?.(null);
+    closeNavPanel?.();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-isHandlingPopstate = false;
+  // Si vamos a otra vista y el modal está abierto, ciérralo primero
+  if (state.view !== 'modal' && isModalOpen) {
+    closeM();
+    if (state.view === 'home' && modalFromHomeCarousel) {
+      modalFromHomeCarousel = false;
+      currentView = 'home';
+      isHandlingPopstate = false;
+      return;
+    }
+  }
+
+  // Home
+  if (state.view === 'home') {
+    if (currentView !== 'home') {
+      goHome();
+    } else {
+      updateHeaderNavActive?.(null);
+      closeNavPanel?.();
+    }
+    isHandlingPopstate = false;
+    return;
+  }
+
+  // Sección
+  if (state.view === 'seccion') {
+    if (datosGlobales) {
+      const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
+      sec ? mostrarSeccion(sec, { push: false }) : goHome();
+    } else {
+      goHome();
+    }
+    isHandlingPopstate = false;
+    return;
+  }
+
+  // Modal
+  if (state.view === 'modal') {
+    if (state.source === 'carrusel') {
+      if (!carruselFotos?.length && datosGlobales) {
+        carruselFotos = obtenerFotosParaCarrusel(datosGlobales);
+      }
+      const f = carruselFotos?.[state.fotoIndex];
+      if (f) {
+        modalSource = 'carrusel';
+        mostrarModal(f.url, f.texto, state.fotoIndex, { push: false });
+      } else {
+        goHome();
+      }
+    } else {
+      if (datosGlobales) {
+        const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
+        if (sec) {
+          mostrarSeccion(sec, { push: false });
+          const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
+          if (foto) {
+            modalSource = 'seccion';
+            mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false });
+          }
+        } else {
+          goHome();
+        }
+      } else {
+        goHome();
+      }
+    }
+    isHandlingPopstate = false;
+    return;
+  }
+
+  // Cualquier otro caso
+  isHandlingPopstate = false;
 }
 
 function goBackOneStep() {
