@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v41.7 CARGADO');
+console.log('✅ script.js v41.8 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -608,19 +608,19 @@ function bindGlobalDelegates() {
     const cls = btn.classList;
 
     // Cerrar (X)
-    if (cls.contains('close-modal')) {
-      e.preventDefault();
-      exitFullscreenSafe?.();
-      if (modalSource === 'carrusel') {
-        safeCloseModal();
-        if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
-      } else {
-        const sid = currentSeccion?.id;
-        safeCloseModal();
-        if (sid) history.replaceState({ view: 'seccion', seccionId: sid }, '');
-      }
-      return;
-    }
+if (cls.contains('close-modal')) {
+  e.preventDefault();
+  exitFullscreenSafe?.();
+  if (modalSource === 'carrusel') {
+    doCloseModal();
+    if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+  } else {
+    const sid = currentSeccion?.id;
+    doCloseModal();
+    if (sid) history.replaceState({ view: 'seccion', seccionId: sid }, '');
+  }
+  return;
+}
 
     // Prev/Next
     if (cls.contains('prev-button')) { e.preventDefault(); try { navegarFoto(-1); } catch(_){} return; }
@@ -650,20 +650,20 @@ function bindGlobalDelegates() {
     }
   }, { capture: true });
 
-  // ESC global para cerrar modal
-  window.addEventListener('keydown', (ev) => {
-    if (ev.key !== 'Escape' || !isModalOpen) return;
-    ev.stopPropagation();
-    exitFullscreenSafe?.();
-    if (modalSource === 'carrusel') {
-      safeCloseModal();
-      if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
-    } else {
-      const sid = currentSeccion?.id;
-      safeCloseModal();
-      if (sid) history.replaceState({ view: 'seccion', seccionId: sid }, '');
-    }
-  });
+ // ESC global para cerrar modal
+window.addEventListener('keydown', (ev) => {
+  if (ev.key !== 'Escape' || !isModalOpen) return;
+  ev.stopPropagation();
+  exitFullscreenSafe?.();
+  if (modalSource === 'carrusel') {
+    doCloseModal();
+    if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+  } else {
+    const sid = currentSeccion?.id;
+    doCloseModal();
+    if (sid) history.replaceState({ view: 'seccion', seccionId: sid }, '');
+  }
+});
 }
 /* === Delegación global robusta: modal + título + back-button === */
 function bindGlobalDelegates() {
@@ -793,7 +793,25 @@ if (typeof window.safeGoHome !== 'function') {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
+/* === Helper seguro para cerrar el modal en cualquier caso === */
+if (typeof window.doCloseModal !== 'function') {
+  function doCloseModal() {
+    if (typeof safeCloseModal === 'function') return safeCloseModal();
+    if (typeof closeModal === 'function')     return closeModal();
 
+    // Fallback mínimo (por si el archivo está pegado en partes)
+    try { exitFullscreenSafe?.(); } catch(_) {}
+    const modal = document.getElementById('modal');
+    if (modal) {
+      modal.style.display = 'none';
+      modal.classList.remove('active','is-zoomed','is-gesturing','fs-active');
+      modal.innerHTML = '';
+    }
+    document.body.classList.remove('modal-open');
+    isModalOpen = false;
+    ignoreNextClick = false;
+  }
+}
 
 
 
