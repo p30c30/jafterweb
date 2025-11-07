@@ -435,12 +435,3 @@ body.modal-open{ overflow:hidden; }
     transition: transform .15s ease, background .2s ease, color .2s ease;
   }
   #modal .fullscreen-toggle svg { width: 22px; height: 22px; }
-
-  @media (hover:hover) {
-    #modal .fullscreen-toggle:hover {
-      background: rgba(253,184,19,.18);
-      color: var(--accent, #FDB813);
-      transform: translateY(-1px);
-    }
-  }
-}
