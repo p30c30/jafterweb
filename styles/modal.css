@@ -403,25 +403,28 @@ body.modal-open{ overflow:hidden; }
 */
 
 /* Escritorio: ===BOTON PANTALLA COMPLETA POR FUERA DE LA FOTO===, esquina inferior derecha */
-/* Escritorio: fullscreen fuera de la foto, esquina inferior derecha, clickeable */
+/* Escritorio: capas correctas + fullscreen fuera y clicable */
 @media (min-width: 1025px) {
-  /* 1) Permite que el botón “salga” sin ser recortado y crea un contexto encima de hotspots */
+  /* El contenido y el contenedor de la imagen no recortan y están sobre hotspots */
   #modal .modal-content { overflow: visible; position: relative; z-index: 2; }
   #modal .modal-img-container { position: relative; overflow: visible; }
 
-  /* 2) Hotspots por debajo del botón (para que no bloqueen el click) */
+  /* Hotspots por debajo para no bloquear botones */
   #modal .modal-hotspot { z-index: 1 !important; }
 
-  /* 3) Botón de pantalla completa: fuera, abajo derecha del contenedor de la foto */
+  /* Flechas y cerrar SIEMPRE por encima de la imagen */
+  #modal .nav-button,
+  #modal .close-modal { z-index: 900 !important; pointer-events: auto; }
+
+  /* Botón de fullscreen fuera a la derecha (fallback inicial; JS lo ajusta) */
   #modal .fullscreen-toggle {
     position: absolute;
-    left: 100%;           /* anclado al borde derecho del contenedor de la imagen */
-    bottom: 12px;         /* separación desde el borde inferior */
-    margin-left: 12px;    /* distancia hacia fuera */
-    z-index: 999 !important;  /* por encima de hotspots y paneles */
+    left: 100%;
+    bottom: 12px;
+    margin-left: 12px;
+    z-index: 999 !important;
     pointer-events: auto;
 
-    /* Estética coherente con tu UI */
     width: 40px; height: 40px;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: 50%;
