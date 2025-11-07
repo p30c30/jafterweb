@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v41.4 CARGADO');
+console.log('✅ script.js v41.5 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -662,6 +662,99 @@ function bindGlobalDelegates() {
     }
   });
 }
+/* === Delegación global robusta: modal + título + back-button === */
+function bindGlobalDelegates() {
+  if (window.__globalDelegatesBound) return;
+  window.__globalDelegatesBound = true;
+
+  // 1) Título (Home SPA) – captura
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('#logoHome, .site-title');
+    if (!t) return;
+    e.preventDefault();
+    if (currentView !== 'home') {
+      history.pushState({ view: 'home' }, '');
+      aplicarEstado({ view: 'home' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, { capture: true });
+
+  // 2) Botón volver de la sección (SPA) – captura
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('.back-button');
+    if (!t) return;
+    e.preventDefault();
+    goBackOneStep();
+  }, { capture: true });
+
+  // 3) Controles del modal (X, prev, next, fullscreen, chip) – delegación captura
+  document.addEventListener('click', (e) => {
+    const modal = document.getElementById('modal');
+    if (!modal || !modal.classList.contains('active')) return;
+
+    const btn = e.target.closest('.close-modal, .prev-button, .next-button, .fullscreen-toggle, .section-chip');
+    if (!btn) return;
+
+    e.stopPropagation();
+    // Cerrar (X)
+    if (btn.classList.contains('close-modal')) {
+      e.preventDefault();
+      exitFullscreenSafe();
+      if (modalSource === 'carrusel') {
+        closeModal();
+        if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+      } else {
+        const sid = currentSeccion?.id;
+        closeModal();
+        if (sid) history.replaceState({ view: 'seccion', seccionId: sid }, '');
+      }
+      return;
+    }
+
+    // Prev/Next
+    if (btn.classList.contains('prev-button')) { e.preventDefault(); navegarFoto(-1); return; }
+    if (btn.classList.contains('next-button')) { e.preventDefault(); navegarFoto(1);  return; }
+
+    // Fullscreen
+    if (btn.classList.contains('fullscreen-toggle')) {
+      e.preventDefault(); toggleFullscreen(); return;
+    }
+
+    // Chip “Ir a / Volver a”
+    if (btn.classList.contains('section-chip')) {
+      e.preventDefault();
+      const sid = btn.dataset.seccionId;
+      if (!sid) { goBackOneStep(); return; }
+      const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+      if (!sec) return;
+
+      if (modalSource === 'carrusel') {
+        history.replaceState({ view: 'home' }, '');
+        closeModal();
+        mostrarSeccion(sec, { push: true });
+      } else {
+        closeModal();
+      }
+      return;
+    }
+  }, { capture: true });
+
+  // 4) ESC global para cerrar modal
+  window.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Escape' || !isModalOpen) return;
+    ev.stopPropagation();
+    exitFullscreenSafe();
+    if (modalSource === 'carrusel') {
+      closeModal();
+      if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+    } else {
+      const sid = currentSeccion?.id;
+      closeModal();
+      if (sid) history.replaceState({ view: 'seccion', seccionId: sid }, '');
+    }
+  });
+}
 
 
 
@@ -730,24 +823,24 @@ else window.addEventListener('resize', relocate);
 
 // ===== Inicio =====
 function iniciar() {
- bindGlobalDelegates();
- initHeaderNavUI();
-const logo = document.getElementById('logoHome');
-if (logo) {
-logo.addEventListener('click', (e) => {
-if (logo.tagName.toLowerCase() === 'a') {
-const hasModifier = e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0);
-if (!hasModifier) e.preventDefault();
-}
-if (currentView !== 'home') {
-history.pushState({ view: 'home' }, '');
-aplicarEstado({ view: 'home' });
-} else {
-window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-});
-}
-
+  bindGlobalDelegates(); // <- añade esto al principio
+  if (typeof initHeaderNavUI === 'function') initHeaderNavUI?.();
+  const logo = document.getElementById('logoHome');
+  if (logo) {
+    logo.addEventListener('click', (e) => {
+      if (logo.tagName.toLowerCase() === 'a') {
+        const hasModifier = e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0);
+        if (!hasModifier) e.preventDefault();
+      }
+      if (currentView !== 'home') {
+        history.pushState({ view: 'home' }, '');
+        aplicarEstado({ view: 'home' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
+  
 crearBotonScrollTop();
 
 setTimeout(() => {
