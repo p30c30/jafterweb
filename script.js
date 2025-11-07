@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v38.9 CARGADO');
+console.log('✅ script.js v39.0 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -597,349 +597,365 @@ function abrirModalDesdeCarrusel(index = carruselActualIndex) {
   mostrarModal(f.url, f.texto, index, { push: true, source: 'carrusel' });
 }
 
-// ===== Modal =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
-  if (typeof pauseAndResetAllCardVideos === 'function') pauseAndResetAllCardVideos();
-  const modal = document.getElementById('modal');
-  currentFotoIndex = fotoIndex; isModalOpen = true;
+if (typeof pauseAndResetAllCardVideos === 'function') pauseAndResetAllCardVideos();
+const modal = document.getElementById('modal');
+currentFotoIndex = fotoIndex; isModalOpen = true;
 
-  const list = getModalList();
-  const item = list[currentFotoIndex] || { url: imageUrl, texto: title };
-  const sectionId = modalSource === 'carrusel' ? item.seccionId : (currentSeccion ? currentSeccion.id : '');
-  const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
-  const chipPrefix = (modalSource === 'carrusel') ? 'Ir a' : 'Volver a';
-  
-  modal.innerHTML = `
-    <div class="modal-hotspot top"></div>
-    <div class="modal-hotspot left"></div>
-    <div class="modal-hotspot right"></div>
-    <div class="modal-hotspot bottom"></div>
-    <div id="modal-content-wrapper">
-      <div class="close-modal" title="Cerrar">×</div>
-      <div class="nav-button prev-button" title="Anterior">‹</div>
-      <div class="nav-button next-button" title="Siguiente">›</div>
-      <div class="modal-content">
-        <div class="modal-img-container">
-          <img src="" alt="${title}" class="modal-img" id="modal-img">
-          <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g>
-              <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g>
-            </svg>
-          </button>
-        </div>
-      </div>
-      <div class="modal-info">
-        <div class="info-handle" aria-hidden="true"></div>
-        <!-- <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div> -->
-        <div class="foto-title">${title}</div>
-        <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'} aria-label="${chipPrefix} ${sectionTitle || ''}">
-          <span class="chip-label">${chipPrefix}</span>
-          <span class="chip-name">${sectionTitle || ''}</span>
-          <span class="chip-arrow">→</span>
-        </button>
-      </div>
-    </div>`;
+const list = getModalList();
+const item = list[currentFotoIndex] || { url: imageUrl, texto: title };
+const sectionId = modalSource === 'carrusel' ? item.seccionId : (currentSeccion ? currentSeccion.id : '');
+const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver sección') : (currentSeccion ? currentSeccion.titulo : 'Ver sección');
+const chipPrefix = (modalSource === 'carrusel') ? 'Ir a' : 'Volver a';
 
-  const modalImg = document.getElementById('modal-img');
+modal.innerHTML = <div class="modal-hotspot top"></div> <div class="modal-hotspot left"></div> <div class="modal-hotspot right"></div> <div class="modal-hotspot bottom"></div> <div id="modal-content-wrapper"> <div class="close-modal" title="Cerrar">×</div> <div class="nav-button prev-button" title="Anterior">‹</div> <div class="nav-button next-button" title="Siguiente">›</div> <div class="modal-content"> <div class="modal-img-container"> <img src="" alt="${title}" class="modal-img" id="modal-img"> <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa"> <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"> <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g> <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g> </svg> </button> </div> </div> <div class="modal-info"> <div class="info-handle" aria-hidden="true"></div> <!-- <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div> --> <div class="foto-title">${title}</div> <button type="button" class="section-chip" ${sectionId ?data-seccion-id="{sectionId}"` : 'disabled'} aria-label="{chipPrefix} 
+s
+e
+c
+t
+i
+o
+n
+T
+i
+t
+l
+e
+∣
+∣
+′
+′
+"
+>
+<
+s
+p
+a
+n
+c
+l
+a
+s
+s
+=
+"
+c
+h
+i
+p
+−
+l
+a
+b
+e
+l
+"
+>
+sectionTitle∣∣ 
+′′
+ "><spanclass="chip−label">{chipPrefix}</span>
+<span class="chip-name">${sectionTitle || ''}</span>
+<span class="chip-arrow">→</span>
+</button>
+</div>
+</div>`;
 
-  const onImageLoad = function () {
-    modal.style.display = '';
-    modalImg.src = imageUrl; currentImage = modalImg;
-    resetZoom();
-    modal.classList.add('active');
-    document.body.classList.add('modal-open');
+const modalImg = document.getElementById('modal-img');
 
-    configurarEventosModal();
-    precacheAround(currentFotoIndex);
+const onImageLoad = function () {
+modal.style.display = '';
+modalImg.src = imageUrl; currentImage = modalImg;
+resetZoom();
+modal.classList.add('active');
+document.body.classList.add('modal-open');
 
-    if (typeof window.triggerUiAfterPhotoChange === 'function') {
-      window.triggerUiAfterPhotoChange();
+text
+
+configurarEventosModal();
+precacheAround(currentFotoIndex);
+
+if (typeof window.triggerUiAfterPhotoChange === 'function') {
+  window.triggerUiAfterPhotoChange();
+}
+};
+
+const img = new Image();
+img.onload = onImageLoad;
+img.onerror = onImageLoad;
+img.src = imageUrl;
+
+currentView = 'modal';
+if (opts.push && !isHandlingPopstate) {
+const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
+if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
+history.pushState(state, '');
+__pushedModal = true;
+} else {
+__pushedModal = false;
+}
+
+function configurarEventosModal() {
+const closeBtn = modal.querySelector('.close-modal');
+const prevBtn = modal.querySelector('.prev-button');
+const nextBtn = modal.querySelector('.next-button');
+const infoPanel = modal.querySelector('.modal-info');
+const fsBtn = modal.querySelector('.fullscreen-toggle');
+const chip = modal.querySelector('.section-chip');
+
+text
+
+const hotspotTop = modal.querySelector('.modal-hotspot.top');
+const hotspotLeft = modal.querySelector('.modal-hotspot.left');
+const hotspotRight = modal.querySelector('.modal-hotspot.right');
+const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
+
+const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
+
+if (hotspotLeft) hotspotLeft.addEventListener('click', () => navegarFoto(-1));
+if (hotspotRight) hotspotRight.addEventListener('click', () => navegarFoto(1));
+
+if (closeBtn) {
+  closeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    exitFullscreenSafe();
+
+    if (modalSource === 'carrusel') {
+      closeModal();
+      if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+      return;
     }
-  };
 
-  const img = new Image();
-  img.onload = onImageLoad;
-  img.onerror = onImageLoad;
-  img.src = imageUrl;
+    const seccionId = currentSeccion?.id;
+    closeModal();
+    if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
+  });
+}
 
-  currentView = 'modal';
-  if (opts.push && !isHandlingPopstate) {
-    const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
-    if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
-    history.pushState(state, '');
-    __pushedModal = true;
-  } else {
-    __pushedModal = false;
+modal.addEventListener('click', function (event) {
+  if (event.target !== modal) return;
+  if (ignoreNextClick) { ignoreNextClick = false; return; }
+
+  exitFullscreenSafe();
+
+  if (modalSource === 'carrusel') {
+    closeModal();
+    if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+    return;
   }
 
-  function configurarEventosModal() {
-    const closeBtn = modal.querySelector('.close-modal');
-    const prevBtn = modal.querySelector('.prev-button');
-    const nextBtn = modal.querySelector('.next-button');
-    const infoPanel = modal.querySelector('.modal-info');
-    const fsBtn = modal.querySelector('.fullscreen-toggle');
-    const chip = modal.querySelector('.section-chip');
+  const seccionId = currentSeccion?.id;
+  closeModal();
+  if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
+});
 
-    const hotspotTop = modal.querySelector('.modal-hotspot.top');
-    const hotspotLeft = modal.querySelector('.modal-hotspot.left');
-    const hotspotRight = modal.querySelector('.modal-hotspot.right');
-    const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
+if (prevBtn) prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navegarFoto(-1); });
+if (nextBtn) nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navegarFoto(1); });
 
-    const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
+if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
 
-    if (hotspotLeft) hotspotLeft.addEventListener('click', () => navegarFoto(-1));
-    if (hotspotRight) hotspotRight.addEventListener('click', () => navegarFoto(1));
+if (chip) {
+  chip.addEventListener('click', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const sid = chip.dataset.seccionId;
+    if (!sid) { goBackOneStep(); return; }
+    const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+    if (!sec) return;
 
-    if (closeBtn) {
-      closeBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        exitFullscreenSafe();
-
-        if (modalSource === 'carrusel') {
-          closeModal();
-          if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
-          return;
-        }
-
-        const seccionId = currentSeccion?.id;
-        closeModal();
-        if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
-      });
+    if (modalSource === 'carrusel') {
+      history.replaceState({ view: 'home' }, '');
+      closeModal();
+      mostrarSeccion(sec, { push: true });
+    } else {
+      closeModal();
     }
+  });
+}
 
-    modal.addEventListener('click', function (event) {
-      if (event.target !== modal) return;
-      if (ignoreNextClick) { ignoreNextClick = false; return; }
+// Tap rápido → toggle zoom
+let tapStartX = 0, tapStartY = 0, tapStartT = 0;
+modalImg.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 1) { tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now(); }
+}, { passive: true });
+modalImg.addEventListener('touchend', (e) => {
+  if (ignoreNextClick) { ignoreNextClick = false; return; }
+  if (e.changedTouches.length === 1) {
+    const dx = e.changedTouches[0].clientX - tapStartX;
+    const dy = e.changedTouches[0].clientY - tapStartY;
+    const dt = Date.now() - tapStartT;
+    if (Math.hypot(dx, dy) < 12 && dt < 250) {
+      doClickToggle();
+      ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
+    }
+  }
+}, { passive: true });
 
+// Click → toggle zoom
+modalImg.addEventListener('click', function (event) {
+  if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
+  doClickToggle();
+  event.stopPropagation();
+});
+modalImg.addEventListener('dblclick', (e) => e.preventDefault());
+
+// Zoom rueda
+modal.addEventListener('wheel', function (e) {
+  e.preventDefault();
+  const ZOOM_MIN = 1, ZOOM_MAX = 5;
+  const BASE_SENS = 0.0015;
+  let sens = BASE_SENS;
+  if (e.deltaMode === 1) sens = 0.02;
+  else if (e.deltaMode === 2) sens = 0.1;
+  const factor = Math.exp(-e.deltaY * sens);
+  let newScale = currentScale * factor;
+  newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newScale));
+  if (Math.abs(newScale - currentScale) > 0.0001) { currentScale = newScale; aplicarZoom(); }
+}, { passive: false });
+
+// Drag/Pan y pinch
+modalImg.addEventListener('mousedown', startDrag);
+modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
+
+// Gestos adicionales
+attachSwipeToModal(modal);
+attachBottomSheet(modal);
+
+// Fullscreen state
+if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
+fullscreenChangeHandler = () => {
+  const active = !!document.fullscreenElement;
+  modal.classList.toggle('fs-active', active);
+  const b = modal.querySelector('.fullscreen-toggle');
+  if (b) b.classList.toggle('is-active', active);
+};
+document.addEventListener('fullscreenchange', fullscreenChangeHandler);
+
+// Teclado
+keydownHandler = function (ev) {
+  switch (ev.key) {
+    case 'Escape':
       exitFullscreenSafe();
-
       if (modalSource === 'carrusel') {
         closeModal();
         if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
-        return;
+      } else {
+        const seccionId = currentSeccion?.id;
+        closeModal();
+        if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
       }
+      break;
+    case 'ArrowLeft': navegarFoto(-1); break;
+    case 'ArrowRight': navegarFoto(1); break;
+  }
+};
+document.addEventListener('keydown', keydownHandler);
 
-      const seccionId = currentSeccion?.id;
-      closeModal();
-      if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
-    });
-
-    if (prevBtn) prevBtn.addEventListener('click', (e) => { e.stopPropagation(); navegarFoto(-1); });
-    if (nextBtn) nextBtn.addEventListener('click', (e) => { e.stopPropagation(); navegarFoto(1); });
-
-    if (fsBtn) fsBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleFullscreen(); });
-
-    if (chip) {
-      chip.addEventListener('click', (e) => {
-        e.preventDefault(); e.stopPropagation();
-        const sid = chip.dataset.seccionId;
-        if (!sid) { goBackOneStep(); return; }
-        const sec = datosGlobales?.secciones?.find(s => s.id === sid);
-        if (!sec) return;
-
-        if (modalSource === 'carrusel') {
-          history.replaceState({ view: 'home' }, '');
-          closeModal();
-          mostrarSeccion(sec, { push: true });
-        } else {
-          closeModal();
-        }
-      });
-    }
-
-    // Tap rápido → toggle zoom
-    let tapStartX = 0, tapStartY = 0, tapStartT = 0;
-    modalImg.addEventListener('touchstart', (e) => {
-      if (e.touches.length === 1) { tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now(); }
-    }, { passive: true });
-    modalImg.addEventListener('touchend', (e) => {
-      if (ignoreNextClick) { ignoreNextClick = false; return; }
-      if (e.changedTouches.length === 1) {
-        const dx = e.changedTouches[0].clientX - tapStartX;
-        const dy = e.changedTouches[0].clientY - tapStartY;
-        const dt = Date.now() - tapStartT;
-        if (Math.hypot(dx, dy) < 12 && dt < 250) {
-          doClickToggle();
-          ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
-        }
-      }
-    }, { passive: true });
-
-    // Click → toggle zoom
-    modalImg.addEventListener('click', function (event) {
-      if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
-      doClickToggle();
-      event.stopPropagation();
-    });
-    modalImg.addEventListener('dblclick', (e) => e.preventDefault());
-
-    // Zoom rueda
-    modal.addEventListener('wheel', function (e) {
-      e.preventDefault();
-      const ZOOM_MIN = 1, ZOOM_MAX = 5;
-      const BASE_SENS = 0.0015;
-      let sens = BASE_SENS;
-      if (e.deltaMode === 1) sens = 0.02;
-      else if (e.deltaMode === 2) sens = 0.1;
-      const factor = Math.exp(-e.deltaY * sens);
-      let newScale = currentScale * factor;
-      newScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, newScale));
-      if (Math.abs(newScale - currentScale) > 0.0001) { currentScale = newScale; aplicarZoom(); }
-    }, { passive: false });
-
-    // Drag/Pan y pinch
-    modalImg.addEventListener('mousedown', startDrag);
-    modalImg.addEventListener('touchstart', onTouchStartImg, { passive: false });
-
-    // Gestos adicionales
-    attachSwipeToModal(modal);
-    attachBottomSheet(modal);
-
-    // Fullscreen state
-    if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-    fullscreenChangeHandler = () => {
-      const active = !!document.fullscreenElement;
-      modal.classList.toggle('fs-active', active);
-      const b = modal.querySelector('.fullscreen-toggle');
-      if (b) b.classList.toggle('is-active', active);
-    };
-    document.addEventListener('fullscreenchange', fullscreenChangeHandler);
-
-    // Teclado
-    keydownHandler = function (ev) {
-      switch (ev.key) {
-        case 'Escape':
-          exitFullscreenSafe();
-          if (modalSource === 'carrusel') {
-            closeModal();
-            if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
-          } else {
-            const seccionId = currentSeccion?.id;
-            closeModal();
-            if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
-          }
-          break;
-        case 'ArrowLeft': navegarFoto(-1); break;
-        case 'ArrowRight': navegarFoto(1); break;
-      }
-    };
-    document.addEventListener('keydown', keydownHandler);
-
-    // Click-zoom (desktop)
-    function doClickToggle() {
-      if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; }
-      else {
-        if (isMobileViewport) {
-          currentScale = defaultClickZoom;
-        } else {
-          let scale = 1.25;
-          if (currentImage) {
-            const container = currentImage.closest('.modal-img-container');
-            if (container) {
-              const cw = container.clientWidth, ch = container.clientHeight;
-              const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
-              const base = Math.max(cw / iw, ch / ih) * 0.97;
-              scale = 1 + (base - 1) * 5;
-              scale = Math.min(3.0, Math.max(1.2, scale));
-            }
-          }
-          currentScale = scale;
-        }
-      }
-      aplicarZoom();
-    }
-
-    // ====== POSICIONAMIENTO FULLSCREEN FUERA (solo escritorio) ======
-    if (!isMobileViewport && fsBtn) {
-      const contentEl   = modal.querySelector('.modal-content');
-      const containerEl = modal.querySelector('.modal-img-container');
-      const btn         = fsBtn;
-
-      // Asegura capas correctas (no recorte, por encima de hotspots)
-      if (contentEl)  { contentEl.style.overflow = 'visible'; contentEl.style.position = 'relative'; contentEl.style.zIndex = '2'; }
-      if (containerEl){ containerEl.style.position = 'relative'; containerEl.style.overflow = 'visible'; }
-
-      [hotspotTop, hotspotLeft, hotspotRight, hotspotBottom].forEach(h => { if (h) h.style.zIndex = '1'; });
-      [prevBtn, nextBtn, closeBtn].forEach(b => { if (b) { b.style.zIndex = '900'; b.style.pointerEvents = 'auto'; } });
-
-      // Función global para que aplicarZoom() pueda llamarla
-      function updateFullscreenPositionLocal() {
-        const img = currentImage || modal.querySelector('#modal-img');
-        if (!img || !containerEl || !btn) return;
-
-        const cRect = containerEl.getBoundingClientRect();
-        const iRect = img.getBoundingClientRect();
-
-        const OUTSIDE = 12; // distancia hacia fuera a la derecha
-        const PAD     = 12; // separación desde el borde inferior visible
-
-        const left = (iRect.right - cRect.left) + OUTSIDE;
-        const top  = (iRect.bottom - cRect.top) - btn.offsetHeight - PAD;
-
-        btn.style.position   = 'absolute';
-        btn.style.left       = left + 'px';
-        btn.style.top        = top  + 'px';
-        btn.style.bottom     = 'auto';
-        btn.style.marginLeft = '0';
-        btn.style.zIndex     = '999';
-        btn.style.pointerEvents = 'auto';
-      }
-      // expón global para aplicarZoom()
-      window.updateFullscreenPosition = updateFullscreenPositionLocal;
-
-      // Inicial y en el siguiente tick
-      updateFullscreenPositionLocal();
-      requestAnimationFrame(updateFullscreenPositionLocal);
-
-      // Reposicionar tras animación de zoom
-      currentImage?.addEventListener('transitionend', updateFullscreenPositionLocal);
-
-      // Rueda (zoom suave)
-      modal.addEventListener('wheel', () => {
-        requestAnimationFrame(updateFullscreenPositionLocal);
-      }, { passive: true });
-
-      // Navegación con flechas
-      prevBtn?.addEventListener('click', () => setTimeout(updateFullscreenPositionLocal, 0));
-      nextBtn?.addEventListener('click', () => setTimeout(updateFullscreenPositionLocal, 0));
-
-      // Resize de ventana
-      const onResizeFs = () => updateFullscreenPositionLocal();
-      window.addEventListener('resize', onResizeFs);
-
-      // Limpieza al cerrar con el botón (otras rutas se limpian al reabrir)
-      if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-          try { window.removeEventListener('resize', onResizeFs); } catch(_) {}
-        }, { once: true });
-      }
-    }
-
-    if (!isMobileViewport) {
-      const AUTO_HIDE_MS = 3000; let autoHideId = null;
-      function show(el) { if (el) { el.classList.add('visible'); el.style.pointerEvents = 'auto'; } }
-      function hide(el) { if (el) { el.classList.remove('visible'); el.style.pointerEvents = ''; } }
-      function hideAll() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(hide); }
-      function resetTimer() { clearTimeout(autoHideId); autoHideId = setTimeout(hideAll, AUTO_HIDE_MS); }
-      function showAllAndArmTimer() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(show); resetTimer(); }
-      function showCloseAndArmTimer() { show(closeBtn); resetTimer(); }
-      window.triggerUiAfterPhotoChange = () => showAllAndArmTimer();
-      modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
-      if (hotspotTop) hotspotTop.addEventListener('mouseenter', () => { show(closeBtn); resetTimer(); });
-      if (hotspotLeft) hotspotLeft.addEventListener('mouseenter', () => { show(prevBtn); resetTimer(); });
-      if (hotspotRight) hotspotRight.addEventListener('mouseenter', () => { show(nextBtn); resetTimer(); });
-      if (hotspotBottom) hotspotBottom.addEventListener('mouseenter', () => { show(infoPanel); if (fsBtn) show(fsBtn); resetTimer(); });
-      [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(el => {
-        if (!el) return;
-        el.addEventListener('mouseenter', () => { show(el); clearTimeout(autoHideId); });
-        el.addEventListener('mouseleave', () => { resetTimer(); });
-      });
+// Click-zoom (desktop)
+function doClickToggle() {
+  if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; }
+  else {
+    if (isMobileViewport) {
+      currentScale = defaultClickZoom;
     } else {
-      try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
+      let scale = 1.25;
+      if (currentImage) {
+        const container = currentImage.closest('.modal-img-container');
+        if (container) {
+          const cw = container.clientWidth, ch = container.clientHeight;
+          const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
+          const base = Math.max(cw / iw, ch / ih) * 0.97;
+          scale = 1 + (base - 1) * 5;
+          scale = Math.min(3.0, Math.max(1.2, scale));
+        }
+      }
+      currentScale = scale;
     }
   }
+  aplicarZoom();
 }
+
+// ====== POSICIONAMIENTO FULLSCREEN FUERA (solo escritorio) ======
+if (!isMobileViewport && fsBtn) {
+  const contentEl   = modal.querySelector('.modal-content');
+  const containerEl = modal.querySelector('.modal-img-container');
+  const btn         = fsBtn;
+
+  // Capas correctas
+  if (contentEl)  { contentEl.style.overflow = 'visible'; contentEl.style.position = 'relative'; contentEl.style.zIndex = '600'; }
+  if (containerEl){ containerEl.style.position = 'relative'; containerEl.style.overflow = 'visible'; }
+
+  // Hotspots por ENCIMA de la imagen para que funcionen (y debajo de botones)
+  [hotspotTop, hotspotLeft, hotspotRight, hotspotBottom].forEach(h => { if (h) h.style.zIndex = '800'; });
+  // Botones navegacion/cerrar por encima
+  [prevBtn, nextBtn, closeBtn].forEach(b => { if (b) { b.style.zIndex = '900'; b.style.pointerEvents = 'auto'; } });
+  // Fullscreen por arriba de todos
+  btn.style.zIndex = '999';
+  btn.style.pointerEvents = 'auto';
+
+  function updateFullscreenPositionLocal() {
+    const img = currentImage || modal.querySelector('#modal-img');
+    if (!img || !containerEl || !btn) return;
+
+    const cRect = containerEl.getBoundingClientRect();
+    const iRect = img.getBoundingClientRect();
+
+    const OUTSIDE = 12; // hacia fuera a la derecha
+    const PAD     = 12; // separación desde el borde inferior visible
+
+    const left = (iRect.right - cRect.left) + OUTSIDE;
+    const top  = (iRect.bottom - cRect.top) - btn.offsetHeight - PAD;
+
+    btn.style.position   = 'absolute';
+    btn.style.left       = left + 'px';
+    btn.style.top        = top  + 'px';
+    btn.style.bottom     = 'auto';
+    btn.style.marginLeft = '0';
+  }
+  // expón global para aplicarZoom()
+  window.updateFullscreenPosition = updateFullscreenPositionLocal;
+
+  updateFullscreenPositionLocal();
+  requestAnimationFrame(updateFullscreenPositionLocal);
+
+  currentImage?.addEventListener('transitionend', updateFullscreenPositionLocal);
+  modal.addEventListener('wheel', () => { requestAnimationFrame(updateFullscreenPositionLocal); }, { passive: true });
+  prevBtn?.addEventListener('click', () => setTimeout(updateFullscreenPositionLocal, 0));
+  nextBtn?.addEventListener('click', () => setTimeout(updateFullscreenPositionLocal, 0));
+
+  const onResizeFs = () => updateFullscreenPositionLocal();
+  window.addEventListener('resize', onResizeFs);
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      try { window.removeEventListener('resize', onResizeFs); } catch(_) {}
+    }, { once: true });
+  }
+}
+
+if (!isMobileViewport) {
+  const AUTO_HIDE_MS = 3000; let autoHideId = null;
+  function show(el) { if (el) { el.classList.add('visible'); el.style.pointerEvents = 'auto'; } }
+  function hide(el) { if (el) { el.classList.remove('visible'); el.style.pointerEvents = ''; } }
+  function hideAll() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(hide); }
+  function resetTimer() { clearTimeout(autoHideId); autoHideId = setTimeout(hideAll, AUTO_HIDE_MS); }
+  function showAllAndArmTimer() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(show); resetTimer(); }
+  function showCloseAndArmTimer() { show(closeBtn); resetTimer(); }
+  window.triggerUiAfterPhotoChange = () => showAllAndArmTimer();
+  modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
+  if (hotspotTop) hotspotTop.addEventListener('mouseenter', () => { show(closeBtn); resetTimer(); });
+  if (hotspotLeft) hotspotLeft.addEventListener('mouseenter', () => { show(prevBtn); resetTimer(); });
+  if (hotspotRight) hotspotRight.addEventListener('mouseenter', () => { show(nextBtn); resetTimer(); });
+  if (hotspotBottom) hotspotBottom.addEventListener('mouseenter', () => { show(infoPanel); if (fsBtn) show(fsBtn); resetTimer(); });
+  [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(el => {
+    if (!el) return;
+    el.addEventListener('mouseenter', () => { show(el); clearTimeout(autoHideId); });
+    el.addEventListener('mouseleave', () => { resetTimer(); });
+  });
+} else {
+  try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
+}
+}
+}
+
 // ========= VIDEO EN TARJETA =========
 // Multi-tarjeta (hover loop en desktop, one‑shot en móvil/TV)
 // TV: sin hover. Móvil: play en touchend. Bloqueo de click solo el sintético.
