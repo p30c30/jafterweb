@@ -19,6 +19,27 @@ let modalFromHomeCarousel = false;
 let __pushedModal = false;
 
 // ===== Helpers =====
+/* === FIX: helpers que faltan si pegaste el JS en dos partes === */
+if (typeof window.initMobileRotationHandler !== 'function') {
+  function initMobileRotationHandler() {
+    // Mantén el handler liviano; si quieres hacer algo al rotar con el modal abierto, lo metes aquí
+    let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+    window.addEventListener('resize', () => {
+      const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+      if (last !== now && isModalOpen) {
+        // opcional: podrías recentrar UI o ajustar alto de info panel
+      }
+      last = now;
+    });
+  }
+}
+
+if (typeof window.getModalList !== 'function') {
+  function getModalList() {
+    // Lista que usa el modal según el origen (carrusel o sección)
+    return (modalSource === 'carrusel') ? carruselFotos : todasLasFotos;
+  }
+}
 // Animaciones Pausa y resetea todas las animaciones de portada
 function pauseAndResetAllCardVideos() {
 const vids = document.querySelectorAll('.section-cards video.card-anim');
