@@ -1,7 +1,7 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v39.1)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v39.1 CARGADO');
+console.log('✅ script.js v40 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -21,401 +21,402 @@ let __pushedModal = false;
 // ===== Helpers =====
 // Animaciones Pausa y resetea todas las animaciones de portada
 function pauseAndResetAllCardVideos() {
-  const vids = document.querySelectorAll('.section-cards video.card-anim');
-  vids.forEach(v => {
-    try { v.pause(); } catch(_) {}
-    try { v.currentTime = 0; } catch(_) {}
-    v._oneShotPlaying = false;
-    const c = v.closest('.card');
-    if (c) c.classList.remove('is-over');
-  });
-  window.__cardPlayingVideo = null;
+const vids = document.querySelectorAll('.section-cards video.card-anim');
+vids.forEach(v => {
+try { v.pause(); } catch(_) {}
+try { v.currentTime = 0; } catch(_) {}
+v._oneShotPlaying = false;
+const c = v.closest('.card');
+if (c) c.classList.remove('is-over');
+});
+window.__cardPlayingVideo = null;
 }
 /* === Animaciones por sección (id o título slug) === */
 const CARD_ANIM_MAP = {
-  artisticas: '/assets/anim/artisticas.mp4',
-  calles: '/assets/anim/calles.mp4',
-  naturaleza: '/assets/anim/naturaleza.mp4',
-  paisaje: '/assets/anim/paisaje.mp4',
-  spotting: '/assets/anim/spotting.mp4',
-  virgen: '/assets/anim/virgen.mp4'
+artisticas: '/assets/anim/artisticas.mp4',
+calles: '/assets/anim/calles.mp4',
+naturaleza: '/assets/anim/naturaleza.mp4',
+paisaje: '/assets/anim/paisaje.mp4',
+spotting: '/assets/anim/spotting.mp4',
+virgen: '/assets/anim/virgen.mp4'
 };
 
 function slugify(s = '') {
-  return String(s)
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase().replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+return String(s)
+.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+.replace(/(^-|-$)/g, '');
 }
 
 function refreshScrollTop() {
-  if (!scrollTopBtn) return;
-  const y = window.scrollY || document.documentElement.scrollTop || 0;
-  scrollTopBtn.classList.toggle('visible', y > 300);
+if (!scrollTopBtn) return;
+const y = window.scrollY || document.documentElement.scrollTop || 0;
+scrollTopBtn.classList.toggle('visible', y > 300);
 }
 if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
 function scrollToTopHard() {
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-      document.documentElement.scrollTop = 0;
-      document.body.scrollTop = 0;
-    });
-  });
+requestAnimationFrame(() => {
+requestAnimationFrame(() => {
+window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+document.documentElement.scrollTop = 0;
+document.body.scrollTop = 0;
+});
+});
 }
 function forceSectionTop(containerEl) {
-  const toTop = () => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-  };
-  toTop();
-  requestAnimationFrame(() => toTop());
-  setTimeout(toTop, 50);
-  setTimeout(toTop, 200);
-  setTimeout(toTop, 500);
-  if (containerEl) {
-    const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12);
-    imgs.forEach(img => {
-      if (!img.complete) {
-        const bump = () => toTop();
-        img.addEventListener('load', bump, { once: true });
-        img.addEventListener('error', bump, { once: true });
-      }
-    });
-  }
+const toTop = () => {
+window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+document.documentElement.scrollTop = 0;
+document.body.scrollTop = 0;
+};
+toTop();
+requestAnimationFrame(() => toTop());
+setTimeout(toTop, 50);
+setTimeout(toTop, 200);
+setTimeout(toTop, 500);
+if (containerEl) {
+const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12);
+imgs.forEach(img => {
+if (!img.complete) {
+const bump = () => toTop();
+img.addEventListener('load', bump, { once: true });
+img.addEventListener('error', bump, { once: true });
+}
+});
+}
 }
 function exitFullscreenSafe() {
-  const d = document;
-  try {
-    if (d.fullscreenElement && d.exitFullscreen) return d.exitFullscreen();
-    if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen();
-  } catch (e) {}
+const d = document;
+try {
+if (d.fullscreenElement && d.exitFullscreen) return d.exitFullscreen();
+if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen();
+} catch (e) {}
 }
 
 // Botón scroll-to-top
 function crearBotonScrollTop() {
-  scrollTopBtn = document.querySelector('.scroll-to-top');
-  if (!scrollTopBtn) {
-    scrollTopBtn = document.createElement('button');
-    scrollTopBtn.className = 'scroll-to-top';
-    scrollTopBtn.innerHTML = '↑';
-    scrollTopBtn.setAttribute('aria-label', 'Volver arriba');
-    document.body.appendChild(scrollTopBtn);
-  }
-  scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-  window.addEventListener('scroll', refreshScrollTop, { passive: true });
-  window.addEventListener('resize', refreshScrollTop, { passive: true });
-  window.addEventListener('load', refreshScrollTop, { once: true });
-  refreshScrollTop();
+scrollTopBtn = document.querySelector('.scroll-to-top');
+if (!scrollTopBtn) {
+scrollTopBtn = document.createElement('button');
+scrollTopBtn.className = 'scroll-to-top';
+scrollTopBtn.innerHTML = '↑';
+scrollTopBtn.setAttribute('aria-label', 'Volver arriba');
+document.body.appendChild(scrollTopBtn);
+}
+scrollTopBtn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+window.addEventListener('scroll', refreshScrollTop, { passive: true });
+window.addEventListener('resize', refreshScrollTop, { passive: true });
+window.addEventListener('load', refreshScrollTop, { once: true });
+refreshScrollTop();
 }
 
 // Historial SPA
 function initHistoryHandler() {
-  if (!history.state) history.replaceState({ view: 'home' }, '');
-  window.addEventListener('popstate', (e) => {
-    const state = e.state || { view: 'home' };
-    aplicarEstado(state);
-  });
+if (!history.state) history.replaceState({ view: 'home' }, '');
+window.addEventListener('popstate', (e) => {
+const state = e.state || { view: 'home' };
+aplicarEstado(state);
+});
 }
 
 // Redes responsivas: mover al footer en móvil (≤768px)
 function initResponsiveSocialBar() {
-  const mq = window.matchMedia('(max-width: 768px)');
-  const header = document.querySelector('.site-header');
-  const footer = document.querySelector('.site-footer');
-  const social = document.querySelector('.header-social');
-  if (!header || !footer || !social) return;
+const mq = window.matchMedia('(max-width: 768px)');
+const header = document.querySelector('.site-header');
+const footer = document.querySelector('.site-footer');
+const social = document.querySelector('.header-social');
+if (!header || !footer || !social) return;
 
-  function ensureFooterSlot() {
-    let slot = footer.querySelector('.footer-social');
-    if (!slot) {
-      slot = document.createElement('div');
-      slot.className = 'footer-social';
-      const copy = footer.querySelector('.site-copy');
-      // Coloca las redes encima de la línea de copyright
-      if (copy && copy.parentNode) footer.insertBefore(slot, copy);
-      else footer.appendChild(slot);
-    }
-    return slot;
-  }
+function ensureFooterSlot() {
+let slot = footer.querySelector('.footer-social');
+if (!slot) {
+slot = document.createElement('div');
+slot.className = 'footer-social';
+const copy = footer.querySelector('.site-copy');
+// Coloca las redes encima de la línea de copyright
+if (copy && copy.parentNode) footer.insertBefore(slot, copy);
+else footer.appendChild(slot);
+}
+return slot;
+}
 
-  function relocate() {
-    if (mq.matches) {
-      const slot = ensureFooterSlot();
-      if (social.parentElement !== slot) slot.appendChild(social);
-    } else {
-      if (social.parentElement !== header) header.appendChild(social);
-    }
-  }
+function relocate() {
+if (mq.matches) {
+const slot = ensureFooterSlot();
+if (social.parentElement !== slot) slot.appendChild(social);
+} else {
+if (social.parentElement !== header) header.appendChild(social);
+}
+}
 
-  relocate();
-  if (mq.addEventListener) mq.addEventListener('change', relocate);
-  else if (mq.addListener) mq.addListener(relocate); // Safari antiguo
-  else window.addEventListener('resize', relocate);
+relocate();
+if (mq.addEventListener) mq.addEventListener('change', relocate);
+else if (mq.addListener) mq.addListener(relocate); // Safari antiguo
+else window.addEventListener('resize', relocate);
 }
 
 // ===== Inicio =====
 function iniciar() {
-  initHeaderNavUI();
-  const logo = document.getElementById('logoHome');
-  if (logo) {
-    logo.addEventListener('click', (e) => {
-      if (logo.tagName.toLowerCase() === 'a') {
-        const hasModifier = e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0);
-        if (!hasModifier) e.preventDefault();
-      }
-      if (currentView !== 'home') {
-        history.pushState({ view: 'home' }, '');
-        aplicarEstado({ view: 'home' });
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    });
-  }
+initHeaderNavUI();
+const logo = document.getElementById('logoHome');
+if (logo) {
+logo.addEventListener('click', (e) => {
+if (logo.tagName.toLowerCase() === 'a') {
+const hasModifier = e && (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0);
+if (!hasModifier) e.preventDefault();
+}
+if (currentView !== 'home') {
+history.pushState({ view: 'home' }, '');
+aplicarEstado({ view: 'home' });
+} else {
+window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+});
+}
 
-  crearBotonScrollTop();
+crearBotonScrollTop();
 
-  setTimeout(() => {
-    const container = document.getElementById('secciones-container');
-    if (container) {
-      cargarDatos(container);
-    } else {
-      setTimeout(iniciar, 1000);
-    }
-  }, 600);
+setTimeout(() => {
+const container = document.getElementById('secciones-container');
+if (container) {
+cargarDatos(container);
+} else {
+setTimeout(iniciar, 1000);
+}
+}, 600);
 
-  initMobileRotationHandler();
-  initHistoryHandler();
-  initResponsiveSocialBar();
+initMobileRotationHandler();
+initHistoryHandler();
+initResponsiveSocialBar();
 }
 
 // ===== Estado / navegación SPA =====
 function aplicarEstado(state) {
-  isHandlingPopstate = true;
+isHandlingPopstate = true;
 
-  if (state.view !== 'modal' && isModalOpen) {
-    closeModal();
-    if (state.view === 'home' && modalFromHomeCarousel) {
-      modalFromHomeCarousel = false;
-      currentView = 'home';
-      isHandlingPopstate = false;
-      return;
-    }
-  }
+if (state.view !== 'modal' && isModalOpen) {
+closeModal();
+if (state.view === 'home' && modalFromHomeCarousel) {
+modalFromHomeCarousel = false;
+currentView = 'home';
+isHandlingPopstate = false;
+return;
+}
+}
 
 if (state.view === 'home') {
-  if (currentView !== 'home') {
-    volverAGaleriaInternal();                 // ya limpia activo y cierra panel
-  } else {
-    // Estabas en Home: asegúrate de limpiar activo y cerrar panel igualmente
-    if (typeof updateHeaderNavActive === 'function') updateHeaderNavActive(null);
-    if (typeof closeNavPanel === 'function')        closeNavPanel();
-  }
-  isHandlingPopstate = false;
-  return;
+if (currentView !== 'home') {
+volverAGaleriaInternal();                 // ya limpia activo y cierra panel
+} else {
+// Estabas en Home: asegúrate de limpiar activo y cerrar panel igualmente
+if (typeof updateHeaderNavActive === 'function') updateHeaderNavActive(null);
+if (typeof closeNavPanel === 'function')        closeNavPanel();
+}
+isHandlingPopstate = false;
+return;
 } else if (state.view === 'seccion') {
-  if (datosGlobales) {
-    const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
-    sec ? mostrarSeccion(sec, { push: false }) : volverAGaleriaInternal();
-  } else { volverAGaleriaInternal(); }
+if (datosGlobales) {
+const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
+sec ? mostrarSeccion(sec, { push: false }) : volverAGaleriaInternal();
+} else { volverAGaleriaInternal(); }
 } else if (state.view === 'modal') {
-  if (state.source === 'carrusel') {
-    if (!carruselFotos?.length && datosGlobales) { carruselFotos = obtenerFotosParaCarrusel(datosGlobales); }
-    const f = carruselFotos[state.fotoIndex];
-    if (f) { modalSource = 'carrusel'; mostrarModal(f.url, f.texto, state.fotoIndex, { push: false }); }
-    else { volverAGaleriaInternal(); }
-  } else {
-    if (datosGlobales) {
-      const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
-      if (sec) {
-        mostrarSeccion(sec, { push: false });
-        const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
-        if (foto) { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false }); }
-      } else { volverAGaleriaInternal(); }
-    } else { volverAGaleriaInternal(); }
-    }
-  }
+if (state.source === 'carrusel') {
+if (!carruselFotos?.length && datosGlobales) { carruselFotos = obtenerFotosParaCarrusel(datosGlobales); }
+const f = carruselFotos[state.fotoIndex];
+if (f) { modalSource = 'carrusel'; mostrarModal(f.url, f.texto, state.fotoIndex, { push: false }); }
+else { volverAGaleriaInternal(); }
+} else {
+if (datosGlobales) {
+const sec = datosGlobales.secciones.find(s => s.id === state.seccionId);
+if (sec) {
+mostrarSeccion(sec, { push: false });
+const foto = sec.fotos[state.fotoIndex] || sec.fotos[0];
+if (foto) { modalSource = 'seccion'; mostrarModal(foto.url, foto.texto, state.fotoIndex, { push: false }); }
+} else { volverAGaleriaInternal(); }
+} else { volverAGaleriaInternal(); }
+}
+}
 
-  isHandlingPopstate = false;
+isHandlingPopstate = false;
 }
 
 function goBackOneStep() {
-  try {
-    const st = history.state || {};
+try {
+const st = history.state || {};
 
-    if (isModalOpen) {
-      exitFullscreenSafe();
-      if (modalSource === 'carrusel') {
-        closeModal();
-        if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
-      } else {
-        const seccionId = currentSeccion?.id;
-        closeModal();
-        if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
-      }
-      return;
-    }
+if (isModalOpen) {
+exitFullscreenSafe();
+if (modalSource === 'carrusel') {
+closeModal();
+if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+} else {
+const seccionId = currentSeccion?.id;
+closeModal();
+if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
+}
+return;
+}
 
-    if (currentView === 'seccion') {
-      if (st.view === 'seccion' && history.length > 1) {
-        history.back();
-        setTimeout(() => {
-          if (currentView !== 'home') {
-            aplicarEstado({ view: 'home' });
-            history.replaceState({ view: 'home' }, '');
-          }
-        }, 150);
-      } else {
-        aplicarEstado({ view: 'home' });
-        history.replaceState({ view: 'home' }, '');
-      }
-      return;
-    }
+if (currentView === 'seccion') {
+if (st.view === 'seccion' && history.length > 1) {
+history.back();
+setTimeout(() => {
+if (currentView !== 'home') {
+aplicarEstado({ view: 'home' });
+history.replaceState({ view: 'home' }, '');
+}
+}, 150);
+} else {
+aplicarEstado({ view: 'home' });
+history.replaceState({ view: 'home' }, '');
+}
+return;
+}
 
-    aplicarEstado({ view: 'home' });
-    history.replaceState({ view: 'home' }, '');
-  } catch (e) {
-    console.warn('goBackOneStep fallback', e);
-    if (isModalOpen) closeModal(); else { aplicarEstado({ view: 'home' }); history.replaceState({ view: 'home' }, ''); }
-  }
+aplicarEstado({ view: 'home' });
+history.replaceState({ view: 'home' }, '');
+} catch (e) {
+console.warn('goBackOneStep fallback', e);
+if (isModalOpen) closeModal(); else { aplicarEstado({ view: 'home' }); history.replaceState({ view: 'home' }, ''); }
+}
 }
 
 // ===== Datos y vistas =====
 async function cargarDatos(container) {
-  try {
-    const res = await fetch('data.json?v=' + Date.now());
-    if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
-    const data = await res.json();
-    datosGlobales = data;
-    if (!data?.secciones?.length) throw new Error('Estructura de datos inválida');
+try {
+const res = await fetch('data.json?v=' + Date.now());
+if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+const data = await res.json();
+datosGlobales = data;
+if (!data?.secciones?.length) throw new Error('Estructura de datos inválida');
 
-    container.innerHTML = '';
-    data.secciones.forEach(seccion => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `<img src="${seccion.preview}" alt="${seccion.titulo}" class="card-image"><div class="card-content"><h3>${seccion.titulo}</h3><p>${seccion.descripcion}</p></div>`;
-      card.addEventListener('click', () => mostrarSeccion(seccion));
-      container.appendChild(card);
-    });
+container.innerHTML = '';
+data.secciones.forEach(seccion => {
+const card = document.createElement('div');
+card.className = 'card';
+card.innerHTML = `<img src="${seccion.preview}" alt="${seccion.titulo}" class="card-image"><div class="card-content"><h3>${seccion.titulo}</h3><p>${seccion.descripcion}</p></div>`;
+card.addEventListener('click', () => mostrarSeccion(seccion));
+container.appendChild(card);
+});
 
-    cargarCarrusel(data);
-    buildHeaderNav(data);
-    updateHeaderNavActive(null); // en Home no marcamos sección
-  } catch (e) {
-    console.error('Error cargando datos:', e);
-    container.innerHTML = `<div class="error-message"><h3>Error al cargar</h3><p>${e.message}</p><button onclick="location.reload()">Reintentar</button></div>`;
-  }
-  
+cargarCarrusel(data);
+buildHeaderNav(data);
+updateHeaderNavActive(null); // en Home no marcamos sección
+} catch (e) {
+console.error('Error cargando datos:', e);
+container.innerHTML = `<div class="error-message"><h3>Error al cargar</h3><p>${e.message}</p><button onclick="location.reload()">Reintentar</button></div>`;
+}
+
 }
 
 function mostrarSeccion(seccion, opts = { push: true }) {
-  if (typeof pauseAndResetAllCardVideos === 'function') pauseAndResetAllCardVideos();
-  currentSeccion = seccion; modalSource = 'seccion';
-  updateHeaderNavActive?.(seccion.id);
-  if (!Array.isArray(seccion.fotos)) return;
-  todasLasFotos = seccion.fotos;
+if (typeof pauseAndResetAllCardVideos === 'function') pauseAndResetAllCardVideos();
+currentSeccion = seccion; modalSource = 'seccion';
+updateHeaderNavActive?.(seccion.id);
+if (!Array.isArray(seccion.fotos)) return;
+todasLasFotos = seccion.fotos;
 
-  const home = document.getElementById('home-view'); if (home) home.style.display = 'none';
-  const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none';
+const home = document.getElementById('home-view'); if (home) home.style.display = 'none';
+const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'none';
 
-  let view = document.getElementById('seccion-view');
-  if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); }
+let view = document.getElementById('seccion-view');
+if (!view) { view = document.createElement('div'); view.id = 'seccion-view'; view.className = 'seccion-view'; document.getElementById('content').appendChild(view); }
 
-  view.innerHTML = `
-    <header class="seccion-header">
-      <button class="back-button" title="Volver">←</button>
-      <div class="seccion-title-container">
-        <h1>${seccion.titulo}</h1>
-        <p class="seccion-descripcion">${seccion.descripcion}</p>
-      </div>
-    </header>
-    <div class="fotos-grid" id="fotos-container"></div>
-  `;
-  view.style.display = 'block';
+view.innerHTML = `
+   <header class="seccion-header">
+     <button class="back-button" title="Volver">←</button>
+     <div class="seccion-title-container">
+       <h1>${seccion.titulo}</h1>
+       <p class="seccion-descripcion">${seccion.descripcion}</p>
+     </div>
+   </header>
+   <div class="fotos-grid" id="fotos-container"></div>
+ `;
+view.style.display = 'block';
 
-  const back = view.querySelector('.back-button');
-  if (back) back.addEventListener('click', () => goBackOneStep());
+const back = view.querySelector('.back-button');
+if (back) back.addEventListener('click', () => goBackOneStep());
 
-  const fotosContainer = document.getElementById('fotos-container');
-  if (fotosContainer) {
-    fotosContainer.innerHTML = '';
+const fotosContainer = document.getElementById('fotos-container');
+if (fotosContainer) {
+fotosContainer.innerHTML = '';
 
-    seccion.fotos.forEach((foto, i) => {
-      if (!foto.miniatura || !foto.texto || !foto.url) return;
+seccion.fotos.forEach((foto, i) => {
+if (!foto.miniatura || !foto.texto || !foto.url) return;
 
-      const el = document.createElement('div');
-      el.className = 'foto-item';
+const el = document.createElement('div');
+el.className = 'foto-item';
 
-      const img = document.createElement('img');
-      img.src = foto.miniatura;
-      img.alt = foto.texto || '';
-      img.className = 'foto-miniatura';
-      img.loading = 'lazy';
+const img = document.createElement('img');
+img.src = foto.miniatura;
+img.alt = foto.texto || '';
+img.className = 'foto-miniatura';
+img.loading = 'lazy';
 
-      const caption = document.createElement('div');
-      caption.className = 'thumb-caption';
-      const span = document.createElement('span');
-      span.textContent = foto.texto || '';
-      caption.appendChild(span);
+const caption = document.createElement('div');
+caption.className = 'thumb-caption';
+const span = document.createElement('span');
+span.textContent = foto.texto || '';
+caption.appendChild(span);
 
-      el.appendChild(img);
-      el.appendChild(caption);
+el.appendChild(img);
+el.appendChild(caption);
 
-      el.addEventListener('click', () => {
-        modalSource = 'seccion';
-        mostrarModal(foto.url, foto.texto, i);
-      });
+el.addEventListener('click', () => {
+modalSource = 'seccion';
+mostrarModal(foto.url, foto.texto, i);
+});
 
-      fotosContainer.appendChild(el);
-    });
+fotosContainer.appendChild(el);
+});
 
-    if (typeof forceSectionTop === 'function') forceSectionTop(fotosContainer);
-    if (typeof refreshScrollTop === 'function') refreshScrollTop();
-  }
+if (typeof forceSectionTop === 'function') forceSectionTop(fotosContainer);
+if (typeof refreshScrollTop === 'function') refreshScrollTop();
+}
 
-  currentView = 'seccion';
-  if (opts.push && !isHandlingPopstate) {
-    history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
-  }
+currentView = 'seccion';
+if (opts.push && !isHandlingPopstate) {
+history.pushState({ view: 'seccion', seccionId: seccion.id }, '');
+}
 }
 
 // ==============BARRA DE SECCIONES======== Construye la barra y el panel con las secciones (sin "Inicio")
 function buildHeaderNav(data) {
-  const navDesk   = document.querySelector('.site-nav');
-  const panelList = document.querySelector('#nav-panel .nav-panel__list');
-  if (!data?.secciones || !navDesk || !panelList) return;
+const navDesk   = document.querySelector('.site-nav');
+const panelList = document.querySelector('#nav-panel .nav-panel__list');
+if (!data?.secciones || !navDesk || !panelList) return;
 
-  // Limpia y crea enlaces
-  navDesk.innerHTML = '';
-  panelList.innerHTML = '';
+// Limpia y crea enlaces
+navDesk.innerHTML = '';
+panelList.innerHTML = '';
 
-  data.secciones.forEach(sec => {
-    if (!sec?.id || !sec?.titulo) return;
+data.secciones.forEach(sec => {
+if (!sec?.id || !sec?.titulo) return;
 
-    const aDesk = document.createElement('a');
-    aDesk.className = 'nav-link';
-    aDesk.textContent = sec.titulo;
-    aDesk.href = '#';
-    aDesk.dataset.seccionId = sec.id;
-    navDesk.appendChild(aDesk);
+const aDesk = document.createElement('a');
+aDesk.className = 'nav-link';
+aDesk.textContent = sec.titulo;
+aDesk.href = '#';
+aDesk.dataset.seccionId = sec.id;
+navDesk.appendChild(aDesk);
 
-    const aMob = aDesk.cloneNode(true);
-    panelList.appendChild(aMob);
-  });
+const aMob = aDesk.cloneNode(true);
+panelList.appendChild(aMob);
+});
 
-  // Delegación de click (escritorio + panel)
+// Delegación de click (escritorio + panel)
 const handleClick = (e) => {
-  const a = e.target.closest('a.nav-link');
-  if (!a) return;
-  e.preventDefault();
-  closeNavPanel?.();
-  const id = a.dataset.seccionId;
-  const sec = datosGlobales?.secciones?.find(s => s.id === id);
-  if (sec) {
-    mostrarSeccion(sec);
-    updateHeaderNavActive?.(id);
-  }
+const a = e.target.closest('a.nav-link');
+if (!a) return;
+e.preventDefault();
+closeNavPanel?.(); // por si venía del panel
+  
+const id = a.dataset.seccionId;
+const sec = datosGlobales?.secciones?.find(s => s.id === id);
+if (sec) {
+mostrarSeccion(sec);
+updateHeaderNavActive?.(id);
+}
 };
 navDesk.addEventListener('click', handleClick);
 panelList.addEventListener('click', handleClick);
@@ -423,181 +424,181 @@ panelList.addEventListener('click', handleClick);
 
 // Marca activo el enlace (en Home se limpia)
 function updateHeaderNavActive(seccionIdOrNull) {
-  const links = document.querySelectorAll('.site-nav .nav-link, #nav-panel .nav-link');
-  links.forEach(a => a.removeAttribute('aria-current'));
-  if (!seccionIdOrNull) return;
-  document.querySelectorAll(`.nav-link[data-seccion-id="${seccionIdOrNull}"]`)
-    .forEach(a => a.setAttribute('aria-current', 'page'));
+const links = document.querySelectorAll('.site-nav .nav-link, #nav-panel .nav-link');
+links.forEach(a => a.removeAttribute('aria-current'));
+if (!seccionIdOrNull) return;
+document.querySelectorAll(`.nav-link[data-seccion-id="${seccionIdOrNull}"]`)
+.forEach(a => a.setAttribute('aria-current', 'page'));
 }
 
 // UI del panel hamburguesa (abre/cierra)
 function initHeaderNavUI() {
-  const trigger = document.querySelector('.nav-trigger');
-  const panel   = document.getElementById('nav-panel');
-  if (!trigger || !panel) return;
+const trigger = document.querySelector('.nav-trigger');
+const panel   = document.getElementById('nav-panel');
+if (!trigger || !panel) return;
 
-  const open = () => {
-    panel.classList.add('is-open');
-    panel.setAttribute('aria-hidden', 'false');
-    trigger.setAttribute('aria-expanded', 'true');
-    setTimeout(() => panel.querySelector('.nav-link')?.focus(), 10);
-  };
-  const close = () => {
-    panel.classList.remove('is-open');
-    panel.setAttribute('aria-hidden', 'true');
-    trigger.setAttribute('aria-expanded', 'false');
-  };
-  window.closeNavPanel = close;
+const open = () => {
+panel.classList.add('is-open');
+panel.setAttribute('aria-hidden', 'false');
+trigger.setAttribute('aria-expanded', 'true');
+setTimeout(() => panel.querySelector('.nav-link')?.focus(), 10);
+};
+const close = () => {
+panel.classList.remove('is-open');
+panel.setAttribute('aria-hidden', 'true');
+trigger.setAttribute('aria-expanded', 'false');
+};
+window.closeNavPanel = close;
 
-  trigger.addEventListener('click', () => {
-    panel.classList.contains('is-open') ? close() : open();
-  });
-  panel.addEventListener('click', (e) => {
-    if (e.target.matches('[data-close], .nav-panel__backdrop')) close();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && panel.classList.contains('is-open')) close();
-  });
+trigger.addEventListener('click', () => {
+panel.classList.contains('is-open') ? close() : open();
+});
+panel.addEventListener('click', (e) => {
+if (e.target.matches('[data-close], .nav-panel__backdrop')) close();
+});
+document.addEventListener('keydown', (e) => {
+if (e.key === 'Escape' && panel.classList.contains('is-open')) close();
+});
 }
 
 
 // ===== Carrusel portada =====
 function cargarCarrusel(data) {
-  const inner = document.getElementById('ultimas-fotos-carrusel');
-  const dots = document.getElementById('carrusel-dots');
-  if (!inner) return;
-  carruselFotos = obtenerFotosParaCarrusel(data);
-  mostrarCarruselFotos(carruselFotos, inner, dots);
-  iniciarAutoPlay();
-  configurarInteraccionCarrusel();
+const inner = document.getElementById('ultimas-fotos-carrusel');
+const dots = document.getElementById('carrusel-dots');
+if (!inner) return;
+carruselFotos = obtenerFotosParaCarrusel(data);
+mostrarCarruselFotos(carruselFotos, inner, dots);
+iniciarAutoPlay();
+configurarInteraccionCarrusel();
 }
 function obtenerFotosParaCarrusel(data) {
-  const planas = [];
-  data.secciones.forEach(sec => {
-    if (Array.isArray(sec.fotos)) {
-      sec.fotos.forEach((foto, i) => planas.push({ ...foto, seccionId: sec.id, seccionTitulo: sec.titulo, indiceEnSeccion: i }));
-    }
-  });
-  return planas.slice(-20).reverse();
+const planas = [];
+data.secciones.forEach(sec => {
+if (Array.isArray(sec.fotos)) {
+sec.fotos.forEach((foto, i) => planas.push({ ...foto, seccionId: sec.id, seccionTitulo: sec.titulo, indiceEnSeccion: i }));
+}
+});
+return planas.slice(-20).reverse();
 }
 function mostrarCarruselFotos(fotos, container, dotsContainer) {
-  container.innerHTML = '';
-  if (dotsContainer) dotsContainer.innerHTML = '';
-  if (!fotos.length) {
-    container.innerHTML = '<div class="carrusel-item"><p class="no-fotos">No hay fotos recientes</p></div>';
-    return;
-  }
-  fotos.forEach(f => {
-    const item = document.createElement('div');
-    item.className = 'carrusel-item';
-    item.innerHTML = `<img src="${f.url}" alt="${f.texto}" class="carrusel-img"><div class="carrusel-info"><div class="carrusel-desc">${f.texto}</div></div>`;
-    container.appendChild(item);
-  });
-  if (dotsContainer) {
-    fotos.forEach((_, idx) => {
-      const dot = document.createElement('button');
-      dot.className = `carrusel-dot ${idx === 0 ? 'active' : ''}`;
-      dot.addEventListener('click', () => {
-        pausarCarrusel();
-        moverCarruselA(idx, { delayAfterMs: carouselUserPauseMs });
-      });
-      dotsContainer.appendChild(dot);
-    });
-  }
-  setupCarruselInfinito(container);
-  configurarBotonesCarrusel();
-  container.addEventListener('click', () => abrirModalDesdeCarrusel(carruselActualIndex));
-  actualizarCarrusel();
+container.innerHTML = '';
+if (dotsContainer) dotsContainer.innerHTML = '';
+if (!fotos.length) {
+container.innerHTML = '<div class="carrusel-item"><p class="no-fotos">No hay fotos recientes</p></div>';
+return;
+}
+fotos.forEach(f => {
+const item = document.createElement('div');
+item.className = 'carrusel-item';
+item.innerHTML = `<img src="${f.url}" alt="${f.texto}" class="carrusel-img"><div class="carrusel-info"><div class="carrusel-desc">${f.texto}</div></div>`;
+container.appendChild(item);
+});
+if (dotsContainer) {
+fotos.forEach((_, idx) => {
+const dot = document.createElement('button');
+dot.className = `carrusel-dot ${idx === 0 ? 'active' : ''}`;
+dot.addEventListener('click', () => {
+pausarCarrusel();
+moverCarruselA(idx, { delayAfterMs: carouselUserPauseMs });
+});
+dotsContainer.appendChild(dot);
+});
+}
+setupCarruselInfinito(container);
+configurarBotonesCarrusel();
+container.addEventListener('click', () => abrirModalDesdeCarrusel(carruselActualIndex));
+actualizarCarrusel();
 }
 function setupCarruselInfinito(inner) {
-  carruselInnerRef = inner;
-  const slides = Array.from(inner.querySelectorAll('.carrusel-item'));
-  carruselRealLength = slides.length;
-  if (!carruselRealLength) return;
+carruselInnerRef = inner;
+const slides = Array.from(inner.querySelectorAll('.carrusel-item'));
+carruselRealLength = slides.length;
+if (!carruselRealLength) return;
 
-  inner.querySelectorAll('.carrusel-item.clone').forEach(n => n.remove());
-  const firstClone = slides[0].cloneNode(true);
-  const lastClone = slides[slides.length - 1].cloneNode(true);
-  firstClone.classList.add('clone'); lastClone.classList.add('clone');
-  inner.appendChild(firstClone); inner.insertBefore(lastClone, inner.firstChild);
+inner.querySelectorAll('.carrusel-item.clone').forEach(n => n.remove());
+const firstClone = slides[0].cloneNode(true);
+const lastClone = slides[slides.length - 1].cloneNode(true);
+firstClone.classList.add('clone'); lastClone.classList.add('clone');
+inner.appendChild(firstClone); inner.insertBefore(lastClone, inner.firstChild);
 
-  carruselActualIndex = 0; carruselPosition = 1;
-  inner.style.transition = 'none';
-  inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
-  void inner.offsetHeight;
-  inner.style.transition = 'transform 0.5s ease-in-out';
+carruselActualIndex = 0; carruselPosition = 1;
+inner.style.transition = 'none';
+inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
+void inner.offsetHeight;
+inner.style.transition = 'transform 0.5s ease-in-out';
 
-  if (carruselTransitionHandler) inner.removeEventListener('transitionend', carruselTransitionHandler);
-  carruselTransitionHandler = function (e) {
-    if (e.target !== inner) return;
-    if (carruselPosition === 0) {
-      inner.style.transition = 'none';
-      carruselPosition = carruselRealLength;
-      inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
-      void inner.offsetHeight; inner.style.transition = 'transform 0.5s ease-in-out';
-    } else if (carruselPosition === carruselRealLength + 1) {
-      inner.style.transition = 'none';
-      carruselPosition = 1;
-      inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
-      void inner.offsetHeight; inner.style.transition = 'transform 0.5s ease-in-out';
-    }
-    startCarouselAutoplay(pendingAutoplayDelay);
-  };
-  inner.addEventListener('transitionend', carruselTransitionHandler);
+if (carruselTransitionHandler) inner.removeEventListener('transitionend', carruselTransitionHandler);
+carruselTransitionHandler = function (e) {
+if (e.target !== inner) return;
+if (carruselPosition === 0) {
+inner.style.transition = 'none';
+carruselPosition = carruselRealLength;
+inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
+void inner.offsetHeight; inner.style.transition = 'transform 0.5s ease-in-out';
+} else if (carruselPosition === carruselRealLength + 1) {
+inner.style.transition = 'none';
+carruselPosition = 1;
+inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
+void inner.offsetHeight; inner.style.transition = 'transform 0.5s ease-in-out';
+}
+startCarouselAutoplay(pendingAutoplayDelay);
+};
+inner.addEventListener('transitionend', carruselTransitionHandler);
 }
 function actualizarCarrusel() {
-  document.querySelectorAll('.carrusel-dot').forEach((d, i) => d.classList.toggle('active', i === carruselActualIndex));
+document.querySelectorAll('.carrusel-dot').forEach((d, i) => d.classList.toggle('active', i === carruselActualIndex));
 }
 function moverCarruselA(nuevoIndex, opts = {}) {
-  const inner = carruselInnerRef || document.querySelector('.carrusel-inner');
-  if (!inner || !carruselRealLength) return;
-  pendingAutoplayDelay = opts.delayAfterMs ?? carouselAutoDelay;
-  if (nuevoIndex < 0) nuevoIndex = carruselRealLength - 1;
-  if (nuevoIndex >= carruselRealLength) nuevoIndex = 0;
-  const stepDir = opts.stepDirection;
-  if (stepDir === -1 && carruselPosition === 1 && nuevoIndex === carruselRealLength - 1) carruselPosition = 0;
-  else if (stepDir === 1 && carruselPosition === carruselRealLength && nuevoIndex === 0) carruselPosition = carruselRealLength + 1;
-  else carruselPosition = nuevoIndex + 1;
-  carruselActualIndex = nuevoIndex;
-  inner.style.transition = 'transform 0.5s ease-in-out';
-  inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
-  actualizarCarrusel();
+const inner = carruselInnerRef || document.querySelector('.carrusel-inner');
+if (!inner || !carruselRealLength) return;
+pendingAutoplayDelay = opts.delayAfterMs ?? carouselAutoDelay;
+if (nuevoIndex < 0) nuevoIndex = carruselRealLength - 1;
+if (nuevoIndex >= carruselRealLength) nuevoIndex = 0;
+const stepDir = opts.stepDirection;
+if (stepDir === -1 && carruselPosition === 1 && nuevoIndex === carruselRealLength - 1) carruselPosition = 0;
+else if (stepDir === 1 && carruselPosition === carruselRealLength && nuevoIndex === 0) carruselPosition = carruselRealLength + 1;
+else carruselPosition = nuevoIndex + 1;
+carruselActualIndex = nuevoIndex;
+inner.style.transition = 'transform 0.5s ease-in-out';
+inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
+actualizarCarrusel();
 }
 function startCarouselAutoplay(delay = carouselAutoDelay) {
-  clearTimeout(carouselTimer);
-  carouselTimer = setTimeout(() => moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselAutoDelay, stepDirection: 1 }), delay);
+clearTimeout(carouselTimer);
+carouselTimer = setTimeout(() => moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselAutoDelay, stepDirection: 1 }), delay);
 }
 function stopCarouselAutoplay() { clearTimeout(carouselTimer); carouselTimer = null; }
 function iniciarAutoPlay() { startCarouselAutoplay(carouselAutoDelay); }
 function pausarCarrusel() { startCarouselAutoplay(carouselUserPauseMs); }
 function configurarBotonesCarrusel() {
-  const prevBtn = document.querySelector('.prev-btn'); const nextBtn = document.querySelector('.next-btn');
-  if (prevBtn) prevBtn.onclick = () => { pausarCarrusel(); moverCarruselA(carruselActualIndex - 1, { delayAfterMs: carouselUserPauseMs, stepDirection: -1 }); };
-  if (nextBtn) nextBtn.onclick = () => { pausarCarrusel(); moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselUserPauseMs, stepDirection: 1 }); };
+const prevBtn = document.querySelector('.prev-btn'); const nextBtn = document.querySelector('.next-btn');
+if (prevBtn) prevBtn.onclick = () => { pausarCarrusel(); moverCarruselA(carruselActualIndex - 1, { delayAfterMs: carouselUserPauseMs, stepDirection: -1 }); };
+if (nextBtn) nextBtn.onclick = () => { pausarCarrusel(); moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselUserPauseMs, stepDirection: 1 }); };
 }
 function configurarInteraccionCarrusel() {
-  const carrusel = document.querySelector('.carrusel'); const inner = document.querySelector('.carrusel-inner'); if (!carrusel || !inner) return;
-  carrusel.addEventListener('mouseenter', () => stopCarouselAutoplay());
-  carrusel.addEventListener('mouseleave', () => startCarouselAutoplay(carouselAutoDelay));
-  let startX = 0, isDraggingLocal = false, dx = 0;
-  function onStart(e) { isDraggingLocal = true; dx = 0; startX = (e.touches ? e.touches[0].clientX : e.clientX); inner.style.transition = 'none'; stopCarouselAutoplay(); }
-  function onMove(e) { if (!isDraggingLocal) return; const x = (e.touches ? e.touches[0].clientX : e.clientX); dx = x - startX; const base = -(carruselPosition * carrusel.offsetWidth); inner.style.transform = `translateX(${base + dx}px)`; }
-  function onEnd() { if (!isDraggingLocal) return; isDraggingLocal = false; inner.style.transition = 'transform 0.35s ease'; const width = carrusel.offsetWidth; if (Math.abs(dx) > width * 0.2) { moverCarruselA(carruselActualIndex + (dx < 0 ? 1 : -1), { delayAfterMs: carouselUserPauseMs, stepDirection: (dx < 0 ? 1 : -1) }); startCarouselAutoplay(carouselUserPauseMs); } else { inner.style.transform = `translateX(-${carruselPosition * 100}%)`; startCarouselAutoplay(carouselAutoDelay); } dx = 0; }
-  inner.addEventListener('touchstart', onStart, { passive: true });
-  inner.addEventListener('touchmove', onMove, { passive: true });
-  inner.addEventListener('touchend', onEnd, { passive: true });
-  inner.addEventListener('mousedown', onStart); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onEnd);
+const carrusel = document.querySelector('.carrusel'); const inner = document.querySelector('.carrusel-inner'); if (!carrusel || !inner) return;
+carrusel.addEventListener('mouseenter', () => stopCarouselAutoplay());
+carrusel.addEventListener('mouseleave', () => startCarouselAutoplay(carouselAutoDelay));
+let startX = 0, isDraggingLocal = false, dx = 0;
+function onStart(e) { isDraggingLocal = true; dx = 0; startX = (e.touches ? e.touches[0].clientX : e.clientX); inner.style.transition = 'none'; stopCarouselAutoplay(); }
+function onMove(e) { if (!isDraggingLocal) return; const x = (e.touches ? e.touches[0].clientX : e.clientX); dx = x - startX; const base = -(carruselPosition * carrusel.offsetWidth); inner.style.transform = `translateX(${base + dx}px)`; }
+function onEnd() { if (!isDraggingLocal) return; isDraggingLocal = false; inner.style.transition = 'transform 0.35s ease'; const width = carrusel.offsetWidth; if (Math.abs(dx) > width * 0.2) { moverCarruselA(carruselActualIndex + (dx < 0 ? 1 : -1), { delayAfterMs: carouselUserPauseMs, stepDirection: (dx < 0 ? 1 : -1) }); startCarouselAutoplay(carouselUserPauseMs); } else { inner.style.transform = `translateX(-${carruselPosition * 100}%)`; startCarouselAutoplay(carouselAutoDelay); } dx = 0; }
+inner.addEventListener('touchstart', onStart, { passive: true });
+inner.addEventListener('touchmove', onMove, { passive: true });
+inner.addEventListener('touchend', onEnd, { passive: true });
+inner.addEventListener('mousedown', onStart); window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', onEnd);
 }
 function abrirModalDesdeCarrusel(index = carruselActualIndex) {
-  if (!carruselFotos?.length) return;
-  modalSource = 'carrusel';
-  modalFromHomeCarousel = true;
-  stopCarouselAutoplay();
-  const f = carruselFotos[index];
-  mostrarModal(f.url, f.texto, index, { push: true, source: 'carrusel' });
+if (!carruselFotos?.length) return;
+modalSource = 'carrusel';
+modalFromHomeCarousel = true;
+stopCarouselAutoplay();
+const f = carruselFotos[index];
+mostrarModal(f.url, f.texto, index, { push: true, source: 'carrusel' });
 }
 
-===========  MODAL  =============
+
 
 // ===== Modal =====
 function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: null }) {
@@ -968,285 +969,285 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
 // TV: sin hover. Móvil: play en touchend. Bloqueo de click solo el sintético.
 // + primado por gesto + reintentos + solo un vídeo a la vez + primado global.
 (function initCardAnims_AllCards() {
-  const mqHover  = window.matchMedia('(hover:hover)');
-  const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (mqReduce.matches) return;
+const mqHover  = window.matchMedia('(hover:hover)');
+const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+if (mqReduce.matches) return;
 
-  const isHoverDeviceRaw = mqHover.matches;
-  const isTVUA = /TV|Tizen|Web0S|WebOS|Smart-?TV|BRAVIA|AFT|Shield|AppleTV/i.test(navigator.userAgent);
-  const useHoverBranch = isHoverDeviceRaw && !isTVUA;
-  const isOperaDesktop = useHoverBranch && /\bOPR\/|Opera/i.test(navigator.userAgent) && !/Mobile|Android|TV/i.test(navigator.userAgent);
+const isHoverDeviceRaw = mqHover.matches;
+const isTVUA = /TV|Tizen|Web0S|WebOS|Smart-?TV|BRAVIA|AFT|Shield|AppleTV/i.test(navigator.userAgent);
+const useHoverBranch = isHoverDeviceRaw && !isTVUA;
+const isOperaDesktop = useHoverBranch && /\bOPR\/|Opera/i.test(navigator.userAgent) && !/Mobile|Android|TV/i.test(navigator.userAgent);
 
-  const FALLBACK = ['virgen.mp4','spotting.mp4','calles.mp4','paisaje.mp4','naturaleza.mp4','artisticas.mp4'];
+const FALLBACK = ['virgen.mp4','spotting.mp4','calles.mp4','paisaje.mp4','naturaleza.mp4','artisticas.mp4'];
 
-  function getAnimSrcForCard(card, idx) {
-    const ds = card.dataset?.animSrc;
-    if (ds) return ds;
-    const title = card.querySelector('.card-content h3')?.textContent || '';
-    const id = slugify(title);
-    if (CARD_ANIM_MAP[id]) return CARD_ANIM_MAP[id];
-    const f = FALLBACK[idx] || FALLBACK[FALLBACK.length - 1];
-    return '/assets/anim/' + f;
-  }
+function getAnimSrcForCard(card, idx) {
+const ds = card.dataset?.animSrc;
+if (ds) return ds;
+const title = card.querySelector('.card-content h3')?.textContent || '';
+const id = slugify(title);
+if (CARD_ANIM_MAP[id]) return CARD_ANIM_MAP[id];
+const f = FALLBACK[idx] || FALLBACK[FALLBACK.length - 1];
+return '/assets/anim/' + f;
+}
 
-  function mountOnCard(card, idx) {
-    if (!card || card.querySelector('video.card-anim')) return false;
+function mountOnCard(card, idx) {
+if (!card || card.querySelector('video.card-anim')) return false;
 
-    const src = getAnimSrcForCard(card, idx);
-    if (!src) return false;
+const src = getAnimSrcForCard(card, idx);
+if (!src) return false;
 
-    const video = document.createElement('video');
-    video.className = 'card-anim';
-    video.muted = true;         video.setAttribute('muted','');
-    video.playsInline = true;   video.setAttribute('playsinline','');
-    video.setAttribute('webkit-playsinline','');
-    video.loop = useHoverBranch;
-    video.preload = (useHoverBranch && !isOperaDesktop) ? 'metadata' : 'auto';
+const video = document.createElement('video');
+video.className = 'card-anim';
+video.muted = true;         video.setAttribute('muted','');
+video.playsInline = true;   video.setAttribute('playsinline','');
+video.setAttribute('webkit-playsinline','');
+video.loop = useHoverBranch;
+video.preload = (useHoverBranch && !isOperaDesktop) ? 'metadata' : 'auto';
 
-    try { video.setAttribute('disablepictureinpicture',''); video.disablePictureInPicture = true; } catch(_) {}
-    try { video.disableRemotePlayback = true; video.setAttribute('controlsList','nodownload noplaybackrate noremoteplayback nofullscreen'); } catch(_) {}
+try { video.setAttribute('disablepictureinpicture',''); video.disablePictureInPicture = true; } catch(_) {}
+try { video.disableRemotePlayback = true; video.setAttribute('controlsList','nodownload noplaybackrate noremoteplayback nofullscreen'); } catch(_) {}
 
-    const poster = card.querySelector('img')?.src || '';
-    if (poster) video.poster = poster;
+const poster = card.querySelector('img')?.src || '';
+if (poster) video.poster = poster;
 
-    const sourceEl = document.createElement('source');
-    sourceEl.src = src; sourceEl.type = 'video/mp4';
-    video.appendChild(sourceEl);
-    card.appendChild(video);
+const sourceEl = document.createElement('source');
+sourceEl.src = src; sourceEl.type = 'video/mp4';
+video.appendChild(sourceEl);
+card.appendChild(video);
 
-    // Primado inicial
-    const prime = () => {
-      video.play().then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} }).catch(()=>{});
-    };
-    if (video.readyState >= 2) prime(); else video.addEventListener('canplay', prime, { once:true });
+// Primado inicial
+const prime = () => {
+video.play().then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} }).catch(()=>{});
+};
+if (video.readyState >= 2) prime(); else video.addEventListener('canplay', prime, { once:true });
 
-    // Primado por gesto
-    const primeOnGesture = () => {
-      if (video._userPrimed) return;
-      video._userPrimed = true;
-      video.play().then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} })
-                  .catch(() => { video._userPrimed = false; });
-    };
-    card.addEventListener('touchstart', primeOnGesture, { passive: true });
-    card.addEventListener('pointerdown', primeOnGesture, { passive: true });
+// Primado por gesto
+const primeOnGesture = () => {
+if (video._userPrimed) return;
+video._userPrimed = true;
+video.play().then(() => { video.pause(); try { video.currentTime = 0; } catch(_) {} })
+.catch(() => { video._userPrimed = false; });
+};
+card.addEventListener('touchstart', primeOnGesture, { passive: true });
+card.addEventListener('pointerdown', primeOnGesture, { passive: true });
 
-    // Solo un vídeo activo
-    window.__cardPlayingVideo ??= null;
-    function claimPlayback() {
-      if (window.__cardPlayingVideo && window.__cardPlayingVideo !== video) {
-        try { window.__cardPlayingVideo.pause(); } catch(_) {}
-        // Libera el estado one-shot del anterior
-        window.__cardPlayingVideo._oneShotPlaying = false;
-        const prevCard = window.__cardPlayingVideo.closest('.card');
-        if (prevCard) prevCard.classList.remove('is-over');
-      }
-      window.__cardPlayingVideo = video;
-    }
+// Solo un vídeo activo
+window.__cardPlayingVideo ??= null;
+function claimPlayback() {
+if (window.__cardPlayingVideo && window.__cardPlayingVideo !== video) {
+try { window.__cardPlayingVideo.pause(); } catch(_) {}
+// Libera el estado one-shot del anterior
+window.__cardPlayingVideo._oneShotPlaying = false;
+const prevCard = window.__cardPlayingVideo.closest('.card');
+if (prevCard) prevCard.classList.remove('is-over');
+}
+window.__cardPlayingVideo = video;
+}
 
-    // Helpers
-    const startLoopHover = () => {
-      try { video.currentTime = 0; } catch(_) {}
-      claimPlayback();
-      card.classList.add('is-over');
-      video.loop = true;
-      video.play().catch(() => {
-        primeOnGesture();
-        setTimeout(() => video.play().catch(()=>{}), 0);
-      });
-    };
-    const stopHover = () => {
-      video.pause();
-      card.classList.remove('is-over');
-      try { video.currentTime = 0; } catch(_) {}
-    };
+// Helpers
+const startLoopHover = () => {
+try { video.currentTime = 0; } catch(_) {}
+claimPlayback();
+card.classList.add('is-over');
+video.loop = true;
+video.play().catch(() => {
+primeOnGesture();
+setTimeout(() => video.play().catch(()=>{}), 0);
+});
+};
+const stopHover = () => {
+video.pause();
+card.classList.remove('is-over');
+try { video.currentTime = 0; } catch(_) {}
+};
 
-    const playOnce = () => {
-      if (video._oneShotPlaying) return;
-      video._oneShotPlaying = true;
-      video.loop = false; video.removeAttribute('loop');
-      try { video.currentTime = 0; } catch(_) {}
-      claimPlayback();
-      card.classList.add('is-over');
+const playOnce = () => {
+if (video._oneShotPlaying) return;
+video._oneShotPlaying = true;
+video.loop = false; video.removeAttribute('loop');
+try { video.currentTime = 0; } catch(_) {}
+claimPlayback();
+card.classList.add('is-over');
 
-      const finish = () => {
-        video.pause();
-        video._oneShotPlaying = false;
-        card.classList.remove('is-over');
-        try { video.currentTime = 0; } catch(_) {}
-        video.removeEventListener('ended', finish);
-      };
+const finish = () => {
+video.pause();
+video._oneShotPlaying = false;
+card.classList.remove('is-over');
+try { video.currentTime = 0; } catch(_) {}
+video.removeEventListener('ended', finish);
+};
 
-      video.play().then(() => {
-        if (isFinite(video.duration) && video.duration > 0) {
-          video.addEventListener('ended', finish, { once:true });
-        } else {
-          setTimeout(finish, 3500);
-        }
-      }).catch(() => {
-        primeOnGesture();
-        setTimeout(() => {
-          video.play().then(() => {
-            if (isFinite(video.duration) && video.duration > 0) {
-              video.addEventListener('ended', finish, { once:true });
-            } else {
-              setTimeout(finish, 3500);
-            }
-          }).catch(() => setTimeout(finish, 1200));
-        }, 0);
-      });
-    };
+video.play().then(() => {
+if (isFinite(video.duration) && video.duration > 0) {
+video.addEventListener('ended', finish, { once:true });
+} else {
+setTimeout(finish, 3500);
+}
+}).catch(() => {
+primeOnGesture();
+setTimeout(() => {
+video.play().then(() => {
+if (isFinite(video.duration) && video.duration > 0) {
+video.addEventListener('ended', finish, { once:true });
+} else {
+setTimeout(finish, 3500);
+}
+}).catch(() => setTimeout(finish, 1200));
+}, 0);
+});
+};
 
-    // Si el vídeo se pausa por cualquier motivo, libera el estado one-shot
-    video.addEventListener('pause', () => { if (!video.loop) video._oneShotPlaying = false; });
-    video.addEventListener('emptied', () => { video._oneShotPlaying = false; });
-    video.addEventListener('error',   () => { video._oneShotPlaying = false; });
+// Si el vídeo se pausa por cualquier motivo, libera el estado one-shot
+video.addEventListener('pause', () => { if (!video.loop) video._oneShotPlaying = false; });
+video.addEventListener('emptied', () => { video._oneShotPlaying = false; });
+video.addEventListener('error',   () => { video._oneShotPlaying = false; });
 
-    if (useHoverBranch) {
-      // Desktop/hover
-      const onEnter = () => startLoopHover();
-      const onLeave = () => stopHover();
-      card.addEventListener('pointerenter', onEnter);
-      card.addEventListener('pointerleave', onLeave);
-      card.addEventListener('mouseenter', onEnter);
-      card.addEventListener('mouseleave', onLeave);
-      document.addEventListener('visibilitychange', () => { if (document.hidden) stopHover(); });
-    } else {
-      // Móvil / TV
-      const LONG_MS = 550;
-      let pressTimer = null;
+if (useHoverBranch) {
+// Desktop/hover
+const onEnter = () => startLoopHover();
+const onLeave = () => stopHover();
+card.addEventListener('pointerenter', onEnter);
+card.addEventListener('pointerleave', onLeave);
+card.addEventListener('mouseenter', onEnter);
+card.addEventListener('mouseleave', onLeave);
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopHover(); });
+} else {
+// Móvil / TV
+const LONG_MS = 550;
+let pressTimer = null;
 
-      // Click sintético: ventanas cortas por tarjeta
-      let suppressUntil = 0;
-      function blockClickNext(ms = 180) {
-        suppressUntil = performance.now() + ms;
-        setTimeout(() => {
-          if (performance.now() >= suppressUntil) suppressUntil = 0;
-        }, ms + 60);
-      }
+// Click sintético: ventanas cortas por tarjeta
+let suppressUntil = 0;
+function blockClickNext(ms = 180) {
+suppressUntil = performance.now() + ms;
+setTimeout(() => {
+if (performance.now() >= suppressUntil) suppressUntil = 0;
+}, ms + 60);
+}
 
-      // Long‑press TV
-      card.addEventListener('pointerdown', (e) => {
-        const isTvPointer = isTVUA && (e.pointerType === 'mouse' || e.pointerType === 'pen' || e.pointerType === 'touch' || e.pointerType === 'unknown');
-        if (isTvPointer) {
-          if (pressTimer) clearTimeout(pressTimer);
-          pressTimer = setTimeout(() => {
-            blockClickNext(220);
-            primeOnGesture();
-            playOnce();
-          }, LONG_MS);
-        }
-      });
-      const clearPress = () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } };
-      card.addEventListener('pointerup', clearPress);
-      card.addEventListener('pointercancel', clearPress);
-      card.addEventListener('pointerleave', clearPress);
+// Long‑press TV
+card.addEventListener('pointerdown', (e) => {
+const isTvPointer = isTVUA && (e.pointerType === 'mouse' || e.pointerType === 'pen' || e.pointerType === 'touch' || e.pointerType === 'unknown');
+if (isTvPointer) {
+if (pressTimer) clearTimeout(pressTimer);
+pressTimer = setTimeout(() => {
+blockClickNext(220);
+primeOnGesture();
+playOnce();
+}, LONG_MS);
+}
+});
+const clearPress = () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } };
+card.addEventListener('pointerup', clearPress);
+card.addEventListener('pointercancel', clearPress);
+card.addEventListener('pointerleave', clearPress);
 
-      // TV teclado
-      if (isTVUA) {
-        if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex','0');
-        card.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.code === 'Enter' || e.key === ' ' || e.code === 'Space') {
-            e.preventDefault(); e.stopPropagation();
-            blockClickNext(220);
-            primeOnGesture();
-            playOnce();
-          }
-        });
-      }
+// TV teclado
+if (isTVUA) {
+if (!card.hasAttribute('tabindex')) card.setAttribute('tabindex','0');
+card.addEventListener('keydown', (e) => {
+if (e.key === 'Enter' || e.code === 'Enter' || e.key === ' ' || e.code === 'Space') {
+e.preventDefault(); e.stopPropagation();
+blockClickNext(220);
+primeOnGesture();
+playOnce();
+}
+});
+}
 
-      // Móvil: arrastras un poco y sueltas => play en touchend
-      let sx = 0, sy = 0, moved = false, willPlayOnRelease = false;
-      card.addEventListener('touchstart', (e) => {
-        const t = e.touches[0];
-        sx = t.clientX; sy = t.clientY;
-        moved = false; willPlayOnRelease = false;
-      }, { passive: true });
+// Móvil: arrastras un poco y sueltas => play en touchend
+let sx = 0, sy = 0, moved = false, willPlayOnRelease = false;
+card.addEventListener('touchstart', (e) => {
+const t = e.touches[0];
+sx = t.clientX; sy = t.clientY;
+moved = false; willPlayOnRelease = false;
+}, { passive: true });
 
-      card.addEventListener('touchmove', (e) => {
-        const t = e.touches[0];
-        const dx = Math.abs(t.clientX - sx);
-        const dy = Math.abs(t.clientY - sy);
-        if (!moved && (dx > 8 || dy > 8)) {
-          moved = true; willPlayOnRelease = true;
-        }
-      }, { passive: true });
+card.addEventListener('touchmove', (e) => {
+const t = e.touches[0];
+const dx = Math.abs(t.clientX - sx);
+const dy = Math.abs(t.clientY - sy);
+if (!moved && (dx > 8 || dy > 8)) {
+moved = true; willPlayOnRelease = true;
+}
+}, { passive: true });
 
-      card.addEventListener('touchend', () => {
-        if (willPlayOnRelease) {
-          primeOnGesture();
-          blockClickNext(220);
-          setTimeout(() => playOnce(), 0);
-          willPlayOnRelease = false;
-        }
-      }, { passive: true });
+card.addEventListener('touchend', () => {
+if (willPlayOnRelease) {
+primeOnGesture();
+blockClickNext(220);
+setTimeout(() => playOnce(), 0);
+willPlayOnRelease = false;
+}
+}, { passive: true });
 
-      card.addEventListener('touchcancel', () => { moved = false; willPlayOnRelease = false; suppressUntil = 0; }, { passive: true });
+card.addEventListener('touchcancel', () => { moved = false; willPlayOnRelease = false; suppressUntil = 0; }, { passive: true });
 
-      card.addEventListener('click', (e) => {
-        if (performance.now() < suppressUntil) {
-          e.preventDefault(); e.stopPropagation();
-          suppressUntil = 0;
-        }
-        // Si NO está suprimido, el click navega a la sección (tu handler existente)
-      }, true);
+card.addEventListener('click', (e) => {
+if (performance.now() < suppressUntil) {
+e.preventDefault(); e.stopPropagation();
+suppressUntil = 0;
+}
+// Si NO está suprimido, el click navega a la sección (tu handler existente)
+}, true);
 
-      // Si cambias de pestaña/app, libera estado
-      document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-          video.pause();
-          video._oneShotPlaying = false;
-          card.classList.remove('is-over');
-          try { video.currentTime = 0; } catch(_) {}
-        }
-      });
-    }
+// Si cambias de pestaña/app, libera estado
+document.addEventListener('visibilitychange', () => {
+if (document.hidden) {
+video.pause();
+video._oneShotPlaying = false;
+card.classList.remove('is-over');
+try { video.currentTime = 0; } catch(_) {}
+}
+});
+}
 
-    return true;
-  }
+return true;
+}
 
-  function mountOnAllCards() {
-    const cards = document.querySelectorAll('.section-cards .card');
-    let mounted = 0;
-    cards.forEach((card, idx) => { if (mountOnCard(card, idx)) mounted++; });
-    return mounted;
-  }
+function mountOnAllCards() {
+const cards = document.querySelectorAll('.section-cards .card');
+let mounted = 0;
+cards.forEach((card, idx) => { if (mountOnCard(card, idx)) mounted++; });
+return mounted;
+}
 
-  window.addEventListener('load', () => {
-    mountOnAllCards();
-    const t0 = Date.now();
-    const timer = setInterval(() => {
-      const done = mountOnAllCards();
-      if (done || (Date.now() - t0) > 4000) clearInterval(timer);
-    }, 300);
-  });
+window.addEventListener('load', () => {
+mountOnAllCards();
+const t0 = Date.now();
+const timer = setInterval(() => {
+const done = mountOnAllCards();
+if (done || (Date.now() - t0) > 4000) clearInterval(timer);
+}, 300);
+});
 
-  const container = document.querySelector('.section-cards');
-  if (container && 'MutationObserver' in window) {
-    const mo = new MutationObserver(() => mountOnAllCards());
-    mo.observe(container, { childList: true, subtree: true });
-  }
+const container = document.querySelector('.section-cards');
+if (container && 'MutationObserver' in window) {
+const mo = new MutationObserver(() => mountOnAllCards());
+mo.observe(container, { childList: true, subtree: true });
+}
 
-  // PRIMADO GLOBAL: primera interacción autoriza todos los vídeos
-  (function primeAllCardVideosOnce() {
-    if (window.__cardVideosPrimedGlobally) return;
-    window.__cardVideosPrimedGlobally = true;
-    const handler = () => {
-      const vids = document.querySelectorAll('.section-cards video.card-anim');
-      vids.forEach(v => {
-        try {
-          v.muted = true; v.setAttribute('muted','');
-          v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
-          v.play().then(() => { v.pause(); try { v.currentTime = 0; } catch(_) {} }).catch(()=>{});
-        } catch(_) {}
-      });
-      ['pointerdown','touchstart','keydown','click'].forEach(ev => {
-        window.removeEventListener(ev, handler, true);
-      });
-    };
-    ['pointerdown','touchstart','keydown','click'].forEach(ev => {
-      window.addEventListener(ev, handler, { once: true, capture: true, passive: true });
-    });
-  })();
+// PRIMADO GLOBAL: primera interacción autoriza todos los vídeos
+(function primeAllCardVideosOnce() {
+if (window.__cardVideosPrimedGlobally) return;
+window.__cardVideosPrimedGlobally = true;
+const handler = () => {
+const vids = document.querySelectorAll('.section-cards video.card-anim');
+vids.forEach(v => {
+try {
+v.muted = true; v.setAttribute('muted','');
+v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline','');
+v.play().then(() => { v.pause(); try { v.currentTime = 0; } catch(_) {} }).catch(()=>{});
+} catch(_) {}
+});
+['pointerdown','touchstart','keydown','click'].forEach(ev => {
+window.removeEventListener(ev, handler, true);
+});
+};
+['pointerdown','touchstart','keydown','click'].forEach(ev => {
+window.addEventListener(ev, handler, { once: true, capture: true, passive: true });
+});
+})();
 })();
 
 
