@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v41.3 CARGADO');
+console.log('✅ script.js v41.4 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -568,6 +568,101 @@ if (typeof window.navegarFoto !== 'function') {
     im.src = nueva.url;
   }
 }
+/* === Delegación global robusta: modal + título + back-button === */
+function bindGlobalDelegates() {
+  if (window.__globalDelegatesBound) return;
+  window.__globalDelegatesBound = true;
+
+  // Delegación de clicks (captura)
+  document.addEventListener('click', (e) => {
+    const modal = document.getElementById('modal');
+    const t = e.target;
+    const btn = t.closest(
+      '.close-modal, .prev-button, .next-button, .fullscreen-toggle, .section-chip, .back-button, #logoHome, .site-title'
+    );
+    if (!btn) return;
+
+    // 1) Título (vuelve a Home por SPA)
+    if (btn.id === 'logoHome' || btn.classList.contains('site-title')) {
+      e.preventDefault();
+      if (currentView !== 'home') {
+        history.pushState({ view: 'home' }, '');
+        aplicarEstado({ view: 'home' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return;
+    }
+
+    // 2) Botón retroceder de la sección
+    if (btn.classList.contains('back-button')) {
+      e.preventDefault();
+      goBackOneStep();
+      return;
+    }
+
+    // A partir de aquí, solo controles dentro del modal
+    if (!modal || !modal.contains(btn)) return;
+
+    // 3) Cerrar modal (X)
+    if (btn.classList.contains('close-modal')) {
+      e.preventDefault(); e.stopPropagation();
+      exitFullscreenSafe();
+      if (modalSource === 'carrusel') {
+        closeModal();
+        if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+      } else {
+        const sid = currentSeccion?.id;
+        closeModal();
+        if (sid) history.replaceState({ view: 'seccion', seccionId: sid }, '');
+      }
+      return;
+    }
+
+    // 4) Navegación
+    if (btn.classList.contains('prev-button')) { e.preventDefault(); e.stopPropagation(); navegarFoto(-1); return; }
+    if (btn.classList.contains('next-button')) { e.preventDefault(); e.stopPropagation(); navegarFoto(1);  return; }
+
+    // 5) Fullscreen
+    if (btn.classList.contains('fullscreen-toggle')) {
+      e.preventDefault(); e.stopPropagation(); toggleFullscreen(); return;
+    }
+
+    // 6) Chip “Ir a / Volver a”
+    if (btn.classList.contains('section-chip')) {
+      e.preventDefault(); e.stopPropagation();
+      const sid = btn.dataset.seccionId;
+      if (!sid) { goBackOneStep(); return; }
+      const sec = datosGlobales?.secciones?.find(s => s.id === sid);
+      if (!sec) return;
+
+      if (modalSource === 'carrusel') {
+        history.replaceState({ view: 'home' }, '');
+        closeModal();
+        mostrarSeccion(sec, { push: true });
+      } else {
+        closeModal();
+      }
+      return;
+    }
+  }, { capture: true });
+
+  // ESC global para cerrar modal
+  window.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Escape' || !isModalOpen) return;
+    ev.stopPropagation();
+    exitFullscreenSafe();
+    if (modalSource === 'carrusel') {
+      closeModal();
+      if (history.state?.view !== 'home') history.replaceState({ view: 'home' }, '');
+    } else {
+      const sid = currentSeccion?.id;
+      closeModal();
+      if (sid) history.replaceState({ view: 'seccion', seccionId: sid }, '');
+    }
+  });
+}
+
 
 
 
@@ -635,7 +730,8 @@ else window.addEventListener('resize', relocate);
 
 // ===== Inicio =====
 function iniciar() {
-initHeaderNavUI();
+ bindGlobalDelegates();
+ initHeaderNavUI();
 const logo = document.getElementById('logoHome');
 if (logo) {
 logo.addEventListener('click', (e) => {
