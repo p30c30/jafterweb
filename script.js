@@ -41,6 +41,57 @@ if (typeof window.getModalList !== 'function') {
   }
 }
 
+/* === FIX: resetZoom global (por si quedó fuera al pegar en dos partes) === */
+if (typeof window.resetZoom !== 'function') {
+  function resetZoom() {
+    currentScale = 1;
+    translateX = 0; translateY = 0;
+    isDragging = false; lastX = 0; lastY = 0; isPinching = false;
+
+    if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+    if (inertiaId)        { cancelAnimationFrame(inertiaId);        inertiaId = null; }
+
+    if (currentImage) {
+      currentImage.style.transition = '';
+      currentImage.style.transform  = 'scale(1) translate3d(0px, 0px, 0)';
+      currentImage.classList.remove('zoomed', 'grabbing');
+      currentImage.style.cursor = 'default';
+    }
+    const modalEl = document.getElementById('modal');
+    if (modalEl) modalEl.classList.remove('is-zoomed');
+  }
+}
+
+// Animaciones Pausa y resetea todas las animaciones de portada
+function pauseAndResetAllCardVideos() {
+  const vids = document.querySelectorAll('.section-cards video.card-anim');
+  vids.forEach(v => {
+    try { v.pause(); } catch(_) {}
+    try { v.currentTime = 0; } catch(_) {}
+    v._oneShotPlaying = false;
+    const c = v.closest('.card');
+    if (c) c.classList.remove('is-over');
+  });
+  window.__cardPlayingVideo = null;
+}
+
+/* === Animaciones por sección (id o título slug) === */
+const CARD_ANIM_MAP = {
+  artisticas: '/assets/anim/artisticas.mp4',
+  calles: '/assets/anim/calles.mp4',
+  naturaleza: '/assets/anim/naturaleza.mp4',
+  paisaje: '/assets/anim/paisaje.mp4',
+  spotting: '/assets/anim/spotting.mp4',
+  virgen: '/assets/anim/virgen.mp4'
+};
+
+function slugify(s = '') {
+  return String(s)
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
 // Animaciones Pausa y resetea todas las animaciones de portada
 function pauseAndResetAllCardVideos() {
   const vids = document.querySelectorAll('.section-cards video.card-anim');
