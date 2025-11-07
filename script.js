@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v41.1 CARGADO');
+console.log('✅ script.js v41.2 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -315,6 +315,188 @@ function exitFullscreenSafe() {
     if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen();
   } catch (e) {}
 }
+
+/* === FIX: gestos del modal (si faltan) ==============================
+   - attachSwipeToModal: swipe horizontal en móvil para cambiar foto
+   - attachBottomSheet  : panel inferior deslizable en móvil
+===================================================================== */
+if (typeof window.attachSwipeToModal !== 'function') {
+  function attachSwipeToModal(modal) {
+    const container = modal.querySelector('.modal-img-container');
+    if (!container) return;
+
+    let sx = 0, sy = 0, st = 0;
+    let blockVertical = false, swipeLock = false;
+
+    function onStart(e) {
+      if (currentScale > 1) return;
+      const t = e.touches[0];
+      sx = t.clientX; sy = t.clientY; st = Date.now();
+      blockVertical = false;
+      modal.classList.add('is-gesturing');
+    }
+    function onMove(e) {
+      if (currentScale > 1) return;
+      const t = e.touches[0];
+      const dx = t.clientX - sx;
+      const dy = t.clientY - sy;
+      if (!blockVertical && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) {
+        blockVertical = true;
+        modal.classList.remove('is-gesturing');
+      }
+    }
+    function onEnd(e) {
+      modal.classList.remove('is-gesturing');
+      if (currentScale > 1 || blockVertical || swipeLock) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - sx;
+      const dt = Date.now() - st;
+      const threshold = 60;
+      const fast = Math.abs(dx) / dt > 0.5;
+      if (Math.abs(dx) > threshold || fast) {
+        swipeLock = true;
+        ignoreNextClick = true;
+        dx < 0 ? navegarFoto(1) : navegarFoto(-1);
+        setTimeout(() => { swipeLock = false; }, 300);
+        setTimeout(() => { ignoreNextClick = false; }, 300);
+      }
+    }
+
+    container.addEventListener('touchstart', onStart, { passive: true });
+    container.addEventListener('touchmove',  onMove,  { passive: true });
+    container.addEventListener('touchend',   onEnd,   { passive: true });
+  }
+}
+
+if (typeof window.attachBottomSheet !== 'function') {
+  function attachBottomSheet(modal) {
+    const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+    if (!isMobile) return;
+
+    const imgContainer = modal.querySelector('.modal-img-container');
+    const info         = modal.querySelector('.modal-info');
+    const handle       = modal.querySelector('.info-handle');
+    if (!imgContainer || !info || !handle) return;
+
+    // Bloquea scroll del body mientras el modal está activo (ya lo tienes definido)
+    if (typeof lockBodyScroll === 'function') lockBodyScroll();
+
+    // Evita scroll en el overlay
+    modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
+    modal.addEventListener('wheel',     (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
+
+    // Evita rebotes en el panel de info
+    function stopScrollBounce(el) {
+      el.addEventListener('wheel', (e) => {
+        const atTop = el.scrollTop <= 0;
+        const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight;
+        if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) e.preventDefault();
+      }, { passive: false });
+
+      let tsY = 0;
+      el.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        tsY = e.touches[0].clientY;
+      }, { passive: true });
+      el.addEventListener('touchmove', (e) => {
+        if (e.touches.length !== 1) return;
+        const dy = e.touches[0].clientY - tsY;
+        const atTop = el.scrollTop <= 0;
+        const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight;
+        if ((dy > 0 && atTop) || (dy < 0 && atBottom)) e.preventDefault();
+      }, { passive: false });
+    }
+    stopScrollBounce(info);
+
+    // Alturas del panel inferior
+    const getCollapsed = () => (window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh');
+    const getExpanded  = () => '60dvh';
+    const setInfoHeight = (v) => modal.style.setProperty('--info-height', v);
+
+    // Inicial
+    setInfoHeight(getCollapsed());
+
+    // Gesture de arrastre desde la imagen para expandir/colapsar
+    let startY = 0, deltaY = 0;
+    imgContainer.addEventListener('touchstart', (e) => {
+      if (currentScale > 1) return;
+      const t = e.touches[0];
+      startY = t.clientY; deltaY = 0;
+      modal.classList.add('is-gesturing');
+    }, { passive: true });
+
+    imgContainer.addEventListener('touchmove', (e) => {
+      if (currentScale > 1) return;
+      const t = e.touches[0];
+      deltaY = t.clientY - startY;
+    }, { passive: true });
+
+    imgContainer.addEventListener('touchend', () => {
+      modal.classList.remove('is-gesturing');
+      if (currentScale > 1) return;
+      if (Math.abs(deltaY) > 40) {
+        ignoreNextClick = true;
+        setInfoHeight(deltaY < 0 ? getExpanded() : getCollapsed());
+        setTimeout(() => { ignoreNextClick = false; }, 250);
+      }
+    }, { passive: true });
+
+    // Drag del "asa" del panel
+    let draggable = false, dragStartY = 0, startHeightPx = 0;
+
+    function vhToPx(v) {
+      const m = String(v).match(/([\d.]+)d?vh/);
+      const n = m ? parseFloat(m[1]) : 0;
+      return (n / 100) * window.innerHeight;
+    }
+    function pxToVh(px) { return (px / window.innerHeight) * 100; }
+    const vhToPxCollapsed = () => vhToPx(getCollapsed());
+    const vhToPxExpanded  = () => vhToPx(getExpanded());
+    const pxToVhStr       = (px) => (pxToVh(px).toFixed(2) + 'dvh');
+
+    handle.addEventListener('touchstart', (e) => {
+      const t = e.touches[0];
+      draggable = true; dragStartY = t.clientY;
+      startHeightPx = vhToPxCollapsed();
+      modal.classList.add('is-gesturing');
+      e.preventDefault();
+    }, { passive: false });
+
+    handle.addEventListener('touchmove', (e) => {
+      if (!draggable) return;
+      const t = e.touches[0];
+      const dy = t.clientY - dragStartY;
+      let newHeightPx = startHeightPx - dy;
+      const minPx = vhToPxCollapsed(), maxPx = vhToPxExpanded();
+      newHeightPx = Math.max(minPx, Math.min(maxPx, newHeightPx));
+      setInfoHeight(pxToVhStr(newHeightPx));
+      e.preventDefault();
+    }, { passive: false });
+
+    handle.addEventListener('touchend', () => {
+      if (!draggable) return;
+      draggable = false;
+      modal.classList.remove('is-gesturing');
+
+      const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
+      const midPx = (vhToPxCollapsed() + vhToPxExpanded()) / 2;
+      setInfoHeight(curPx >= midPx ? getExpanded() : getCollapsed());
+      ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
+    });
+
+    // Ajusta la altura si cambia tamaño/orientación
+    window.addEventListener('resize', () => {
+      if (!isModalOpen) return;
+      const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
+      const collapsedPx = vhToPxCollapsed();
+      const expandedPx  = vhToPxExpanded();
+      const target = Math.abs(curPx - expandedPx) < Math.abs(curPx - collapsedPx) ? getExpanded() : getCollapsed();
+      setInfoHeight(target);
+    });
+  }
+}
+
+
 
 
 // Botón scroll-to-top
