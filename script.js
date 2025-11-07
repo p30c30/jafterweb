@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v41.2 CARGADO');
+console.log('✅ script.js v41.3 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -61,7 +61,7 @@ if (typeof window.resetZoom !== 'function') {
   }
 }
 
-// Pausa y resetea todas las animaciones de portada (UNA sola vez)
+/* Pausa y resetea todas las animaciones de portada (UNA sola vez) */
 function pauseAndResetAllCardVideos() {
   const vids = document.querySelectorAll('.section-cards video.card-anim');
   vids.forEach(v => {
@@ -100,7 +100,7 @@ if (typeof window.slugify !== 'function') {
 
 /* === FIX: helpers de drag/zoom y pinch (si faltan) === */
 (function () {
-  // Drag con ratón (desktop)
+  // Drag desktop
   if (typeof window.startDrag !== 'function') {
     window.startDrag = function (e) {
       if (currentScale <= 1) return;
@@ -110,12 +110,10 @@ if (typeof window.slugify !== 'function') {
       lastX = e.clientX; lastY = e.clientY;
       currentImage?.classList.add('grabbing');
       if (currentImage) currentImage.style.cursor = 'grabbing';
-
       document.addEventListener('mousemove', window.drag);
       document.addEventListener('mouseup', window.stopDrag);
       document.addEventListener('touchmove', window.dragTouch, { passive: false });
       document.addEventListener('touchend', window.stopDrag);
-
       e.preventDefault(); e.stopPropagation();
     };
   }
@@ -378,14 +376,11 @@ if (typeof window.attachBottomSheet !== 'function') {
     const handle       = modal.querySelector('.info-handle');
     if (!imgContainer || !info || !handle) return;
 
-    // Bloquea scroll del body mientras el modal está activo (ya lo tienes definido)
     if (typeof lockBodyScroll === 'function') lockBodyScroll();
 
-    // Evita scroll en el overlay
     modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
     modal.addEventListener('wheel',     (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
 
-    // Evita rebotes en el panel de info
     function stopScrollBounce(el) {
       el.addEventListener('wheel', (e) => {
         const atTop = el.scrollTop <= 0;
@@ -408,15 +403,12 @@ if (typeof window.attachBottomSheet !== 'function') {
     }
     stopScrollBounce(info);
 
-    // Alturas del panel inferior
     const getCollapsed = () => (window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh');
     const getExpanded  = () => '60dvh';
     const setInfoHeight = (v) => modal.style.setProperty('--info-height', v);
 
-    // Inicial
     setInfoHeight(getCollapsed());
 
-    // Gesture de arrastre desde la imagen para expandir/colapsar
     let startY = 0, deltaY = 0;
     imgContainer.addEventListener('touchstart', (e) => {
       if (currentScale > 1) return;
@@ -441,7 +433,6 @@ if (typeof window.attachBottomSheet !== 'function') {
       }
     }, { passive: true });
 
-    // Drag del "asa" del panel
     let draggable = false, dragStartY = 0, startHeightPx = 0;
 
     function vhToPx(v) {
@@ -484,10 +475,9 @@ if (typeof window.attachBottomSheet !== 'function') {
       ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
     });
 
-    // Ajusta la altura si cambia tamaño/orientación
     window.addEventListener('resize', () => {
       if (!isModalOpen) return;
-      const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
+      const curPx       = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
       const collapsedPx = vhToPxCollapsed();
       const expandedPx  = vhToPxExpanded();
       const target = Math.abs(curPx - expandedPx) < Math.abs(curPx - collapsedPx) ? getExpanded() : getCollapsed();
@@ -496,6 +486,88 @@ if (typeof window.attachBottomSheet !== 'function') {
   }
 }
 
+/* === FIX: helpers que faltan (precacheAround / navegarFoto) === */
+if (typeof window.precacheAround !== 'function') {
+  function precacheAround(index) {
+    const list = (typeof getModalList === 'function')
+      ? getModalList()
+      : ((modalSource === 'carrusel') ? carruselFotos : todasLasFotos);
+    if (!list || !list.length) return;
+    const n = list.length;
+    [ (index + 1) % n, (index - 1 + n) % n ].forEach(i => {
+      const im = new Image();
+      im.src = list[i].url;
+    });
+  }
+}
+
+if (typeof window.navegarFoto !== 'function') {
+  function navegarFoto(direccion) {
+    const list = (typeof getModalList === 'function')
+      ? getModalList()
+      : ((modalSource === 'carrusel') ? carruselFotos : todasLasFotos);
+    if (!list || !list.length) return;
+
+    let idx = currentFotoIndex + direccion;
+    if (idx < 0) idx = list.length - 1;
+    if (idx >= list.length) idx = 0;
+    currentFotoIndex = idx;
+
+    const nueva = list[currentFotoIndex];
+    const modal = document.getElementById('modal');
+    if (!modal) return;
+
+    const modalImg = modal.querySelector('#modal-img');
+    const contador = modal.querySelector('.foto-counter');
+    const titulo   = modal.querySelector('.foto-title');
+    const chip     = modal.querySelector('.section-chip');
+
+    if (typeof resetZoom === 'function') resetZoom();
+
+    const im = new Image();
+    im.onload = function () {
+      if (modalImg) { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; }
+      if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`;
+      if (titulo)   titulo.textContent   = nueva.texto;
+
+      if (chip) {
+        let seccionId = '', sectionName = '';
+        if (modalSource === 'carrusel') {
+          seccionId   = nueva.seccionId || '';
+          sectionName = nueva.seccionTitulo || '';
+          chip.disabled = !seccionId;
+          chip.dataset.seccionId = seccionId;
+        } else if (currentSeccion) {
+          seccionId   = currentSeccion.id;
+          sectionName = currentSeccion.titulo || '';
+          chip.disabled = false;
+          chip.dataset.seccionId = seccionId;
+        }
+        const prefix = (modalSource === 'carrusel') ? 'Ir a' : 'Volver a';
+        const chipLabelEl = chip.querySelector('.chip-label');
+        const chipNameEl  = chip.querySelector('.chip-name');
+        if (chipLabelEl) chipLabelEl.textContent = prefix;
+        if (chipNameEl)  chipNameEl.textContent  = sectionName;
+        chip.setAttribute('aria-label', `${prefix} ${sectionName}`.trim());
+      }
+
+      if (!isHandlingPopstate && history.state?.view === 'modal') {
+        const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
+        if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
+        history.replaceState(state, '');
+      }
+
+      if (typeof precacheAround === 'function') precacheAround(currentFotoIndex);
+      if (typeof window.triggerUiAfterPhotoChange === 'function') window.triggerUiAfterPhotoChange();
+    };
+
+    im.onerror = function () {
+      if (modalImg) { modalImg.src = nueva.url; modalImg.alt = nueva.texto; currentImage = modalImg; }
+    };
+
+    im.src = nueva.url;
+  }
+}
 
 
 
