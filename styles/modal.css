@@ -433,17 +433,46 @@ body.modal-open{ overflow:hidden; }
     pointer-events: auto;
   }
 
-  /* Botón de fullscreen: fuera a la derecha (fallback);
-     tu JS lo reposiciona con left/top para que siga pegado al borde visible */
+  /* ===== MODAL: fullscreen fuera (escritorio) + capas correctas ===== */
+@media (min-width: 1025px) {
+  /* No recortar y contexto por encima de la img */
+  #modal .modal-content {
+    position: relative;
+    z-index: 600;
+    overflow: visible;
+  }
+  #modal .modal-img-container {
+    position: relative;
+    overflow: visible;
+  }
+  /* La imagen queda por debajo de hotspots y controles */
+  #modal .modal-img {
+    position: relative;
+    z-index: 500;
+  }
+
+  /* Hotspots por ENCIMA de la imagen (muestran flechas y capturan click) */
+  #modal .modal-hotspot {
+    z-index: 800;
+  }
+
+  /* Flechas y cerrar por encima de hotspots */
+  #modal .nav-button,
+  #modal .close-modal {
+    z-index: 900;
+    pointer-events: auto;
+  }
+
+  /* Botón de fullscreen: fuera a la derecha (fallback inicial);
+     el JS lo reposiciona con left/top para seguir el borde visible */
   #modal .fullscreen-toggle {
     position: absolute;
-    left: 100%;           /* anclado al borde derecho del contenedor */
-    bottom: 12px;         /* separación desde abajo */
-    margin-left: 12px;    /* distancia hacia fuera */
+    left: 100%;
+    bottom: 12px;
+    margin-left: 12px;
     z-index: 999;
     pointer-events: auto;
 
-    /* Estética coherente con tu UI (ajustable) */
     width: 40px; height: 40px;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: 50%;
