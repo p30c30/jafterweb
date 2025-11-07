@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v41 CARGADO');
+console.log('✅ script.js v41.1 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -22,12 +22,11 @@ let __pushedModal = false;
 /* === FIX: helpers que faltan si pegaste el JS en dos partes === */
 if (typeof window.initMobileRotationHandler !== 'function') {
   function initMobileRotationHandler() {
-    // Mantén el handler liviano; si quieres hacer algo al rotar con el modal abierto, lo metes aquí
     let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
     window.addEventListener('resize', () => {
       const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
       if (last !== now && isModalOpen) {
-        // opcional: podrías recentrar UI o ajustar alto de info panel
+        // (opcional) ajustar UI del modal al rotar
       }
       last = now;
     });
@@ -62,7 +61,7 @@ if (typeof window.resetZoom !== 'function') {
   }
 }
 
-// Animaciones Pausa y resetea todas las animaciones de portada
+// Pausa y resetea todas las animaciones de portada (UNA sola vez)
 function pauseAndResetAllCardVideos() {
   const vids = document.querySelectorAll('.section-cards video.card-anim');
   vids.forEach(v => {
@@ -76,141 +75,189 @@ function pauseAndResetAllCardVideos() {
 }
 
 /* === Animaciones por sección (id o título slug) === */
-const CARD_ANIM_MAP = {
-  artisticas: '/assets/anim/artisticas.mp4',
-  calles: '/assets/anim/calles.mp4',
-  naturaleza: '/assets/anim/naturaleza.mp4',
-  paisaje: '/assets/anim/paisaje.mp4',
-  spotting: '/assets/anim/spotting.mp4',
-  virgen: '/assets/anim/virgen.mp4'
-};
-
-function slugify(s = '') {
-  return String(s)
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase().replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
+/* Guard para no redeclarar si este bloque se pega dos veces */
+if (typeof CARD_ANIM_MAP === 'undefined') {
+  window.CARD_ANIM_MAP = window.CARD_ANIM_MAP || {
+    artisticas: '/assets/anim/artisticas.mp4',
+    calles: '/assets/anim/calles.mp4',
+    naturaleza: '/assets/anim/naturaleza.mp4',
+    paisaje: '/assets/anim/paisaje.mp4',
+    spotting: '/assets/anim/spotting.mp4',
+    virgen: '/assets/anim/virgen.mp4'
+  };
+  var CARD_ANIM_MAP = window.CARD_ANIM_MAP;
 }
 
-// Animaciones Pausa y resetea todas las animaciones de portada
-function pauseAndResetAllCardVideos() {
-  const vids = document.querySelectorAll('.section-cards video.card-anim');
-  vids.forEach(v => {
-    try { v.pause(); } catch(_) {}
-    try { v.currentTime = 0; } catch(_) {}
-    v._oneShotPlaying = false;
-    const c = v.closest('.card');
-    if (c) c.classList.remove('is-over');
-  });
-  window.__cardPlayingVideo = null;
-}
-
-function slugify(s = '') {
-  return String(s)
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase().replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-}
-
-/* === FIX: helpers de drag/zoom para el modal (si faltan) === */
-if (typeof window.startDrag !== 'function') {
-  function startDrag(e) {
-    if (currentScale <= 1) return;
-    isDragging = true;
-    if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; }
-    startX = e.clientX - translateX; startY = e.clientY - translateY;
-    lastX = e.clientX; lastY = e.clientY;
-    currentImage?.classList.add('grabbing');
-    if (currentImage) currentImage.style.cursor = 'grabbing';
-
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', stopDrag);
-    // soporte de pan con touch cuando ya estás en zoom
-    document.addEventListener('touchmove', dragTouch, { passive: false });
-    document.addEventListener('touchend', stopDrag);
-
-    e.preventDefault(); e.stopPropagation();
+/* slugify (guard para evitar duplicados) */
+if (typeof window.slugify !== 'function') {
+  function slugify(s = '') {
+    return String(s)
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase().replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
   }
+}
 
-  function drag(e) {
-    if (!isDragging) return;
-    if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    animationFrameId = requestAnimationFrame(() => {
-      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+/* === FIX: helpers de drag/zoom y pinch (si faltan) === */
+(function () {
+  // Drag con ratón (desktop)
+  if (typeof window.startDrag !== 'function') {
+    window.startDrag = function (e) {
+      if (currentScale <= 1) return;
+      isDragging = true;
+      if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; }
+      startX = e.clientX - translateX; startY = e.clientY - translateY;
       lastX = e.clientX; lastY = e.clientY;
-      velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx));
-      velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy));
-      translateX += velX; translateY += velY;
-      aplicarZoom(true);
-    });
-  }
+      currentImage?.classList.add('grabbing');
+      if (currentImage) currentImage.style.cursor = 'grabbing';
 
-  function dragTouch(e) {
-    if (!isDragging) return;
-    const t = e.touches?.[0]; if (!t) return;
-    if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    animationFrameId = requestAnimationFrame(() => {
-      const dx = t.clientX - lastX, dy = t.clientY - lastY;
-      lastX = t.clientX; lastY = t.clientY;
-      velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx));
-      velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy));
-      translateX += velX; translateY += velY;
-      aplicarZoom(true);
-    });
-    e.preventDefault();
-  }
+      document.addEventListener('mousemove', window.drag);
+      document.addEventListener('mouseup', window.stopDrag);
+      document.addEventListener('touchmove', window.dragTouch, { passive: false });
+      document.addEventListener('touchend', window.stopDrag);
 
-  function stopDrag() {
-    if (!isDragging) return;
-    isDragging = false;
-    if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-    if (currentImage && currentScale > 1) {
-      currentImage.style.cursor = 'move';
-      currentImage.classList.remove('grabbing');
-      startInertia();
-    }
-    document.removeEventListener('mousemove', drag);
-    document.removeEventListener('touchmove', dragTouch);
-    document.removeEventListener('mouseup', stopDrag);
-    document.removeEventListener('touchend', stopDrag);
-  }
-
-  function startInertia() {
-    if (inertiaId) cancelAnimationFrame(inertiaId);
-    function step() {
-      translateX += velX; translateY += velY;
-      const { maxX, maxY } = getPanBounds();
-      if (Math.abs(translateX) > maxX) velX -= (translateX - Math.sign(translateX)*maxX) * edgeResistance;
-      if (Math.abs(translateY) > maxY) velY -= (translateY - Math.sign(translateY)*maxY) * edgeResistance;
-      velX *= dragFriction; velY *= dragFriction;
-      if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) {
-        clampPan(); aplicarZoom(true); inertiaId = null; return;
-      }
-      aplicarZoom(true);
-      inertiaId = requestAnimationFrame(step);
-    }
-    inertiaId = requestAnimationFrame(step);
-  }
-
-  function getPanBounds() {
-    if (!currentImage) return { maxX: 0, maxY: 0 };
-    const container = currentImage.closest('.modal-img-container');
-    if (!container) return { maxX: 0, maxY: 0 };
-    const cw = container.clientWidth, ch = container.clientHeight;
-    const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
-    const scaledW = iw * currentScale, scaledH = ih * currentScale;
-    return {
-      maxX: Math.max(0, (scaledW - cw) / 2),
-      maxY: Math.max(0, (scaledH - ch) / 2)
+      e.preventDefault(); e.stopPropagation();
     };
   }
 
-  function clampPan() {
-    const { maxX, maxY } = getPanBounds();
-    if (Math.abs(translateX) > maxX) translateX = Math.sign(translateX) * maxX;
-    if (Math.abs(translateY) > maxY) translateY = Math.sign(translateY) * maxY;
+  if (typeof window.drag !== 'function') {
+    window.drag = function (e) {
+      if (!isDragging) return;
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(() => {
+        const dx = e.clientX - lastX, dy = e.clientY - lastY;
+        lastX = e.clientX; lastY = e.clientY;
+        velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx));
+        velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy));
+        translateX += velX; translateY += velY;
+        aplicarZoom(true);
+      });
+    };
   }
-}
+
+  if (typeof window.dragTouch !== 'function') {
+    window.dragTouch = function (e) {
+      if (!isDragging) return;
+      const t = e.touches?.[0]; if (!t) return;
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      animationFrameId = requestAnimationFrame(() => {
+        const dx = t.clientX - lastX, dy = t.clientY - lastY;
+        lastX = t.clientX; lastY = t.clientY;
+        velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx));
+        velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy));
+        translateX += velX; translateY += velY;
+        aplicarZoom(true);
+      });
+      e.preventDefault();
+    };
+  }
+
+  if (typeof window.stopDrag !== 'function') {
+    window.stopDrag = function () {
+      if (!isDragging) return;
+      isDragging = false;
+      if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
+      if (currentImage && currentScale > 1) {
+        currentImage.style.cursor = 'move';
+        currentImage.classList.remove('grabbing');
+        window.startInertia();
+      }
+      document.removeEventListener('mousemove', window.drag);
+      document.removeEventListener('touchmove', window.dragTouch);
+      document.removeEventListener('mouseup', window.stopDrag);
+      document.removeEventListener('touchend', window.stopDrag);
+    };
+  }
+
+  if (typeof window.startInertia !== 'function') {
+    window.startInertia = function () {
+      if (inertiaId) cancelAnimationFrame(inertiaId);
+      function step() {
+        translateX += velX; translateY += velY;
+        const { maxX, maxY } = window.getPanBounds();
+        if (Math.abs(translateX) > maxX) velX -= (translateX - Math.sign(translateX) * maxX) * edgeResistance;
+        if (Math.abs(translateY) > maxY) velY -= (translateY - Math.sign(translateY) * maxY) * edgeResistance;
+        velX *= dragFriction; velY *= dragFriction;
+        if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) {
+          window.clampPan(); aplicarZoom(true); inertiaId = null; return;
+        }
+        aplicarZoom(true);
+        inertiaId = requestAnimationFrame(step);
+      }
+      inertiaId = requestAnimationFrame(step);
+    };
+  }
+
+  if (typeof window.getPanBounds !== 'function') {
+    window.getPanBounds = function () {
+      if (!currentImage) return { maxX: 0, maxY: 0 };
+      const container = currentImage.closest('.modal-img-container');
+      if (!container) return { maxX: 0, maxY: 0 };
+      const cw = container.clientWidth, ch = container.clientHeight;
+      const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
+      const scaledW = iw * currentScale, scaledH = ih * currentScale;
+      return {
+        maxX: Math.max(0, (scaledW - cw) / 2),
+        maxY: Math.max(0, (scaledH - ch) / 2)
+      };
+    };
+  }
+
+  if (typeof window.clampPan !== 'function') {
+    window.clampPan = function () {
+      const { maxX, maxY } = window.getPanBounds();
+      if (Math.abs(translateX) > maxX) translateX = Math.sign(translateX) * maxX;
+      if (Math.abs(translateY) > maxY) translateY = Math.sign(translateY) * maxY;
+    };
+  }
+
+  // Pinch zoom (móvil)
+  if (typeof window.getTouchesDistance !== 'function') {
+    window.getTouchesDistance = function (t1, t2) {
+      const dx = t2.clientX - t1.clientX, dy = t2.clientY - t1.clientY;
+      return Math.hypot(dx, dy);
+    };
+  }
+
+  if (typeof window.onTouchStartImg !== 'function') {
+    window.onTouchStartImg = function (e) {
+      if (e.touches.length === 2) {
+        isPinching = true;
+        pinchStartDistance = window.getTouchesDistance(e.touches[0], e.touches[1]);
+        pinchStartScale = currentScale;
+        if (currentImage) currentImage.style.transition = 'none';
+        document.addEventListener('touchmove', window.onTouchMoveImg, { passive: false });
+        document.addEventListener('touchend', window.onTouchEndImg);
+        e.preventDefault(); e.stopPropagation();
+        return;
+      }
+    };
+  }
+
+  if (typeof window.onTouchMoveImg !== 'function') {
+    window.onTouchMoveImg = function (e) {
+      if (isPinching && e.touches.length === 2) {
+        e.preventDefault();
+        const newDistance = window.getTouchesDistance(e.touches[0], e.touches[1]);
+        let newScale = pinchStartScale * (newDistance / pinchStartDistance);
+        newScale = Math.max(1, Math.min(5, newScale));
+        currentScale = newScale; aplicarZoom(true);
+      }
+    };
+  }
+
+  if (typeof window.onTouchEndImg !== 'function') {
+    window.onTouchEndImg = function (e) {
+      if (isPinching && e.touches.length < 2) {
+        isPinching = false;
+        if (currentImage) currentImage.style.transition = '';
+        ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
+        document.removeEventListener('touchmove', window.onTouchMoveImg);
+        document.removeEventListener('touchend', window.onTouchEndImg);
+      }
+    };
+  }
+})();
 
 /* Si por cualquier motivo aplicarZoom no está en este archivo, define un fallback mínimo */
 if (typeof window.aplicarZoom !== 'function') {
@@ -222,159 +269,52 @@ if (typeof window.aplicarZoom !== 'function') {
 }
 
 function refreshScrollTop() {
-if (!scrollTopBtn) return;
-const y = window.scrollY || document.documentElement.scrollTop || 0;
-scrollTopBtn.classList.toggle('visible', y > 300);
+  if (!scrollTopBtn) return;
+  const y = window.scrollY || document.documentElement.scrollTop || 0;
+  scrollTopBtn.classList.toggle('visible', y > 300);
 }
 if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+
 function scrollToTopHard() {
-requestAnimationFrame(() => {
-requestAnimationFrame(() => {
-window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-document.documentElement.scrollTop = 0;
-document.body.scrollTop = 0;
-});
-});
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+  });
 }
+
 function forceSectionTop(containerEl) {
-const toTop = () => {
-window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-document.documentElement.scrollTop = 0;
-document.body.scrollTop = 0;
-};
-toTop();
-requestAnimationFrame(() => toTop());
-setTimeout(toTop, 50);
-setTimeout(toTop, 200);
-setTimeout(toTop, 500);
-if (containerEl) {
-const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12);
-imgs.forEach(img => {
-if (!img.complete) {
-const bump = () => toTop();
-img.addEventListener('load', bump, { once: true });
-img.addEventListener('error', bump, { once: true });
-}
-});
-}
-}
-function exitFullscreenSafe() {
-const d = document;
-try {
-if (d.fullscreenElement && d.exitFullscreen) return d.exitFullscreen();
-if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen();
-} catch (e) {}
-}
-
-/* === FIX: helpers de drag/zoom para el modal (si faltan) === */
-if (typeof window.startDrag !== 'function') {
-  function startDrag(e) {
-    if (currentScale <= 1) return;
-    isDragging = true;
-    if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; }
-    startX = e.clientX - translateX; startY = e.clientY - translateY;
-    lastX = e.clientX; lastY = e.clientY;
-    currentImage?.classList.add('grabbing');
-    if (currentImage) currentImage.style.cursor = 'grabbing';
-
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', stopDrag);
-    // soporte de pan con touch cuando ya estás en zoom
-    document.addEventListener('touchmove', dragTouch, { passive: false });
-    document.addEventListener('touchend', stopDrag);
-
-    e.preventDefault(); e.stopPropagation();
-  }
-
-  function drag(e) {
-    if (!isDragging) return;
-    if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    animationFrameId = requestAnimationFrame(() => {
-      const dx = e.clientX - lastX, dy = e.clientY - lastY;
-      lastX = e.clientX; lastY = e.clientY;
-      velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx));
-      velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy));
-      translateX += velX; translateY += velY;
-      aplicarZoom(true);
-    });
-  }
-
-  function dragTouch(e) {
-    if (!isDragging) return;
-    const t = e.touches?.[0]; if (!t) return;
-    if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    animationFrameId = requestAnimationFrame(() => {
-      const dx = t.clientX - lastX, dy = t.clientY - lastY;
-      lastX = t.clientX; lastY = t.clientY;
-      velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx));
-      velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy));
-      translateX += velX; translateY += velY;
-      aplicarZoom(true);
-    });
-    e.preventDefault();
-  }
-
-  function stopDrag() {
-    if (!isDragging) return;
-    isDragging = false;
-    if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-    if (currentImage && currentScale > 1) {
-      currentImage.style.cursor = 'move';
-      currentImage.classList.remove('grabbing');
-      startInertia();
-    }
-    document.removeEventListener('mousemove', drag);
-    document.removeEventListener('touchmove', dragTouch);
-    document.removeEventListener('mouseup', stopDrag);
-    document.removeEventListener('touchend', stopDrag);
-  }
-
-  function startInertia() {
-    if (inertiaId) cancelAnimationFrame(inertiaId);
-    function step() {
-      translateX += velX; translateY += velY;
-      const { maxX, maxY } = getPanBounds();
-      if (Math.abs(translateX) > maxX) velX -= (translateX - Math.sign(translateX)*maxX) * edgeResistance;
-      if (Math.abs(translateY) > maxY) velY -= (translateY - Math.sign(translateY)*maxY) * edgeResistance;
-      velX *= dragFriction; velY *= dragFriction;
-      if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) {
-        clampPan(); aplicarZoom(true); inertiaId = null; return;
+  const toTop = () => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
+  toTop();
+  requestAnimationFrame(() => toTop());
+  setTimeout(toTop, 50);
+  setTimeout(toTop, 200);
+  setTimeout(toTop, 500);
+  if (containerEl) {
+    const imgs = Array.from(containerEl.querySelectorAll('img')).slice(0, 12);
+    imgs.forEach(img => {
+      if (!img.complete) {
+        const bump = () => toTop();
+        img.addEventListener('load', bump,  { once: true });
+        img.addEventListener('error', bump, { once: true });
       }
-      aplicarZoom(true);
-      inertiaId = requestAnimationFrame(step);
-    }
-    inertiaId = requestAnimationFrame(step);
-  }
-
-  function getPanBounds() {
-    if (!currentImage) return { maxX: 0, maxY: 0 };
-    const container = currentImage.closest('.modal-img-container');
-    if (!container) return { maxX: 0, maxY: 0 };
-    const cw = container.clientWidth, ch = container.clientHeight;
-    const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
-    const scaledW = iw * currentScale, scaledH = ih * currentScale;
-    return {
-      maxX: Math.max(0, (scaledW - cw) / 2),
-      maxY: Math.max(0, (scaledH - ch) / 2)
-    };
-  }
-
-  function clampPan() {
-    const { maxX, maxY } = getPanBounds();
-    if (Math.abs(translateX) > maxX) translateX = Math.sign(translateX) * maxX;
-    if (Math.abs(translateY) > maxY) translateY = Math.sign(translateY) * maxY;
+    });
   }
 }
 
-/* Si por cualquier motivo aplicarZoom no está en este archivo, define un fallback mínimo */
-if (typeof window.aplicarZoom !== 'function') {
-  function aplicarZoom(noTransition = false) {
-    if (!currentImage) return;
-    if (noTransition) currentImage.style.transition = 'none';
-    currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`;
-  }
+function exitFullscreenSafe() {
+  const d = document;
+  try {
+    if (d.fullscreenElement && d.exitFullscreen) return d.exitFullscreen();
+    if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen();
+  } catch (e) {}
 }
-
 
 
 // Botón scroll-to-top
