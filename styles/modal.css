@@ -403,20 +403,25 @@ body.modal-open{ overflow:hidden; }
 */
 
 /* Escritorio: ===BOTON PANTALLA COMPLETA POR FUERA DE LA FOTO===, esquina inferior derecha */
+/* Escritorio: fullscreen fuera de la foto, esquina inferior derecha, clickeable */
 @media (min-width: 1025px) {
-  /* Permite que el botón “salga” del contenedor sin recortarse */
-  #modal .modal-content { overflow: visible; }
-  #modal .modal-img-container { position: relative; }
+  /* 1) Permite que el botón “salga” sin ser recortado y crea un contexto encima de hotspots */
+  #modal .modal-content { overflow: visible; position: relative; z-index: 2; }
+  #modal .modal-img-container { position: relative; overflow: visible; }
 
-  /* Posición: fuera del borde derecho, pegado abajo */
+  /* 2) Hotspots por debajo del botón (para que no bloqueen el click) */
+  #modal .modal-hotspot { z-index: 1 !important; }
+
+  /* 3) Botón de pantalla completa: fuera, abajo derecha del contenedor de la foto */
   #modal .fullscreen-toggle {
     position: absolute;
-    left: 100%;            /* ancla al borde derecho de la imagen */
-    bottom: 10px;          /* separación desde el borde inferior de la imagen */
-    margin-left: 12px;     /* distancia hacia fuera (ajusta 8–16px a tu gusto) */
-    z-index: 60;
+    left: 100%;           /* anclado al borde derecho del contenedor de la imagen */
+    bottom: 12px;         /* separación desde el borde inferior */
+    margin-left: 12px;    /* distancia hacia fuera */
+    z-index: 999 !important;  /* por encima de hotspots y paneles */
+    pointer-events: auto;
 
-    /* Estilo “pill” acorde al diseño */
+    /* Estética coherente con tu UI */
     width: 40px; height: 40px;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: 50%;
@@ -426,7 +431,6 @@ body.modal-open{ overflow:hidden; }
     box-shadow: 0 6px 18px rgba(0,0,0,.35);
     transition: transform .15s ease, background .2s ease, color .2s ease;
   }
-
   #modal .fullscreen-toggle svg { width: 22px; height: 22px; }
 
   @media (hover:hover) {
