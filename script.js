@@ -105,16 +105,6 @@ function pauseAndResetAllCardVideos() {
   window.__cardPlayingVideo = null;
 }
 
-/* === Animaciones por sección (id o título slug) === */
-const CARD_ANIM_MAP = {
-  artisticas: '/assets/anim/artisticas.mp4',
-  calles: '/assets/anim/calles.mp4',
-  naturaleza: '/assets/anim/naturaleza.mp4',
-  paisaje: '/assets/anim/paisaje.mp4',
-  spotting: '/assets/anim/spotting.mp4',
-  virgen: '/assets/anim/virgen.mp4'
-};
-
 function slugify(s = '') {
   return String(s)
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
