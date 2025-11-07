@@ -401,3 +401,39 @@ body.modal-open{ overflow:hidden; }
 }
 #modal .modal-info .foto-counter { display: none !important; }
 */
+
+/* Escritorio: ===BOTON PANTALLA COMPLETA POR FUERA DE LA FOTO===, esquina inferior derecha */
+@media (min-width: 1025px) {
+  /* Permite que el botón “salga” del contenedor sin recortarse */
+  #modal .modal-content { overflow: visible; }
+  #modal .modal-img-container { position: relative; }
+
+  /* Posición: fuera del borde derecho, pegado abajo */
+  #modal .fullscreen-toggle {
+    position: absolute;
+    left: 100%;            /* ancla al borde derecho de la imagen */
+    bottom: 10px;          /* separación desde el borde inferior de la imagen */
+    margin-left: 12px;     /* distancia hacia fuera (ajusta 8–16px a tu gusto) */
+    z-index: 60;
+
+    /* Estilo “pill” acorde al diseño */
+    width: 40px; height: 40px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(4px);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(0,0,0,.35);
+    transition: transform .15s ease, background .2s ease, color .2s ease;
+  }
+
+  #modal .fullscreen-toggle svg { width: 22px; height: 22px; }
+
+  @media (hover:hover) {
+    #modal .fullscreen-toggle:hover {
+      background: rgba(253,184,19,.18);
+      color: var(--accent, #FDB813);
+      transform: translateY(-1px);
+    }
+  }
+}
