@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v42 CARGADO');
+console.log('✅ script.js v42.1 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -409,9 +409,8 @@ const handleClick = (e) => {
 const a = e.target.closest('a.nav-link');
 if (!a) return;
 e.preventDefault();
-  closeNavPanel?.(); // por si venía del panel
-
-  closeNavPanel?.();
+closeNavPanel?.(); // por si venía del panel
+  
 const id = a.dataset.seccionId;
 const sec = datosGlobales?.secciones?.find(s => s.id === id);
 if (sec) {
