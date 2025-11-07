@@ -631,7 +631,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
       </div>
       <div class="modal-info">
         <div class="info-handle" aria-hidden="true"></div>
-  
         <!-- <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div> -->
         <div class="foto-title">${title}</div>
         <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'} aria-label="${chipPrefix} ${sectionTitle || ''}">
@@ -827,7 +826,7 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     };
     document.addEventListener('keydown', keydownHandler);
 
-    // Click-zoom
+    // Click-zoom (desktop)
     function doClickToggle() {
       if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; }
       else {
@@ -849,6 +848,72 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
         }
       }
       aplicarZoom();
+    }
+
+    // ====== POSICIONAMIENTO FULLSCREEN FUERA (solo escritorio) ======
+    if (!isMobileViewport && fsBtn) {
+      const contentEl   = modal.querySelector('.modal-content');
+      const containerEl = modal.querySelector('.modal-img-container');
+      const btn         = fsBtn;
+
+      // Asegura capas correctas (no recorte, por encima de hotspots)
+      if (contentEl)  { contentEl.style.overflow = 'visible'; contentEl.style.position = 'relative'; contentEl.style.zIndex = '2'; }
+      if (containerEl){ containerEl.style.position = 'relative'; containerEl.style.overflow = 'visible'; }
+
+      [hotspotTop, hotspotLeft, hotspotRight, hotspotBottom].forEach(h => { if (h) h.style.zIndex = '1'; });
+      [prevBtn, nextBtn, closeBtn].forEach(b => { if (b) { b.style.zIndex = '900'; b.style.pointerEvents = 'auto'; } });
+
+      // Función global para que aplicarZoom() pueda llamarla
+      function updateFullscreenPositionLocal() {
+        const img = currentImage || modal.querySelector('#modal-img');
+        if (!img || !containerEl || !btn) return;
+
+        const cRect = containerEl.getBoundingClientRect();
+        const iRect = img.getBoundingClientRect();
+
+        const OUTSIDE = 12; // distancia hacia fuera a la derecha
+        const PAD     = 12; // separación desde el borde inferior visible
+
+        const left = (iRect.right - cRect.left) + OUTSIDE;
+        const top  = (iRect.bottom - cRect.top) - btn.offsetHeight - PAD;
+
+        btn.style.position   = 'absolute';
+        btn.style.left       = left + 'px';
+        btn.style.top        = top  + 'px';
+        btn.style.bottom     = 'auto';
+        btn.style.marginLeft = '0';
+        btn.style.zIndex     = '999';
+        btn.style.pointerEvents = 'auto';
+      }
+      // expón global para aplicarZoom()
+      window.updateFullscreenPosition = updateFullscreenPositionLocal;
+
+      // Inicial y en el siguiente tick
+      updateFullscreenPositionLocal();
+      requestAnimationFrame(updateFullscreenPositionLocal);
+
+      // Reposicionar tras animación de zoom
+      currentImage?.addEventListener('transitionend', updateFullscreenPositionLocal);
+
+      // Rueda (zoom suave)
+      modal.addEventListener('wheel', () => {
+        requestAnimationFrame(updateFullscreenPositionLocal);
+      }, { passive: true });
+
+      // Navegación con flechas
+      prevBtn?.addEventListener('click', () => setTimeout(updateFullscreenPositionLocal, 0));
+      nextBtn?.addEventListener('click', () => setTimeout(updateFullscreenPositionLocal, 0));
+
+      // Resize de ventana
+      const onResizeFs = () => updateFullscreenPositionLocal();
+      window.addEventListener('resize', onResizeFs);
+
+      // Limpieza al cerrar con el botón (otras rutas se limpian al reabrir)
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          try { window.removeEventListener('resize', onResizeFs); } catch(_) {}
+        }, { once: true });
+      }
     }
 
     if (!isMobileViewport) {
@@ -875,446 +940,6 @@ function mostrarModal(imageUrl, title, fotoIndex, opts = { push: true, source: n
     }
   }
 }
-
-// ===== Precarga y gestos =====
-function precacheAround(index) {
-  const list = getModalList() || [];
-  if (!list.length) return;
-  const n = list.length;
-  [ (index + 1) % n, (index - 1 + n) % n ].forEach((i) => {
-    const im = new Image();
-    im.src = list[i].url;
-  });
-}
-function onTouchStartImg(e) {
-  if (e.touches.length === 2) {
-    isPinching = true; pinchStartDistance = getTouchesDistance(e.touches[0], e.touches[1]); pinchStartScale = currentScale;
-    if (currentImage) currentImage.style.transition = 'none';
-    document.addEventListener('touchmove', onTouchMoveImg, { passive: false });
-    document.addEventListener('touchend', onTouchEndImg);
-    e.preventDefault(); e.stopPropagation(); return;
-  }
-}
-function onTouchMoveImg(e) {
-  if (isPinching && e.touches.length === 2) {
-    e.preventDefault();
-    const newDistance = getTouchesDistance(e.touches[0], e.touches[1]);
-    let newScale = pinchStartScale * (newDistance / pinchStartDistance);
-    newScale = Math.max(1, Math.min(5, newScale));
-    currentScale = newScale; aplicarZoom(true);
-  }
-}
-function onTouchEndImg(e) {
-  if (isPinching && e.touches.length < 2) {
-    isPinching = false;
-    if (currentImage) currentImage.style.transition = '';
-    ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
-    document.removeEventListener('touchmove', onTouchMoveImg);
-    document.removeEventListener('touchend', onTouchEndImg);
-  }
-}
-function getTouchesDistance(t1, t2) { const dx = t2.clientX - t1.clientX, dy = t2.clientY - t1.clientY; return Math.hypot(dx, dy); }
-function startDrag(e) {
-  if (currentScale <= 1) return;
-  isDragging = true;
-  if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; }
-  startX = e.clientX - translateX; startY = e.clientY - translateY; lastX = e.clientX; lastY = e.clientY;
-  currentImage?.classList.add('grabbing'); currentImage.style.cursor = 'grabbing';
-  document.addEventListener('mousemove', drag);
-  document.addEventListener('mouseup', stopDrag);
-  e.preventDefault(); e.stopPropagation();
-}
-function drag(e) {
-  if (!isDragging) return;
-  if (animationFrameId) cancelAnimationFrame(animationFrameId);
-  animationFrameId = requestAnimationFrame(() => {
-    const dx = e.clientX - lastX, dy = e.clientY - lastY;
-    lastX = e.clientX; lastY = e.clientY;
-    velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx));
-    velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy));
-    translateX += velX; translateY += velY;
-    aplicarZoom(true);
-  });
-}
-function dragTouch(e) {
-  if (!isDragging) return;
-  const t = e.touches[0];
-  if (animationFrameId) cancelAnimationFrame(animationFrameId);
-  animationFrameId = requestAnimationFrame(() => {
-    const dx = t.clientX - lastX, dy = t.clientY - lastY;
-    lastX = t.clientX; lastY = t.clientY;
-    velX = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dx));
-    velY = Math.max(-dragMaxSpeed, Math.min(dragMaxSpeed, dy));
-    translateX += velX; translateY += velY;
-    aplicarZoom(true);
-  });
-  e.preventDefault();
-}
-function stopDrag() {
-  if (!isDragging) return;
-  isDragging = false;
-  if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-  if (currentImage && currentScale > 1) {
-    currentImage.style.cursor = 'move';
-    currentImage.classList.remove('grabbing');
-    startInertia();
-  }
-  document.removeEventListener('mousemove', drag);
-  document.removeEventListener('touchmove', dragTouch);
-  document.removeEventListener('mouseup', stopDrag);
-  document.removeEventListener('touchend', stopDrag);
-}
-function startInertia() {
-  if (inertiaId) cancelAnimationFrame(inertiaId);
-  function step() {
-    translateX += velX; translateY += velY;
-    const { maxX, maxY } = getPanBounds();
-    if (Math.abs(translateX) > maxX) velX -= (translateX - Math.sign(translateX)*maxX) * edgeResistance;
-    if (Math.abs(translateY) > maxY) velY -= (translateY - Math.sign(translateY)*maxY) * edgeResistance;
-    velX *= dragFriction; velY *= dragFriction;
-    if (Math.abs(velX) < 0.1 && Math.abs(velY) < 0.1) {
-      clampPan(); aplicarZoom(true); inertiaId = null; return;
-    }
-    aplicarZoom(true); inertiaId = requestAnimationFrame(step);
-  }
-  inertiaId = requestAnimationFrame(step);
-}
-function getPanBounds() {
-  if (!currentImage) return { maxX: 0, maxY: 0 };
-  const container = currentImage.closest('.modal-img-container');
-  if (!container) return { maxX: 0, maxY: 0 };
-  const cw = container.clientWidth, ch = container.clientHeight;
-  const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
-  const scaledW = iw * currentScale, scaledH = ih * currentScale;
-  return { maxX: Math.max(0, (scaledW - cw) / 2), maxY: Math.max(0, (scaledH - ch) / 2) };
-}
-function clampPan() {
-  const { maxX, maxY } = getPanBounds();
-  if (Math.abs(translateX) > maxX) translateX = Math.sign(translateX) * maxX;
-  if (Math.abs(translateY) > maxY) translateY = Math.sign(translateY) * maxY;
-}
-function aplicarZoom(noTransition = false) {
-  if (!currentImage) return;
-  if (noTransition) currentImage.style.transition = 'none';
-  else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease';
-  clampPan();
-  currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`;
-  currentImage.style.transformOrigin = 'center center';
-  const modalEl = document.getElementById('modal');
-  if (currentScale > 1) {
-    currentImage.classList.add('zoomed'); currentImage.style.cursor = 'move'; modalEl?.classList.add('is-zoomed');
-  } else {
-    currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default';
-    translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed');
-    currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`;
-  }
-}
-function resetZoom() {
-  currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false;
-  if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
-  if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; }
-  if (currentImage) {
-    currentImage.style.transition = '';
-    currentImage.style.transform = 'scale(1) translate3d(0px, 0px, 0)';
-    currentImage.classList.remove('zoomed', 'grabbing');
-    currentImage.style.cursor = 'default';
-  }
-  const modalEl = document.getElementById('modal'); if (modalEl) modalEl.classList.remove('is-zoomed');
-}
-function getModalList() { return modalSource === 'carrusel' ? carruselFotos : todasLasFotos; }
-function navegarFoto(direccion) {
-  const list = getModalList();
-  if (!list?.length) return;
-
-  let idx = currentFotoIndex + direccion;
-  if (idx < 0) idx = list.length - 1;
-  else if (idx >= list.length) idx = 0;
-  currentFotoIndex = idx;
-
-  const nueva = list[currentFotoIndex];
-  const modal = document.getElementById('modal');
-  if (!modal) return;
-
-  const modalImg = modal.querySelector('#modal-img');
-  const contador = modal.querySelector('.foto-counter');
-  const titulo = modal.querySelector('.foto-title');
-  const chip = modal.querySelector('.section-chip');
-
-  resetZoom();
-
-  const im = new Image();
-  im.onload = function () {
-    modalImg.src = nueva.url;
-    modalImg.alt = nueva.texto;
-    currentImage = modalImg;
-
-    if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`;
-    if (titulo) titulo.textContent = nueva.texto;
-
-    if (chip) {
-      let seccionId = '';
-      let sectionName = '';
-
-      if (modalSource === 'carrusel') {
-        seccionId = nueva.seccionId || '';
-        sectionName = nueva.seccionTitulo || '';
-        chip.disabled = !seccionId;
-        chip.dataset.seccionId = seccionId;
-      } else if (currentSeccion) {
-        seccionId = currentSeccion.id;
-        sectionName = currentSeccion.titulo || '';
-        chip.disabled = false;
-        chip.dataset.seccionId = seccionId;
-      }
-
-      const prefix = (modalSource === 'carrusel') ? 'Ir a' : 'Volver a';
-      const chipLabelEl = chip.querySelector('.chip-label');
-      const chipNameEl  = chip.querySelector('.chip-name');
-
-      if (chipLabelEl) chipLabelEl.textContent = prefix;
-      if (chipNameEl)  chipNameEl.textContent = sectionName;
-
-      chip.setAttribute('aria-label', `${prefix} ${sectionName}`.trim());
-    }
-
-    if (!isHandlingPopstate && history.state?.view === 'modal') {
-      const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
-      if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
-      history.replaceState(state, '');
-    }
-
-    precacheAround(currentFotoIndex);
-    if (typeof window.triggerUiAfterPhotoChange === 'function') {
-      window.triggerUiAfterPhotoChange();
-    }
-  };
-
-  im.onerror = function () {
-    modalImg.src = nueva.url;
-    modalImg.alt = nueva.texto;
-    currentImage = modalImg;
-  };
-
-  im.src = nueva.url;
-}
-
-// ===== Móvil: bottom sheet / scroll lock =====
-function attachSwipeToModal(modal) {
-  const container = modal.querySelector('.modal-img-container'); if (!container) return;
-  let sx = 0, sy = 0, st = 0, blockVertical = false, swipeLock = false;
-  function onStart(e) { if (currentScale > 1) return; const t = e.touches[0]; sx = t.clientX; sy = t.clientY; st = Date.now(); blockVertical = false; modal.classList.add('is-gesturing'); }
-  function onMove(e) { if (currentScale > 1) return; const t = e.touches[0]; const dx = t.clientX - sx; const dy = t.clientY - sy; if (!blockVertical && Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 10) { blockVertical = true; modal.classList.remove('is-gesturing'); } }
-  function onEnd(e) { modal.classList.remove('is-gesturing'); if (currentScale > 1 || blockVertical || swipeLock) return; const t = e.changedTouches[0]; const dx = t.clientX - sx; const dt = Date.now() - st; const threshold = 60; const fast = Math.abs(dx) / dt > 0.5; if (Math.abs(dx) > threshold || fast) { swipeLock = true; ignoreNextClick = true; dx < 0 ? navegarFoto(1) : navegarFoto(-1); setTimeout(() => { swipeLock = false; }, 300); setTimeout(() => { ignoreNextClick = false; }, 300); } }
-  container.addEventListener('touchstart', onStart, { passive: true });
-  container.addEventListener('touchmove', onMove, { passive: true });
-  container.addEventListener('touchend', onEnd, { passive: true });
-}
-function attachBottomSheet(modal) {
-  const isMobile = window.matchMedia('(max-width: 1024px)').matches;
-  if (!isMobile) return;
-
-  const imgContainer = modal.querySelector('.modal-img-container');
-  const info        = modal.querySelector('.modal-info');
-  const dragHandle  = modal.querySelector('.info-handle'); // <— renombrado
-  if (!imgContainer || !info || !dragHandle) return;
-
-  lockBodyScroll();
-
-  modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
-  modal.addEventListener('wheel', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
-
-  function stopScrollBounce(el) {
-    el.addEventListener('wheel', (e) => {
-      const atTop = el.scrollTop <= 0;
-      const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight;
-      if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) e.preventDefault();
-    }, { passive: false });
-    let tsY = 0;
-    el.addEventListener('touchstart', (e) => {
-      if (e.touches.length !== 1) return;
-      tsY = e.touches[0].clientY;
-    }, { passive: true });
-    el.addEventListener('touchmove', (e) => {
-      if (e.touches.length !== 1) return;
-      const dy = e.touches[0].clientY - tsY;
-      const atTop = el.scrollTop <= 0;
-      const atBottom = Math.ceil(el.scrollTop + el.clientHeight) >= el.scrollHeight;
-      if ((dy > 0 && atTop) || (dy < 0 && atBottom)) e.preventDefault();
-    }, { passive: false });
-  }
-  stopScrollBounce(info);
-
-  function getCollapsed() { return window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh'; }
-  function getExpanded()  { return '60dvh'; }
-  function setInfoHeight(v) { modal.style.setProperty('--info-height', v); }
-  setInfoHeight(getCollapsed());
-
-  let startY = 0, deltaY = 0;
-  imgContainer.addEventListener('touchstart', (e) => {
-    if (currentScale > 1) return;
-    const t = e.touches[0];
-    startY = t.clientY; deltaY = 0;
-    modal.classList.add('is-gesturing');
-  }, { passive: true });
-  imgContainer.addEventListener('touchmove', (e) => {
-    if (currentScale > 1) return;
-    const t = e.touches[0];
-    deltaY = t.clientY - startY;
-  }, { passive: true });
-  imgContainer.addEventListener('touchend', () => {
-    modal.classList.remove('is-gesturing');
-    if (currentScale > 1) return;
-    if (Math.abs(deltaY) > 40) {
-      ignoreNextClick = true;
-      if (deltaY < 0) setInfoHeight(getExpanded());
-      else setInfoHeight(getCollapsed());
-      setTimeout(() => { ignoreNextClick = false; }, 250);
-    }
-  }, { passive: true });
-
-  // Draggable del handle
-  let dragging = false, dragStartY = 0, startHeightPx = 0;
-  function vhToPx(v) {
-    const m = String(v).match(/([\d.]+)d?vh/);
-    const n = m ? parseFloat(m[1]) : 0;
-    return (n / 100) * window.innerHeight;
-  }
-  function pxToVh(px) { return (px / window.innerHeight) * 100; }
-  const vhToPxCollapsed = () => vhToPx(getCollapsed());
-  const vhToPxExpanded  = () => vhToPx(getExpanded());
-  const pxToVhStr       = (px) => (pxToVh(px).toFixed(2) + 'dvh');
-
-  dragHandle.addEventListener('touchstart', (e) => {
-    const t = e.touches[0];
-    dragging = true; dragStartY = t.clientY;
-    startHeightPx = vhToPxCollapsed();
-    modal.classList.add('is-gesturing');
-    e.preventDefault();
-  }, { passive: false });
-
-  dragHandle.addEventListener('touchmove', (e) => {
-    if (!dragging) return;
-    const t = e.touches[0];
-    const dy = t.clientY - dragStartY;
-    let newHeightPx = startHeightPx - dy;
-    const minPx = vhToPxCollapsed(), maxPx = vhToPxExpanded();
-    newHeightPx = Math.max(minPx, Math.min(maxPx, newHeightPx));
-    setInfoHeight(pxToVhStr(newHeightPx));
-    e.preventDefault();
-  }, { passive: false });
-
-  dragHandle.addEventListener('touchend', () => {
-    if (!dragging) return;
-    dragging = false;
-    modal.classList.remove('is-gesturing');
-    const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
-    const midPx = (vhToPxCollapsed() + vhToPxExpanded()) / 2;
-    setInfoHeight(curPx >= midPx ? getExpanded() : getCollapsed());
-    ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
-  });
-
-  window.addEventListener('resize', () => {
-    if (!isModalOpen) return;
-    const curPx = vhToPx(getComputedStyle(modal).getPropertyValue('--info-height'));
-    const collapsedPx = vhToPxCollapsed();
-    const expandedPx = vhToPxExpanded();
-    const target = Math.abs(curPx - expandedPx) < Math.abs(curPx - collapsedPx) ? getExpanded() : getCollapsed();
-    setInfoHeight(target);
-  });
-}
-
-// ===== Fullscreen / scroll lock =====
-function toggleFullscreen() {
-  const modal = document.getElementById('modal');
-  const btn = modal?.querySelector('.fullscreen-toggle');
-  const restorePanel = () => {
-    modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
-    currentScale = 1; translateX = 0; translateY = 0;
-    const info = modal.querySelector('.modal-info'); if (info) info.style.display = '';
-    modal.style.removeProperty('--info-height');
-    aplicarZoom(true);
-  };
-  if (!document.fullscreenElement) {
-    if (modal?.requestFullscreen) {
-      modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); });
-    } else {
-      modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active');
-    }
-  } else {
-    if (document.exitFullscreen) document.exitFullscreen();
-    restorePanel(); if (btn) btn.classList.remove('is-active');
-  }
-}
-function initMobileRotationHandler() {
-  let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
-  window.addEventListener('resize', () => {
-    const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
-    if (last !== now && isModalOpen) {}
-    last = now;
-  });
-}
-function lockBodyScroll() {
-  __scrollLockY = window.scrollY || document.documentElement.scrollTop || 0;
-  isBodyLocked = true;
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${__scrollLockY}px`;
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.body.style.width = '100%';
-  document.body.classList.add('modal-open');
-}
-function unlockBodyScroll() {
-  document.body.classList.remove('modal-open');
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
-  document.body.style.width = '';
-  if (isBodyLocked) { window.scrollTo(0, __scrollLockY || 0); }
-  isBodyLocked = false;
-}
-function closeModal() {
-  const modal = document.getElementById('modal');
-  if (!modal) return;
-
-  exitFullscreenSafe();
-  modal.style.display = 'none';
-  modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
-  document.body.classList.remove('modal-open');
-  isModalOpen = false; ignoreNextClick = false; resetZoom();
-  if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
-  if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-  modal.innerHTML = '';
-  unlockBodyScroll();
-  if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
-  refreshScrollTop();
-
-  if (currentView === 'modal') currentView = (modalSource === 'carrusel') ? 'home' : (modalSource === 'seccion' ? 'seccion' : 'home');
-  modalFromHomeCarousel = false;
-  __pushedModal = false;
-
-  if (window.triggerUiAfterPhotoChange) { try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; } }
-}
-function volverAGaleriaInternal() {
-  currentSeccion = null; currentFotoIndex = 0; todasLasFotos = []; isModalOpen = false;
-  const home = document.getElementById('home-view'); if (home) home.style.display = 'block';
-  const insp = document.getElementById('inspiration-section'); if (insp) insp.style.display = 'block';
-  const view = document.getElementById('seccion-view'); if (view) view.style.display = 'none';
-  const modal = document.getElementById('modal');
-  if (modal) {
-    modal.innerHTML = '';
-    modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
-    document.body.classList.remove('modal-open'); resetZoom();
-    if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-  }
-  unlockBodyScroll();
-  window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-  currentView = 'home';
-  if (typeof updateHeaderNavActive === 'function') updateHeaderNavActive(null);
-  if (typeof closeNavPanel === 'function') closeNavPanel();
-  refreshScrollTop();
-}
-
 // ========= VIDEO EN TARJETA =========
 // Multi-tarjeta (hover loop en desktop, one‑shot en móvil/TV)
 // TV: sin hover. Móvil: play en touchend. Bloqueo de click solo el sintético.
