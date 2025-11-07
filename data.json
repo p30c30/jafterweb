@@ -340,6 +340,11 @@
                "texto":"Entre las luces y las sombras"
             },
             {
+               "miniatura":"https://live.staticflickr.com/65535/54907780477_69f724e033_b.jpg",
+               "url":"https://i.ibb.co/8nj8Kn3Z/Shey-ojos-bn-sf.jpg",
+               "texto":"El destino en sus pupilas"
+            },
+            {
                "miniatura":"https://live.staticflickr.com/65535/54888845265_8cc3ae19c1_b.jpg",
                "url":"https://i.ibb.co/FqHv7mD9/simetria-en-la-pescaderia.jpg",
                "texto":"Simetría entre peces"
@@ -349,7 +354,11 @@
                "url":"https://i.ibb.co/WWnkL4x1/callejon-malvado.jpg",
                "texto":"Callejón Malvado de los Borgia. Roma"
             },
-            
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54907792772_95cc34598f_b.jpg",
+               "url":"https://i.ibb.co/wrxqdSXc/Retrato-rey-1800.jpg",
+               "texto":"Silencio de poder"
+            },
             {
                "miniatura":"https://live.staticflickr.com/65535/54890211123_567f84f9ba_b.jpg",
                "url":"https://i.ibb.co/pv03MdyN/IMGL8206-Editar-Editar-Editar-Editar-2-3.jpg",
@@ -409,11 +418,6 @@
                "miniatura":"https://live.staticflickr.com/65535/54902966575_81f3d26acf_b.jpg",
                "url":"https://i.ibb.co/SwDKw2nx/puente-alemanes-1920.jpg",
                "texto":"Puente de Los Alemanes"
-            },
-            {
-               "miniatura":"https://live.staticflickr.com/65535/54907780477_69f724e033_b.jpg",
-               "url":"https://i.ibb.co/8nj8Kn3Z/Shey-ojos-bn-sf.jpg",
-               "texto":"El destino en sus pupilas"
             }
          ]
       },
