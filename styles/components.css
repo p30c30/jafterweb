@@ -379,10 +379,19 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
   /* .site-header { padding-inline: 20px; } */
 }
 
-/* Escritorio: barra de secciones con peso más fino */
+/* FIX: escritorio sin hamburguesa + peso fino en barra */
+/* Escritorio (>=1025px) */
 @media (min-width: 1025px) {
-  .site-nav .nav-link {
-    font-weight: 400 !important; /* prueba 300 si tu fuente lo soporta */
-  }
+  header.site-header .nav-trigger { display: none !important; } /* oculta la hamburguesa sí o sí */
+  header.site-header .site-nav   { display: flex !important; }  /* asegura que la barra esté visible */
+
+  /* Peso más fino en los enlaces de la barra */
+  .site-nav .nav-link { font-weight: 400 !important; } /* prueba 300 si tu fuente lo soporta */
+}
+
+/* Móvil/Tablet (<=1024px): deja explícito lo contrario por si hay reglas antiguas */
+@media (max-width: 1024px) {
+  header.site-header .site-nav   { display: none !important; }
+  header.site-header .nav-trigger{ display: inline-flex !important; }
 }
 
