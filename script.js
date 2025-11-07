@@ -40,33 +40,35 @@ if (typeof window.getModalList !== 'function') {
     return (modalSource === 'carrusel') ? carruselFotos : todasLasFotos;
   }
 }
+
 // Animaciones Pausa y resetea todas las animaciones de portada
 function pauseAndResetAllCardVideos() {
-const vids = document.querySelectorAll('.section-cards video.card-anim');
-vids.forEach(v => {
-try { v.pause(); } catch(_) {}
-try { v.currentTime = 0; } catch(_) {}
-v._oneShotPlaying = false;
-const c = v.closest('.card');
-if (c) c.classList.remove('is-over');
-});
-window.__cardPlayingVideo = null;
+  const vids = document.querySelectorAll('.section-cards video.card-anim');
+  vids.forEach(v => {
+    try { v.pause(); } catch(_) {}
+    try { v.currentTime = 0; } catch(_) {}
+    v._oneShotPlaying = false;
+    const c = v.closest('.card');
+    if (c) c.classList.remove('is-over');
+  });
+  window.__cardPlayingVideo = null;
 }
+
 /* === Animaciones por sección (id o título slug) === */
 const CARD_ANIM_MAP = {
-artisticas: '/assets/anim/artisticas.mp4',
-calles: '/assets/anim/calles.mp4',
-naturaleza: '/assets/anim/naturaleza.mp4',
-paisaje: '/assets/anim/paisaje.mp4',
-spotting: '/assets/anim/spotting.mp4',
-virgen: '/assets/anim/virgen.mp4'
+  artisticas: '/assets/anim/artisticas.mp4',
+  calles: '/assets/anim/calles.mp4',
+  naturaleza: '/assets/anim/naturaleza.mp4',
+  paisaje: '/assets/anim/paisaje.mp4',
+  spotting: '/assets/anim/spotting.mp4',
+  virgen: '/assets/anim/virgen.mp4'
 };
 
 function slugify(s = '') {
-return String(s)
-.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-.replace(/(^-|-$)/g, '');
+  return String(s)
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 
 function refreshScrollTop() {
