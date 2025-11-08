@@ -357,3 +357,13 @@ body.modal-open{ overflow:hidden; }
 @media (min-width: 1025px) {
   #modal .modal-info { z-index: 1200 !important; }
 }
+
+@media (max-width:1024px) and (orientation: landscape) {
+  .modal.is-zoomed .modal-info { 
+    display: none !important; /* Elimina info por completo en landscape zoom/fullscreen */
+  }
+  .modal-img-container {
+    height: 100dvh !important; /* Expande imagen al máximo, sin franja */
+  }
+}
+

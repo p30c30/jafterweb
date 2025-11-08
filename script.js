@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v4.4 CARGADO');
+console.log('✅ script.js v4.5 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -10,7 +10,7 @@ let currentScale = 1, currentImage = null, isDragging = false, startX, startY, t
 let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
 const defaultClickZoom = 2;
 let keydownHandler = null, fullscreenChangeHandler = null, carouselTimer = null;
-const carouselAutoDelay = 20000, carouselUserPauseMs = 60000;
+const carouselAutoDelay = 10000, carouselUserPauseMs = 30000;
 let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
 let velX = 0, velY = 0, inertiaId = null;
 let fsBtnResizeHandler = null, fsLayoutRaf = 0, imgTransformEndHandler = null;
@@ -575,23 +575,31 @@ function actualizarCarrusel() {
 document.querySelectorAll('.carrusel-dot').forEach((d, i) => d.classList.toggle('active', i === carruselActualIndex));
 }
 function moverCarruselA(nuevoIndex, opts = {}) {
-const inner = carruselInnerRef || document.querySelector('.carrusel-inner');
-if (!inner || !carruselRealLength) return;
-pendingAutoplayDelay = opts.delayAfterMs ?? carouselAutoDelay;
-if (nuevoIndex < 0) nuevoIndex = carruselRealLength - 1;
-if (nuevoIndex >= carruselRealLength) nuevoIndex = 0;
-const stepDir = opts.stepDirection;
-if (stepDir === -1 && carruselPosition === 1 && nuevoIndex === carruselRealLength - 1) carruselPosition = 0;
-else if (stepDir === 1 && carruselPosition === carruselRealLength && nuevoIndex === 0) carruselPosition = carruselRealLength + 1;
-else carruselPosition = nuevoIndex + 1;
-carruselActualIndex = nuevoIndex;
-inner.style.transition = 'transform 0.5s ease-in-out';
-inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
-actualizarCarrusel();
+  const inner = carruselInnerRef || document.querySelector('.carrusel-inner');
+  if (!inner || !carruselRealLength) return;
+  pendingAutoplayDelay = opts.delayAfterMs ?? carouselAutoDelay;
+  if (nuevoIndex < 0) nuevoIndex = carruselRealLength - 1;
+  if (nuevoIndex >= carruselRealLength) nuevoIndex = 0;
+  const stepDir = opts.stepDirection;
+  // Fix para glitch: Asegura posición exacta antes de mover, evita saltos en clones
+  if (stepDir === -1 && carruselPosition === 1 && nuevoIndex === carruselRealLength - 1) {
+    carruselPosition = 0;
+  } else if (stepDir === 1 && carruselPosition === carruselRealLength && nuevoIndex === 0) {
+    carruselPosition = carruselRealLength + 1;
+  } else {
+    carruselPosition = nuevoIndex + 1;
+  }
+  carruselActualIndex = nuevoIndex;
+  // Limpia transición anterior para evitar microsegundos de glitch
+  inner.style.transition = 'none';
+  void inner.offsetHeight;  // Trigger reflow
+  inner.style.transition = 'transform 0.5s ease-in-out';
+  inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
+  actualizarCarrusel();
 }
 function startCarouselAutoplay(delay = carouselAutoDelay) {
-clearTimeout(carouselTimer);
-carouselTimer = setTimeout(() => moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselAutoDelay, stepDirection: 1 }), delay);
+  clearTimeout(carouselTimer);
+  carouselTimer = setTimeout(() => moverCarruselA(carruselActualIndex + 1, { delayAfterMs: carouselAutoDelay, stepDirection: 1 }), delay);
 }
 function stopCarouselAutoplay() { clearTimeout(carouselTimer); carouselTimer = null; }
 function iniciarAutoPlay() { startCarouselAutoplay(carouselAutoDelay); }
@@ -1100,6 +1108,12 @@ function aplicarZoom(noTransition = false) {
   if (!noTransition && !isPinching) {
     hookImgTransformEndOnce();
   }
+  const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
+  if (isMobileViewport && window.matchMedia('(orientation: landscape)').matches && currentScale > 1) {
+  modal.classList.add('is-zoomed');
+} else if (currentScale <= 1) {
+  modal.classList.remove('is-zoomed');
+}
 }
 function resetZoom() {
 currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false;
@@ -1356,7 +1370,22 @@ if (!document.fullscreenElement) {
 if (modal?.requestFullscreen) {
 modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); });
 } else {
-modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active');
+modal.classList.add('fs-active'); 
+const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
+if (!document.fullscreenElement) {
+  // ... (código existente)
+  if (isMobileViewport && window.matchMedia('(orientation: landscape)').matches) {
+    modal.classList.add('is-zoomed');  // Trata fullscreen como zoom en landscape
+  }
+} else {
+  // ... (código existente)
+  if (isMobileViewport && window.matchMedia('(orientation: landscape)').matches) {
+    if (currentScale <= 1) {  // Solo remueve si no hay zoom real
+      modal.classList.remove('is-zoomed');
+    }
+  }
+}
+if (btn) btn.classList.add('is-active');
 }
 } else {
 if (document.exitFullscreen) document.exitFullscreen();
