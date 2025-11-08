@@ -1,7 +1,6 @@
 /* ================================================================ */
-/* ==      ARCHIVO MODAL.CSS - AJUSTES FINALES (v36.1)           == */
+/* == ARCHIVO MODAL.CSS - AJUSTES FINALES (v36.1) == */
 /* ================================================================ */
-
 /* === ESTILO BASE Y FOTO === */
 .modal{
   display:none; position:fixed; inset:0; width:100%;
@@ -26,14 +25,12 @@
 .modal-img.zoomed{ cursor:move; }
 .modal-img.grabbing{ cursor:grabbing !important; }
 body.modal-open{ overflow:hidden; }
-
 /* === ZONAS CALIENTES (HOTSPOTS) === */
 .modal-hotspot { position: fixed; z-index: 1001; }
-.modal-hotspot.left  { top: 0; left: 0;  width: 20%; height: 100%; cursor: pointer; }
+.modal-hotspot.left { top: 0; left: 0; width: 20%; height: 100%; cursor: pointer; }
 .modal-hotspot.right { top: 0; right: 0; width: 20%; height: 100%; cursor: pointer; }
 .modal-hotspot.bottom{ bottom: 0; left: 0; width: 100%; height: 20%; }
-.modal-hotspot.top   { top: 0; left: 0;  width: 100%; height: 15%; }
-
+.modal-hotspot.top { top: 0; left: 0; width: 100%; height: 15%; }
 /* === POSICIONAMIENTO Y ESTILO DE UI === */
 .close-modal{
   position:fixed; top:20px; right:20px;
@@ -50,7 +47,6 @@ body.modal-open{ overflow:hidden; }
   background:rgba(253,184,19,.9); color:#000; transform:scale(1.15);
   box-shadow:0 0 12px rgba(253,184,19,.4);
 }
-
 .nav-button{
   position:fixed; top:50%; transform:translateY(-50%);
   width:65px; height:65px; background:rgba(0,0,0,.7);
@@ -65,7 +61,6 @@ body.modal-open{ overflow:hidden; }
   transform:translateY(-50%) scale(1.12);
   box-shadow:0 0 20px rgba(253,184,19,.5);
 }
-
 /* Panel de info (glass) */
 .modal-info{
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -78,7 +73,6 @@ body.modal-open{ overflow:hidden; }
   width:auto; min-width:300px; max-width:90%; color:#fff;
   transition: opacity .3s ease-out, transform .2s ease;
 }
-
 /* Fullscreen toggle */
 .fullscreen-toggle{
   position:absolute; right:10px; bottom:10px; width:42px; height:42px;
@@ -96,7 +90,6 @@ body.modal-open{ overflow:hidden; }
 .fullscreen-toggle .ico-exit{ display:none; }
 .fullscreen-toggle.is-active .ico-enter{ display:none; }
 .fullscreen-toggle.is-active .ico-exit{ display:inline; }
-
 /* === CONTENIDO DEL PANEL === */
 .modal-title{ display:none !important; }
 .foto-counter{ color:#FDB813; font-size:1rem; font-weight:bold; margin-bottom:.5rem; text-shadow:0 1px 2px rgba(0,0,0,.8); }
@@ -108,7 +101,6 @@ body.modal-open{ overflow:hidden; }
   transition: transform .15s, box-shadow .2s, background .2s;
 }
 .section-chip:hover{ background:rgba(253,184,19,.3); box-shadow:0 0 12px rgba(253,184,19,.3); transform:translateY(-1px); }
-
 /* === ESTADOS === */
 .modal.is-zoomed .modal-info,
 .modal.is-gesturing .modal-info{
@@ -117,7 +109,6 @@ body.modal-open{ overflow:hidden; }
 }
 .modal.fs-active { --info-height:0dvh; }
 .modal.fs-active .modal-info { display:none !important; }
-
 /* === SOLO ESCRITORIO: UI oculta por defecto; visible con .visible === */
 @media (min-width: 1025px) {
   .nav-button, .modal-info, .close-modal, .fullscreen-toggle {
@@ -128,21 +119,17 @@ body.modal-open{ overflow:hidden; }
     opacity: 1;
     pointer-events: auto;
   }
-
   /* Para evitar cualquier rastro visual del botón Cerrar al ocultarse */
   #modal .close-modal { transform: scale(0.98); }
   #modal .close-modal.visible { transform: scale(1); }
 }
-
 /* === MÓVIL: Bottom Sheet y UI visible (sin hotspots) === */
 @media (max-width:1024px){
   .modal-hotspot { display: none !important; }
-
   /* En móvil la UI se mantiene visible y operable */
   .nav-button, .close-modal, .modal-info, .fullscreen-toggle {
     opacity: 1 !important; pointer-events: auto !important; transform: none !important;
   }
-
   .modal { --info-height:26dvh; }
   .modal-content{
     flex-direction:column; justify-content:flex-start; align-items:center;
@@ -173,38 +160,6 @@ body.modal-open{ overflow:hidden; }
   .modal-img-container { height:calc(100dvh - var(--info-height)) !important; max-height:calc(100dvh - var(--info-height)) !important; }
   .foto-title { font-size:.95rem; }
 }
-
-  /* .modal-content ya no ocupa todo el alto */
-  .modal-content{
-    padding: 0 !important;
-    overflow: hidden !important;
-    height: auto !important;
-    flex: 0 0 calc(100dvh - var(--info-height)) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: flex-start !important;
-    align-items: center !important;
-  }
-
-  /* La imagen ocupa el espacio asignado a .modal-content */
-  .modal-img-container{
-    width: 100% !important;
-    height: 100% !important;
-    max-height: 100% !important;
-  }
-
-  /* La info queda visible como bottom sheet con su altura */
-  .modal-info{
-    position: relative !important;
-    width: 100% !important;
-    height: var(--info-height) !important;
-    max-height: 75dvh !important;
-    margin: 0 !important;
-    flex-shrink: 0 !important;
-    overflow-y: auto !important;
-  }
-}
-
 @media (max-width:480px){ .modal { --info-height:30dvh; } .foto-title { font-size:.9rem; } }
 @media (min-width:1600px){ .modal-info { max-width:70%; } }
 @supports (padding:max(0px)){ .modal-info{ padding-bottom:max(1rem, env(safe-area-inset-bottom)); } }
@@ -216,10 +171,9 @@ body.modal-open{ overflow:hidden; }
     flex-direction: column !important;
     height: 100dvh !important;
   }
-
   /* Muy importante: anular el min-height global */
   .modal-content{
-    min-height: 0 !important;     /* <- evita que ocupe todo el alto */
+    min-height: 0 !important; /* <- evita que ocupe todo el alto */
     height: auto !important;
     padding: 0 !important;
     flex: 0 0 calc(100dvh - var(--info-height)) !important;
@@ -229,65 +183,46 @@ body.modal-open{ overflow:hidden; }
     align-items: center !important;
     overflow: hidden !important;
   }
-
   .modal-img-container{
     width: 100% !important;
     height: 100% !important;
     max-height: 100% !important;
   }
-
   .modal-info{
     position: relative !important;
     left: auto !important;
     bottom: auto !important;
-    transform: none !important;    /* <- anula el translateX(-50%) del estilo de escritorio */
+    transform: none !important; /* <- anula el translateX(-50%) del estilo de escritorio */
     display: block !important;
     width: 100% !important;
-    min-width: 0 !important;       /* <- evita ancho mínimo de 300px en pantallas estrechas */
+    min-width: 0 !important; /* <- evita ancho mínimo de 300px en pantallas estrechas */
     height: var(--info-height) !important;
     max-height: 75dvh !important;
     margin: 0 !important;
     flex-shrink: 0 !important;
     overflow-y: auto !important;
   }
-}
-
-/* FIX móvil: asegura que la info sea visible al abrir */
-@media (max-width:1024px){
-  /* Estructura de layout */
-  #modal-content-wrapper {
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100dvh !important;
-  }
-
-  /* Muy importante: anular el min-height global */
+  /* .modal-content ya no ocupa todo el alto */
   .modal-content{
-    min-height: 0 !important;     /* <- evita que ocupe todo el alto */
-    height: auto !important;
     padding: 0 !important;
+    overflow: hidden !important;
+    height: auto !important;
     flex: 0 0 calc(100dvh - var(--info-height)) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
     align-items: center !important;
-    overflow: hidden !important;
   }
-
+  /* La imagen ocupa el espacio asignado a .modal-content */
   .modal-img-container{
     width: 100% !important;
     height: 100% !important;
     max-height: 100% !important;
   }
-
+  /* La info queda visible como bottom sheet con su altura */
   .modal-info{
     position: relative !important;
-    left: auto !important;
-    bottom: auto !important;
-    transform: none !important;    /* <- anula el translateX(-50%) del estilo de escritorio */
-    display: block !important;
     width: 100% !important;
-    min-width: 0 !important;       /* <- evita ancho mínimo de 300px en pantallas estrechas */
     height: var(--info-height) !important;
     max-height: 75dvh !important;
     margin: 0 !important;
@@ -295,7 +230,6 @@ body.modal-open{ overflow:hidden; }
     overflow-y: auto !important;
   }
 }
-
 /* ===== Modal: panel info invisible (solo texto + botón sección) ===== */
 #modal .modal-info {
   background: transparent !important;
@@ -305,10 +239,8 @@ body.modal-open{ overflow:hidden; }
   box-shadow: none !important;
   padding: .55rem .9rem .7rem;
 }
-
 /* Sin bisel/sombras extra */
 #modal .modal-info::before { display: none !important; }
-
 /* Título legible y discreto */
 #modal .modal-info .foto-title {
   color: #fff;
@@ -317,7 +249,6 @@ body.modal-open{ overflow:hidden; }
   margin: 0 0 .35rem 0;
   line-height: 1.35;
 }
-
 /* Botón sección: enlace limpio, sin fondo/borde ni subrayado */
 #modal .modal-info .section-chip {
   appearance: none; -webkit-appearance: none;
@@ -331,14 +262,12 @@ body.modal-open{ overflow:hidden; }
   border-radius: 0 !important;
   touch-action: manipulation;
 }
-
 /* Flecha sutil */
 #modal .modal-info .section-chip .chip-arrow {
   transform: translateX(0);
   transition: transform .2s ease, opacity .2s ease, color .2s ease;
   opacity: .95;
 }
-
 /* Hover solo en dispositivos con hover: sin subrayado, leve cambio de color y flecha sutil */
 @media (hover:hover) {
   #modal .modal-info .section-chip:hover {
@@ -349,14 +278,12 @@ body.modal-open{ overflow:hidden; }
     transform: translateX(2px);
   }
 }
-
 /* Accesibilidad: foco visible (teclado) */
 #modal .modal-info .section-chip:focus-visible {
   outline: 2px solid var(--accent, #FDB813);
   outline-offset: 2px;
   border-radius: 3px;
 }
-
 /* Handle invisible (gestos siguen funcionando) */
 #modal .modal-info .info-handle {
   width: 40px; height: 10px;
@@ -366,12 +293,10 @@ body.modal-open{ overflow:hidden; }
   opacity: 0;
   pointer-events: auto; /* mantiene el drag del bottom sheet */
 }
-
 /* (El contador ya lo comentaste en JS, si hiciera falta ocultarlo por CSS, descomenta la línea de abajo) */
 /* #modal .modal-info .foto-counter { display: none !important; } */
-
-
-/* ===== OPCIÓN ALTERNATIVA: panel ultra-sutil (descomenta para usar) =====
+/* ===== OPCIÓN ALTERNATIVA: panel ultra-sutil (descomenta para usar) ===== */
+/*
 #modal .modal-info {
   background: linear-gradient(to top, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.02) 100%) !important;
   backdrop-filter: blur(2px) saturate(115%);
@@ -394,7 +319,6 @@ body.modal-open{ overflow:hidden; }
 }
 #modal .modal-info .foto-counter { display: none !important; }
 */
-
 /* Escritorio: ===BOTON PANTALLA COMPLETA POR FUERA DE LA FOTO===, esquina inferior derecha */
 /* ===== Escritorio: capas correctas + fullscreen por fuera y pegado (JS) ===== */
 @media (min-width: 1025px) {
@@ -403,42 +327,33 @@ body.modal-open{ overflow:hidden; }
     overflow: visible;
     z-index: auto; /* evita stacking innecesario */
   }
-
   #modal .modal-img-container {
     position: relative;
     overflow: visible;
   }
-
   #modal .modal-img {
     position: relative;
     z-index: 500;
   }
-
   /* Hotspots por ENCIMA de la imagen, pero debajo de flechas/cerrar/fullscreen */
   #modal .modal-hotspot { z-index: 800; }
-
   /* Flechas y cerrar por encima de hotspots */
   #modal .nav-button,
   #modal .close-modal {
     z-index: 900;
     pointer-events: auto;
   }
-
   /* Botón de fullscreen: fijo y por encima de todo lo clicable */
   #modal .fullscreen-toggle {
-    position: fixed;    /* sale del stacking del contenedor */
-    z-index: 1100;      /* > nav/cerrar (900) y > hotspots (800) */
+    position: fixed; /* sale del stacking del contenedor */
+    z-index: 1100; /* > nav/cerrar (900) y > hotspots (800) */
     margin: 0;
-
     /* Fallback antes de que JS lo pegue a la imagen */
     right: 24px;
     bottom: 20px;
   }
-
   #modal .fullscreen-toggle svg { width: 22px; height: 22px; }
 }
-
 @media (min-width: 1025px) {
   #modal .modal-info { z-index: 1200 !important; }
 }
-
