@@ -437,3 +437,8 @@ body.modal-open{ overflow:hidden; }
 
   #modal .fullscreen-toggle svg { width: 22px; height: 22px; }
 }
+
+@media (min-width: 1025px) {
+  #modal .modal-info { z-index: 1200 !important; }
+}
+
