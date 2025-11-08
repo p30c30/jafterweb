@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v42.7 CARGADO');
+console.log('✅ script.js v42.8 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -653,6 +653,9 @@ resetZoom();
 modal.classList.add('active');
 document.body.classList.add('modal-open');
 
+// LIMPIA estados que esconden la info (muy importante)
+modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
+
 configurarEventosModal();
 bindFsBtnAutoLayout(true);
 scheduleFsBtnLayout();
@@ -1155,7 +1158,7 @@ function navegarFoto(direccion) {
 
     // Reposiciona el botón pegado a la imagen (desktop)
     scheduleFsBtnLayout();
-	
+	modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
 	// Mostrar la UI al cambiar de foto (si no estás en fullscreen)
 if (!document.fullscreenElement) {
   if (typeof window.triggerUiAfterPhotoChange === 'function') {
