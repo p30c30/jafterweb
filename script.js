@@ -363,9 +363,46 @@ caption.appendChild(span);
 el.appendChild(img);
 el.appendChild(caption);
 
-el.addEventListener('click', () => {
-modalSource = 'seccion';
-mostrarModal(foto.url, foto.texto, i);
+// HAZ ESTE REEMPLAZO EN el.addEventListener...
+// 1) Click (escritorio)
+el.addEventListener('click', (e) => {
+  // Si venimos de un touch ya manejado, no dupliques
+  if (el._suppressClickOnce) { el._suppressClickOnce = false; return; }
+  modalSource = 'seccion';
+  mostrarModal(foto.url, foto.texto, i);
+});
+
+// 2) Tap (móvil)
+let tsX = 0, tsY = 0, tsT = 0;
+el.addEventListener('touchstart', (e) => {
+  if (e.touches.length !== 1) return;
+  const t = e.touches[0];
+  tsX = t.clientX; tsY = t.clientY; tsT = Date.now();
+}, { passive: true });
+
+el.addEventListener('touchend', (e) => {
+  if (e.changedTouches.length !== 1) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - tsX, dy = t.clientY - tsY;
+  const dt = Date.now() - tsT;
+  // Tap corto y sin desplazamiento → abre modal
+  if (Math.hypot(dx, dy) < 12 && dt < 300) {
+    e.preventDefault(); // evita el click sintético
+    el._suppressClickOnce = true; // por si el click sintético igual llega
+    modalSource = 'seccion';
+    mostrarModal(foto.url, foto.texto, i);
+  }
+}, { passive: false });
+
+// 3) Accesibilidad teclado
+el.setAttribute('role', 'button');
+el.setAttribute('tabindex', '0');
+el.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    modalSource = 'seccion';
+    mostrarModal(foto.url, foto.texto, i);
+  }
 });
 
 fotosContainer.appendChild(el);
