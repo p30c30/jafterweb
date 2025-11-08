@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v42.1 CARGADO');
+console.log('✅ script.js v42.2 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -10,6 +10,7 @@ let currentScale = 1, currentImage = null, isDragging = false, startX, startY, t
 let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
 const defaultClickZoom = 2;
 let keydownHandler = null, fullscreenChangeHandler = null, carouselTimer = null;
+let fsBtnResizeHandler = null, fsLayoutRaf = 0;
 const carouselAutoDelay = 20000, carouselUserPauseMs = 60000;
 let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
 let velX = 0, velY = 0, inertiaId = null;
@@ -653,6 +654,8 @@ modal.classList.add('active');
 document.body.classList.add('modal-open');
 
 configurarEventosModal();
+bindFsBtnAutoLayout(true);
+scheduleFsBtnLayout();
 precacheAround(currentFotoIndex);
 
 if (typeof window.triggerUiAfterPhotoChange === 'function') {
@@ -1009,6 +1012,10 @@ currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default';
 translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed');
 currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`;
 }
+// Reposiciona el botón de fullscreen pegado al borde visible de la imagen (desktop)
+  if (typeof scheduleFsBtnLayout === 'function') {
+    scheduleFsBtnLayout();
+  }
 }
 function resetZoom() {
 currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false;
@@ -1024,79 +1031,85 @@ const modalEl = document.getElementById('modal'); if (modalEl) modalEl.classList
 }
 function getModalList() { return modalSource === 'carrusel' ? carruselFotos : todasLasFotos; }
 function navegarFoto(direccion) {
-const list = getModalList();
-if (!list?.length) return;
+  const list = getModalList();
+  if (!list?.length) return;
 
-let idx = currentFotoIndex + direccion;
-if (idx < 0) idx = list.length - 1;
-else if (idx >= list.length) idx = 0;
-currentFotoIndex = idx;
+  let idx = currentFotoIndex + direccion;
+  if (idx < 0) idx = list.length - 1;
+  else if (idx >= list.length) idx = 0;
+  currentFotoIndex = idx;
 
-const nueva = list[currentFotoIndex];
-const modal = document.getElementById('modal');
-if (!modal) return;
+  const nueva = list[currentFotoIndex];
+  const modal = document.getElementById('modal');
+  if (!modal) return;
 
-const modalImg = modal.querySelector('#modal-img');
-const contador = modal.querySelector('.foto-counter');
-const titulo = modal.querySelector('.foto-title');
-const chip = modal.querySelector('.section-chip');
+  const modalImg = modal.querySelector('#modal-img');
+  const contador = modal.querySelector('.foto-counter');
+  const titulo = modal.querySelector('.foto-title');
+  const chip = modal.querySelector('.section-chip');
 
-resetZoom();
+  resetZoom();
 
-const im = new Image();
-im.onload = function () {
-modalImg.src = nueva.url;
-modalImg.alt = nueva.texto;
-currentImage = modalImg;
+  const im = new Image();
+  im.onload = function () {
+    modalImg.src = nueva.url;
+    modalImg.alt = nueva.texto;
+    currentImage = modalImg;
 
-if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`;
-if (titulo) titulo.textContent = nueva.texto;
+    if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`;
+    if (titulo) titulo.textContent = nueva.texto;
 
-if (chip) {
-let seccionId = '';
-let sectionName = '';
+    if (chip) {
+      let seccionId = '';
+      let sectionName = '';
 
-if (modalSource === 'carrusel') {
-seccionId = nueva.seccionId || '';
-sectionName = nueva.seccionTitulo || '';
-chip.disabled = !seccionId;
-chip.dataset.seccionId = seccionId;
-} else if (currentSeccion) {
-seccionId = currentSeccion.id;
-sectionName = currentSeccion.titulo || '';
-chip.disabled = false;
-chip.dataset.seccionId = seccionId;
-}
+      if (modalSource === 'carrusel') {
+        seccionId = nueva.seccionId || '';
+        sectionName = nueva.seccionTitulo || '';
+        chip.disabled = !seccionId;
+        chip.dataset.seccionId = seccionId;
+      } else if (currentSeccion) {
+        seccionId = currentSeccion.id;
+        sectionName = currentSeccion.titulo || '';
+        chip.disabled = false;
+        chip.dataset.seccionId = seccionId;
+      }
 
-const prefix = (modalSource === 'carrusel') ? 'Ir a' : 'Volver a';
-const chipLabelEl = chip.querySelector('.chip-label');
-const chipNameEl  = chip.querySelector('.chip-name');
+      const prefix = (modalSource === 'carrusel') ? 'Ir a' : 'Volver a';
+      const chipLabelEl = chip.querySelector('.chip-label');
+      const chipNameEl  = chip.querySelector('.chip-name');
 
-if (chipLabelEl) chipLabelEl.textContent = prefix;
-if (chipNameEl)  chipNameEl.textContent = sectionName;
+      if (chipLabelEl) chipLabelEl.textContent = prefix;
+      if (chipNameEl)  chipNameEl.textContent = sectionName;
 
-chip.setAttribute('aria-label', `${prefix} ${sectionName}`.trim());
-}
+      chip.setAttribute('aria-label', `${prefix} ${sectionName}`.trim());
+    }
 
-if (!isHandlingPopstate && history.state?.view === 'modal') {
-const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
-if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
-history.replaceState(state, '');
-}
+    if (!isHandlingPopstate && history.state?.view === 'modal') {
+      const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
+      if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
+      history.replaceState(state, '');
+    }
 
-precacheAround(currentFotoIndex);
-if (typeof window.triggerUiAfterPhotoChange === 'function') {
-window.triggerUiAfterPhotoChange();
-}
-};
+    precacheAround(currentFotoIndex);
+    if (typeof window.triggerUiAfterPhotoChange === 'function') {
+      window.triggerUiAfterPhotoChange();
+    }
 
-im.onerror = function () {
-modalImg.src = nueva.url;
-modalImg.alt = nueva.texto;
-currentImage = modalImg;
-};
+    // Reposiciona el botón de fullscreen pegado a la imagen (desktop)
+    scheduleFsBtnLayout();
+  };
 
-im.src = nueva.url;
+  im.onerror = function () {
+    modalImg.src = nueva.url;
+    modalImg.alt = nueva.texto;
+    currentImage = modalImg;
+
+    // En caso de error de carga, también intentamos reposicionar
+    scheduleFsBtnLayout();
+  };
+
+  im.src = nueva.url;
 }
 
 // ===== Móvil: bottom sheet / scroll lock =====
@@ -1246,6 +1259,70 @@ if (document.exitFullscreen) document.exitFullscreen();
 restorePanel(); if (btn) btn.classList.remove('is-active');
 }
 }
+// === Fullscreen button auto-layout (desktop) ===
+function positionFullscreenToggle() {
+try {
+const isDesktop = window.matchMedia('(min-width: 1025px)').matches;
+const modal = document.getElementById('modal');
+if (!modal) return;
+const btn = modal.querySelector('.fullscreen-toggle');
+const img = modal.querySelector('#modal-img');
+if (!btn || !img) return;
+// Móvil o modal no activo: resetea al CSS
+if (!isDesktop || !modal.classList.contains('active')) {
+  btn.style.left = ''; btn.style.top = '';
+  btn.style.right = ''; btn.style.bottom = '';
+  return;
+}
+
+const rect = img.getBoundingClientRect();
+if (!rect.width || !rect.height) return;
+
+const offset = 12;                   // separación respecto a la imagen
+const vw = window.innerWidth, vh = window.innerHeight;
+const bw = btn.offsetWidth || 40, bh = btn.offsetHeight || 40;
+
+// Pegado justo fuera del borde inferior-derecho de la imagen
+let left = rect.right + offset;
+let top  = rect.bottom - bh - offset;
+
+// Asegurar accesibilidad: clampa dentro de la ventana
+const margin = 8;
+left = Math.min(Math.max(margin, left), vw - bw - margin);
+top  = Math.min(Math.max(margin, top), vh - bh - margin);
+
+btn.style.position = 'fixed';
+btn.style.left = `${left}px`;
+btn.style.top = `${top}px`;
+btn.style.right = 'auto';
+btn.style.bottom = 'auto';
+btn.style.zIndex = '1100';
+} catch (_) {}
+}
+
+function scheduleFsBtnLayout() {
+if (fsLayoutRaf) return;
+fsLayoutRaf = requestAnimationFrame(() => {
+fsLayoutRaf = 0;
+positionFullscreenToggle();
+});
+}
+
+function bindFsBtnAutoLayout(enable = true) {
+if (enable) {
+if (fsBtnResizeHandler) return;
+fsBtnResizeHandler = () => scheduleFsBtnLayout();
+window.addEventListener('resize', fsBtnResizeHandler, { passive: true });
+scheduleFsBtnLayout();
+} else {
+if (!fsBtnResizeHandler) return;
+window.removeEventListener('resize', fsBtnResizeHandler);
+fsBtnResizeHandler = null;
+if (fsLayoutRaf) { cancelAnimationFrame(fsLayoutRaf); fsLayoutRaf = 0; }
+}
+}
+
+
 function initMobileRotationHandler() {
 let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
 window.addEventListener('resize', () => {
@@ -1279,6 +1356,7 @@ const modal = document.getElementById('modal');
 if (!modal) return;
 
 exitFullscreenSafe();
+bindFsBtnAutoLayout(false);
 modal.style.display = 'none';
 modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
 document.body.classList.remove('modal-open');
