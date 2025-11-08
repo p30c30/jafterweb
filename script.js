@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v42.5 CARGADO');
+console.log('✅ script.js v42.6 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -13,7 +13,6 @@ let keydownHandler = null, fullscreenChangeHandler = null, carouselTimer = null;
 const carouselAutoDelay = 20000, carouselUserPauseMs = 60000;
 let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
 let velX = 0, velY = 0, inertiaId = null;
-// === Auto‑layout fullscreen button (estado) ===
 let fsBtnResizeHandler = null, fsLayoutRaf = 0, imgTransformEndHandler = null;
 const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
 let __scrollLockY = 0, isBodyLocked = false;
@@ -657,17 +656,24 @@ document.body.classList.add('modal-open');
 configurarEventosModal();
 bindFsBtnAutoLayout(true);
 scheduleFsBtnLayout();
+
 // Mostrar UI (incluye .modal-info) y auto-ocultar a los 3s
-window.triggerUiAfterPhotoChange?.();
+if (typeof window.triggerUiAfterPhotoChange === 'function') {
+  window.triggerUiAfterPhotoChange();
+} else {
+  // Fallback por si aún no está definida en este tick
+  const els = [
+    modal.querySelector('.close-modal'),
+    modal.querySelector('.prev-button'),
+    modal.querySelector('.next-button'),
+    modal.querySelector('.modal-info'),
+    modal.querySelector('.fullscreen-toggle'),
+  ];
+  els.forEach(el => el?.classList.add('visible'));
+  setTimeout(() => els.forEach(el => el?.classList.remove('visible')), 3000);
+}
+
 precacheAround(currentFotoIndex);
-if (typeof window.triggerUiAfterPhotoChange === 'function') {
-window.triggerUiAfterPhotoChange();
-}
-
-
-if (typeof window.triggerUiAfterPhotoChange === 'function') {
-window.triggerUiAfterPhotoChange();
-}
 };
 
 const img = new Image();
@@ -883,30 +889,37 @@ document.addEventListener('keydown', keydownHandler);
 
 // Click-zoom
 function doClickToggle() {
-if (currentScale > 1) { currentScale = 1; translateX = 0; translateY = 0; }
-else {
-if (isMobileViewport) {
-currentScale = defaultClickZoom;
-} else {
-let scale = 1.25;
-if (currentImage) {
-const container = currentImage.closest('.modal-img-container');
-if (container) {
-const cw = container.clientWidth, ch = container.clientHeight;
-const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
-const base = Math.max(cw / iw, ch / ih) * 0.97;
-scale = 1 + (base - 1) * 1;
-scale = Math.min(3.0, Math.max(1.2, scale));
-}
-}
-currentScale = scale;
-}
-}
-aplicarZoom();
-}
+  if (currentScale > 1) {
+    currentScale = 1;
+    translateX = 0;
+    translateY = 0;
+    aplicarZoom();
+    return;
+  }
 
+  const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
 
-}
+  if (isMobileViewport) {
+    currentScale = defaultClickZoom; // móvil como antes
+  } else {
+    let scale = 1.25;
+    if (currentImage) {
+      const container = currentImage.closest('.modal-img-container');
+      if (container) {
+        const cw = container.clientWidth, ch = container.clientHeight;
+        const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
+        const base = Math.max(cw / iw, ch / ih) * 0.97;
+
+        // SUTIL: reduce agresividad y limita
+        scale = 1 + (base - 1) * 0.9;
+        scale = Math.min(1.8, Math.max(1.2, scale));
+      }
+    }
+    currentScale = scale;
+  }
+
+  aplicarZoom();
+  hookImgTransformEndOnce?.();
 }
 
 // ===== Precarga y gestos =====
@@ -1141,6 +1154,24 @@ function navegarFoto(direccion) {
 
     // Reposiciona el botón pegado a la imagen (desktop)
     scheduleFsBtnLayout();
+	
+	// Mostrar la UI al cambiar de foto (si no estás en fullscreen)
+if (!document.fullscreenElement) {
+  if (typeof window.triggerUiAfterPhotoChange === 'function') {
+    window.triggerUiAfterPhotoChange();
+  } else {
+    const els = [
+      modal.querySelector('.close-modal'),
+      modal.querySelector('.prev-button'),
+      modal.querySelector('.next-button'),
+      modal.querySelector('.modal-info'),
+      modal.querySelector('.fullscreen-toggle'),
+    ];
+    els.forEach(el => el?.classList.add('visible'));
+    setTimeout(() => els.forEach(el => el?.classList.remove('visible')), 3000);
+  }
+}
+	
   };
 
   im.onerror = function () {
@@ -1148,9 +1179,12 @@ function navegarFoto(direccion) {
     modalImg.alt = nueva.texto;
     currentImage = modalImg;
 
-    // Mostrar la UI y luego auto-ocultar
-     window.triggerUiAfterPhotoChange?.();
-	// En caso de error de carga, también reposicionamos
+	// En error, también intenta mostrar la UI (si no estás en fullscreen)
+	if (!document.fullscreenElement) {
+	window.triggerUiAfterPhotoChange?.();
+	}
+		
+   	// En caso de error de carga, también reposicionamos
     scheduleFsBtnLayout();
   };
 
