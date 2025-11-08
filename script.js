@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v42.2 CARGADO');
+console.log('✅ script.js v42.3 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -10,7 +10,6 @@ let currentScale = 1, currentImage = null, isDragging = false, startX, startY, t
 let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
 const defaultClickZoom = 2;
 let keydownHandler = null, fullscreenChangeHandler = null, carouselTimer = null;
-let fsBtnResizeHandler = null, fsLayoutRaf = 0;
 const carouselAutoDelay = 20000, carouselUserPauseMs = 60000;
 let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
 let velX = 0, velY = 0, inertiaId = null;
