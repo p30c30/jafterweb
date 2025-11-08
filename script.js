@@ -1135,10 +1135,6 @@ function aplicarZoom(noTransition = false) {
   }
 }
 
-  // …y otra vez al terminar la animación de click‑zoom (transform 0.2s)
-  if (!noTransition && !isPinching) {
-    hookImgTransformEndOnce();
-  }
   const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
   if (isMobileViewport && window.matchMedia('(orientation: landscape)').matches && currentScale > 1) {
   modal.classList.add('is-zoomed');
