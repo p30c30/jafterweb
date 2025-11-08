@@ -1,14 +1,14 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v4.5 CARGADO');
+console.log('✅ script.js v4.6 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
 let scrollTopBtn = null, modalSource = 'seccion', currentView = 'home', isHandlingPopstate = false, ignoreNextClick = false;
 let currentScale = 1, currentImage = null, isDragging = false, startX, startY, translateX = 0, translateY = 0, lastX = 0, lastY = 0;
 let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
-const defaultClickZoom = 2;
+const defaultClickZoom = 1,3;
 let keydownHandler = null, fullscreenChangeHandler = null, carouselTimer = null;
 const carouselAutoDelay = 10000, carouselUserPauseMs = 30000;
 let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
@@ -1023,13 +1023,31 @@ newScale = Math.max(1, Math.min(5, newScale));
 currentScale = newScale; aplicarZoom(true);
 }
 }
-function onTouchEndImg(e) {
-if (isPinching && e.touches.length < 2) {
-isPinching = false;
-if (currentImage) currentImage.style.transition = '';
-ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
-document.removeEventListener('touchmove', onTouchMoveImg);
-document.removeEventListener('touchend', onTouchEndImg);
+function onTouchMoveImg(e) {
+  if (isPinching && e.touches.length === 2) {
+    e.preventDefault();
+
+    const d0 = pinchStartDistance;
+    const d1 = getTouchesDistance(e.touches[0], e.touches[1]);
+    const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+
+    // Escala del gesto
+    let ratio = d1 / d0;
+
+    // Suavizado en móvil (reduce sensibilidad del pinch)
+    if (isMobile) ratio = Math.pow(ratio, 0.85);
+
+    // Límite máximo: móvil más bajo, escritorio como lo tenías
+    const MAX = isMobile ? 2.2 : 5;
+
+    let newScale = pinchStartScale * ratio;
+    newScale = Math.max(1, Math.min(MAX, newScale));
+
+    if (Math.abs(newScale - currentScale) > 0.0001) {
+      currentScale = newScale;
+      aplicarZoom(true);
+    }
+  }
 }
 }
 function getTouchesDistance(t1, t2) { const dx = t2.clientX - t1.clientX, dy = t2.clientY - t1.clientY; return Math.hypot(dx, dy); }
@@ -1416,62 +1434,102 @@ setInfoHeight(target);
 // ===== Fullscreen / scroll lock =====
 function toggleFullscreen() {
   const modal = document.getElementById('modal');
-  const btn = modal?.querySelector('.fullscreen-toggle');
+  if (!modal) return;
+  const btn = modal.querySelector('.fullscreen-toggle');
+
   const restorePanel = () => {
     modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
     currentScale = 1; translateX = 0; translateY = 0;
-    const info = modal.querySelector('.modal-info'); if (info) info.style.display = '';
+
+    // Restaura estilos que pudimos tocar en móvil
     modal.style.removeProperty('--info-height');
+    const info = modal.querySelector('.modal-info'); if (info) info.style.display = '';
+    const imgContainer = modal.querySelector('.modal-img-container');
+    if (imgContainer) { imgContainer.style.height = ''; imgContainer.style.maxHeight = ''; }
+    const content = modal.querySelector('.modal-content');
+    if (content) { content.style.height = ''; content.style.padding = ''; }
+
     aplicarZoom(true);
   };
+
   if (!document.fullscreenElement) {
-    if (modal?.requestFullscreen) {
-      modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { 
-        modal.classList.add('fs-active'); 
-        if (btn) btn.classList.add('is-active'); 
+  // ENTRAR en fullscreen
+  if (modal.requestFullscreen) {
+    modal.requestFullscreen({ navigationUI: 'hide' })
+      .then(() => {
+        // Móvil: ajustar a pantalla (sin zoom gigante)
+        const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+        if (isMobile) {
+          currentScale = 1; translateX = 0; translateY = 0;
+          aplicarZoom(true);
+        }
+        btn?.classList.add('is-active');
+
+        // Reposicionar controles en escritorio
+        scheduleFsBtnLayout?.();
+      })
+      .catch(() => {
+        // Fallback si falla la API nativa
+        modal.classList.add('fs-active');
+        btn?.classList.add('is-active');
+
+        const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+        if (isMobile) {
+          // Ajusta a pantalla sin zoom y fuerza alto completo para evitar bandas
+          currentScale = 1; translateX = 0; translateY = 0;
+          aplicarZoom(true);
+
+          modal.style.setProperty('--info-height', '0dvh');
+          const info = modal.querySelector('.modal-info'); if (info) info.style.display = 'none';
+          const imgContainer = modal.querySelector('.modal-img-container');
+          if (imgContainer) { imgContainer.style.height = '100dvh'; imgContainer.style.maxHeight = '100dvh'; }
+          const content = modal.querySelector('.modal-content');
+          if (content) { content.style.height = '100dvh'; content.style.padding = '0'; }
+          void modal.offsetHeight; // reflow
+        }
+
+        // Reposicionar controles en escritorio
+        scheduleFsBtnLayout?.();
       });
-    } else {
-      modal.classList.add('fs-active');
-      if (btn) btn.classList.add('is-active');
-    }
-    // Fix para móvil: fuerza full-screen en fullscreen (portrait y landscape)
-    const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
-    if (isMobileViewport) {
-      modal.classList.add('is-zoomed'); // Unifica con zoom
-      // Fix full-screen: fuerza heights y colapso
-      modal.style.setProperty('--info-height', '0dvh');
-      const info = modal.querySelector('.modal-info');
-      if (info) info.style.display = 'none';
-      const imgContainer = modal.querySelector('.modal-img-container');
-      if (imgContainer) {
-        imgContainer.style.height = '100dvh';
-        imgContainer.style.maxHeight = '100dvh';
-      }
-      const content = modal.querySelector('.modal-content');
-      if (content) {
-        content.style.height = '100dvh';
-        content.style.padding = '0';
-      }
-      modal.offsetHeight; // Reflow para eliminar bandas
-    }
   } else {
-    if (document.exitFullscreen) document.exitFullscreen();
-    restorePanel(); 
-    if (btn) btn.classList.remove('is-active');
-    // Restaura en móvil al salir de fullscreen
-    const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
-    if (isMobileViewport) {
-      modal.classList.remove('is-zoomed');
-      if (currentScale <= 1) {
-        modal.style.removeProperty('--info-height');
-        const info = modal.querySelector('.modal-info');
-        if (info) info.style.display = '';
-        setInfoHeight(getCollapsed());
-      }
-      modal.offsetHeight; // Reflow para restaurar
+    // Sin API nativa
+    modal.classList.add('fs-active');
+    btn?.classList.add('is-active');
+
+    const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+    if (isMobile) {
+      currentScale = 1; translateX = 0; translateY = 0;
+      aplicarZoom(true);
+
+      modal.style.setProperty('--info-height', '0dvh');
+      const info = modal.querySelector('.modal-info'); if (info) info.style.display = 'none';
+      const imgContainer = modal.querySelector('.modal-img-container');
+      if (imgContainer) { imgContainer.style.height = '100dvh'; imgContainer.style.maxHeight = '100dvh'; }
+      const content = modal.querySelector('.modal-content');
+      if (content) { content.style.height = '100dvh'; content.style.padding = '0'; }
+      void modal.offsetHeight; // reflow
     }
+
+    // Reposicionar controles en escritorio
+    scheduleFsBtnLayout?.();
+  }
+} else {
+  // SALIR de fullscreen
+  if (document.exitFullscreen) document.exitFullscreen();
+  restorePanel();
+  btn?.classList.remove('is-active');
+
+  // Ajuste adicional en móvil al salir: deja el bottom sheet en colapsado
+  const isMobile = window.matchMedia('(max-width: 1024px)').matches;
+  if (isMobile && currentScale <= 1) {
+    const collapsed = window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh';
+    modal.style.setProperty('--info-height', collapsed);
+    void modal.offsetHeight;
   }
 
+  // Reposicionar controles en escritorio
+  scheduleFsBtnLayout?.();
+}
 }
 
 
