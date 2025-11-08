@@ -398,7 +398,6 @@ body.modal-open{ overflow:hidden; }
 /* Escritorio: ===BOTON PANTALLA COMPLETA POR FUERA DE LA FOTO===, esquina inferior derecha */
 /* ===== Escritorio: capas correctas + fullscreen por fuera y pegado (JS) ===== */
 @media (min-width: 1025px) {
-  /* El contenedor no recorta; creamos contexto por encima de la imagen */
   #modal .modal-content {
     position: relative;
     overflow: visible;
@@ -410,16 +409,13 @@ body.modal-open{ overflow:hidden; }
     overflow: visible;
   }
 
-  /* La imagen queda por debajo de hotspots y controles */
   #modal .modal-img {
     position: relative;
     z-index: 500;
   }
 
   /* Hotspots por ENCIMA de la imagen, pero debajo de flechas/cerrar/fullscreen */
-  #modal .modal-hotspot {
-    z-index: 800;
-  }
+  #modal .modal-hotspot { z-index: 800; }
 
   /* Flechas y cerrar por encima de hotspots */
   #modal .nav-button,
@@ -428,26 +424,16 @@ body.modal-open{ overflow:hidden; }
     pointer-events: auto;
   }
 
-  /* Botón de fullscreen: fijo (viewport) y por encima de todo lo clicable */
+  /* Botón de fullscreen: fijo y por encima de todo lo clicable */
   #modal .fullscreen-toggle {
-    position: fixed;    /* importante: salir del stacking del contenedor */
+    position: fixed;    /* sale del stacking del contenedor */
     z-index: 1100;      /* > nav/cerrar (900) y > hotspots (800) */
     margin: 0;
 
-    /* Fallback antes de que el JS lo pegue a la imagen */
+    /* Fallback antes de que JS lo pegue a la imagen */
     right: 24px;
     bottom: 20px;
   }
 
-  #modal .fullscreen-toggle svg {
-    width: 22px; height: 22px;
-  }
-
-  @media (hover:hover) {
-    #modal .fullscreen-toggle:hover {
-      background: rgba(253,184,19,.18);
-      color: var(--accent, #FDB813);
-      transform: translateY(-1px);
-    }
-  }
+  #modal .fullscreen-toggle svg { width: 22px; height: 22px; }
 }

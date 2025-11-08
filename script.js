@@ -14,6 +14,8 @@ let fsBtnResizeHandler = null, fsLayoutRaf = 0;
 const carouselAutoDelay = 20000, carouselUserPauseMs = 60000;
 let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
 let velX = 0, velY = 0, inertiaId = null;
+// === Auto‑layout fullscreen button (estado) ===
+let fsBtnResizeHandler = null, fsLayoutRaf = 0, imgTransformEndHandler = null;
 const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
 let __scrollLockY = 0, isBodyLocked = false;
 let modalFromHomeCarousel = false;
@@ -802,12 +804,17 @@ attachSwipeToModal(modal);
 attachBottomSheet(modal);
 
 // Fullscreen state
-if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
+if (fullscreenChangeHandler) {
+  document.removeEventListener('fullscreenchange', fullscreenChangeHandler);
+  fullscreenChangeHandler = null;
+}
 fullscreenChangeHandler = () => {
-const active = !!document.fullscreenElement;
-modal.classList.toggle('fs-active', active);
-const b = modal.querySelector('.fullscreen-toggle');
-if (b) b.classList.toggle('is-active', active);
+  const active = !!document.fullscreenElement;
+  modal.classList.toggle('fs-active', active);
+  const b = modal.querySelector('.fullscreen-toggle');
+  if (b) b.classList.toggle('is-active', active);
+  // Reposiciona al cambiar FS
+  scheduleFsBtnLayout();
 };
 document.addEventListener('fullscreenchange', fullscreenChangeHandler);
 
@@ -998,23 +1005,37 @@ if (Math.abs(translateX) > maxX) translateX = Math.sign(translateX) * maxX;
 if (Math.abs(translateY) > maxY) translateY = Math.sign(translateY) * maxY;
 }
 function aplicarZoom(noTransition = false) {
-if (!currentImage) return;
-if (noTransition) currentImage.style.transition = 'none';
-else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease';
-clampPan();
-currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`;
-currentImage.style.transformOrigin = 'center center';
-const modalEl = document.getElementById('modal');
-if (currentScale > 1) {
-currentImage.classList.add('zoomed'); currentImage.style.cursor = 'move'; modalEl?.classList.add('is-zoomed');
-} else {
-currentImage.classList.remove('zoomed'); currentImage.style.cursor = 'default';
-translateX = 0; translateY = 0; modalEl?.classList.remove('is-zoomed');
-currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`;
-}
-// Reposiciona el botón de fullscreen pegado al borde visible de la imagen (desktop)
-  if (typeof scheduleFsBtnLayout === 'function') {
-    scheduleFsBtnLayout();
+  if (!currentImage) return;
+
+  if (noTransition) currentImage.style.transition = 'none';
+  else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease';
+
+  clampPan();
+
+  currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`;
+  currentImage.style.transformOrigin = 'center center';
+
+  const modalEl = document.getElementById('modal');
+
+  if (currentScale > 1) {
+    currentImage.classList.add('zoomed');
+    currentImage.style.cursor = 'move';
+    modalEl?.classList.add('is-zoomed');
+  } else {
+    currentImage.classList.remove('zoomed');
+    currentImage.style.cursor = 'default';
+    translateX = 0;
+    translateY = 0;
+    modalEl?.classList.remove('is-zoomed');
+    currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`;
+  }
+
+  // Reposiciona ahora…
+  scheduleFsBtnLayout();
+
+  // …y otra vez al terminar la animación de click‑zoom (transform 0.2s)
+  if (!noTransition && !isPinching) {
+    hookImgTransformEndOnce();
   }
 }
 function resetZoom() {
@@ -1096,7 +1117,7 @@ function navegarFoto(direccion) {
       window.triggerUiAfterPhotoChange();
     }
 
-    // Reposiciona el botón de fullscreen pegado a la imagen (desktop)
+    // Reposiciona el botón pegado a la imagen (desktop)
     scheduleFsBtnLayout();
   };
 
@@ -1105,7 +1126,7 @@ function navegarFoto(direccion) {
     modalImg.alt = nueva.texto;
     currentImage = modalImg;
 
-    // En caso de error de carga, también intentamos reposicionar
+    // En caso de error de carga, también reposicionamos
     scheduleFsBtnLayout();
   };
 
@@ -1322,6 +1343,92 @@ if (fsLayoutRaf) { cancelAnimationFrame(fsLayoutRaf); fsLayoutRaf = 0; }
 }
 }
 
+// === Fullscreen button auto-layout (desktop) ===
+function positionFullscreenToggle() {
+  try {
+    const isDesktop = window.matchMedia('(min-width: 1025px)').matches;
+    const modal = document.getElementById('modal');
+    if (!modal) return;
+    const btn = modal.querySelector('.fullscreen-toggle');
+    const img = modal.querySelector('#modal-img');
+    if (!btn || !img) return;
+
+    // En móvil o si el modal no está activo, delega al CSS
+    if (!isDesktop || !modal.classList.contains('active')) {
+      btn.style.left = '';
+      btn.style.top = '';
+      btn.style.right = '';
+      btn.style.bottom = '';
+      return;
+    }
+
+    const rect = img.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+
+    const offset = 12;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const bw = btn.offsetWidth || 40, bh = btn.offsetHeight || 40;
+
+    // Pegado por fuera del borde inferior-derecho de la imagen
+    let left = rect.right + offset;
+    let top  = rect.bottom - bh - offset;
+
+    // Clamp dentro de viewport (por si la imagen va hasta el borde)
+    const margin = 8;
+    left = Math.min(Math.max(margin, left), vw - bw - margin);
+    top  = Math.min(Math.max(margin, top), vh - bh - margin);
+
+    btn.style.position = 'fixed';
+    btn.style.left = `${left}px`;
+    btn.style.top  = `${top}px`;
+    btn.style.right = 'auto';
+    btn.style.bottom = 'auto';
+    btn.style.zIndex = '1100';
+  } catch (_) {}
+}
+
+function scheduleFsBtnLayout() {
+  if (fsLayoutRaf) return;
+  fsLayoutRaf = requestAnimationFrame(() => {
+    fsLayoutRaf = 0;
+    positionFullscreenToggle();
+  });
+}
+
+function bindFsBtnAutoLayout(enable = true) {
+  if (enable) {
+    if (fsBtnResizeHandler) return;
+    fsBtnResizeHandler = () => scheduleFsBtnLayout();
+    window.addEventListener('resize', fsBtnResizeHandler, { passive: true });
+    scheduleFsBtnLayout();
+  } else {
+    if (!fsBtnResizeHandler) return;
+    window.removeEventListener('resize', fsBtnResizeHandler);
+    fsBtnResizeHandler = null;
+    if (fsLayoutRaf) { cancelAnimationFrame(fsLayoutRaf); fsLayoutRaf = 0; }
+  }
+}
+
+// Reposiciona una vez al terminar la transición de transform (click-zoom)
+function hookImgTransformEndOnce() {
+  const img = currentImage || document.getElementById('modal-img');
+  if (!img) return;
+
+  if (imgTransformEndHandler) {
+    img.removeEventListener('transitionend', imgTransformEndHandler);
+    imgTransformEndHandler = null;
+  }
+
+  imgTransformEndHandler = (ev) => {
+    if (ev.propertyName === 'transform') {
+      scheduleFsBtnLayout();
+      img.removeEventListener('transitionend', imgTransformEndHandler);
+      imgTransformEndHandler = null;
+    }
+  };
+  img.addEventListener('transitionend', imgTransformEndHandler);
+}
+
 
 function initMobileRotationHandler() {
 let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
@@ -1352,28 +1459,46 @@ if (isBodyLocked) { window.scrollTo(0, __scrollLockY || 0); }
 isBodyLocked = false;
 }
 function closeModal() {
-const modal = document.getElementById('modal');
-if (!modal) return;
+  const modal = document.getElementById('modal');
+  if (!modal) return;
 
-exitFullscreenSafe();
-bindFsBtnAutoLayout(false);
-modal.style.display = 'none';
-modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
-document.body.classList.remove('modal-open');
-isModalOpen = false; ignoreNextClick = false; resetZoom();
-if (keydownHandler) { document.removeEventListener('keydown', keydownHandler); keydownHandler = null; }
-if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
-modal.innerHTML = '';
-unlockBodyScroll();
-if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
-refreshScrollTop();
+  exitFullscreenSafe();
 
-if (currentView === 'modal') currentView = (modalSource === 'carrusel') ? 'home' : (modalSource === 'seccion' ? 'seccion' : 'home');
-modalFromHomeCarousel = false;
-__pushedModal = false;
+  // Desactiva el auto-layout del botón fullscreen
+  bindFsBtnAutoLayout(false);
 
-if (window.triggerUiAfterPhotoChange) { try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; } }
+  modal.style.display = 'none';
+  modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
+  document.body.classList.remove('modal-open');
+  isModalOpen = false; ignoreNextClick = false; resetZoom();
+
+  if (keydownHandler) {
+    document.removeEventListener('keydown', keydownHandler);
+    keydownHandler = null;
+  }
+  if (fullscreenChangeHandler) {
+    document.removeEventListener('fullscreenchange', fullscreenChangeHandler);
+    fullscreenChangeHandler = null;
+  }
+
+  modal.innerHTML = '';
+  unlockBodyScroll();
+
+  if (carruselInnerRef) startCarouselAutoplay(carouselAutoDelay);
+  refreshScrollTop();
+
+  if (currentView === 'modal')
+    currentView = (modalSource === 'carrusel') ? 'home' : (modalSource === 'seccion' ? 'seccion' : 'home');
+
+  modalFromHomeCarousel = false;
+  __pushedModal = false;
+
+  if (window.triggerUiAfterPhotoChange) {
+    try { delete window.triggerUiAfterPhotoChange; }
+    catch (e) { window.triggerUiAfterPhotoChange = undefined; }
+  }
 }
+
 function volverAGaleriaInternal() {
 currentSeccion = null; currentFotoIndex = 0; todasLasFotos = []; isModalOpen = false;
 const home = document.getElementById('home-view'); if (home) home.style.display = 'block';
