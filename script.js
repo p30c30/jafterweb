@@ -1130,7 +1130,7 @@ function aplicarZoom(noTransition = false) {
     hookImgTransformEndOnce();
   }
 }
-}
+
   // Reposiciona ahora…
   scheduleFsBtnLayout();
 
