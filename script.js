@@ -1049,7 +1049,7 @@ function onTouchMoveImg(e) {
     }
   }
 }
-}
+
 function getTouchesDistance(t1, t2) { const dx = t2.clientX - t1.clientX, dy = t2.clientY - t1.clientY; return Math.hypot(dx, dy); }
 function startDrag(e) {
 if (currentScale <= 1) return;
