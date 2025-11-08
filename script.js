@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v42.3 CARGADO');
+console.log('✅ script.js v42.4 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -716,6 +716,44 @@ const seccionId = currentSeccion?.id;
 closeModal();
 if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
 });
+}
+// === Auto-ocultado de UI en escritorio (incluye la info) ===
+if (!isMobileViewport) {
+  const AUTO_HIDE_MS = 3000;
+  let autoHideId = null;
+
+  // Asegúrate de tener estas refs definidas arriba en configurarEventosModal:
+  // const prevBtn  = modal.querySelector('.prev-button');
+  // const nextBtn  = modal.querySelector('.next-button');
+  // const infoPanel = modal.querySelector('.modal-info');
+  // const fsBtn    = modal.querySelector('.fullscreen-toggle');
+  // const hotspotTop = modal.querySelector('.modal-hotspot.top');
+  // const hotspotLeft = modal.querySelector('.modal-hotspot.left');
+  // const hotspotRight = modal.querySelector('.modal-hotspot.right');
+  // const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
+
+  const elList = [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn];
+
+  function show(el) { if (el) { el.classList.add('visible'); el.style.pointerEvents = 'auto'; } }
+  function hide(el) { if (el) { el.classList.remove('visible'); el.style.pointerEvents = ''; } }
+  function hideAll() { elList.forEach(hide); }
+  function resetTimer() { clearTimeout(autoHideId); autoHideId = setTimeout(hideAll, AUTO_HIDE_MS); }
+  function showAllAndArmTimer() { elList.forEach(show); resetTimer(); }
+  function showCloseAndArmTimer() { show(closeBtn); resetTimer(); }
+
+  // Exponer para que onImageLoad/navegarFoto lo usen
+  window.triggerUiAfterPhotoChange = showAllAndArmTimer;
+
+  // Interacciones que muestran la UI de nuevo
+  modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
+  hotspotTop?.addEventListener('mouseenter',   () => { show(closeBtn); resetTimer(); });
+  hotspotLeft?.addEventListener('mouseenter',  () => { show(prevBtn);  resetTimer(); });
+  hotspotRight?.addEventListener('mouseenter', () => { show(nextBtn);  resetTimer(); });
+  hotspotBottom?.addEventListener('mouseenter',() => { show(infoPanel); if (fsBtn) show(fsBtn); resetTimer(); });
+
+} else {
+  // En móvil no usamos auto-hide por .visible
+  try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
 }
 
 modal.addEventListener('click', function (event) {
