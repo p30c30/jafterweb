@@ -658,6 +658,10 @@ configurarEventosModal();
 bindFsBtnAutoLayout(true);
 scheduleFsBtnLayout();
 precacheAround(currentFotoIndex);
+if (typeof window.triggerUiAfterPhotoChange === 'function') {
+window.triggerUiAfterPhotoChange();
+}
+
 
 if (typeof window.triggerUiAfterPhotoChange === 'function') {
 window.triggerUiAfterPhotoChange();
@@ -851,7 +855,7 @@ if (container) {
 const cw = container.clientWidth, ch = container.clientHeight;
 const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
 const base = Math.max(cw / iw, ch / ih) * 0.97;
-scale = 1 + (base - 1) * 5;
+scale = 1 + (base - 1) * 1;
 scale = Math.min(3.0, Math.max(1.2, scale));
 }
 }
