@@ -1,11 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-<<<<<<< HEAD
-console.log('✅ script.js v42.9 CARGADO');
-=======
-console.log('✅ script.js v42.7 CARGADO');
->>>>>>> parent of 0d3fcd9 (mostrar info 3)
+console.log('✅ script.js v43 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -616,35 +612,36 @@ const sectionTitle = modalSource === 'carrusel' ? (item.seccionTitulo || 'Ver se
 const chipPrefix = (modalSource === 'carrusel') ? 'Ir a' : 'Volver a';
 
 modal.innerHTML = `
-
-<div class="modal-hotspot top"></div> <div class="modal-hotspot left"></div> <div class="modal-hotspot right"></div> <div class="modal-hotspot bottom"></div> <div id="modal-content-wrapper"> <div class="close-modal" title="Cerrar">×</div>
-<div class="nav-button prev-button" title="Anterior">‹</div>
-<div class="nav-button next-button" title="Siguiente">›</div>
-
-<div class="modal-content">
-  <div class="modal-img-container">
-    <img src="" alt="${title}" class="modal-img" id="modal-img">
-    <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g>
-        <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g>
-      </svg>
-    </button>
-  </div>
-</div>
-
-<div class="modal-info">
-  <div class="info-handle" aria-hidden="true"></div>
-  <div class="foto-title">${title}</div>
-  <button type="button"
-          class="section-chip"
-          ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'}
-          aria-label="${chipPrefix} ${sectionTitle || ''}">
-    <span class="chip-label">${chipPrefix}</span>
-    <span class="chip-name">${sectionTitle || ''}</span>
-    <span class="chip-arrow">→</span>
-  </button>
-</div>
+   <div class="modal-hotspot top"></div>
+   <div class="modal-hotspot left"></div>
+   <div class="modal-hotspot right"></div>
+   <div class="modal-hotspot bottom"></div>
+   <div id="modal-content-wrapper">
+     <div class="close-modal" title="Cerrar">×</div>
+     <div class="nav-button prev-button" title="Anterior">‹</div>
+     <div class="nav-button next-button" title="Siguiente">›</div>
+     <div class="modal-content">
+       <div class="modal-img-container">
+         <img src="" alt="${title}" class="modal-img" id="modal-img">
+         <button class="fullscreen-toggle" type="button" aria-label="Pantalla completa" title="Pantalla completa">
+           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+             <g class="ico-enter"><path d="M9 3H4v5M15 3h5v5M9 21H4v-5M15 21h5v-5"/></g>
+             <g class="ico-exit"><path d="M10 14H6v4M14 14h4v4M10 10H6V6M14 10h4V6"/></g>
+           </svg>
+         </button>
+       </div>
+     </div>
+     <div class="modal-info">
+       <div class="info-handle" aria-hidden="true"></div>
+ 
+       <!-- <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div> -->
+       <div class="foto-title">${title}</div>
+       <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'} aria-label="${chipPrefix} ${sectionTitle || ''}">
+         <span class="chip-label">${chipPrefix}</span>
+         <span class="chip-name">${sectionTitle || ''}</span>
+         <span class="chip-arrow">→</span>
+       </button>
+     </div>
    </div>`;
 
 const modalImg = document.getElementById('modal-img');
@@ -656,14 +653,12 @@ resetZoom();
 modal.classList.add('active');
 document.body.classList.add('modal-open');
 
+// LIMPIA estados que esconden la info (muy importante)
+modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
+
 configurarEventosModal();
 bindFsBtnAutoLayout(true);
 scheduleFsBtnLayout();
-
-// hace aparecer la UI (incluida .modal-info) y se oculta a los 3s
-if (!document.fullscreenElement) {
-window.triggerUiAfterPhotoChange?.();
-}
 
 // Mostrar UI (incluye .modal-info) y auto-ocultar a los 3s
 if (typeof window.triggerUiAfterPhotoChange === 'function') {
@@ -1163,7 +1158,7 @@ function navegarFoto(direccion) {
 
     // Reposiciona el botón pegado a la imagen (desktop)
     scheduleFsBtnLayout();
-	
+	modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
 	// Mostrar la UI al cambiar de foto (si no estás en fullscreen)
 if (!document.fullscreenElement) {
   if (typeof window.triggerUiAfterPhotoChange === 'function') {
