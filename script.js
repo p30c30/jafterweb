@@ -1075,6 +1075,7 @@ const { maxX, maxY } = getPanBounds();
 if (Math.abs(translateX) > maxX) translateX = Math.sign(translateX) * maxX;
 if (Math.abs(translateY) > maxY) translateY = Math.sign(translateY) * maxY;
 }
+
 function aplicarZoom(noTransition = false) {
   if (!currentImage) return;
   if (noTransition) currentImage.style.transition = 'none';
@@ -1134,14 +1135,7 @@ function aplicarZoom(noTransition = false) {
     hookImgTransformEndOnce();
   }
 }
-
-  const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
-  if (isMobileViewport && window.matchMedia('(orientation: landscape)').matches && currentScale > 1) {
-  modal.classList.add('is-zoomed');
-} else if (currentScale <= 1) {
-  modal.classList.remove('is-zoomed');
-}
-}
+  
 function resetZoom() {
 currentScale = 1; translateX = 0; translateY = 0; isDragging = false; lastX = 0; lastY = 0; isPinching = false;
 if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; }
