@@ -8,7 +8,7 @@ let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselAct
 let scrollTopBtn = null, modalSource = 'seccion', currentView = 'home', isHandlingPopstate = false, ignoreNextClick = false;
 let currentScale = 1, currentImage = null, isDragging = false, startX, startY, translateX = 0, translateY = 0, lastX = 0, lastY = 0;
 let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
-const defaultClickZoom = 1,3;
+const defaultClickZoom = 1.3;
 let keydownHandler = null, fullscreenChangeHandler = null, carouselTimer = null;
 const carouselAutoDelay = 10000, carouselUserPauseMs = 30000;
 let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
