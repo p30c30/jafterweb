@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v43 CARGADO');
+console.log('✅ script.js v4.4 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -474,13 +474,37 @@ iniciarAutoPlay();
 configurarInteraccionCarrusel();
 }
 function obtenerFotosParaCarrusel(data) {
-const planas = [];
-data.secciones.forEach(sec => {
-if (Array.isArray(sec.fotos)) {
-sec.fotos.forEach((foto, i) => planas.push({ ...foto, seccionId: sec.id, seccionTitulo: sec.titulo, indiceEnSeccion: i }));
-}
-});
-return planas.slice(-20).reverse();
+  // Obtener las fotos de cada sección en orden inverso (asumiendo que las nuevas se agregan al final, por lo que las últimas son las más recientes)
+  const sectionFotosReversed = data.secciones.map(sec => {
+    if (!Array.isArray(sec.fotos)) return [];
+    return sec.fotos.slice().reverse().map((foto, revIndex) => ({
+      ...foto,
+      seccionId: sec.id,
+      seccionTitulo: sec.titulo,
+      indiceEnSeccion: sec.fotos.length - 1 - revIndex
+    }));
+  });
+
+  // Seleccionar fotos en round-robin para mezclar secciones y evitar agrupamiento
+  const carruselPhotos = [];
+  const numSections = sectionFotosReversed.length;
+  let indices = new Array(numSections).fill(0); // Índice por sección
+
+  while (carruselPhotos.length < 20) {
+    let added = false;
+    for (let s = 0; s < numSections; s++) {
+      if (carruselPhotos.length >= 20) break;
+      if (indices[s] < sectionFotosReversed[s].length) {
+        carruselPhotos.push(sectionFotosReversed[s][indices[s]]);
+        indices[s]++;
+        added = true;
+      }
+    }
+    if (!added) break; // No hay más fotos disponibles
+  }
+
+  // Invertir la lista final para mostrar las más "recientes" primero (aproximación global)
+  return carruselPhotos.reverse();
 }
 function mostrarCarruselFotos(fotos, container, dotsContainer) {
 container.innerHTML = '';
