@@ -921,7 +921,8 @@ function doClickToggle() {
   aplicarZoom();
   hookImgTransformEndOnce?.();
 }
-
+} // <- cierra configurarEventosModal
+} // <- cierra mostrarModal
 // ===== Precarga y gestos =====
 function precacheAround(index) {
 const list = getModalList() || [];
@@ -1339,28 +1340,6 @@ restorePanel(); if (btn) btn.classList.remove('is-active');
 }
 }
 
-
-function scheduleFsBtnLayout() {
-if (fsLayoutRaf) return;
-fsLayoutRaf = requestAnimationFrame(() => {
-fsLayoutRaf = 0;
-positionFullscreenToggle();
-});
-}
-
-function bindFsBtnAutoLayout(enable = true) {
-if (enable) {
-if (fsBtnResizeHandler) return;
-fsBtnResizeHandler = () => scheduleFsBtnLayout();
-window.addEventListener('resize', fsBtnResizeHandler, { passive: true });
-scheduleFsBtnLayout();
-} else {
-if (!fsBtnResizeHandler) return;
-window.removeEventListener('resize', fsBtnResizeHandler);
-fsBtnResizeHandler = null;
-if (fsLayoutRaf) { cancelAnimationFrame(fsLayoutRaf); fsLayoutRaf = 0; }
-}
-}
 
 // === Fullscreen button auto-layout (desktop) ===
 function positionFullscreenToggle() {
