@@ -656,18 +656,13 @@ document.body.classList.add('modal-open');
 modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
 
 configurarEventosModal();
-// Seguro: si por algún motivo el wrapper quedó vacío, loguéalo
-const wrapper = modal.querySelector('#modal-content-wrapper');
-if (!wrapper || !wrapper.querySelector('.modal-info')) {
-console.warn('wrapper vacío: no se renderizó .modal-info');
-}
-
 bindFsBtnAutoLayout(true);
 scheduleFsBtnLayout();
 
+// hace aparecer la UI (incluida .modal-info) y se oculta a los 3s
+if (!document.fullscreenElement) {
 window.triggerUiAfterPhotoChange?.();
-
-precacheAround(currentFotoIndex);
+}
 
 // Mostrar UI (incluye .modal-info) y auto-ocultar a los 3s
 if (typeof window.triggerUiAfterPhotoChange === 'function') {
