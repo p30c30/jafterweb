@@ -1134,16 +1134,6 @@ function aplicarZoom(noTransition = false) {
     hookImgTransformEndOnce();
   }
 }
-  // Reposiciona ahora…
-  scheduleFsBtnLayout();
-  // …y otra vez al terminar la animación de click‑zoom (transform 0.2s)
-  if (!noTransition && !isPinching) {
-    hookImgTransformEndOnce();
-  }
-}
-
-  // Reposiciona ahora…
-  scheduleFsBtnLayout();
 
   // …y otra vez al terminar la animación de click‑zoom (transform 0.2s)
   if (!noTransition && !isPinching) {
