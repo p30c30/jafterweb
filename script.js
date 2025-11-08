@@ -1114,39 +1114,38 @@ currentImage.style.cursor = 'default';
 const modalEl = document.getElementById('modal'); if (modalEl) modalEl.classList.remove('is-zoomed');
 }
 function getModalList() { return modalSource === 'carrusel' ? carruselFotos : todasLasFotos; }
+// En la función navegarFoto, reemplaza la línea de resetZoom() con esta versión condicional:
 function navegarFoto(direccion) {
   const list = getModalList();
   if (!list?.length) return;
-
   let idx = currentFotoIndex + direccion;
   if (idx < 0) idx = list.length - 1;
   else if (idx >= list.length) idx = 0;
   currentFotoIndex = idx;
-
   const nueva = list[currentFotoIndex];
   const modal = document.getElementById('modal');
   if (!modal) return;
-
   const modalImg = modal.querySelector('#modal-img');
   const contador = modal.querySelector('.foto-counter');
   const titulo = modal.querySelector('.foto-title');
   const chip = modal.querySelector('.section-chip');
 
-  resetZoom();
+  // Solo resetear zoom en escritorio; en móvil mantener zoom si existe y ocultar info vía CSS
+  const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
+  if (!isMobileViewport) {
+    resetZoom();
+  } // En móvil: no resetea, scale persiste y .is-zoomed oculta info automáticamente
 
   const im = new Image();
   im.onload = function () {
     modalImg.src = nueva.url;
     modalImg.alt = nueva.texto;
     currentImage = modalImg;
-
     if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`;
     if (titulo) titulo.textContent = nueva.texto;
-
     if (chip) {
       let seccionId = '';
       let sectionName = '';
-
       if (modalSource === 'carrusel') {
         seccionId = nueva.seccionId || '';
         sectionName = nueva.seccionTitulo || '';
@@ -1158,66 +1157,64 @@ function navegarFoto(direccion) {
         chip.disabled = false;
         chip.dataset.seccionId = seccionId;
       }
-
       const prefix = (modalSource === 'carrusel') ? 'Ir a' : 'Volver a';
       const chipLabelEl = chip.querySelector('.chip-label');
-      const chipNameEl  = chip.querySelector('.chip-name');
-
+      const chipNameEl = chip.querySelector('.chip-name');
       if (chipLabelEl) chipLabelEl.textContent = prefix;
-      if (chipNameEl)  chipNameEl.textContent = sectionName;
-
+      if (chipNameEl) chipNameEl.textContent = sectionName;
       chip.setAttribute('aria-label', `${prefix} ${sectionName}`.trim());
     }
-
     if (!isHandlingPopstate && history.state?.view === 'modal') {
       const state = { view: 'modal', source: modalSource, fotoIndex: currentFotoIndex };
       if (modalSource === 'seccion' && currentSeccion) state.seccionId = currentSeccion.id;
       history.replaceState(state, '');
     }
-
     precacheAround(currentFotoIndex);
     if (typeof window.triggerUiAfterPhotoChange === 'function') {
       window.triggerUiAfterPhotoChange();
     }
-
     // Reposiciona el botón pegado a la imagen (desktop)
     scheduleFsBtnLayout();
-	modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
-	// Mostrar la UI al cambiar de foto (si no estás en fullscreen)
-if (!document.fullscreenElement) {
-  if (typeof window.triggerUiAfterPhotoChange === 'function') {
-    window.triggerUiAfterPhotoChange();
-  } else {
-    const els = [
-      modal.querySelector('.close-modal'),
-      modal.querySelector('.prev-button'),
-      modal.querySelector('.next-button'),
-      modal.querySelector('.modal-info'),
-      modal.querySelector('.fullscreen-toggle'),
-    ];
-    els.forEach(el => el?.classList.add('visible'));
-    setTimeout(() => els.forEach(el => el?.classList.remove('visible')), 3000);
-  }
-}
-	
+    modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
+    // Mostrar la UI al cambiar de foto (si no estás en fullscreen)
+    if (!document.fullscreenElement) {
+      if (typeof window.triggerUiAfterPhotoChange === 'function') {
+        window.triggerUiAfterPhotoChange();
+      } else {
+        const els = [
+          modal.querySelector('.close-modal'),
+          modal.querySelector('.prev-button'),
+          modal.querySelector('.next-button'),
+          modal.querySelector('.modal-info'),
+          modal.querySelector('.fullscreen-toggle'),
+        ];
+        els.forEach(el => el?.classList.add('visible'));
+        setTimeout(() => els.forEach(el => el?.classList.remove('visible')), 3000);
+      }
+    }
+    // En móvil: si hay zoom activo, fuerza ocultado de info vía CSS
+    if (isMobileViewport && currentScale > 1) {
+      modal.classList.add('is-zoomed');
+    }
   };
-
   im.onerror = function () {
     modalImg.src = nueva.url;
     modalImg.alt = nueva.texto;
     currentImage = modalImg;
-
-	// En error, también intenta mostrar la UI (si no estás en fullscreen)
-	if (!document.fullscreenElement) {
-	window.triggerUiAfterPhotoChange?.();
-	}
-		
-   	// En caso de error de carga, también reposicionamos
+    // En error, también intenta mostrar la UI (si no estás en fullscreen)
+    if (!document.fullscreenElement) {
+      window.triggerUiAfterPhotoChange?.();
+    }
+    // En caso de error de carga, también reposicionamos
     scheduleFsBtnLayout();
+    // En móvil: si hay zoom activo, fuerza ocultado de info vía CSS
+    if (isMobileViewport && currentScale > 1) {
+      modal.classList.add('is-zoomed');
+    }
   };
-
   im.src = nueva.url;
 }
+
 
 // ===== Móvil: bottom sheet / scroll lock =====
 function attachSwipeToModal(modal) {
