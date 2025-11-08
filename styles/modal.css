@@ -367,3 +367,68 @@ body.modal-open{ overflow:hidden; }
   }
 }
 
+/* Fix agresivo para banda negra en zoom móvil: full-screen en portrait Y landscape */
+@media (max-width: 1024px) {
+  .modal.is-zoomed,
+  .modal.fs-active {
+    --info-height: 0dvh !important; /* Colapsa info al mínimo en zoom/fullscreen */
+  }
+  .modal.is-zoomed .modal-info,
+  .modal.fs-active .modal-info {
+    display: none !important; /* Elimina info por completo */
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+  }
+  .modal.is-zoomed .modal-content,
+  .modal.fs-active .modal-content {
+    height: 100dvh !important; /* Todo el viewport dinámico */
+    padding: 0 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .modal.is-zoomed #modal-content-wrapper,
+  .modal.fs-active #modal-content-wrapper {
+    height: 100dvh !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important; /* Soporte para notches/barras en portrait/landscape */
+  }
+  .modal.is-zoomed .modal-img-container,
+  .modal.fs-active .modal-img-container {
+    height: 100dvh !important; /* Imagen ocupa TODO el alto, sin bandas */
+    max-height: 100dvh !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+  }
+  .modal.is-zoomed .modal-img,
+  .modal.fs-active .modal-img {
+    max-height: none !important; /* Permite expansión libre en zoom */
+    height: auto !important;
+    width: auto !important;
+    max-width: none !important;
+  }
+}
+
+/* Refuerzo específico para landscape: asegura full en horizontal */
+@media (max-width: 1024px) and (orientation: landscape) {
+  .modal.is-zoomed .modal-img-container,
+  .modal.fs-active .modal-img-container {
+    height: 100dvh !important;
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important; /* Extra para barras laterales en algunos dispositivos */
+  }
+}
+
+/* Limpieza al salir de zoom: restaura sin bandas */
+.modal:not(.is-zoomed):not(.fs-active) .modal-img-container {
+  height: calc(100dvh - var(--info-height)) !important;
+}
+
+
+

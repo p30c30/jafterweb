@@ -1077,21 +1077,35 @@ if (Math.abs(translateY) > maxY) translateY = Math.sign(translateY) * maxY;
 }
 function aplicarZoom(noTransition = false) {
   if (!currentImage) return;
-
   if (noTransition) currentImage.style.transition = 'none';
   else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease';
-
   clampPan();
-
   currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`;
   currentImage.style.transformOrigin = 'center center';
-
   const modalEl = document.getElementById('modal');
-
+  const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
   if (currentScale > 1) {
     currentImage.classList.add('zoomed');
     currentImage.style.cursor = 'move';
     modalEl?.classList.add('is-zoomed');
+    // Fix móvil: fuerza full-height en zoom
+    if (isMobileViewport) {
+      modalEl.style.setProperty('--info-height', '0dvh');
+      const info = modalEl.querySelector('.modal-info');
+      if (info) info.style.display = 'none';
+      const imgContainer = modalEl.querySelector('.modal-img-container');
+      if (imgContainer) {
+        imgContainer.style.height = '100dvh';
+        imgContainer.style.maxHeight = '100dvh';
+      }
+      const content = modalEl.querySelector('.modal-content');
+      if (content) {
+        content.style.height = '100dvh';
+        content.style.padding = '0';
+      }
+      // Trigger reflow para recalcular viewport (elimina bandas)
+      modalEl.offsetHeight;
+    }
   } else {
     currentImage.classList.remove('zoomed');
     currentImage.style.cursor = 'default';
@@ -1099,7 +1113,23 @@ function aplicarZoom(noTransition = false) {
     translateY = 0;
     modalEl?.classList.remove('is-zoomed');
     currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`;
+    // Restaura info en móvil si sales de zoom
+    if (isMobileViewport) {
+      modalEl.style.removeProperty('--info-height');
+      const info = modalEl.querySelector('.modal-info');
+      if (info) info.style.display = '';
+      setInfoHeight(getCollapsed()); // O getExpanded() si prefieres expandido por default
+      // Reflow para restaurar
+      modalEl.offsetHeight;
+    }
   }
+  // Reposiciona ahora…
+  scheduleFsBtnLayout();
+  // …y otra vez al terminar la animación de click‑zoom (transform 0.2s)
+  if (!noTransition && !isPinching) {
+    hookImgTransformEndOnce();
+  }
+}
 
   // Reposiciona ahora…
   scheduleFsBtnLayout();
@@ -1357,40 +1387,63 @@ setInfoHeight(target);
 
 // ===== Fullscreen / scroll lock =====
 function toggleFullscreen() {
-const modal = document.getElementById('modal');
-const btn = modal?.querySelector('.fullscreen-toggle');
-const restorePanel = () => {
-modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
-currentScale = 1; translateX = 0; translateY = 0;
-const info = modal.querySelector('.modal-info'); if (info) info.style.display = '';
-modal.style.removeProperty('--info-height');
-aplicarZoom(true);
-};
-if (!document.fullscreenElement) {
-if (modal?.requestFullscreen) {
-modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { modal.classList.add('fs-active'); if (btn) btn.classList.add('is-active'); });
-} else {
-modal.classList.add('fs-active'); 
-const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
-if (!document.fullscreenElement) {
-  // ... (código existente)
-  if (isMobileViewport && window.matchMedia('(orientation: landscape)').matches) {
-    modal.classList.add('is-zoomed');  // Trata fullscreen como zoom en landscape
-  }
-} else {
-  // ... (código existente)
-  if (isMobileViewport && window.matchMedia('(orientation: landscape)').matches) {
-    if (currentScale <= 1) {  // Solo remueve si no hay zoom real
+  const modal = document.getElementById('modal');
+  const btn = modal?.querySelector('.fullscreen-toggle');
+  const restorePanel = () => {
+    modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
+    currentScale = 1; translateX = 0; translateY = 0;
+    const info = modal.querySelector('.modal-info'); if (info) info.style.display = '';
+    modal.style.removeProperty('--info-height');
+    aplicarZoom(true);
+  };
+  if (!document.fullscreenElement) {
+    if (modal?.requestFullscreen) {
+      modal.requestFullscreen({ navigationUI: 'hide' }).catch(() => { 
+        modal.classList.add('fs-active'); 
+        if (btn) btn.classList.add('is-active'); 
+      });
+    } else {
+      modal.classList.add('fs-active');
+      if (btn) btn.classList.add('is-active');
+    }
+    // Fix para móvil: fuerza full-screen en fullscreen (portrait y landscape)
+    const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
+    if (isMobileViewport) {
+      modal.classList.add('is-zoomed'); // Unifica con zoom
+      // Fix full-screen: fuerza heights y colapso
+      modal.style.setProperty('--info-height', '0dvh');
+      const info = modal.querySelector('.modal-info');
+      if (info) info.style.display = 'none';
+      const imgContainer = modal.querySelector('.modal-img-container');
+      if (imgContainer) {
+        imgContainer.style.height = '100dvh';
+        imgContainer.style.maxHeight = '100dvh';
+      }
+      const content = modal.querySelector('.modal-content');
+      if (content) {
+        content.style.height = '100dvh';
+        content.style.padding = '0';
+      }
+      modal.offsetHeight; // Reflow para eliminar bandas
+    }
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    restorePanel(); 
+    if (btn) btn.classList.remove('is-active');
+    // Restaura en móvil al salir de fullscreen
+    const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
+    if (isMobileViewport) {
       modal.classList.remove('is-zoomed');
+      if (currentScale <= 1) {
+        modal.style.removeProperty('--info-height');
+        const info = modal.querySelector('.modal-info');
+        if (info) info.style.display = '';
+        setInfoHeight(getCollapsed());
+      }
+      modal.offsetHeight; // Reflow para restaurar
     }
   }
-}
-if (btn) btn.classList.add('is-active');
-}
-} else {
-if (document.exitFullscreen) document.exitFullscreen();
-restorePanel(); if (btn) btn.classList.remove('is-active');
-}
+
 }
 
 
