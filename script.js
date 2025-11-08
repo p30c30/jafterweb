@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v42.4 CARGADO');
+console.log('✅ script.js v42.5 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -657,6 +657,8 @@ document.body.classList.add('modal-open');
 configurarEventosModal();
 bindFsBtnAutoLayout(true);
 scheduleFsBtnLayout();
+// Mostrar UI (incluye .modal-info) y auto-ocultar a los 3s
+window.triggerUiAfterPhotoChange?.();
 precacheAround(currentFotoIndex);
 if (typeof window.triggerUiAfterPhotoChange === 'function') {
 window.triggerUiAfterPhotoChange();
@@ -903,28 +905,7 @@ currentScale = scale;
 aplicarZoom();
 }
 
-if (!isMobileViewport) {
-const AUTO_HIDE_MS = 3000; let autoHideId = null;
-function show(el) { if (el) { el.classList.add('visible'); el.style.pointerEvents = 'auto'; } }
-function hide(el) { if (el) { el.classList.remove('visible'); el.style.pointerEvents = ''; } }
-function hideAll() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(hide); }
-function resetTimer() { clearTimeout(autoHideId); autoHideId = setTimeout(hideAll, AUTO_HIDE_MS); }
-function showAllAndArmTimer() { [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(show); resetTimer(); }
-function showCloseAndArmTimer() { show(closeBtn); resetTimer(); }
-window.triggerUiAfterPhotoChange = () => showAllAndArmTimer();
-modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
-if (hotspotTop) hotspotTop.addEventListener('mouseenter', () => { show(closeBtn); resetTimer(); });
-if (hotspotLeft) hotspotLeft.addEventListener('mouseenter', () => { show(prevBtn); resetTimer(); });
-if (hotspotRight) hotspotRight.addEventListener('mouseenter', () => { show(nextBtn); resetTimer(); });
-if (hotspotBottom) hotspotBottom.addEventListener('mouseenter', () => { show(infoPanel); if (fsBtn) show(fsBtn); resetTimer(); });
-[closeBtn, prevBtn, nextBtn, infoPanel, fsBtn].forEach(el => {
-if (!el) return;
-el.addEventListener('mouseenter', () => { show(el); clearTimeout(autoHideId); });
-el.addEventListener('mouseleave', () => { resetTimer(); });
-});
-} else {
-try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
-}
+
 }
 }
 
@@ -1167,7 +1148,9 @@ function navegarFoto(direccion) {
     modalImg.alt = nueva.texto;
     currentImage = modalImg;
 
-    // En caso de error de carga, también reposicionamos
+    // Mostrar la UI y luego auto-ocultar
+     window.triggerUiAfterPhotoChange?.();
+	// En caso de error de carga, también reposicionamos
     scheduleFsBtnLayout();
   };
 
@@ -1321,46 +1304,7 @@ if (document.exitFullscreen) document.exitFullscreen();
 restorePanel(); if (btn) btn.classList.remove('is-active');
 }
 }
-// === Fullscreen button auto-layout (desktop) ===
-function positionFullscreenToggle() {
-try {
-const isDesktop = window.matchMedia('(min-width: 1025px)').matches;
-const modal = document.getElementById('modal');
-if (!modal) return;
-const btn = modal.querySelector('.fullscreen-toggle');
-const img = modal.querySelector('#modal-img');
-if (!btn || !img) return;
-// Móvil o modal no activo: resetea al CSS
-if (!isDesktop || !modal.classList.contains('active')) {
-  btn.style.left = ''; btn.style.top = '';
-  btn.style.right = ''; btn.style.bottom = '';
-  return;
-}
 
-const rect = img.getBoundingClientRect();
-if (!rect.width || !rect.height) return;
-
-const offset = 12;                   // separación respecto a la imagen
-const vw = window.innerWidth, vh = window.innerHeight;
-const bw = btn.offsetWidth || 40, bh = btn.offsetHeight || 40;
-
-// Pegado justo fuera del borde inferior-derecho de la imagen
-let left = rect.right + offset;
-let top  = rect.bottom - bh - offset;
-
-// Asegurar accesibilidad: clampa dentro de la ventana
-const margin = 8;
-left = Math.min(Math.max(margin, left), vw - bw - margin);
-top  = Math.min(Math.max(margin, top), vh - bh - margin);
-
-btn.style.position = 'fixed';
-btn.style.left = `${left}px`;
-btn.style.top = `${top}px`;
-btn.style.right = 'auto';
-btn.style.bottom = 'auto';
-btn.style.zIndex = '1100';
-} catch (_) {}
-}
 
 function scheduleFsBtnLayout() {
 if (fsLayoutRaf) return;
