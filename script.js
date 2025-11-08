@@ -1106,6 +1106,10 @@ function aplicarZoom(noTransition = false) {
       // Trigger reflow para recalcular viewport (elimina bandas)
       modalEl.offsetHeight;
     }
+    // Refuerzo para landscape
+    if (isMobileViewport && window.matchMedia('(orientation: landscape)').matches) {
+      modalEl.classList.add('is-zoomed');
+    }
   } else {
     currentImage.classList.remove('zoomed');
     currentImage.style.cursor = 'default';
