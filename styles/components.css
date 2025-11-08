@@ -393,5 +393,28 @@ body.modal-open .scroll-to-top { opacity: 0 !important; visibility: hidden !impo
 @media (max-width: 1024px) {
   header.site-header .site-nav   { display: none !important; }
   header.site-header .nav-trigger{ display: inline-flex !important; }
+
 }
+
+/* Prevenir selección de texto en miniaturas (móvil/desktop) */
+.foto-item {
+  user-select: none; /* No selecciona texto al tocar */
+  -webkit-user-select: none; /* Safari/iOS */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
+  touch-action: manipulation; /* Mejora respuesta touch, reduce delay de 300ms en click */
+  -webkit-touch-callout: none; /* iOS: oculta menú contextual al tocar */
+}
+
+.foto-item img,
+.foto-item .thumb-caption,
+.foto-item .thumb-caption span {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  pointer-events: auto; /* Asegura que el click propague al handler JS */
+}
+
+
 
