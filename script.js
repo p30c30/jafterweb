@@ -994,7 +994,7 @@ function doClickToggle() {
   currentScale = scale;
   aplicarZoom();
   hookImgTransformEndOnce?.(); // mantiene el botón fullscreen pegado tras la animación
-}}
+}
 } // <- cierra configurarEventosModal
 } // <- cierra mostrarModal
 // ===== Precarga y gestos =====
