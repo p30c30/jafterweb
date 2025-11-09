@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v4.7 CARGADO');
+console.log('✅ script.js v4.8 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -14,6 +14,9 @@ const MOBILE_CLICK_ZOOM = 1.15;     // zoom de un toque
 const MOBILE_PINCH_MAX = 1.8;       // tope de pellizco
 const MOBILE_PINCH_DAMPING = 0.6;   // amortiguación de pellizco
 const MOBILE_PINCH_DEADBAND = 6;    // píxeles de “zona muerta”
+// Modo caption móvil dentro de la foto
+const USE_MOBILE_OVERLAY_CAPTION = true;
+
 let keydownHandler = null, fullscreenChangeHandler = null, carouselTimer = null;
 const carouselAutoDelay = 10000, carouselUserPauseMs = 30000;
 let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
@@ -97,6 +100,35 @@ try {
 if (d.fullscreenElement && d.exitFullscreen) return d.exitFullscreen();
 if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFullscreen();
 } catch (e) {}
+}
+
+/* MOBILE OVERLAY CAPTION: inyecta estilos mínimos */
+function ensureMobileCaptionStyles() {
+  if (document.getElementById('mobile-caption-styles')) return;
+  const css = `
+  @media (max-width: 1024px){
+    #modal .modal-img-container{ position: relative; }
+    #modal .mobile-caption{
+      position: absolute;
+      left: 0; right: 0; bottom: env(safe-area-inset-bottom, 0);
+      padding: 10px 12px 14px;
+      color: #fff;
+      font-size: 14px;
+      line-height: 1.35;
+      text-align: left;
+      text-shadow: 0 1px 2px rgba(0,0,0,.9), 0 0 12px rgba(0,0,0,.35);
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity .2s ease;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    #modal.is-zoomed .mobile-caption{ opacity: 0; }
+  }`;
+  const st = document.createElement('style');
+  st.id = 'mobile-caption-styles';
+  st.textContent = css;
+  document.head.appendChild(st);
 }
 
 // Botón scroll-to-top
@@ -707,7 +739,6 @@ modal.innerHTML = `
      </div>
      <div class="modal-info">
        <div class="info-handle" aria-hidden="true"></div>
- 
        <!-- <div class="foto-counter">${currentFotoIndex + 1} / ${list.length}</div> -->
        <div class="foto-title">${title}</div>
        <button type="button" class="section-chip" ${sectionId ? `data-seccion-id="${sectionId}"` : 'disabled'} aria-label="${chipPrefix} ${sectionTitle || ''}">
@@ -727,18 +758,34 @@ resetZoom();
 modal.classList.add('active');
 document.body.classList.add('modal-open');
 
-// LIMPIA estados que esconden la info (muy importante)
+// LIMPIA estados que esconden la info
 modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
+
+// Caption móvil dentro de la foto
+const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
+if (USE_MOBILE_OVERLAY_CAPTION && isMobileViewport) {
+  ensureMobileCaptionStyles();
+  const imgContainer = modal.querySelector('.modal-img-container');
+  let cap = modal.querySelector('.mobile-caption');
+  if (!cap) {
+    cap = document.createElement('div');
+    cap.className = 'mobile-caption';
+    imgContainer?.appendChild(cap);
+  }
+  cap.textContent = title || '';
+  // Oculta el panel info tradicional en móvil
+  const info = modal.querySelector('.modal-info');
+  if (info) info.style.display = 'none';
+}
 
 configurarEventosModal();
 bindFsBtnAutoLayout(true);
 scheduleFsBtnLayout();
 
-// Mostrar UI (incluye .modal-info) y auto-ocultar a los 3s
+// Mostrar UI (desktop) o nada especial en móvil
 if (typeof window.triggerUiAfterPhotoChange === 'function') {
   window.triggerUiAfterPhotoChange();
 } else {
-  // Fallback por si aún no está definida en este tick
   const els = [
     modal.querySelector('.close-modal'),
     modal.querySelector('.prev-button'),
@@ -802,21 +849,10 @@ closeModal();
 if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
 });
 }
-// === Auto-ocultado de UI en escritorio (incluye la info) ===
+// === Auto-ocultado de UI en escritorio ===
 if (!isMobileViewport) {
   const AUTO_HIDE_MS = 3000;
   let autoHideId = null;
-
-  // Asegúrate de tener estas refs definidas arriba en configurarEventosModal:
-  // const prevBtn  = modal.querySelector('.prev-button');
-  // const nextBtn  = modal.querySelector('.next-button');
-  // const infoPanel = modal.querySelector('.modal-info');
-  // const fsBtn    = modal.querySelector('.fullscreen-toggle');
-  // const hotspotTop = modal.querySelector('.modal-hotspot.top');
-  // const hotspotLeft = modal.querySelector('.modal-hotspot.left');
-  // const hotspotRight = modal.querySelector('.modal-hotspot.right');
-  // const hotspotBottom = modal.querySelector('.modal-hotspot.bottom');
-
   const elList = [closeBtn, prevBtn, nextBtn, infoPanel, fsBtn];
 
   function show(el) { if (el) { el.classList.add('visible'); el.style.pointerEvents = 'auto'; } }
@@ -826,10 +862,8 @@ if (!isMobileViewport) {
   function showAllAndArmTimer() { elList.forEach(show); resetTimer(); }
   function showCloseAndArmTimer() { show(closeBtn); resetTimer(); }
 
-  // Exponer para que onImageLoad/navegarFoto lo usen
   window.triggerUiAfterPhotoChange = showAllAndArmTimer;
 
-  // Interacciones que muestran la UI de nuevo
   modal.addEventListener('mousemove', () => { showCloseAndArmTimer(); });
   hotspotTop?.addEventListener('mouseenter',   () => { show(closeBtn); resetTimer(); });
   hotspotLeft?.addEventListener('mouseenter',  () => { show(prevBtn);  resetTimer(); });
@@ -837,7 +871,6 @@ if (!isMobileViewport) {
   hotspotBottom?.addEventListener('mouseenter',() => { show(infoPanel); if (fsBtn) show(fsBtn); resetTimer(); });
 
 } else {
-  // En móvil no usamos auto-hide por .visible
   try { delete window.triggerUiAfterPhotoChange; } catch (e) { window.triggerUiAfterPhotoChange = undefined; }
 }
 
@@ -939,7 +972,6 @@ fullscreenChangeHandler = () => {
   modal.classList.toggle('fs-active', active);
   const b = modal.querySelector('.fullscreen-toggle');
   if (b) b.classList.toggle('is-active', active);
-  // Reposiciona al cambiar FS
   scheduleFsBtnLayout();
 };
 document.addEventListener('fullscreenchange', fullscreenChangeHandler);
@@ -1013,7 +1045,7 @@ im.src = list[i].url;
 });
 }
 
-// [PARCHE] onTouchStartImg y onTouchEndImg integrados
+// Touch/pinch/drag handlers
 function onTouchStartImg(e) {
   // Pinch con 2 dedos
   if (e.touches.length === 2) {
@@ -1052,18 +1084,12 @@ function onTouchMoveImg(e) {
     let newScale;
 
     if (isMobile) {
-      // Zona muerta para evitar “saltos” iniciales
       if (Math.abs(d1 - d0) < MOBILE_PINCH_DEADBAND) return;
-
-      // Ratio amortiguado
       const ratio = d1 / d0;
-      const damp = 1 + (ratio - 1) * MOBILE_PINCH_DAMPING; // 0.6 = suave
+      const damp = 1 + (ratio - 1) * MOBILE_PINCH_DAMPING;
       newScale = pinchStartScale * damp;
-
-      // Tope bajo en móvil
       newScale = Math.max(1, Math.min(MOBILE_PINCH_MAX, newScale));
     } else {
-      // Escritorio como antes
       newScale = pinchStartScale * (d1 / d0);
       newScale = Math.max(1, Math.min(5, newScale));
     }
@@ -1176,32 +1202,18 @@ function aplicarZoom(noTransition = false) {
   currentImage.style.transformOrigin = 'center center';
   const modalEl = document.getElementById('modal');
   const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
+
   if (currentScale > 1) {
     currentImage.classList.add('zoomed');
     currentImage.style.cursor = 'move';
     modalEl?.classList.add('is-zoomed');
-    // Fix móvil: fuerza full-height en zoom
+
+    // En móvil, ocultamos la info clásica (ya oculta) y el caption se oculta por CSS con .is-zoomed
     if (isMobileViewport) {
-      modalEl.style.setProperty('--info-height', '0dvh');
       const info = modalEl.querySelector('.modal-info');
       if (info) info.style.display = 'none';
-      const imgContainer = modalEl.querySelector('.modal-img-container');
-      if (imgContainer) {
-        imgContainer.style.height = '100dvh';
-        imgContainer.style.maxHeight = '100dvh';
-      }
-      const content = modalEl.querySelector('.modal-content');
-      if (content) {
-        content.style.height = '100dvh';
-        content.style.padding = '0';
-      }
-      // Trigger reflow para recalcular viewport (elimina bandas)
-      modalEl.offsetHeight;
     }
-    // Refuerzo para landscape
-    if (isMobileViewport && window.matchMedia('(orientation: landscape)').matches) {
-      modalEl.classList.add('is-zoomed');
-    }
+
   } else {
     currentImage.classList.remove('zoomed');
     currentImage.style.cursor = 'default';
@@ -1209,17 +1221,14 @@ function aplicarZoom(noTransition = false) {
     translateY = 0;
     modalEl?.classList.remove('is-zoomed');
     currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`;
-    // Restaura info en móvil si sales de zoom (inline, sin depender de closures)
+
+    // En móvil, mantenemos la info clásica oculta; el caption vuelve a ser visible (por CSS)
     if (isMobileViewport) {
-      modalEl.style.removeProperty('--info-height');
       const info = modalEl.querySelector('.modal-info');
-      if (info) info.style.display = '';
-      const collapsed = window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh';
-      modalEl.style.setProperty('--info-height', collapsed);
-      // Reflow para restaurar
-      modalEl.offsetHeight;
+      if (info) info.style.display = 'none';
     }
   }
+
   // Reposiciona ahora…
   scheduleFsBtnLayout();
   // …y otra vez al terminar la animación de click‑zoom (transform 0.2s)
@@ -1257,17 +1266,26 @@ function navegarFoto(direccion) {
   const titulo = modal.querySelector('.foto-title');
   const chip = modal.querySelector('.section-chip');
 
-  // Solo resetear zoom en escritorio; en móvil mantener zoom si existe y ocultar info vía CSS
   const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
   if (!isMobileViewport) {
     resetZoom();
-  } // En móvil: no resetea, scale persiste y .is-zoomed oculta info automáticamente
+  } // En móvil: no resetea, scale persiste
 
   const im = new Image();
   im.onload = function () {
     modalImg.src = nueva.url;
     modalImg.alt = nueva.texto;
     currentImage = modalImg;
+
+    // Actualiza caption móvil
+    if (USE_MOBILE_OVERLAY_CAPTION && isMobileViewport) {
+      const cap = modal.querySelector('.mobile-caption');
+      if (cap) cap.textContent = nueva.texto || '';
+      // Info clásica sigue oculta
+      const info = modal.querySelector('.modal-info');
+      if (info) info.style.display = 'none';
+    }
+
     if (contador) contador.textContent = `${currentFotoIndex + 1} / ${list.length}`;
     if (titulo) titulo.textContent = nueva.texto;
     if (chip) {
@@ -1297,13 +1315,13 @@ function navegarFoto(direccion) {
       history.replaceState(state, '');
     }
     precacheAround(currentFotoIndex);
+
     if (typeof window.triggerUiAfterPhotoChange === 'function') {
       window.triggerUiAfterPhotoChange();
     }
-    // Reposiciona el botón pegado a la imagen (desktop)
     scheduleFsBtnLayout();
+
     modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
-    // Mostrar la UI al cambiar de foto (si no estás en fullscreen)
     if (!document.fullscreenElement) {
       if (typeof window.triggerUiAfterPhotoChange === 'function') {
         window.triggerUiAfterPhotoChange();
@@ -1319,7 +1337,7 @@ function navegarFoto(direccion) {
         setTimeout(() => els.forEach(el => el?.classList.remove('visible')), 3000);
       }
     }
-    // En móvil: si hay zoom activo, fuerza ocultado de info vía CSS
+    // En móvil: si hay zoom activo, fuerza ocultado de caption por CSS (clase ya se gestiona en aplicarZoom)
     if (isMobileViewport && currentScale > 1) {
       modal.classList.add('is-zoomed');
     }
@@ -1328,13 +1346,18 @@ function navegarFoto(direccion) {
     modalImg.src = nueva.url;
     modalImg.alt = nueva.texto;
     currentImage = modalImg;
-    // En error, también intenta mostrar la UI (si no estás en fullscreen)
+
+    if (USE_MOBILE_OVERLAY_CAPTION && isMobileViewport) {
+      const cap = modal.querySelector('.mobile-caption');
+      if (cap) cap.textContent = nueva.texto || '';
+      const info = modal.querySelector('.modal-info');
+      if (info) info.style.display = 'none';
+    }
+
     if (!document.fullscreenElement) {
       window.triggerUiAfterPhotoChange?.();
     }
-    // En caso de error de carga, también reposicionamos
     scheduleFsBtnLayout();
-    // En móvil: si hay zoom activo, fuerza ocultado de info vía CSS
     if (isMobileViewport && currentScale > 1) {
       modal.classList.add('is-zoomed');
     }
@@ -1358,6 +1381,18 @@ function attachBottomSheet(modal) {
 const isMobile = window.matchMedia('(max-width: 1024px)').matches;
 if (!isMobile) return;
 
+// NUEVO: en modo caption móvil, desactivar bottom sheet y solo bloquear scroll de fondo
+if (USE_MOBILE_OVERLAY_CAPTION) {
+  lockBodyScroll();
+  // Evitar scroll en el backdrop del modal
+  modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
+  modal.addEventListener('wheel', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
+  // Asegura oculto el panel info clásico
+  const info = modal.querySelector('.modal-info'); if (info) info.style.display = 'none';
+  return;
+}
+
+// (Fallback legacy bottom-sheet si se desactiva USE_MOBILE_OVERLAY_CAPTION)
 const imgContainer = modal.querySelector('.modal-img-container');
 const info        = modal.querySelector('.modal-info');
 const dragHandle  = modal.querySelector('.info-handle'); // <— renombrado
@@ -1469,7 +1504,6 @@ setInfoHeight(target);
 }
 
 // ===== Fullscreen / scroll lock =====
-// [PARCHE] toggleFullscreen integrado con fallback limpio y zoom pequeño móvil
 function toggleFullscreen() {
   const modal = document.getElementById('modal');
   if (!modal) return;
@@ -1480,9 +1514,9 @@ function toggleFullscreen() {
     modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
     currentScale = 1; translateX = 0; translateY = 0;
 
-    // Restaura estilos que pudimos tocar en móvil
+    // Restaura estilos que pudimos tocar en móvil (aunque en modo caption no usamos ficha)
     modal.style.removeProperty('--info-height');
-    const info = modal.querySelector('.modal-info'); if (info) info.style.display = '';
+    const info = modal.querySelector('.modal-info'); if (info) info.style.display = 'none';
     const imgContainer = modal.querySelector('.modal-img-container');
     if (imgContainer) { imgContainer.style.height = ''; imgContainer.style.maxHeight = ''; }
     const content = modal.querySelector('.modal-content');
@@ -1496,29 +1530,18 @@ function toggleFullscreen() {
     btn?.classList.add('is-active');
 
     if (isMobile) {
-      // Mismo “zoom pequeño” que en tap
+      // “zoom pequeño” también en FS
       currentScale = MOBILE_CLICK_ZOOM;
       translateX = 0; translateY = 0;
       aplicarZoom(true);
-
-      // Fuerza alto completo y oculta ficha en fallback
-      modal.style.setProperty('--info-height', '0dvh');
-      const info = modal.querySelector('.modal-info'); if (info) info.style.display = 'none';
-      const imgContainer = modal.querySelector('.modal-img-container');
-      if (imgContainer) { imgContainer.style.height = '100dvh'; imgContainer.style.maxHeight = '100dvh'; }
-      const content = modal.querySelector('.modal-content');
-      if (content) { content.style.height = '100dvh'; content.style.padding = '0'; }
-      void modal.offsetHeight; // reflow
     }
 
     scheduleFsBtnLayout?.();
   };
 
-  // Considera nativo y fallback
   const isFsActive = !!document.fullscreenElement || modal.classList.contains('fs-active');
 
   if (!isFsActive) {
-    // ENTRAR
     if (modal.requestFullscreen) {
       modal.requestFullscreen({ navigationUI: 'hide' })
         .then(() => {
@@ -1535,17 +1558,14 @@ function toggleFullscreen() {
       enterFsFallback();
     }
   } else {
-    // SALIR
     if (document.fullscreenElement && document.exitFullscreen) {
       try { document.exitFullscreen(); } catch (_) {}
     }
     restorePanel();
     btn?.classList.remove('is-active');
 
-    // En móvil: al salir, deja la ficha en colapsado si no hay zoom
     if (isMobile && currentScale <= 1) {
-      const collapsed = window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh';
-      modal.style.setProperty('--info-height', collapsed);
+      // En modo caption no hay panel info; nada extra que hacer
       void modal.offsetHeight;
     }
 
@@ -1564,7 +1584,6 @@ function positionFullscreenToggle() {
     const img = modal.querySelector('#modal-img');
     if (!btn || !img) return;
 
-    // En móvil o si el modal no está activo, delega al CSS
     if (!isDesktop || !modal.classList.contains('active')) {
       btn.style.left = '';
       btn.style.top = '';
@@ -1580,11 +1599,9 @@ function positionFullscreenToggle() {
     const vw = window.innerWidth, vh = window.innerHeight;
     const bw = btn.offsetWidth || 40, bh = btn.offsetHeight || 40;
 
-    // Pegado por fuera del borde inferior-derecho de la imagen
     let left = rect.right + offset;
     let top  = rect.bottom - bh - offset;
 
-    // Clamp dentro de viewport (por si la imagen va hasta el borde)
     const margin = 8;
     left = Math.min(Math.max(margin, left), vw - bw - margin);
     top  = Math.min(Math.max(margin, top), vh - bh - margin);
@@ -1648,10 +1665,7 @@ function initMobileRotationHandler() {
     if (last !== now && isModalOpen) {
       const modal = document.getElementById('modal');
       if (modal) {
-        if (currentScale <= 1) {
-          const collapsed = window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh';
-          modal.style.setProperty('--info-height', collapsed);
-        }
+        // En modo caption no hay bottom sheet que recalcular
       }
       scheduleFsBtnLayout?.();
     }
@@ -1678,7 +1692,6 @@ document.body.style.width = '';
 if (isBodyLocked) { window.scrollTo(0, __scrollLockY || 0); }
 isBodyLocked = false;
 }
-// [PARCHE] closeModal limpia listeners de pinch
 function closeModal() {
   const modal = document.getElementById('modal');
   if (!modal) return;
