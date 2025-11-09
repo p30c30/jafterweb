@@ -1,5 +1,5 @@
 // ===================================================================
-// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v39)               ==
+// ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
 console.log('✅ script.js v4.7 CARGADO');
 
@@ -10,10 +10,12 @@ let currentScale = 1, currentImage = null, isDragging = false, startX, startY, t
 let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
 const defaultClickZoom = 1.3;
 // Solo móvil (suaviza zoom en tap/pinch/FS)
-const MOBILE_CLICK_ZOOM = 1.15;     // zoom de un toque
-const MOBILE_PINCH_MAX = 1.8;       // tope de pellizco
-const MOBILE_PINCH_DAMPING = 0.6;   // amortiguación de pellizco
-const MOBILE_PINCH_DEADBAND = 6;    // píxeles de “zona muerta”
+const MOBILE_CLICK_ZOOM = 1.15;         // zoom de un toque
+const MOBILE_PINCH_MAX = 1.8;           // tope de pellizco
+const MOBILE_PINCH_DAMPING = 0.6;       // amortiguación (se usa como exponente)
+const MOBILE_PINCH_DEADBAND = 6;        // píxeles de “zona muerta”
+const MOBILE_PINCH_MAX_STEP = 0.09;     // delta máximo por frame de pinch (suaviza)
+const PINCH_SUPPRESS_TAP_MS = 350;      // ventana en la que se ignoran taps tras pinch
 // Modo caption móvil dentro de la foto
 const USE_MOBILE_OVERLAY_CAPTION = true;
 
@@ -26,6 +28,9 @@ const dragFriction = 0.92, dragMaxSpeed = 60, edgeResistance = 0.18;
 let __scrollLockY = 0, isBodyLocked = false;
 let modalFromHomeCarousel = false;
 let __pushedModal = false;
+// Flags/timers para gestos
+let pinchPassedDeadband = false;
+let suppressTapUntil = 0;
 
 // ===== Helpers =====
 // Animaciones Pausa y resetea todas las animaciones de portada
@@ -102,29 +107,46 @@ if (d.webkitFullscreenElement && d.webkitExitFullscreen) return d.webkitExitFull
 } catch (e) {}
 }
 
-/* MOBILE OVERLAY CAPTION: inyecta estilos mínimos */
+/* MOBILE OVERLAY + MODAL MOBILE STYLES */
 function ensureMobileCaptionStyles() {
   if (document.getElementById('mobile-caption-styles')) return;
   const css = `
   @media (max-width: 1024px){
-    #modal .modal-img-container{ position: relative; }
+    #modal { --cap-pad-x: 14px; }
+    #modal .modal-content{
+      height: 100dvh; max-height: 100dvh; padding: 0;
+    }
+    #modal .modal-img-container{
+      position: relative;
+      height: 100dvh; max-height: 100dvh;
+      width: 100vw;   max-width: 100vw;
+    }
+    #modal #modal-img{
+      display: block;
+      max-width: 100vw; max-height: 100dvh;
+      width: auto; height: auto;
+      object-fit: contain;
+      margin: 0 auto;
+      touch-action: none; /* evita gestos nativos conflictivos */
+    }
     /* Fuerza ocultar el panel info debajo de la foto en móvil */
     #modal .modal-info{ display: none !important; }
-    /* Caption dentro de la foto, pegado abajo, una línea con … */
+    /* Caption centrado dentro de la foto, una línea con … */
     #modal .mobile-caption{
       position: absolute;
-      left: 0; right: 0; bottom: 0; top: auto;
-      padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0));
+      left: var(--cap-pad-x); right: var(--cap-pad-x); bottom: calc(env(safe-area-inset-bottom, 0) + 8px);
+      padding: 0;
       color: #fff;
       font-size: 14px;
       line-height: 1.35;
-      text-align: left;
+      text-align: center;
       text-shadow: 0 1px 2px rgba(0,0,0,.9), 0 0 12px rgba(0,0,0,.35);
       pointer-events: none;
       opacity: 1;
       transition: opacity .2s ease;
       z-index: 2;
-      width: 100%;
+      width: auto;
+      max-width: calc(100vw - var(--cap-pad-x)*2);
       box-sizing: border-box;
       white-space: nowrap;
       overflow: hidden;
@@ -410,10 +432,8 @@ caption.appendChild(span);
 el.appendChild(img);
 el.appendChild(caption);
 
-// HAZ ESTE REEMPLAZO EN el.addEventListener...
 // 1) Click (escritorio)
 el.addEventListener('click', (e) => {
-  // Si venimos de un touch ya manejado, no dupliques
   if (el._suppressClickOnce) { el._suppressClickOnce = false; return; }
   modalSource = 'seccion';
   mostrarModal(foto.url, foto.texto, i);
@@ -432,10 +452,9 @@ el.addEventListener('touchend', (e) => {
   const t = e.changedTouches[0];
   const dx = t.clientX - tsX, dy = t.clientY - tsY;
   const dt = Date.now() - tsT;
-  // Tap corto y sin desplazamiento → abre modal
   if (Math.hypot(dx, dy) < 12 && dt < 300) {
-    e.preventDefault(); // evita el click sintético
-    el._suppressClickOnce = true; // por si el click sintético igual llega
+    e.preventDefault();
+    el._suppressClickOnce = true;
     modalSource = 'seccion';
     mostrarModal(foto.url, foto.texto, i);
   }
@@ -494,8 +513,7 @@ const handleClick = (e) => {
 const a = e.target.closest('a.nav-link');
 if (!a) return;
 e.preventDefault();
-closeNavPanel?.(); // por si venía del panel
-  
+closeNavPanel?.();
 const id = a.dataset.seccionId;
 const sec = datosGlobales?.secciones?.find(s => s.id === id);
 if (sec) {
@@ -558,7 +576,6 @@ iniciarAutoPlay();
 configurarInteraccionCarrusel();
 }
 function obtenerFotosParaCarrusel(data) {
-  // Obtener las fotos de cada sección en orden inverso (asumiendo que las nuevas se agregan al final, por lo que las últimas son las más recientes)
   const sectionFotosReversed = data.secciones.map(sec => {
     if (!Array.isArray(sec.fotos)) return [];
     return sec.fotos.slice().reverse().map((foto, revIndex) => ({
@@ -568,12 +585,9 @@ function obtenerFotosParaCarrusel(data) {
       indiceEnSeccion: sec.fotos.length - 1 - revIndex
     }));
   });
-
-  // Seleccionar fotos en round-robin para mezclar secciones y evitar agrupamiento
   const carruselPhotos = [];
   const numSections = sectionFotosReversed.length;
-  let indices = new Array(numSections).fill(0); // Índice por sección
-
+  let indices = new Array(numSections).fill(0);
   while (carruselPhotos.length < 20) {
     let added = false;
     for (let s = 0; s < numSections; s++) {
@@ -584,10 +598,8 @@ function obtenerFotosParaCarrusel(data) {
         added = true;
       }
     }
-    if (!added) break; // No hay más fotos disponibles
+    if (!added) break;
   }
-
-  // Invertir la lista final para mostrar las más "recientes" primero (aproximación global)
   return carruselPhotos.reverse();
 }
 function mostrarCarruselFotos(fotos, container, dotsContainer) {
@@ -665,7 +677,6 @@ function moverCarruselA(nuevoIndex, opts = {}) {
   if (nuevoIndex < 0) nuevoIndex = carruselRealLength - 1;
   if (nuevoIndex >= carruselRealLength) nuevoIndex = 0;
   const stepDir = opts.stepDirection;
-  // Fix para glitch: Asegura posición exacta antes de mover, evita saltos en clones
   if (stepDir === -1 && carruselPosition === 1 && nuevoIndex === carruselRealLength - 1) {
     carruselPosition = 0;
   } else if (stepDir === 1 && carruselPosition === carruselRealLength && nuevoIndex === 0) {
@@ -674,9 +685,8 @@ function moverCarruselA(nuevoIndex, opts = {}) {
     carruselPosition = nuevoIndex + 1;
   }
   carruselActualIndex = nuevoIndex;
-  // Limpia transición anterior para evitar microsegundos de glitch
   inner.style.transition = 'none';
-  void inner.offsetHeight;  // Trigger reflow
+  void inner.offsetHeight;
   inner.style.transition = 'transform 0.5s ease-in-out';
   inner.style.transform = `translateX(-${carruselPosition * 100}%)`;
   actualizarCarrusel();
@@ -768,7 +778,7 @@ resetZoom();
 modal.classList.add('active');
 document.body.classList.add('modal-open');
 
-// LIMPIA estados que esconden la info
+// LIMPIA estados
 modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
 
 // Caption móvil dentro de la foto
@@ -783,7 +793,6 @@ if (USE_MOBILE_OVERLAY_CAPTION && isMobileViewport) {
     imgContainer?.appendChild(cap);
   }
   cap.textContent = title || '';
-  // Asegura oculto el panel info tradicional en móvil
   const info = modal.querySelector('.modal-info');
   if (info) info.style.display = 'none';
 }
@@ -792,7 +801,6 @@ configurarEventosModal();
 bindFsBtnAutoLayout(true);
 scheduleFsBtnLayout();
 
-// Mostrar UI (desktop) o nada especial en móvil
 if (typeof window.triggerUiAfterPhotoChange === 'function') {
   window.triggerUiAfterPhotoChange();
 } else {
@@ -859,7 +867,7 @@ closeModal();
 if (seccionId) history.replaceState({ view: 'seccion', seccionId }, '');
 });
 }
-// === Auto-ocultado de UI en escritorio ===
+// Auto-ocultado de UI en escritorio
 if (!isMobileViewport) {
   const AUTO_HIDE_MS = 3000;
   let autoHideId = null;
@@ -924,12 +932,15 @@ closeModal();
 });
 }
 
-// Tap rápido → toggle zoom
+// Tap rápido → toggle zoom (con supresión post-pinch)
 let tapStartX = 0, tapStartY = 0, tapStartT = 0;
 modalImg.addEventListener('touchstart', (e) => {
-if (e.touches.length === 1) { tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now(); }
+if (e.touches.length === 1 && !isPinching) {
+  tapStartX = e.touches[0].clientX; tapStartY = e.touches[0].clientY; tapStartT = Date.now();
+}
 }, { passive: true });
 modalImg.addEventListener('touchend', (e) => {
+if (Date.now() < suppressTapUntil) return;
 if (ignoreNextClick) { ignoreNextClick = false; return; }
 if (e.changedTouches.length === 1) {
 const dx = e.changedTouches[0].clientX - tapStartX;
@@ -942,8 +953,9 @@ ignoreNextClick = true; setTimeout(() => { ignoreNextClick = false; }, 250);
 }
 }, { passive: true });
 
-// Click → toggle zoom
+// Click → toggle zoom (suprime tras pinch)
 modalImg.addEventListener('click', function (event) {
+if (Date.now() < suppressTapUntil) { event.stopPropagation(); return; }
 if (ignoreNextClick) { ignoreNextClick = false; event.stopPropagation(); return; }
 doClickToggle();
 event.stopPropagation();
@@ -1008,7 +1020,6 @@ document.addEventListener('keydown', keydownHandler);
 
 // Click-zoom
 function doClickToggle() {
-  // Si ya hay zoom, volver a estado normal
   if (currentScale > 1) {
     currentScale = 1;
     translateX = 0;
@@ -1018,15 +1029,13 @@ function doClickToggle() {
   }
 
   if (isMobileViewport) {
-    // Móvil: zoom discreto y mínimo
-    currentScale = MOBILE_CLICK_ZOOM; // 1.15
+    currentScale = MOBILE_CLICK_ZOOM;
     translateX = 0;
     translateY = 0;
     aplicarZoom();
     return;
   }
 
-  // Escritorio (igual que antes, moderado)
   let scale = 1.25;
   if (currentImage) {
     const container = currentImage.closest('.modal-img-container');
@@ -1055,15 +1064,18 @@ im.src = list[i].url;
 });
 }
 
+// Touch/pinch/drag handlers con pinch suave
 function onTouchStartImg(e) {
   // Pinch con 2 dedos
   if (e.touches.length === 2) {
     isPinching = true;
+    pinchPassedDeadband = false;
     pinchStartDistance = getTouchesDistance(e.touches[0], e.touches[1]);
     pinchStartScale = currentScale;
     if (currentImage) currentImage.style.transition = 'none';
     document.addEventListener('touchmove', onTouchMoveImg, { passive: false });
     document.addEventListener('touchend', onTouchEndImg, { passive: false });
+    suppressTapUntil = Date.now() + PINCH_SUPPRESS_TAP_MS;
     e.preventDefault(); e.stopPropagation();
     return;
   }
@@ -1086,20 +1098,35 @@ function onTouchMoveImg(e) {
   if (isPinching && e.touches.length === 2) {
     e.preventDefault();
 
-    const d0 = pinchStartDistance;
     const d1 = getTouchesDistance(e.touches[0], e.touches[1]);
+    const d0 = pinchStartDistance;
     const isMobile = window.matchMedia('(max-width: 1024px)').matches;
 
-    let newScale;
+    if (!pinchPassedDeadband) {
+      if (Math.abs(d1 - d0) >= MOBILE_PINCH_DEADBAND) {
+        // Rebase al cruzar el deadband para evitar salto
+        pinchPassedDeadband = true;
+        pinchStartDistance = d1;
+        pinchStartScale = currentScale;
+      } else {
+        return; // sigue dentro de zona muerta
+      }
+    }
 
+    let newScale;
     if (isMobile) {
-      if (Math.abs(d1 - d0) < MOBILE_PINCH_DEADBAND) return;
-      const ratio = d1 / d0;
-      const damp = 1 + (ratio - 1) * MOBILE_PINCH_DAMPING;
-      newScale = pinchStartScale * damp;
+      // Curva logarítmica: ratio^damping
+      const ratio = d1 / pinchStartDistance || 1;
+      const ratioPow = Math.pow(ratio, MOBILE_PINCH_DAMPING);
+      newScale = pinchStartScale * ratioPow;
       newScale = Math.max(1, Math.min(MOBILE_PINCH_MAX, newScale));
+      // Limitar paso máximo por frame
+      const delta = newScale - currentScale;
+      if (Math.abs(delta) > MOBILE_PINCH_MAX_STEP) {
+        newScale = currentScale + Math.sign(delta) * MOBILE_PINCH_MAX_STEP;
+      }
     } else {
-      newScale = pinchStartScale * (d1 / d0);
+      newScale = pinchStartScale * (d1 / pinchStartDistance);
       newScale = Math.max(1, Math.min(5, newScale));
     }
 
@@ -1115,9 +1142,11 @@ function onTouchEndImg() {
   isPinching = false;
   pinchStartDistance = 0;
   pinchStartScale = currentScale;
+  pinchPassedDeadband = false;
   if (currentImage) currentImage.style.transition = '';
   document.removeEventListener('touchmove', onTouchMoveImg);
   document.removeEventListener('touchend', onTouchEndImg);
+  suppressTapUntil = Date.now() + PINCH_SUPPRESS_TAP_MS;
   aplicarZoom(true);
 }
 
@@ -1216,13 +1245,6 @@ function aplicarZoom(noTransition = false) {
     currentImage.classList.add('zoomed');
     currentImage.style.cursor = 'move';
     modalEl?.classList.add('is-zoomed');
-
-    // En móvil, mantenemos el panel info oculto (caption se oculta por CSS con .is-zoomed)
-    if (isMobileViewport) {
-      const info = modalEl.querySelector('.modal-info');
-      if (info) info.style.display = 'none';
-    }
-
   } else {
     currentImage.classList.remove('zoomed');
     currentImage.style.cursor = 'default';
@@ -1230,17 +1252,8 @@ function aplicarZoom(noTransition = false) {
     translateY = 0;
     modalEl?.classList.remove('is-zoomed');
     currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`;
-
-    // En móvil, mantenemos el panel info oculto; el caption vuelve a ser visible (por CSS)
-    if (isMobileViewport) {
-      const info = modalEl.querySelector('.modal-info');
-      if (info) info.style.display = 'none';
-    }
   }
-
-  // Reposiciona ahora…
   scheduleFsBtnLayout();
-  // …y otra vez al terminar la animación de click‑zoom (transform 0.2s)
   if (!noTransition && !isPinching) {
     hookImgTransformEndOnce();
   }
@@ -1289,7 +1302,6 @@ function navegarFoto(direccion) {
     if (USE_MOBILE_OVERLAY_CAPTION && isMobileViewport) {
       const cap = modal.querySelector('.mobile-caption');
       if (cap) cap.textContent = nueva.texto || '';
-      // Info clásica sigue oculta
       const info = modal.querySelector('.modal-info');
       if (info) info.style.display = 'none';
     }
@@ -1345,7 +1357,6 @@ function navegarFoto(direccion) {
         setTimeout(() => els.forEach(el => el?.classList.remove('visible')), 3000);
       }
     }
-    // En móvil: si hay zoom activo, el caption se oculta por CSS (.is-zoomed)
     if (isMobileViewport && currentScale > 1) {
       modal.classList.add('is-zoomed');
     }
@@ -1389,19 +1400,17 @@ function attachBottomSheet(modal) {
 const isMobile = window.matchMedia('(max-width: 1024px)').matches;
 if (!isMobile) return;
 
-// NUEVO: en modo caption móvil, desactivar bottom sheet y solo bloquear scroll de fondo
+// Modo caption móvil: solo bloquear scroll de fondo y ocultar info clásica
 if (USE_MOBILE_OVERLAY_CAPTION) {
   lockBodyScroll();
-  // Evitar scroll en el backdrop del modal
   modal.addEventListener('touchmove', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
   modal.addEventListener('wheel', (e) => { if (e.target === modal) e.preventDefault(); }, { passive: false });
-  // Asegura oculto el panel info clásico (además del CSS)
   const info = modal.querySelector('.modal-info'); if (info) info.style.display = 'none';
   return;
 }
 
-// (Fallback legacy bottom-sheet si se desactiva USE_MOBILE_OVERLAY_CAPTION)
-// ... (resto del bottom sheet legacy no mostrado por brevedad, sigue igual si estuviera activado)
+// (Legacy bottom sheet si se desactiva USE_MOBILE_OVERLAY_CAPTION)
+// ... (omitido)
 }
 
 // ===== Fullscreen / scroll lock =====
@@ -1431,7 +1440,6 @@ function toggleFullscreen() {
     btn?.classList.add('is-active');
 
     if (isMobile) {
-      // “zoom pequeño” también en FS
       currentScale = MOBILE_CLICK_ZOOM;
       translateX = 0; translateY = 0;
       aplicarZoom(true);
@@ -1464,11 +1472,6 @@ function toggleFullscreen() {
     }
     restorePanel();
     btn?.classList.remove('is-active');
-
-    if (isMobile && currentScale <= 1) {
-      void modal.offsetHeight;
-    }
-
     scheduleFsBtnLayout?.();
   }
 }
@@ -1563,10 +1566,6 @@ function initMobileRotationHandler() {
   window.addEventListener('resize', () => {
     const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
     if (last !== now && isModalOpen) {
-      const modal = document.getElementById('modal');
-      if (modal) {
-        // En modo caption no hay bottom sheet que recalcular
-      }
       scheduleFsBtnLayout?.();
     }
     last = now;
