@@ -1,7 +1,7 @@
 // ===================================================================
 // ==        SCRIPT36.JS - VERSIÓN COMPLETA (v38.9)               ==
 // ===================================================================
-console.log('✅ script.js v4.6 CARGADO');
+console.log('✅ script.js v4.7 CARGADO');
 
 // ===== Estado global =====
 let currentSeccion = null, currentFotoIndex = 0, todasLasFotos = [], carruselActualIndex = 0, carruselFotos = [], datosGlobales = null, isModalOpen = false;
@@ -961,6 +961,7 @@ document.addEventListener('keydown', keydownHandler);
 
 // Click-zoom
 function doClickToggle() {
+  // 1) Si ya hay zoom, volver a estado normal
   if (currentScale > 1) {
     currentScale = 1;
     translateX = 0;
@@ -969,30 +970,31 @@ function doClickToggle() {
     return;
   }
 
-  const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
-
-  if (isMobileViewport) {
-    currentScale = defaultClickZoom; // móvil como antes
-  } else {
-    let scale = 1.25;
-    if (currentImage) {
-      const container = currentImage.closest('.modal-img-container');
-      if (container) {
-        const cw = container.clientWidth, ch = container.clientHeight;
-        const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
-        const base = Math.max(cw / iw, ch / ih) * 0.97;
-
-        // SUTIL: reduce agresividad y limita
-        scale = 1 + (base - 1) * 0.9;
-        scale = Math.min(1.8, Math.max(1.2, scale));
-      }
-    }
-    currentScale = scale;
+  // 2) Móvil: zoom discreto (poco)
+  if (isMobileViewport) {              // esta var ya la defines arriba en configurarEventosModal
+    currentScale = 1.3;                // o usa defaultClickZoom si lo dejaste en 1.3
+    translateX = 0;
+    translateY = 0;
+    aplicarZoom();
+    return;
   }
 
+  // 3) Escritorio: zoom moderado (tu lógica actual)
+  let scale = 1.25;
+  if (currentImage) {
+    const container = currentImage.closest('.modal-img-container');
+    if (container) {
+      const cw = container.clientWidth, ch = container.clientHeight;
+      const iw = currentImage.clientWidth, ih = currentImage.clientHeight;
+      const base = Math.max(cw / iw, ch / ih) * 0.97;
+      scale = 1 + (base - 1) * 0.9;
+      scale = Math.min(1.8, Math.max(1.2, scale));
+    }
+  }
+  currentScale = scale;
   aplicarZoom();
-  hookImgTransformEndOnce?.();
-}
+  hookImgTransformEndOnce?.(); // mantiene el botón fullscreen pegado tras la animación
+}}
 } // <- cierra configurarEventosModal
 } // <- cierra mostrarModal
 // ===== Precarga y gestos =====
