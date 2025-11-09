@@ -9,6 +9,11 @@ let scrollTopBtn = null, modalSource = 'seccion', currentView = 'home', isHandli
 let currentScale = 1, currentImage = null, isDragging = false, startX, startY, translateX = 0, translateY = 0, lastX = 0, lastY = 0;
 let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
 const defaultClickZoom = 1.3;
+// Solo móvil (suaviza zoom en tap/pinch/FS)
+const MOBILE_CLICK_ZOOM = 1.15;     // zoom de un toque
+const MOBILE_PINCH_MAX = 1.8;       // tope de pellizco
+const MOBILE_PINCH_DAMPING = 0.6;   // amortiguación de pellizco
+const MOBILE_PINCH_DEADBAND = 6;    // píxeles de “zona muerta”
 let keydownHandler = null, fullscreenChangeHandler = null, carouselTimer = null;
 const carouselAutoDelay = 10000, carouselUserPauseMs = 30000;
 let pendingAutoplayDelay = carouselAutoDelay, carruselInnerRef = null, carruselRealLength = 0, carruselPosition = 1, carruselTransitionHandler = null;
@@ -961,7 +966,7 @@ document.addEventListener('keydown', keydownHandler);
 
 // Click-zoom
 function doClickToggle() {
-  // 1) Si ya hay zoom, volver a estado normal
+  // Si ya hay zoom, volver a estado normal
   if (currentScale > 1) {
     currentScale = 1;
     translateX = 0;
@@ -970,16 +975,16 @@ function doClickToggle() {
     return;
   }
 
-  // 2) Móvil: zoom discreto (poco)
-  if (isMobileViewport) {              // esta var ya la defines arriba en configurarEventosModal
-    currentScale = 1.3;                // o usa defaultClickZoom si lo dejaste en 1.3
+  if (isMobileViewport) {
+    // Móvil: zoom discreto y mínimo
+    currentScale = MOBILE_CLICK_ZOOM; // 1.15
     translateX = 0;
     translateY = 0;
     aplicarZoom();
     return;
   }
 
-  // 3) Escritorio: zoom moderado (tu lógica actual)
+  // Escritorio (igual que antes, moderado)
   let scale = 1.25;
   if (currentImage) {
     const container = currentImage.closest('.modal-img-container');
@@ -993,7 +998,7 @@ function doClickToggle() {
   }
   currentScale = scale;
   aplicarZoom();
-  hookImgTransformEndOnce?.(); // mantiene el botón fullscreen pegado tras la animación
+  hookImgTransformEndOnce?.();
 }
 } // <- cierra configurarEventosModal
 } // <- cierra mostrarModal
@@ -1007,24 +1012,35 @@ const im = new Image();
 im.src = list[i].url;
 });
 }
+
+// [PARCHE] onTouchStartImg y onTouchEndImg integrados
 function onTouchStartImg(e) {
-if (e.touches.length === 2) {
-isPinching = true; pinchStartDistance = getTouchesDistance(e.touches[0], e.touches[1]); pinchStartScale = currentScale;
-if (currentImage) currentImage.style.transition = 'none';
-document.addEventListener('touchmove', onTouchMoveImg, { passive: false });
-document.addEventListener('touchend', onTouchEndImg);
-e.preventDefault(); e.stopPropagation(); return;
+  // Pinch con 2 dedos
+  if (e.touches.length === 2) {
+    isPinching = true;
+    pinchStartDistance = getTouchesDistance(e.touches[0], e.touches[1]);
+    pinchStartScale = currentScale;
+    if (currentImage) currentImage.style.transition = 'none';
+    document.addEventListener('touchmove', onTouchMoveImg, { passive: false });
+    document.addEventListener('touchend', onTouchEndImg, { passive: false });
+    e.preventDefault(); e.stopPropagation();
+    return;
+  }
+
+  // Pan con 1 dedo cuando hay zoom
+  if (e.touches.length === 1 && currentScale > 1) {
+    const t = e.touches[0];
+    isDragging = true;
+    if (inertiaId) { cancelAnimationFrame(inertiaId); inertiaId = null; }
+    startX = t.clientX - translateX; startY = t.clientY - translateY;
+    lastX = t.clientX; lastY = t.clientY;
+    currentImage?.classList.add('grabbing');
+    document.addEventListener('touchmove', dragTouch, { passive: false });
+    document.addEventListener('touchend', stopDrag, { passive: false });
+    e.preventDefault(); e.stopPropagation();
+  }
 }
-}
-function onTouchMoveImg(e) {
-if (isPinching && e.touches.length === 2) {
-e.preventDefault();
-const newDistance = getTouchesDistance(e.touches[0], e.touches[1]);
-let newScale = pinchStartScale * (newDistance / pinchStartDistance);
-newScale = Math.max(1, Math.min(5, newScale));
-currentScale = newScale; aplicarZoom(true);
-}
-}
+
 function onTouchMoveImg(e) {
   if (isPinching && e.touches.length === 2) {
     e.preventDefault();
@@ -1033,23 +1049,41 @@ function onTouchMoveImg(e) {
     const d1 = getTouchesDistance(e.touches[0], e.touches[1]);
     const isMobile = window.matchMedia('(max-width: 1024px)').matches;
 
-    // Escala del gesto
-    let ratio = d1 / d0;
+    let newScale;
 
-    // Suavizado en móvil (reduce sensibilidad del pinch)
-    if (isMobile) ratio = Math.pow(ratio, 0.85);
+    if (isMobile) {
+      // Zona muerta para evitar “saltos” iniciales
+      if (Math.abs(d1 - d0) < MOBILE_PINCH_DEADBAND) return;
 
-    // Límite máximo: móvil más bajo, escritorio como lo tenías
-    const MAX = isMobile ? 2.2 : 5;
+      // Ratio amortiguado
+      const ratio = d1 / d0;
+      const damp = 1 + (ratio - 1) * MOBILE_PINCH_DAMPING; // 0.6 = suave
+      newScale = pinchStartScale * damp;
 
-    let newScale = pinchStartScale * ratio;
-    newScale = Math.max(1, Math.min(MAX, newScale));
+      // Tope bajo en móvil
+      newScale = Math.max(1, Math.min(MOBILE_PINCH_MAX, newScale));
+    } else {
+      // Escritorio como antes
+      newScale = pinchStartScale * (d1 / d0);
+      newScale = Math.max(1, Math.min(5, newScale));
+    }
 
     if (Math.abs(newScale - currentScale) > 0.0001) {
       currentScale = newScale;
       aplicarZoom(true);
     }
   }
+}
+
+function onTouchEndImg() {
+  if (!isPinching) return;
+  isPinching = false;
+  pinchStartDistance = 0;
+  pinchStartScale = currentScale;
+  if (currentImage) currentImage.style.transition = '';
+  document.removeEventListener('touchmove', onTouchMoveImg);
+  document.removeEventListener('touchend', onTouchEndImg);
+  aplicarZoom(true);
 }
 
 function getTouchesDistance(t1, t2) { const dx = t2.clientX - t1.clientX, dy = t2.clientY - t1.clientY; return Math.hypot(dx, dy); }
@@ -1175,12 +1209,13 @@ function aplicarZoom(noTransition = false) {
     translateY = 0;
     modalEl?.classList.remove('is-zoomed');
     currentImage.style.transform = `scale(1) translate3d(0px, 0px, 0)`;
-    // Restaura info en móvil si sales de zoom
+    // Restaura info en móvil si sales de zoom (inline, sin depender de closures)
     if (isMobileViewport) {
       modalEl.style.removeProperty('--info-height');
       const info = modalEl.querySelector('.modal-info');
       if (info) info.style.display = '';
-      setInfoHeight(getCollapsed()); // O getExpanded() si prefieres expandido por default
+      const collapsed = window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh';
+      modalEl.style.setProperty('--info-height', collapsed);
       // Reflow para restaurar
       modalEl.offsetHeight;
     }
@@ -1434,10 +1469,12 @@ setInfoHeight(target);
 }
 
 // ===== Fullscreen / scroll lock =====
+// [PARCHE] toggleFullscreen integrado con fallback limpio y zoom pequeño móvil
 function toggleFullscreen() {
   const modal = document.getElementById('modal');
   if (!modal) return;
   const btn = modal.querySelector('.fullscreen-toggle');
+  const isMobile = window.matchMedia('(max-width: 1024px)').matches;
 
   const restorePanel = () => {
     modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
@@ -1454,55 +1491,17 @@ function toggleFullscreen() {
     aplicarZoom(true);
   };
 
-  if (!document.fullscreenElement) {
-  // ENTRAR en fullscreen
-  if (modal.requestFullscreen) {
-    modal.requestFullscreen({ navigationUI: 'hide' })
-      .then(() => {
-        // Móvil: ajustar a pantalla (sin zoom gigante)
-        const isMobile = window.matchMedia('(max-width: 1024px)').matches;
-        if (isMobile) {
-          currentScale = 1; translateX = 0; translateY = 0;
-          aplicarZoom(true);
-        }
-        btn?.classList.add('is-active');
-
-        // Reposicionar controles en escritorio
-        scheduleFsBtnLayout?.();
-      })
-      .catch(() => {
-        // Fallback si falla la API nativa
-        modal.classList.add('fs-active');
-        btn?.classList.add('is-active');
-
-        const isMobile = window.matchMedia('(max-width: 1024px)').matches;
-        if (isMobile) {
-          // Ajusta a pantalla sin zoom y fuerza alto completo para evitar bandas
-          currentScale = 1; translateX = 0; translateY = 0;
-          aplicarZoom(true);
-
-          modal.style.setProperty('--info-height', '0dvh');
-          const info = modal.querySelector('.modal-info'); if (info) info.style.display = 'none';
-          const imgContainer = modal.querySelector('.modal-img-container');
-          if (imgContainer) { imgContainer.style.height = '100dvh'; imgContainer.style.maxHeight = '100dvh'; }
-          const content = modal.querySelector('.modal-content');
-          if (content) { content.style.height = '100dvh'; content.style.padding = '0'; }
-          void modal.offsetHeight; // reflow
-        }
-
-        // Reposicionar controles en escritorio
-        scheduleFsBtnLayout?.();
-      });
-  } else {
-    // Sin API nativa
+  const enterFsFallback = () => {
     modal.classList.add('fs-active');
     btn?.classList.add('is-active');
 
-    const isMobile = window.matchMedia('(max-width: 1024px)').matches;
     if (isMobile) {
-      currentScale = 1; translateX = 0; translateY = 0;
+      // Mismo “zoom pequeño” que en tap
+      currentScale = MOBILE_CLICK_ZOOM;
+      translateX = 0; translateY = 0;
       aplicarZoom(true);
 
+      // Fuerza alto completo y oculta ficha en fallback
       modal.style.setProperty('--info-height', '0dvh');
       const info = modal.querySelector('.modal-info'); if (info) info.style.display = 'none';
       const imgContainer = modal.querySelector('.modal-img-container');
@@ -1512,26 +1511,46 @@ function toggleFullscreen() {
       void modal.offsetHeight; // reflow
     }
 
-    // Reposicionar controles en escritorio
+    scheduleFsBtnLayout?.();
+  };
+
+  // Considera nativo y fallback
+  const isFsActive = !!document.fullscreenElement || modal.classList.contains('fs-active');
+
+  if (!isFsActive) {
+    // ENTRAR
+    if (modal.requestFullscreen) {
+      modal.requestFullscreen({ navigationUI: 'hide' })
+        .then(() => {
+          btn?.classList.add('is-active');
+          if (isMobile) {
+            currentScale = MOBILE_CLICK_ZOOM;
+            translateX = 0; translateY = 0;
+            aplicarZoom(true);
+          }
+          scheduleFsBtnLayout?.();
+        })
+        .catch(() => enterFsFallback());
+    } else {
+      enterFsFallback();
+    }
+  } else {
+    // SALIR
+    if (document.fullscreenElement && document.exitFullscreen) {
+      try { document.exitFullscreen(); } catch (_) {}
+    }
+    restorePanel();
+    btn?.classList.remove('is-active');
+
+    // En móvil: al salir, deja la ficha en colapsado si no hay zoom
+    if (isMobile && currentScale <= 1) {
+      const collapsed = window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh';
+      modal.style.setProperty('--info-height', collapsed);
+      void modal.offsetHeight;
+    }
+
     scheduleFsBtnLayout?.();
   }
-} else {
-  // SALIR de fullscreen
-  if (document.exitFullscreen) document.exitFullscreen();
-  restorePanel();
-  btn?.classList.remove('is-active');
-
-  // Ajuste adicional en móvil al salir: deja el bottom sheet en colapsado
-  const isMobile = window.matchMedia('(max-width: 1024px)').matches;
-  if (isMobile && currentScale <= 1) {
-    const collapsed = window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh';
-    modal.style.setProperty('--info-height', collapsed);
-    void modal.offsetHeight;
-  }
-
-  // Reposicionar controles en escritorio
-  scheduleFsBtnLayout?.();
-}
 }
 
 
@@ -1623,12 +1642,21 @@ function hookImgTransformEndOnce() {
 
 
 function initMobileRotationHandler() {
-let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
-window.addEventListener('resize', () => {
-const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
-if (last !== now && isModalOpen) {}
-last = now;
-});
+  let last = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+  window.addEventListener('resize', () => {
+    const now = window.innerHeight > window.innerWidth ? 'portrait' : 'landscape';
+    if (last !== now && isModalOpen) {
+      const modal = document.getElementById('modal');
+      if (modal) {
+        if (currentScale <= 1) {
+          const collapsed = window.matchMedia('(orientation: landscape)').matches ? '20dvh' : '26dvh';
+          modal.style.setProperty('--info-height', collapsed);
+        }
+      }
+      scheduleFsBtnLayout?.();
+    }
+    last = now;
+  });
 }
 function lockBodyScroll() {
 __scrollLockY = window.scrollY || document.documentElement.scrollTop || 0;
@@ -1650,6 +1678,7 @@ document.body.style.width = '';
 if (isBodyLocked) { window.scrollTo(0, __scrollLockY || 0); }
 isBodyLocked = false;
 }
+// [PARCHE] closeModal limpia listeners de pinch
 function closeModal() {
   const modal = document.getElementById('modal');
   if (!modal) return;
@@ -1658,6 +1687,10 @@ function closeModal() {
 
   // Desactiva el auto-layout del botón fullscreen
   bindFsBtnAutoLayout(false);
+
+  // Limpia listeners de pinch si hubiera gestos a medias
+  document.removeEventListener('touchmove', onTouchMoveImg);
+  document.removeEventListener('touchend', onTouchEndImg);
 
   modal.style.display = 'none';
   modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
