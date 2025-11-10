@@ -480,3 +480,45 @@
     --card-min: 360px;    /* tarjetas un poquito más anchas */
   }
 }
+/* ===== FIN ancho y márgenes (desktop) ===== */
+
+/* ===== TV: barra de secciones en una sola línea ===== */
+@media (min-width: 1025px) {
+  /* Con clase is-tv (preferido, ver JS abajo) */
+  body.is-tv .site-nav {
+    display: flex;
+    flex-wrap: nowrap;           /* no permitir salto de línea */
+    gap: clamp(6px, 0.8vw, 12px);
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;         /* evita el wrap en los enlaces */
+  }
+  body.is-tv .site-nav .nav-link {
+    font-size: clamp(0.78rem, 0.9vw, 0.95rem);
+    padding: .25rem clamp(6px, 0.8vw, 12px);
+    letter-spacing: .2px;
+    white-space: nowrap;
+  }
+
+  /* Fallback aproximado para TVs 1080p si no se marca la clase (UA) */
+  @media (min-width: 1600px) and (max-height: 1100px) {
+    .site-nav {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: clamp(6px, 0.8vw, 12px);
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    .site-nav .nav-link {
+      font-size: clamp(0.8rem, 0.9vw, 0.95rem);
+      padding: .25rem clamp(6px, 0.8vw, 12px);
+      white-space: nowrap;
+    }
+  }
+}
+/* ===== FIN barra secciones 1 línea ===== */
+
+
+
+
