@@ -432,8 +432,8 @@
 /* ===== Unificar anchos y márgenes (desktop) ===== */
 @media (min-width: 1200px) {
   :root{
-    /* Un pelín más ancho que antes */
-    --site-max: 1320px;
+    /* Un pelín más ancho que antes cambiado de 1320px */
+    --site-max: 1360px;
     --site-pad: clamp(18px, 2.5vw, 36px);
     --grid-gap: clamp(16px, 1.8vw, 28px);
     --card-min: 340px;           /* tarjetas algo más anchas */
