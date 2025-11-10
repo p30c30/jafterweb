@@ -1,5 +1,5 @@
 /* ================================================================ */
-/* == ARCHIVO MODAL.CSS - AJUSTES FINALES (v36.1) == */
+/* == ARCHIVO MODAL.CSS - AJUSTES FINALES (v36.2) == */
 /* ================================================================ */
 /* === ESTILO BASE Y FOTO === */
 .modal{
@@ -25,12 +25,14 @@
 .modal-img.zoomed{ cursor:move; }
 .modal-img.grabbing{ cursor:grabbing !important; }
 body.modal-open{ overflow:hidden; }
+
 /* === ZONAS CALIENTES (HOTSPOTS) === */
 .modal-hotspot { position: fixed; z-index: 1001; }
 .modal-hotspot.left { top: 0; left: 0; width: 20%; height: 100%; cursor: pointer; }
 .modal-hotspot.right { top: 0; right: 0; width: 20%; height: 100%; cursor: pointer; }
 .modal-hotspot.bottom{ bottom: 0; left: 0; width: 100%; height: 20%; }
 .modal-hotspot.top { top: 0; left: 0; width: 100%; height: 15%; }
+
 /* === POSICIONAMIENTO Y ESTILO DE UI === */
 .close-modal{
   position:fixed; top:20px; right:20px;
@@ -61,6 +63,7 @@ body.modal-open{ overflow:hidden; }
   transform:translateY(-50%) scale(1.12);
   box-shadow:0 0 20px rgba(253,184,19,.5);
 }
+
 /* Panel de info (glass) */
 .modal-info{
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
@@ -73,6 +76,7 @@ body.modal-open{ overflow:hidden; }
   width:auto; min-width:300px; max-width:90%; color:#fff;
   transition: opacity .3s ease-out, transform .2s ease;
 }
+
 /* Fullscreen toggle */
 .fullscreen-toggle{
   position:absolute; right:10px; bottom:10px; width:42px; height:42px;
@@ -90,6 +94,7 @@ body.modal-open{ overflow:hidden; }
 .fullscreen-toggle .ico-exit{ display:none; }
 .fullscreen-toggle.is-active .ico-enter{ display:none; }
 .fullscreen-toggle.is-active .ico-exit{ display:inline; }
+
 /* === CONTENIDO DEL PANEL === */
 .modal-title{ display:none !important; }
 .foto-counter{ color:#FDB813; font-size:1rem; font-weight:bold; margin-bottom:.5rem; text-shadow:0 1px 2px rgba(0,0,0,.8); }
@@ -101,6 +106,7 @@ body.modal-open{ overflow:hidden; }
   transition: transform .15s, box-shadow .2s, background .2s;
 }
 .section-chip:hover{ background:rgba(253,184,19,.3); box-shadow:0 0 12px rgba(253,184,19,.3); transform:translateY(-1px); }
+
 /* === ESTADOS === */
 .modal.is-zoomed .modal-info,
 .modal.is-gesturing .modal-info{
@@ -109,6 +115,7 @@ body.modal-open{ overflow:hidden; }
 }
 .modal.fs-active { --info-height:0dvh; }
 .modal.fs-active .modal-info { display:none !important; }
+
 /* === SOLO ESCRITORIO: UI oculta por defecto; visible con .visible === */
 @media (min-width: 1025px) {
   .nav-button, .modal-info, .close-modal, .fullscreen-toggle {
@@ -123,6 +130,7 @@ body.modal-open{ overflow:hidden; }
   #modal .close-modal { transform: scale(0.98); }
   #modal .close-modal.visible { transform: scale(1); }
 }
+
 /* === MÓVIL: Bottom Sheet y UI visible (sin hotspots) === */
 @media (max-width:1024px){
   .modal-hotspot { display: none !important; }
@@ -163,6 +171,7 @@ body.modal-open{ overflow:hidden; }
 @media (max-width:480px){ .modal { --info-height:30dvh; } .foto-title { font-size:.9rem; } }
 @media (min-width:1600px){ .modal-info { max-width:70%; } }
 @supports (padding:max(0px)){ .modal-info{ padding-bottom:max(1rem, env(safe-area-inset-bottom)); } }
+
 /* FIX móvil: asegura que la info sea visible al abrir */
 @media (max-width:1024px){
   /* Estructura de layout */
@@ -230,6 +239,7 @@ body.modal-open{ overflow:hidden; }
     overflow-y: auto !important;
   }
 }
+
 /* ===== Modal: panel info invisible (solo texto + botón sección) ===== */
 #modal .modal-info {
   background: transparent !important;
@@ -295,31 +305,7 @@ body.modal-open{ overflow:hidden; }
 }
 /* (El contador ya lo comentaste en JS, si hiciera falta ocultarlo por CSS, descomenta la línea de abajo) */
 /* #modal .modal-info .foto-counter { display: none !important; } */
-/* ===== OPCIÓN ALTERNATIVA: panel ultra-sutil (descomenta para usar) ===== */
-/*
-#modal .modal-info {
-  background: linear-gradient(to top, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.02) 100%) !important;
-  backdrop-filter: blur(2px) saturate(115%);
-  -webkit-backdrop-filter: blur(2px) saturate(115%);
-  border: 0 !important;
-  box-shadow: none !important;
-  padding: .6rem .9rem .75rem;
-}
-#modal .modal-info::before { display: none !important; }
-#modal .modal-info .foto-title {
-  color: #fff; opacity: .95; text-shadow: 0 1px 2px rgba(0,0,0,.45);
-}
-#modal .modal-info .section-chip {
-  background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important;
-  color: var(--accent, #FDB813); display: inline-flex; align-items: center; gap: .4rem; font-weight: 500; line-height: 1.25;
-}
-#modal .modal-info .info-handle {
-  width: 40px; height: 10px; margin: 2px auto 6px;
-  opacity: .25; background: rgba(255,255,255,.15); border-radius: 999px;
-}
-#modal .modal-info .foto-counter { display: none !important; }
-*/
-/* Escritorio: ===BOTON PANTALLA COMPLETA POR FUERA DE LA FOTO===, esquina inferior derecha */
+
 /* ===== Escritorio: capas correctas + fullscreen por fuera y pegado (JS) ===== */
 @media (min-width: 1025px) {
   #modal .modal-content {
@@ -358,24 +344,25 @@ body.modal-open{ overflow:hidden; }
   #modal .modal-info { z-index: 1200 !important; }
 }
 
+/* En landscape: eliminar info y expandir imagen al máximo */
 @media (max-width:1024px) and (orientation: landscape) {
   .modal.is-zoomed .modal-info { 
-    display: none !important; /* Elimina info por completo en landscape zoom/fullscreen */
+    display: none !important;
   }
   .modal-img-container {
-    height: 100dvh !important; /* Expande imagen al máximo, sin franja */
+    height: 100dvh !important;
   }
 }
 
-/* Fix agresivo para banda negra en zoom móvil: full-screen en portrait Y landscape */
+/* Fix agresivo para bandas en zoom móvil y FS */
 @media (max-width: 1024px) {
   .modal.is-zoomed,
   .modal.fs-active {
-    --info-height: 0dvh !important; /* Colapsa info al mínimo en zoom/fullscreen */
+    --info-height: 0dvh !important;
   }
   .modal.is-zoomed .modal-info,
   .modal.fs-active .modal-info {
-    display: none !important; /* Elimina info por completo */
+    display: none !important;
     height: 0 !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -383,7 +370,7 @@ body.modal-open{ overflow:hidden; }
   }
   .modal.is-zoomed .modal-content,
   .modal.fs-active .modal-content {
-    height: 100dvh !important; /* Todo el viewport dinámico */
+    height: 100dvh !important;
     padding: 0 !important;
     min-height: 0 !important;
     overflow: hidden !important;
@@ -393,11 +380,11 @@ body.modal-open{ overflow:hidden; }
   .modal.is-zoomed #modal-content-wrapper,
   .modal.fs-active #modal-content-wrapper {
     height: 100dvh !important;
-    padding-bottom: env(safe-area-inset-bottom, 0px) !important; /* Soporte para notches/barras en portrait/landscape */
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
   }
   .modal.is-zoomed .modal-img-container,
   .modal.fs-active .modal-img-container {
-    height: 100dvh !important; /* Imagen ocupa TODO el alto, sin bandas */
+    height: 100dvh !important;
     max-height: 100dvh !important;
     width: 100% !important;
     padding: 0 !important;
@@ -409,26 +396,55 @@ body.modal-open{ overflow:hidden; }
   }
   .modal.is-zoomed .modal-img,
   .modal.fs-active .modal-img {
-    max-height: none !important; /* Permite expansión libre en zoom */
+    max-height: none !important;
     height: auto !important;
     width: auto !important;
     max-width: none !important;
   }
 }
-
-/* Refuerzo específico para landscape: asegura full en horizontal */
 @media (max-width: 1024px) and (orientation: landscape) {
   .modal.is-zoomed .modal-img-container,
   .modal.fs-active .modal-img-container {
     height: 100dvh !important;
-    padding-bottom: env(safe-area-inset-bottom, 0px) !important; /* Extra para barras laterales en algunos dispositivos */
+    padding-bottom: env(safe-area-inset-bottom, 0px) !important;
   }
 }
-
-/* Limpieza al salir de zoom: restaura sin bandas */
 .modal:not(.is-zoomed):not(.fs-active) .modal-img-container {
   height: calc(100dvh - var(--info-height)) !important;
 }
 
+/* ===== MODO CAPTION MÓVIL (sin bottom sheet) — override final ===== */
+@media (max-width: 1024px){
+  body.mobile-caption-mode #modal .modal-info{ display:none !important; }
 
+  body.mobile-caption-mode #modal .modal-content{
+    height:100dvh !important; min-height:100dvh !important; padding:0 !important;
+    flex-direction:column !important; justify-content:center !important; align-items:center !important;
+  }
+  body.mobile-caption-mode #modal .modal-img-container{
+    width:100vw !important; max-width:100vw !important;
+    height:100dvh !important; max-height:100dvh !important;
+    position:relative !important; display:flex !important; align-items:center !important; justify-content:center !important;
+    overflow:visible !important;
+  }
+  body.mobile-caption-mode #modal .modal-img{
+    max-width:100vw !important; max-height:100dvh !important;
+    width:auto !important; height:auto !important; object-fit:contain !important;
+    border-radius:0 !important; box-shadow:none !important;
+    touch-action:none !important; user-select:none !important; -webkit-user-drag:none !important;
+  }
+  /* Caption centrado inferior, 1 línea con … */
+  body.mobile-caption-mode #modal .mobile-caption{
+    position:absolute; left:14px; right:14px; bottom:calc(env(safe-area-inset-bottom, 0) + 8px);
+    color:#fff; text-align:center; font-size:14px; line-height:1.35;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    text-shadow:0 1px 2px rgba(0,0,0,.9), 0 0 12px rgba(0,0,0,.35);
+    pointer-events:none; opacity:1; transition:opacity .2s ease; z-index:2;
+  }
+  body.mobile-caption-mode #modal.is-zoomed .mobile-caption{ opacity:0 !important; }
+
+  /* Sin flechas ni hotspots en móvil para no interferir */
+  body.mobile-caption-mode #modal .nav-button,
+  body.mobile-caption-mode #modal .modal-hotspot{ display:none !important; }
+}
 

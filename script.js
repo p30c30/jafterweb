@@ -9,11 +9,11 @@ let currentScale = 1, currentImage = null, isDragging = false, startX, startY, t
 let animationFrameId = null, isPinching = false, pinchStartDistance = 0, pinchStartScale = 1;
 const defaultClickZoom = 1.3;
 // Solo móvil (suaviza zoom en tap/pinch/FS)
-const MOBILE_CLICK_ZOOM = 1.15; // zoom de un toque
-const MOBILE_PINCH_MAX = 1.8; // tope de pellizco
-const MOBILE_PINCH_DAMPING = 0.6; // amortiguación (se usa como exponente)
+const MOBILE_CLICK_ZOOM = 1.10; // zoom de un toque
+const MOBILE_PINCH_MAX = 1.6; // tope de pellizco
+const MOBILE_PINCH_DAMPING = 0.5; // amortiguación (se usa como exponente)
 const MOBILE_PINCH_DEADBAND = 6; // píxeles de “zona muerta”
-const MOBILE_PINCH_MAX_STEP = 0.09; // delta máximo por frame de pinch (suaviza)
+const MOBILE_PINCH_MAX_STEP = 0.06; // delta máximo por frame de pinch (suaviza)
 const PINCH_SUPPRESS_TAP_MS = 350; // ventana en la que se ignoran taps tras pinch
 // Modo caption móvil dentro de la foto
 const USE_MOBILE_OVERLAY_CAPTION = true;
@@ -728,6 +728,7 @@ if (USE_MOBILE_OVERLAY_CAPTION && isMobileViewport) {
   cap.textContent = title || '';
   const info = modal.querySelector('.modal-info');
   if (info) info.style.display = 'none';
+  document.body.classList.add('mobile-caption-mode');
 }
 configurarEventosModal();
 bindFsBtnAutoLayout(true);
@@ -1126,7 +1127,7 @@ function aplicarZoom(noTransition = false) {
   if (noTransition) currentImage.style.transition = 'none';
   else if (!isPinching) currentImage.style.transition = 'transform 0.2s ease';
   clampPan();
-  currentImage.style.transform = `scale(${currentScale}) translate3d(${translateX}px, ${translateY}px, 0)`;
+  currentImage.style.transform = `translate3d(${translateX}px, ${translateY}px, 0) scale(${currentScale})`;
   currentImage.style.transformOrigin = 'center center';
   const modalEl = document.getElementById('modal');
   const isMobileViewport = window.matchMedia('(max-width: 1024px)').matches;
@@ -1499,6 +1500,7 @@ function closeModal() {
     fullscreenChangeHandler = null;
   }
 
+  document.body.classList.remove('mobile-caption-mode');
   modal.innerHTML = '';
   unlockBodyScroll();
 
@@ -1526,6 +1528,7 @@ const modal = document.getElementById('modal');
 if (modal) {
 modal.innerHTML = '';
 modal.classList.remove('active', 'is-zoomed', 'is-gesturing', 'fs-active');
+document.body.classList.remove('mobile-caption-mode');
 document.body.classList.remove('modal-open'); resetZoom();
 if (fullscreenChangeHandler) { document.removeEventListener('fullscreenchange', fullscreenChangeHandler); fullscreenChangeHandler = null; }
 }
