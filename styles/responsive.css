@@ -429,19 +429,15 @@
   }
 }
 
-/* ===== Unificar anchos y márgenes (desktop) ===== */
+/* ===== Sección: mismo ancho para header y grid + 4 columnas en escritorio ===== */
 @media (min-width: 1200px) {
   :root{
-    /* Un pelín más ancho que antes cambiado de 1320px */
-    --site-max: 1360px;
-    --site-pad: clamp(18px, 2.5vw, 36px);
-    --grid-gap: clamp(16px, 1.8vw, 28px);
-    --card-min: 340px;           /* tarjetas algo más anchas */
+    --site-max: 1320px;                     /* ancho máximo de referencia */
+    --site-pad: clamp(18px, 2.5vw, 36px);   /* padding lateral */
+    --grid-gap: clamp(16px, 1.8vw, 28px);   /* separación entre miniaturas */
   }
 
-  /* Mismo ancho para portada (grid de tarjetas) y secciones (header + grid) */
-  .home-view .section-cards,
-  #secciones-container,
+  /* Mismo ancho y márgenes para header y grid */
   .seccion-view .seccion-header,
   .seccion-view .fotos-grid{
     max-width: min(var(--site-max), 94vw);
@@ -451,32 +447,59 @@
     padding-right: var(--site-pad);
   }
 
-  /* Portada: grid fluido, centrado, con gap consistente */
-  .home-view .section-cards,
-  #secciones-container{
+  /* Grid de miniaturas: 4 columnas */
+  .seccion-view .fotos-grid{
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--grid-gap);
   }
 
-  /* Tarjetas: mostrar la foto COMPLETA (como las miniaturas), sin recortes ni deformación */
-  .home-view .card-image,
-  #secciones-container .card-image{
+  /* Miniaturas completas, sin deformación */
+  .seccion-view .fotos-grid .foto-miniatura{
     width: 100%;
     height: auto !important;
-    aspect-ratio: auto !important;        /* anula “cuadrado” si quedó de antes */
-    object-fit: contain !important;       /* muestra la imagen entera */
+    object-fit: contain;      /* muestra la imagen entera */
     object-position: center;
     display: block;
-    background: #0b0b0b;                  /* por si la imagen no llena vertical */
-    border-radius: 12px;
   }
 }
 
-/* Ajuste pantallas muy grandes (opcional) */
-@media (min-width: 1600px) {
-  :root{
-    --site-max: 1440px;   /* un extra de ancho en 1600+ */
-    --card-min: 360px;    /* tarjetas un poquito más anchas */
+/* Tablets anchas (3 columnas) */
+@media (min-width: 992px) and (max-width: 1199px){
+  .seccion-view .seccion-header,
+  .seccion-view .fotos-grid{
+    max-width: min(1200px, 94vw);
+    padding-left: clamp(16px, 2.5vw, 28px);
+    padding-right: clamp(16px, 2.5vw, 28px);
+  }
+  .seccion-view .fotos-grid{
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(14px, 2vw, 24px);
   }
 }
+
+/* Tablets (2 columnas) */
+@media (min-width: 768px) and (max-width: 991px){
+  .seccion-view .seccion-header,
+  .seccion-view .fotos-grid{
+    max-width: 96vw;
+    padding-left: clamp(14px, 3vw, 24px);
+    padding-right: clamp(14px, 3vw, 24px);
+  }
+  .seccion-view .fotos-grid{
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(12px, 2.5vw, 20px);
+  }
+}
+
+/* Opcional: muy grandes (5 columnas si quieres más densidad) */
+/*
+@media (min-width: 1600px){
+  :root{ --site-max: 1440px; }
+  .seccion-view .fotos-grid{
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+*/
