@@ -1302,6 +1302,8 @@ if (USE_MOBILE_OVERLAY_CAPTION) {
 }
 
 // ===== Fullscreen / scroll lock =====
+// ===== Fullscreen / scroll lock =====
+// En móvil: entrar en fullscreen SIN cambiar el zoom actual (sin MOBILE_CLICK_ZOOM)
 function toggleFullscreen() {
   const modal = document.getElementById('modal');
   if (!modal) return;
@@ -1309,6 +1311,7 @@ function toggleFullscreen() {
   const isMobile = window.matchMedia('(max-width: 1024px)').matches;
 
   const restorePanel = () => {
+    // Restablece estados visuales; mantenemos tu reset actual a escala 1 al salir
     modal.classList.remove('fs-active', 'is-gesturing', 'is-zoomed');
     currentScale = 1; translateX = 0; translateY = 0;
 
@@ -1324,37 +1327,32 @@ function toggleFullscreen() {
   };
 
   const enterFsFallback = () => {
+    // Fallback sin tocar el zoom
     modal.classList.add('fs-active');
     btn?.classList.add('is-active');
-
-    if (isMobile) {
-      currentScale = MOBILE_CLICK_ZOOM;
-      translateX = 0; translateY = 0;
-      aplicarZoom(true);
-    }
-
+    // Mantén el zoom tal cual
+    aplicarZoom(true);
     scheduleFsBtnLayout?.();
   };
 
   const isFsActive = !!document.fullscreenElement || modal.classList.contains('fs-active');
 
   if (!isFsActive) {
+    // ENTRAR en fullscreen (sin zoom en móvil)
     if (modal.requestFullscreen) {
       modal.requestFullscreen({ navigationUI: 'hide' })
         .then(() => {
           btn?.classList.add('is-active');
-          if (isMobile) {
-            currentScale = MOBILE_CLICK_ZOOM;
-            translateX = 0; translateY = 0;
-            aplicarZoom(true);
-          }
-          scheduleFsBtnLayout?.();
+          // No cambiamos currentScale en móvil: SIN zoom extra
+          aplicarZoom(true);           // re-aplica transform actual
+          scheduleFsBtnLayout?.();     // reposiciona el botón en desktop
         })
         .catch(() => enterFsFallback());
     } else {
       enterFsFallback();
     }
   } else {
+    // SALIR de fullscreen
     if (document.fullscreenElement && document.exitFullscreen) {
       try { document.exitFullscreen(); } catch (_) {}
     }
