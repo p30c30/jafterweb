@@ -519,6 +519,48 @@
 }
 /* ===== FIN barra secciones 1 línea ===== */
 
+/* ===== FIX móvil: usar grid estable en lugar de columns para miniaturas de sección ===== */
+@media (max-width: 767px){
+  .seccion-view .fotos-grid{
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: var(--masonry-gap, .8rem) !important;
+    padding: 0 var(--masonry-gap, .8rem) !important;
 
+    /* Anula por completo el layout por columnas si estaba activo */
+    -webkit-column-count: initial !important;
+    -moz-column-count: initial !important;
+    column-count: initial !important;
+    -webkit-column-gap: initial !important;
+    -moz-column-gap: initial !important;
+    column-gap: initial !important;
+    line-height: normal !important;
+  }
 
+  .seccion-view .fotos-grid .foto-item{
+    display: block !important;
+    width: auto !important;
+    margin: 0 0 var(--masonry-gap, .8rem) 0 !important;
+    break-inside: auto !important;
+  }
+
+  .seccion-view .fotos-grid .foto-miniatura{
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important; /* se ve la miniatura completa */
+    object-position: center;
+  }
+}
+
+/* Móviles muy pequeños (opcional) */
+@media (max-width: 480px){
+  .seccion-view .fotos-grid{
+    gap: .6rem !important;
+    padding: 0 .6rem !important;
+  }
+  .seccion-view .fotos-grid .foto-item{
+    margin-bottom: .6rem !important;
+  }
+}
 

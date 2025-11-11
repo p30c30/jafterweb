@@ -242,6 +242,12 @@ setTimeout(iniciar, 1000);
 initMobileRotationHandler();
 initHistoryHandler();
 initResponsiveSocialBar();
+(function markTvUA(){
+  try {
+    const isTVUA = /TV|Tizen|Web0S|WebOS|Smart-?TV|BRAVIA|AFT|Shield|AppleTV/i.test(navigator.userAgent);
+    if (isTVUA) document.body.classList.add('is-tv');
+  } catch(_) {}
+})();
 }
 // ===== Estado / navegación SPA =====
 function aplicarEstado(state) {
