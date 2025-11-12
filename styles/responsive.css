@@ -570,5 +570,6 @@
   font-weight: 600;      /* opcional, como en tus headers */
   letter-spacing: .5px;  /* opcional, mismo “aire” que el resto */
   line-height: 1.2;
-  margin: 0 0 .75rem;
+  margin: 0 0 clamp(16px, 2.6vw, 36px) !important;
+  
 }
