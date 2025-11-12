@@ -615,3 +615,50 @@
     line-height: 1.45;
   }
 }
+/* ===== FOTO Inspiración: usar ratio retrato 2:3 (976x1464) y mostrar foto completa ===== */
+
+/* Usa variable por si quieres cambiar el ratio más adelante */
+:root { --insp-img-ratio: 2 / 3; } /* 976/1464 simplifica a 2/3 */
+
+/* Escritorio: mantiene el marco general, solo la caja de la foto pasa a 2:3 */
+@media (min-width: 1025px){
+  #inspiration-section .inspiration-image{
+    position: relative !important;
+    aspect-ratio: var(--insp-img-ratio) !important; /* antes 1/1 */
+    overflow: hidden !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+  #inspiration-section .inspiration-image img{
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;         /* ver la foto completa */
+    object-position: center center !important; /* anula el center 20% */
+  }
+}
+
+/* Móvil: el retrato va debajo del texto; ajusta el marco al 2:3 y centra */
+@media (max-width: 1024px){
+  #inspiration-section .inspiration-image{
+    position: relative !important;
+    width: 95% !important;
+    max-width: 400px !important;            /* ajusta aquí si la quieres algo mayor (p.ej. 420px) */
+    margin: 0 auto !important;
+    aspect-ratio: var(--insp-img-ratio) !important; /* antes 1/1 */
+    overflow: hidden !important;
+    display: grid !important;
+    place-items: center !important;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important;
+  }
+  #inspiration-section .inspiration-image img{
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;         /* ver la foto completa */
+    object-position: center center !important;
+  }
+}
+
