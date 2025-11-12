@@ -63,6 +63,7 @@ main,#content,.container,.home-view,.seccion-view,#inspiration-section,.ultimas-
   font-family: var(--font-base, inherit) !important; /* usa tu variable si existe, si no, hereda */
   font-weight: 600;      /* opcional, como en tus headers */
   letter-spacing: .5px;  /* opcional, mismo “aire” que el resto */
+  color: var(--accent, #FDB813);
   line-height: 1.2;
   margin: 0 0 .75rem;
 }
