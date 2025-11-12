@@ -564,3 +564,11 @@
   }
 }
 
+/* Título del carrusel con la misma fuente global del sitio */
+.ultimas-fotos-section > h2{
+  font-family: var(--font-base, inherit) !important; /* usa tu variable si existe, si no, hereda */
+  font-weight: 600;      /* opcional, como en tus headers */
+  letter-spacing: .5px;  /* opcional, mismo “aire” que el resto */
+  line-height: 1.2;
+  margin: 0 0 .75rem;
+}

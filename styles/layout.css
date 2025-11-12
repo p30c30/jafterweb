@@ -35,15 +35,6 @@
 #inspiration-section img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; border-radius: 8px; transition: transform .4s ease-out; }
 #inspiration-section > div:hover img { transform: scale(1.05); }
 
-/* Título del carrusel con la misma fuente global del sitio */
-.ultimas-fotos-section > h2{
-  font-family: var(--font-base, inherit) !important; /* usa tu variable si existe, si no, hereda */
-  font-weight: 600;      /* opcional, como en tus headers */
-  letter-spacing: .5px;  /* opcional, mismo “aire” que el resto */
-  color: var(--accent, #FDB813);
-  line-height: 1.2;
-  margin: 0 0 .75rem;
-}
 
 
 
