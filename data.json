@@ -167,8 +167,8 @@
                "texto":"Viaje solitario en la noche"
             },
             {
-               "miniatura":"https://live.staticflickr.com/65535/54908449006_f80110b355_b.jpg",
-               "url":"https://i.ibb.co/VYt1GmVg/Vias.jpg",
+               "miniatura":"https://live.staticflickr.com/65535/54908449006_db33cfc846_b.jpg",
+               "url":"https://i.ibb.co/WNM5XLkZ/Ultimo-tramo.jpg",
                "texto":"Último tramo"
             },
             {
@@ -190,6 +190,21 @@
                "miniatura":"https://live.staticflickr.com/65535/54915940865_9e30901592_b.jpg",
                "url":"https://i.ibb.co/sddrhdbq/Refugio-a-media-luz-1700.jpg",
                "texto":"Refugio a media luz"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54916523970_bf6da7e4d4_b.jpg",
+               "url":"https://i.ibb.co/7dxqQqcS/MG-9568-Mejorado-NR-Editar-20.jpg",
+               "texto":"Equilibrista nocturna"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54916481579_4d7836bd82_b.jpg",
+               "url":"https://i.ibb.co/DqTfFC8/Media-luna.jpg",
+               "texto":"Sonrisa de la noche"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54916494359_8ab8312976_b.jpg",
+               "url":"https://i.ibb.co/zVJ4D0c6/candado.jpg",
+               "texto":"Atrapado entre seda y acero"
             }
          ]
       },
@@ -302,8 +317,8 @@
                "texto":"Airbus A340-600 Compañía Alpha Star. Arabia Saudita. HZ-SKY"
             },
             {
-               "miniatura":"https://i.ibb.co/Zz71hpdy/colibri-2-miniatura-1024.jpg",
-               "url":"https://i.ibb.co/n8QVdcyY/colibri-2-2048.jpg",
+               "miniatura":"https://live.staticflickr.com/65535/54900307766_ccfc4eb1c7_b.jpg",
+               "url":"https://i.ibb.co/4gPm4Df2/colibri-1600.jpg",
                "texto":"Colibrí. Fuerza aérea española"
             },
             {
@@ -330,6 +345,51 @@
                "miniatura":"https://live.staticflickr.com/65535/54899630287_7cde0e6716_b.jpg",
                "url":"https://i.ibb.co/KcSKDjkK/portugues-en-base-2048.jpg",
                "texto":"C-295 Portugués"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54916280336_a18ff8d7d5_b.jpg",
+               "url":"https://i.ibb.co/pjG526PK/Malta-air-2048.jpg",
+               "texto":"Malta Air despegando al atardecer"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54882195192_d7283c9947_b.jpg",
+               "url":"https://i.ibb.co/HTS7HCQW/FAA-1-2048.jpg",
+               "texto":"Hércules C-130H de la 1.ª Brigada Aérea de la Fuerza Aérea Argentina"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54883286243_fc4184834b_b.jpg",
+               "url":"https://i.ibb.co/bMB2x3hs/FAA-2-2048.jpg",
+               "texto":"Hércules C-130H de la 1.ª Brigada Aérea de la Fuerza Aérea Argentina"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54883286338_d747c466ab_b.jpg",
+               "url":"https://i.ibb.co/Qj3VWC4T/FAA-3-2048.jpg",
+               "texto":"Hércules C-130H de la 1.ª Brigada Aérea de la Fuerza Aérea Argentina"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54278002675_e8ef280455_b.jpg",
+               "url":"https://i.ibb.co/DDpkJq6N/Qatar-A350-2048.jpg",
+               "texto":"Qatar A350 primer día en Málaga"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54266831157_737424170a_b.jpg",
+               "url":"https://i.ibb.co/Hfw8gQ40/Antonov-2048.jpg",
+               "texto":"Antonov"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54881762710_978dbf8c9e_b.jpg",
+               "url":"https://i.ibb.co/39pG1PMB/iberojet-a350-2048.jpg",
+               "texto":"Iberojet Airbus A350"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54917087763_e3744189d1_b.jpg",
+               "url":"https://i.ibb.co/p6jHDvVP/Airbus-C-295-MPA-Persuader-2048.jpg",
+               "texto":"Airbus C-295MPA Persuader"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54877103425_20b87e9f94_b.jpg",
+               "url":"https://i.ibb.co/NdtVtTHH/C-295-100-aniversario-2048.jpg",
+               "texto":"C-295 del Ala 35 con matrícula 35-08"
             }
          ]
       },
@@ -531,6 +591,11 @@
                "miniatura":"https://live.staticflickr.com/65535/54908977324_1fb4bdd2f0_b.jpg",
                "url":"https://i.ibb.co/tyTVg3N/Riogordo-1900.jpg",
                "texto":"Riogordo"
+            },
+            {
+               "miniatura":"https://live.staticflickr.com/65535/54918926830_436ccf95a1_b.jpg",
+               "url":"https://i.ibb.co/5gn49xCx/Espigon-termica-2048.jpg",
+               "texto":"Amanecer desde el espigon"
             }
 
          ]
